@@ -3,16 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analítico - Starken Tecnologia</title>
+    <title>Analíticos - Starken Tecnologia</title>
     <script src="../auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary-green: #4A6B54;
             --secondary-green: #7A9B84;
@@ -26,63 +21,26 @@
             --warning: #f39c12;
             --danger: #e74c3c;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background-color: var(--bg-gray);
             color: var(--text-dark);
             line-height: 1.6;
         }
-
-        .dashboard-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
+        .dashboard-container { display: flex; min-height: 100vh; }
         .sidebar {
             width: 260px;
             background-color: var(--primary-green);
             color: var(--white);
-            padding: 0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
-
-        .sidebar-header {
-            padding: 30px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .logo-image {
-            width: 140px;
-            height: auto;
-            display: block;
-            margin: 0 auto 15px;
-            
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--white);
-            text-align: center;
-            letter-spacing: 1px;
-        }
-
-        .company-info {
-            text-align: center;
-            font-size: 11px;
-            color: rgba(255,255,255,0.7);
-            margin-top: 8px;
-        }
-
-        .sidebar-nav {
-            padding: 20px 0;
-        }
-
+        .sidebar-header { padding: 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo-image { width: 140px; height: auto; display: block; margin: 0 auto 15px; }
+        .company-info { text-align: center; font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 8px; }
+        .sidebar-nav { padding: 20px 0; }
         .nav-item {
             padding: 14px 25px;
             cursor: pointer;
@@ -93,401 +51,96 @@
             text-decoration: none;
             border-left: 3px solid transparent;
         }
-
-        .nav-item:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: var(--white);
-            border-left-color: var(--light-green);
-        }
-
-        .nav-item.active {
-            background-color: rgba(255,255,255,0.15);
-            color: var(--white);
-            border-left-color: var(--white);
-            font-weight: 600;
-        }
-
-        .nav-icon {
-            margin-right: 12px;
-            font-size: 18px;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 30px;
-        }
-
-        .page-header {
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-        }
-
-        .page-title-section {
-            flex: 1;
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .page-subtitle {
-            color: var(--text-light);
-            font-size: 14px;
-        }
-
-        /* Filters Section */
-        .filters-section {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            margin-bottom: 30px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .filter-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-select {
-            padding: 10px 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--white);
-            color: var(--text-dark);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 180px;
-        }
-
-        .filter-select:hover,
-        .filter-select:focus {
-            border-color: var(--primary-green);
-            outline: none;
-        }
-
-        /* KPI Cards */
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: var(--white); border-left-color: var(--light-green); }
+        .nav-item.active { background-color: rgba(255,255,255,0.15); color: var(--white); border-left-color: var(--white); font-weight: 600; }
+        .nav-icon { margin-right: 12px; font-size: 18px; }
+        .main-content { flex: 1; margin-left: 260px; padding: 30px; }
+        .page-header { margin-bottom: 30px; }
+        .page-title { font-size: 28px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-light); font-size: 14px; }
+        
+        /* KPI Grid */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
-
+        
+        @media (max-width: 1400px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .kpi-grid { grid-template-columns: 1fr; } }
+        
         .kpi-card {
             background: var(--white);
-            padding: 25px;
             border-radius: 12px;
+            padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease;
         }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-        }
-
-        .kpi-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .kpi-title {
-            font-size: 13px;
+        
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+        
+        .kpi-label {
+            font-size: 12px;
             color: var(--text-light);
-            text-transform: uppercase;
             font-weight: 600;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 10px;
         }
-
-        .kpi-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
+        
         .kpi-value {
             font-size: 32px;
             font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 8px;
+            color: var(--primary-green);
+            margin-bottom: 5px;
         }
-
-        .kpi-change {
+        
+        .kpi-trend {
             font-size: 13px;
             color: var(--text-light);
         }
-
-        .kpi-change.positive {
-            color: var(--success);
-        }
-
-        .kpi-change.negative {
-            color: var(--danger);
-        }
-
-        /* Charts Section */
+        
+        .kpi-trend.up { color: var(--success); }
+        .kpi-trend.down { color: var(--danger); }
+        
+        /* Chart Cards */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
-
+        
+        @media (max-width: 1200px) { .charts-grid { grid-template-columns: 1fr; } }
+        
         .chart-card {
             background: var(--white);
-            padding: 25px;
             border-radius: 12px;
+            padding: 25px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border: 1px solid var(--border-color);
         }
-
-        .chart-card.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .chart-header {
+        
+        .chart-card-header {
             margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
         }
-
-        .chart-title {
+        
+        .chart-card-title {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-dark);
         }
-
-        .chart-subtitle {
-            font-size: 13px;
-            color: var(--text-light);
-            margin-top: 5px;
-        }
-
+        
         .chart-container {
             position: relative;
-            height: 350px;
+            height: 300px;
         }
-
-        .chart-container.small {
-            height: 280px;
-        }
-
-        /* Financial Health Indicators */
-        .health-indicators {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .health-card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .health-label {
-            font-size: 12px;
-            color: var(--text-light);
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-
-        .health-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary-green);
-            margin-bottom: 5px;
-        }
-
-        .health-status {
-            font-size: 12px;
-            padding: 5px 10px;
-            border-radius: 20px;
-            display: inline-block;
-            font-weight: 600;
-        }
-
-        .health-status.excellent {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .health-status.good {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .health-status.warning {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        /* Team Performance Table */
-        .data-table {
-            width: 100%;
-            background: var(--white);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            margin-bottom: 30px;
-        }
-
-        .table-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid var(--border-color);
-            background-color: var(--bg-gray);
-        }
-
-        .table-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background-color: var(--bg-gray);
-        }
-
-        th {
-            padding: 15px 20px;
-            text-align: left;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        th.text-right {
-            text-align: right;
-        }
-
-        th.text-center {
-            text-align: center;
-        }
-
-        td {
-            padding: 15px 20px;
-            border-top: 1px solid var(--border-color);
-            font-size: 14px;
-        }
-
-        td.text-right {
-            text-align: right;
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-        }
-
-        td.text-center {
-            text-align: center;
-        }
-
-        tr:hover {
-            background-color: var(--bg-gray);
-        }
-
-        .performance-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .performance-badge.excellent {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .performance-badge.good {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .performance-badge.average {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .bg-success { background-color: #d4edda; }
-        .bg-warning { background-color: #fff3cd; }
-        .bg-primary { background-color: var(--light-green); }
-        .bg-danger { background-color: #f8d7da; }
-
-        @media (max-width: 1400px) {
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .health-indicators {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 0;
-                transform: translateX(-100%);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-            .kpi-grid,
-            .health-indicators {
-                grid-template-columns: 1fr;
-            }
-        }
+        
+        .chart-container.tall { height: 400px; }
     </style>
 </head>
 <body>
@@ -500,28 +153,22 @@
             </div>
             <nav class="sidebar-nav">
                 <a href="../index.html" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    Dashboard
+                    <span class="nav-icon">📊</span> Dashboard
                 </a>
                 <a href="contas-pagar.html" class="nav-item">
-                    <span class="nav-icon">💳</span>
-                    Contas a Pagar
+                    <span class="nav-icon">💳</span> Contas a Pagar
                 </a>
                 <a href="contas-receber.html" class="nav-item">
-                    <span class="nav-icon">💰</span>
-                    Contas a Receber
+                    <span class="nav-icon">💰</span> Contas a Receber
                 </a>
                 <a href="dre.html" class="nav-item">
-                    <span class="nav-icon">📈</span>
-                    DRE
+                    <span class="nav-icon">📈</span> DRE
                 </a>
                 <a href="analiticos.html" class="nav-item active">
-                    <span class="nav-icon">🔍</span>
-                    Analíticos
+                    <span class="nav-icon">🔍</span> Analíticos
                 </a>
                 <a href="relatorios.html" class="nav-item">
-                    <span class="nav-icon">📄</span>
-                    Relatórios
+                    <span class="nav-icon">📄</span> Relatórios
                 </a>
             </nav>
         </aside>
@@ -529,712 +176,356 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="page-header">
-                <div class="page-title-section">
-                    <h1 class="page-title">Dashboard Analítico</h1>
-                    <p class="page-subtitle">Análise completa de desempenho e métricas estratégicas</p>
-                </div>
+                <h1 class="page-title">Analíticos - Comparação de Períodos</h1>
+                <p class="page-subtitle">Análise comparativa de performance entre Outubro, Novembro e Dezembro 2025</p>
             </div>
 
-            <!-- Filters -->
-            <div class="filters-section">
-                <div class="filter-group">
-                    <label class="filter-label">Período</label>
-                    <select class="filter-select" id="periodFilter">
-                        <option value="oct-2025" selected>Outubro 2025</option>
-                        <option value="sep-2025">Setembro 2025</option>
-                        <option value="aug-2025">Agosto 2025</option>
-                        <option value="jul-2025">Julho 2025</option>
-                        <option value="ytd-2025">Acumulado 2025</option>
-                        <option value="last-12m">Últimos 12 Meses</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label class="filter-label">Unidade de Negócio</label>
-                    <select class="filter-select" id="unitFilter">
-                        <option value="all" selected>Todas as Unidades</option>
-                        <option value="alpha">Alpha Assessoria</option>
-                        <option value="starken">Starken Tecnologia</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label class="filter-label">Visualização</label>
-                    <select class="filter-select" id="viewFilter">
-                        <option value="full" selected>Visão Completa</option>
-                        <option value="revenue">Foco em Receitas</option>
-                        <option value="clients">Foco em Clientes</option>
-                        <option value="team">Foco em Time</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Performance Overview KPIs -->
+            <!-- KPIs -->
             <div class="kpi-grid">
                 <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-title">MRR Growth Rate</div>
-                        <div class="kpi-icon bg-success">📈</div>
-                    </div>
-                    <div class="kpi-value">+8.5%</div>
-                    <div class="kpi-change positive">Crescimento mensal consistente</div>
+                    <div class="kpi-label">Melhor Mês (Receitas)</div>
+                    <div class="kpi-value" id="melhorMesReceitas">-</div>
+                    <div class="kpi-trend" id="melhorMesReceitasValor">R$ 0</div>
                 </div>
-
                 <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-title">CAC</div>
-                        <div class="kpi-icon bg-warning">💰</div>
-                    </div>
-                    <div class="kpi-value">R$ 2.500</div>
-                    <div class="kpi-change">Customer Acquisition Cost</div>
+                    <div class="kpi-label">Taxa Recebimento Média</div>
+                    <div class="kpi-value" id="taxaMedia">0%</div>
+                    <div class="kpi-trend">Média dos 3 meses</div>
                 </div>
-
                 <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-title">LTV</div>
-                        <div class="kpi-icon bg-primary">💎</div>
-                    </div>
-                    <div class="kpi-value">R$ 52.500</div>
-                    <div class="kpi-change positive">Lifetime Value / Razão LTV:CAC = 21:1</div>
+                    <div class="kpi-label">Total Recebido (3 meses)</div>
+                    <div class="kpi-value" id="totalRecebido">R$ 0</div>
+                    <div class="kpi-trend">Caixa realizado</div>
                 </div>
-
                 <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-title">Churn Rate</div>
-                        <div class="kpi-icon bg-success">✅</div>
-                    </div>
-                    <div class="kpi-value">&lt;5%</div>
-                    <div class="kpi-change positive">Excelente retenção de clientes</div>
+                    <div class="kpi-label">Total Pendente (3 meses)</div>
+                    <div class="kpi-value" id="totalPendente">R$ 0</div>
+                    <div class="kpi-trend">A receber</div>
                 </div>
             </div>
 
-            <!-- Charts Grid -->
+            <!-- Charts -->
             <div class="charts-grid">
-                <!-- Revenue by Client Type -->
+                <!-- Receitas por Mês -->
                 <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">Receita por Tipo de Cliente</h3>
-                        <p class="chart-subtitle">Distribuição de receita entre unidades de negócio</p>
-                    </div>
-                    <div class="chart-container small">
-                        <canvas id="revenueByClientChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Payment Performance -->
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">Performance de Pagamentos</h3>
-                        <p class="chart-subtitle">Status de recebimentos da carteira ativa</p>
-                    </div>
-                    <div class="chart-container small">
-                        <canvas id="paymentPerformanceChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Top 10 Clients -->
-                <div class="chart-card full-width">
-                    <div class="chart-header">
-                        <h3 class="chart-title">Top 10 Clientes por Receita</h3>
-                        <p class="chart-subtitle">Principais contribuidores para o MRR atual</p>
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">📊 Receitas por Mês</h3>
                     </div>
                     <div class="chart-container">
-                        <canvas id="topClientsChart"></canvas>
+                        <canvas id="receitasMesChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Revenue Trend -->
+                <!-- Despesas por Mês -->
                 <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">Tendência de Receita - Últimos 12 Meses</h3>
-                        <p class="chart-subtitle">Evolução do MRR de Maio a Outubro 2025</p>
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">💳 Despesas por Mês</h3>
                     </div>
                     <div class="chart-container">
-                        <canvas id="revenueTrendChart"></canvas>
+                        <canvas id="despesasMesChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Expense Evolution -->
+                <!-- Taxa de Recebimento -->
                 <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">Evolução de Despesas</h3>
-                        <p class="chart-subtitle">Despesas por categoria nos últimos 6 meses</p>
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">📈 Taxa de Recebimento</h3>
                     </div>
                     <div class="chart-container">
-                        <canvas id="expenseEvolutionChart"></canvas>
+                        <canvas id="taxaRecebimentoChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Client Acquisition -->
-                <div class="chart-card full-width">
-                    <div class="chart-header">
-                        <h3 class="chart-title">Aquisição de Clientes</h3>
-                        <p class="chart-subtitle">Novos clientes mensais e total acumulado</p>
+                <!-- Resultado por Mês -->
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">💰 Resultado por Mês</h3>
                     </div>
                     <div class="chart-container">
-                        <canvas id="clientAcquisitionChart"></canvas>
+                        <canvas id="resultadoMesChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- Financial Health Indicators -->
-            <div class="health-indicators">
-                <div class="health-card">
-                    <div class="health-label">Índice de Endividamento</div>
-                    <div class="health-value">12.5%</div>
-                    <div class="health-status excellent">Excelente</div>
-                </div>
-
-                <div class="health-card">
-                    <div class="health-label">Liquidez Corrente</div>
-                    <div class="health-value">4.2</div>
-                    <div class="health-status excellent">Excelente</div>
-                </div>
-
-                <div class="health-card">
-                    <div class="health-label">Liquidez Seca</div>
-                    <div class="health-value">3.8</div>
-                    <div class="health-status excellent">Excelente</div>
-                </div>
-
-                <div class="health-card">
-                    <div class="health-label">ROE</div>
-                    <div class="health-value">42.5%</div>
-                    <div class="health-status excellent">Excelente</div>
+            <!-- Categorias de Despesas -->
+            <div class="charts-grid">
+                <div class="chart-card" style="grid-column: 1 / -1;">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">📉 Evolução das Despesas por Categoria</h3>
+                    </div>
+                    <div class="chart-container tall">
+                        <canvas id="categoriasChart"></canvas>
+                    </div>
                 </div>
             </div>
-
-            <!-- Team Performance Table -->
-            <div class="data-table">
-                <div class="table-header">
-                    <h3 class="table-title">Performance do Time - Top 10 Membros</h3>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Membro</th>
-                            <th>Cargo</th>
-                            <th class="text-center">Clientes Ativos</th>
-                            <th class="text-right">Receita Gerada</th>
-                            <th class="text-center">Taxa de Retenção</th>
-                            <th class="text-center">Produtividade</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Gabriel Costa</strong></td>
-                            <td>CEO / Head de Vendas</td>
-                            <td class="text-center">8</td>
-                            <td class="text-right">R$ 42.300</td>
-                            <td class="text-center">100%</td>
-                            <td class="text-center"><span class="performance-badge excellent">Excelente</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>João Silva</strong></td>
-                            <td>Gestor de Contas</td>
-                            <td class="text-center">6</td>
-                            <td class="text-right">R$ 28.500</td>
-                            <td class="text-center">100%</td>
-                            <td class="text-center"><span class="performance-badge excellent">Excelente</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Maria Santos</strong></td>
-                            <td>Account Manager</td>
-                            <td class="text-center">4</td>
-                            <td class="text-right">R$ 18.200</td>
-                            <td class="text-center">100%</td>
-                            <td class="text-center"><span class="performance-badge good">Bom</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Pedro Oliveira</strong></td>
-                            <td>Sales Development</td>
-                            <td class="text-center">3</td>
-                            <td class="text-right">R$ 15.800</td>
-                            <td class="text-center">95%</td>
-                            <td class="text-center"><span class="performance-badge good">Bom</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Ana Paula</strong></td>
-                            <td>Customer Success</td>
-                            <td class="text-center">5</td>
-                            <td class="text-right">R$ 22.100</td>
-                            <td class="text-center">100%</td>
-                            <td class="text-center"><span class="performance-badge excellent">Excelente</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Carlos Mendes</strong></td>
-                            <td>Desenvolvedor Sênior</td>
-                            <td class="text-center">-</td>
-                            <td class="text-right">-</td>
-                            <td class="text-center">-</td>
-                            <td class="text-center"><span class="performance-badge excellent">Excelente</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Juliana Lima</strong></td>
-                            <td>Designer UX/UI</td>
-                            <td class="text-center">-</td>
-                            <td class="text-right">-</td>
-                            <td class="text-center">-</td>
-                            <td class="text-center"><span class="performance-badge good">Bom</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Roberto Alves</strong></td>
-                            <td>Analista de Marketing</td>
-                            <td class="text-center">-</td>
-                            <td class="text-right">-</td>
-                            <td class="text-center">-</td>
-                            <td class="text-center"><span class="performance-badge good">Bom</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Fernanda Costa</strong></td>
-                            <td>Analista Financeiro</td>
-                            <td class="text-center">-</td>
-                            <td class="text-right">-</td>
-                            <td class="text-center">-</td>
-                            <td class="text-center"><span class="performance-badge excellent">Excelente</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Lucas Martins</strong></td>
-                            <td>Suporte Técnico</td>
-                            <td class="text-center">-</td>
-                            <td class="text-right">-</td>
-                            <td class="text-center">-</td>
-                            <td class="text-center"><span class="performance-badge average">Regular</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
         </main>
     </div>
 
+    <script src="../dados-mensais.js"></script>
     <script>
-        // Revenue by Client Type Pie Chart
-        const revenueByClientCtx = document.getElementById('revenueByClientChart').getContext('2d');
-        new Chart(revenueByClientCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Starken Tecnologia (63%)', 'Alpha Assessoria (37%)'],
-                datasets: [{
-                    data: [64200, 37700],
-                    backgroundColor: [
-                        '#4A6B54',
-                        '#7A9B84'
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            font: { size: 12 },
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: '#2c3e50',
-                        padding: 12,
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.parsed || 0;
-                                return label + ': R$ ' + value.toLocaleString('pt-BR');
-                            }
-                        }
+        function formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        const meses = ['2025-10', '2025-11', '2025-12'];
+        const nomesMeses = ['Outubro', 'Novembro', 'Dezembro'];
+
+        function loadAnalytics() {
+            // Calcular KPIs
+            let totalRecebido = 0;
+            let totalPendente = 0;
+            let somaTaxas = 0;
+            let melhorMes = '';
+            let melhorMesValor = 0;
+
+            meses.forEach(mes => {
+                const dados = dadosMensais[mes];
+                if (dados) {
+                    totalRecebido += dados.receitas.recebido;
+                    totalPendente += dados.receitas.pendente;
+                    somaTaxas += dados.receitas.taxa_recebimento;
+                    
+                    if (dados.receitas.total > melhorMesValor) {
+                        melhorMesValor = dados.receitas.total;
+                        melhorMes = dados.periodo.split(' ')[0];
                     }
                 }
-            }
-        });
+            });
 
-        // Payment Performance Donut Chart
-        const paymentPerformanceCtx = document.getElementById('paymentPerformanceChart').getContext('2d');
-        new Chart(paymentPerformanceCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Em Dia (95%)', 'Atrasado (5%)'],
-                datasets: [{
-                    data: [95, 5],
-                    backgroundColor: [
-                        '#27ae60',
-                        '#e74c3c'
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            font: { size: 12 },
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: '#2c3e50',
-                        padding: 12,
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.parsed + '%';
-                            }
-                        }
-                    }
-                }
-            }
-        });
+            document.getElementById('totalRecebido').textContent = formatMoney(totalRecebido);
+            document.getElementById('totalPendente').textContent = formatMoney(totalPendente);
+            document.getElementById('taxaMedia').textContent = (somaTaxas / 3).toFixed(1) + '%';
+            document.getElementById('melhorMesReceitas').textContent = melhorMes;
+            document.getElementById('melhorMesReceitasValor').textContent = formatMoney(melhorMesValor);
 
-        // Top 10 Clients Horizontal Bar Chart
-        const topClientsCtx = document.getElementById('topClientsChart').getContext('2d');
-        new Chart(topClientsCtx, {
-            type: 'bar',
-            data: {
-                labels: [
-                    'Realizzati Móveis',
-                    'Rosa Mexicano BNU',
-                    'JPR Móveis Rústicos',
-                    'World Burger',
-                    'Rosa Mexicano BSQ',
-                    'ShieldCar BNU',
-                    'Oca Restaurante',
-                    'Mortadella BNU',
-                    'Brazza BNU',
-                    'Hamburgueria Feio'
-                ],
-                datasets: [{
-                    label: 'MRR (R$)',
-                    data: [8500, 6200, 5800, 4900, 4800, 4500, 4500, 4200, 3900, 3800],
-                    backgroundColor: [
-                        '#4A6B54',
-                        '#4A6B54',
-                        '#4A6B54',
-                        '#7A9B84',
-                        '#4A6B54',
-                        '#4A6B54',
-                        '#7A9B84',
-                        '#4A6B54',
-                        '#4A6B54',
-                        '#4A6B54'
-                    ],
-                    borderColor: '#3d5744',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: '#2c3e50',
-                        padding: 12,
-                        callbacks: {
-                            label: function(context) {
-                                return 'MRR: R$ ' + context.parsed.x.toLocaleString('pt-BR');
-                            }
-                        }
-                    }
+            // Gráfico Receitas
+            createReceitasChart();
+            createDespesasChart();
+            createTaxaChart();
+            createResultadoChart();
+            createCategoriasChart();
+        }
+
+        function createReceitasChart() {
+            const ctx = document.getElementById('receitasMesChart');
+            const valores = meses.map(mes => dadosMensais[mes]?.receitas.total || 0);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: nomesMeses,
+                    datasets: [{
+                        label: 'Receitas Totais',
+                        data: valores,
+                        backgroundColor: '#27ae60',
+                        borderRadius: 8
+                    }]
                 },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'R$ ' + (value / 1000) + 'k';
-                            },
-                            font: { size: 11 }
-                        },
-                        grid: {
-                            color: '#e1e8ed'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => formatMoney(context.parsed.y)
+                            }
                         }
                     },
-                    y: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: { size: 11 }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Revenue Trend Line Chart
-        const revenueTrendCtx = document.getElementById('revenueTrendChart').getContext('2d');
-        new Chart(revenueTrendCtx, {
-            type: 'line',
-            data: {
-                labels: ['Mai/25', 'Jun/25', 'Jul/25', 'Ago/25', 'Set/25', 'Out/25'],
-                datasets: [{
-                    label: 'MRR',
-                    data: [32500, 35200, 37800, 38900, 40150, 41865],
-                    borderColor: '#4A6B54',
-                    backgroundColor: 'rgba(74, 107, 84, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 6,
-                    pointBackgroundColor: '#4A6B54',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: '#2c3e50',
-                        padding: 12,
-                        callbacks: {
-                            label: function(context) {
-                                return 'MRR: R$ ' + context.parsed.y.toLocaleString('pt-BR');
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => 'R$ ' + (value/1000).toFixed(0) + 'k'
                             }
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            callback: function(value) {
-                                return 'R$ ' + (value / 1000) + 'k';
-                            },
-                            font: { size: 11 }
-                        },
-                        grid: {
-                            color: '#e1e8ed'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: { size: 11 }
-                        }
-                    }
                 }
-            }
-        });
+            });
+        }
 
-        // Expense Evolution Stacked Area Chart
-        const expenseEvolutionCtx = document.getElementById('expenseEvolutionChart').getContext('2d');
-        new Chart(expenseEvolutionCtx, {
-            type: 'line',
-            data: {
-                labels: ['Mai/25', 'Jun/25', 'Jul/25', 'Ago/25', 'Set/25', 'Out/25'],
-                datasets: [
-                    {
-                        label: 'Folha de Pagamento',
-                        data: [17000, 17500, 18000, 18200, 18400, 18500],
-                        backgroundColor: 'rgba(74, 107, 84, 0.6)',
-                        borderColor: '#4A6B54',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Marketing',
-                        data: [7200, 7500, 7700, 7800, 7900, 8000],
-                        backgroundColor: 'rgba(122, 155, 132, 0.6)',
-                        borderColor: '#7A9B84',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Infraestrutura',
-                        data: [6100, 6200, 6400, 6550, 6750, 6900],
-                        backgroundColor: 'rgba(184, 212, 190, 0.6)',
-                        borderColor: '#B8D4BE',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 12,
-                            font: { size: 11 },
-                            usePointStyle: true,
-                            pointStyle: 'circle'
+        function createDespesasChart() {
+            const ctx = document.getElementById('despesasMesChart');
+            const valores = meses.map(mes => dadosMensais[mes]?.despesas.total || 0);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: nomesMeses,
+                    datasets: [{
+                        label: 'Despesas Totais',
+                        data: valores,
+                        backgroundColor: '#e74c3c',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => formatMoney(context.parsed.y)
+                            }
                         }
                     },
-                    tooltip: {
-                        backgroundColor: '#2c3e50',
-                        padding: 12,
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': R$ ' + context.parsed.y.toLocaleString('pt-BR');
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => 'R$ ' + (value/1000).toFixed(0) + 'k'
                             }
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        stacked: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'R$ ' + (value / 1000) + 'k';
-                            },
-                            font: { size: 11 }
-                        },
-                        grid: {
-                            color: '#e1e8ed'
-                        }
-                    },
-                    x: {
-                        stacked: true,
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: { size: 11 }
-                        }
-                    }
                 }
-            }
-        });
+            });
+        }
 
-        // Client Acquisition Mixed Chart
-        const clientAcquisitionCtx = document.getElementById('clientAcquisitionChart').getContext('2d');
-        new Chart(clientAcquisitionCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan/25', 'Fev/25', 'Mar/25', 'Abr/25', 'Mai/25', 'Jun/25', 'Jul/25', 'Ago/25', 'Set/25', 'Out/25'],
-                datasets: [
-                    {
-                        type: 'bar',
-                        label: 'Novos Clientes',
-                        data: [2, 3, 2, 2, 4, 2, 2, 1, 1, 1],
-                        backgroundColor: '#7A9B84',
-                        borderColor: '#6a8b74',
-                        borderWidth: 1,
-                        yAxisID: 'y'
-                    },
-                    {
-                        type: 'line',
-                        label: 'Total Acumulado',
-                        data: [2, 5, 7, 9, 13, 15, 17, 18, 19, 20],
-                        borderColor: '#4A6B54',
-                        backgroundColor: 'rgba(74, 107, 84, 0.1)',
-                        borderWidth: 3,
+        function createTaxaChart() {
+            const ctx = document.getElementById('taxaRecebimentoChart');
+            const valores = meses.map(mes => dadosMensais[mes]?.receitas.taxa_recebimento || 0);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: nomesMeses,
+                    datasets: [{
+                        label: 'Taxa de Recebimento (%)',
+                        data: valores,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
                         tension: 0.4,
-                        fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#4A6B54',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            font: { size: 12 },
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: '#2c3e50',
-                        padding: 12
-                    }
+                        fill: true
+                    }]
                 },
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1,
-                            font: { size: 11 }
-                        },
-                        grid: {
-                            color: '#e1e8ed'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Novos Clientes',
-                            font: { size: 12, weight: 'bold' }
-                        }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
                     },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 5,
-                            font: { size: 11 }
-                        },
-                        grid: {
-                            drawOnChartArea: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'Total Acumulado',
-                            font: { size: 12, weight: 'bold' }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: { size: 10 }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: (value) => value + '%'
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
-        // Filter change handlers
-        document.getElementById('periodFilter').addEventListener('change', function(e) {
-            console.log('Period changed to:', e.target.value);
-            // Here you would reload data for the selected period
-        });
+        function createResultadoChart() {
+            const ctx = document.getElementById('resultadoMesChart');
+            const valores = meses.map(mes => {
+                const dados = dadosMensais[mes];
+                return dados ? (dados.receitas.recebido - dados.despesas.pago) : 0;
+            });
 
-        document.getElementById('unitFilter').addEventListener('change', function(e) {
-            console.log('Unit filter changed to:', e.target.value);
-            // Here you would filter data by unit
-        });
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: nomesMeses,
+                    datasets: [{
+                        label: 'Resultado (Lucro/Prejuízo)',
+                        data: valores,
+                        backgroundColor: valores.map(v => v >= 0 ? '#27ae60' : '#e74c3c'),
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => formatMoney(context.parsed.y)
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: (value) => 'R$ ' + (value/1000).toFixed(0) + 'k'
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
-        document.getElementById('viewFilter').addEventListener('change', function(e) {
-            console.log('View changed to:', e.target.value);
-            // Here you would adjust the dashboard layout
-        });
+        function createCategoriasChart() {
+            const ctx = document.getElementById('categoriasChart');
+            
+            // Coletar categorias únicas
+            const categorias = new Set();
+            meses.forEach(mes => {
+                const dados = dadosMensais[mes];
+                if (dados) {
+                    Object.keys(dados.despesas.categorias).forEach(cat => categorias.add(cat));
+                }
+            });
+
+            const datasets = [];
+            const colors = ['#e74c3c', '#f39c12', '#3498db', '#9b59b6', '#1abc9c', '#34495e', '#16a085', '#27ae60'];
+            let colorIndex = 0;
+
+            categorias.forEach(categoria => {
+                const valores = meses.map(mes => {
+                    const dados = dadosMensais[mes];
+                    return dados?.despesas.categorias[categoria]?.total || 0;
+                });
+
+                datasets.push({
+                    label: categoria.replace(/_/g, ' ').toUpperCase(),
+                    data: valores,
+                    backgroundColor: colors[colorIndex % colors.length],
+                    borderRadius: 6
+                });
+                colorIndex++;
+            });
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: nomesMeses,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => context.dataset.label + ': ' + formatMoney(context.parsed.y)
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                callback: (value) => 'R$ ' + (value/1000).toFixed(0) + 'k'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', loadAnalytics);
     </script>
 </body>
 </html>
