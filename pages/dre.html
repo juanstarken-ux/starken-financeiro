@@ -519,14 +519,14 @@
             // Se é mês futuro (sem recebimentos), usar projeção
             if (mes === '2025-11') {
                 // Novembro: considerar recebido + projeção dos pendentes
-                receitaParaCalculo = dados.receitas.recebido + (dados.receitas.pendente * 0.85); // 85% do pendente
+                receitaParaCalculo = dados.receitas.total; // 100% das receitas
                 despesaParaCalculo = despesasSemAlpha; // usar total de despesas previstas
-                labelResultado = 'Projeção: Receitas Esperadas - Despesas Previstas';
+                labelResultado = 'Projeção: 100% das Receitas - Despesas Previstas';
             } else if (mes === '2025-12') {
                 // Dezembro: usar 80% do total como projeção conservadora
-                receitaParaCalculo = dados.receitas.total * 0.80;
+                receitaParaCalculo = dados.receitas.total; // 100% das receitas
                 despesaParaCalculo = despesasSemAlpha;
-                labelResultado = 'Projeção: 80% das Receitas - Despesas Previstas';
+                labelResultado = 'Projeção: 100% das Receitas - Despesas Previstas';
             }
             
             const resultado = receitaParaCalculo - despesaParaCalculo;
@@ -667,11 +667,11 @@
                 let labelReceita = 'Recebido';
                 
                 if (mes === '2025-11') {
-                    receitaProjetada = dados.receitas.recebido + (dados.receitas.pendente * 0.85);
-                    labelReceita = 'Projeção (85%)';
+                    receitaProjetada = dados.receitas.total;
+                    labelReceita = 'Projeção (100%)';
                 } else if (mes === '2025-12') {
-                    receitaProjetada = dados.receitas.total * 0.80;
-                    labelReceita = 'Projeção (80%)';
+                    receitaProjetada = dados.receitas.total;
+                    labelReceita = 'Projeção (100%)';
                 }
                 
                 const resultado = receitaProjetada - despesasSemAlpha;
