@@ -485,6 +485,7 @@
             });
         }
 
+        
         function loadMonthData(mes) {
             const dados = dadosMensais[mes];
             if (!dados) return;
@@ -510,18 +511,37 @@
                 });
             });
             
-            const resultado = dados.receitas.recebido - despesasSemAlpha;
-            const margemLiquida = dados.receitas.recebido > 0 ? (resultado / dados.receitas.recebido * 100).toFixed(1) : 0;
+            // PROJEÇÃO REALISTA: usar total de receitas como base para projeção
+            let receitaParaCalculo = dados.receitas.recebido;
+            let despesaParaCalculo = dados.despesas.pago;
+            let labelResultado = 'Receitas - Despesas Operacionais';
+            
+            // Se é mês futuro (sem recebimentos), usar projeção
+            if (mes === '2025-11') {
+                // Novembro: considerar recebido + projeção dos pendentes
+                receitaParaCalculo = dados.receitas.recebido + (dados.receitas.pendente * 0.85); // 85% do pendente
+                despesaParaCalculo = despesasSemAlpha; // usar total de despesas previstas
+                labelResultado = 'Projeção: Receitas Esperadas - Despesas Previstas';
+            } else if (mes === '2025-12') {
+                // Dezembro: usar 80% do total como projeção conservadora
+                receitaParaCalculo = dados.receitas.total * 0.80;
+                despesaParaCalculo = despesasSemAlpha;
+                labelResultado = 'Projeção: 80% das Receitas - Despesas Previstas';
+            }
+            
+            const resultado = receitaParaCalculo - despesaParaCalculo;
+            const margemLiquida = receitaParaCalculo > 0 ? (resultado / receitaParaCalculo * 100).toFixed(1) : 0;
             
             document.getElementById('ticketMedio').textContent = formatMoney(ticketMedio);
             document.getElementById('totalClientes').textContent = numClientes;
             document.getElementById('margemLiquida').textContent = margemLiquida + '%';
-            document.getElementById('burnRate').textContent = formatMoney(despesasSemAlpha);
+            document.getElementById('burnRate').textContent = formatMoney(despesaParaCalculo);
 
             // Receitas
             document.getElementById('totalReceitas').textContent = formatMoney(dados.receitas.total);
             const receitasItens = document.getElementById('receitasItens');
-            receitasItens.innerHTML = `
+            
+            let receitasHTML = `
                 <div class="dre-item">
                     <span class="dre-item-name">✅ Recebido</span>
                     <span class="dre-item-value">${formatMoney(dados.receitas.recebido)}</span>
@@ -530,11 +550,26 @@
                     <span class="dre-item-name">⏳ Pendente</span>
                     <span class="dre-item-value">${formatMoney(dados.receitas.pendente)}</span>
                 </div>
+            `;
+            
+            // Adicionar projeção se for mês futuro
+            if (mes === '2025-11' || mes === '2025-12') {
+                receitasHTML += `
+                    <div class="dre-item highlight">
+                        <span class="dre-item-name">💡 Projeção Realista</span>
+                        <span class="dre-item-value">${formatMoney(receitaParaCalculo)}</span>
+                    </div>
+                `;
+            }
+            
+            receitasHTML += `
                 <div class="dre-item">
                     <span class="dre-item-name">📊 Taxa de Recebimento</span>
                     <span class="dre-item-value">${dados.receitas.taxa_recebimento}%</span>
                 </div>
             `;
+            
+            receitasItens.innerHTML = receitasHTML;
             
             // Despesas (sem Alpha)
             document.getElementById('totalDespesasOperacionais').textContent = formatMoney(despesasSemAlpha);
@@ -562,6 +597,17 @@
                     `;
                 }
             });
+            
+            // Adicionar total previsto se for mês futuro
+            if (mes === '2025-11' || mes === '2025-12') {
+                despesasHTML += `
+                    <div class="dre-item highlight">
+                        <span class="dre-item-name">💡 Total Previsto</span>
+                        <span class="dre-item-value">${formatMoney(despesaParaCalculo)}</span>
+                    </div>
+                `;
+            }
+            
             despesasItens.innerHTML = despesasHTML;
             
             // Alpha Card
@@ -571,12 +617,18 @@
             const resultadoEl = document.getElementById('resultadoValue');
             resultadoEl.textContent = formatMoney(resultado);
             
+            const subtitleEl = document.getElementById('resultadoSubtitle');
+            
+            if (mes === '2025-10') {
+                subtitleEl.textContent = labelResultado;
+            } else {
+                subtitleEl.textContent = labelResultado + ' (Estimativa)';
+            }
+            
             if (resultado >= 0) {
                 resultadoEl.style.color = '#d4edda';
-                document.getElementById('resultadoSubtitle').textContent = '✅ Lucro Operacional';
             } else {
                 resultadoEl.style.color = '#f8d7da';
-                document.getElementById('resultadoSubtitle').textContent = '⚠️ Prejuízo Operacional';
             }
             
             // Charts
@@ -610,18 +662,31 @@
                     });
                 });
                 
-                const resultado = dados.receitas.recebido - despesasSemAlpha;
+                // Calcular projeção
+                let receitaProjetada = dados.receitas.recebido;
+                let labelReceita = 'Recebido';
+                
+                if (mes === '2025-11') {
+                    receitaProjetada = dados.receitas.recebido + (dados.receitas.pendente * 0.85);
+                    labelReceita = 'Projeção (85%)';
+                } else if (mes === '2025-12') {
+                    receitaProjetada = dados.receitas.total * 0.80;
+                    labelReceita = 'Projeção (80%)';
+                }
+                
+                const resultado = receitaProjetada - despesasSemAlpha;
+                const resultadoLiquido = resultado - alphaTotal;
                 
                 html += `
                     <div class="month-comparison">
-                        <div class="month-name">${nomes[index]}</div>
+                        <div class="month-name">${nomes[index]} ${mes !== '2025-10' ? '(Projeção)' : '(Realizado)'}</div>
                         <div class="comparison-item">
-                            <span class="comparison-item-label">Receitas:</span>
+                            <span class="comparison-item-label">Receitas Totais:</span>
                             <span class="comparison-item-value">${formatMoney(dados.receitas.total)}</span>
                         </div>
                         <div class="comparison-item">
-                            <span class="comparison-item-label">Recebido:</span>
-                            <span class="comparison-item-value">${formatMoney(dados.receitas.recebido)}</span>
+                            <span class="comparison-item-label">${labelReceita}:</span>
+                            <span class="comparison-item-value" style="font-weight: 700; color: #27ae60">${formatMoney(receitaProjetada)}</span>
                         </div>
                         <div class="comparison-item">
                             <span class="comparison-item-label">Despesas Op:</span>
@@ -629,12 +694,18 @@
                         </div>
                         <div class="comparison-item">
                             <span class="comparison-item-label">Pagamento Alpha:</span>
-                            <span class="comparison-item-value">${formatMoney(alphaTotal)}</span>
+                            <span class="comparison-item-value" style="color: #f39c12">${formatMoney(alphaTotal)}</span>
                         </div>
                         <div class="comparison-item" style="border-top: 2px solid #ddd; padding-top: 10px; margin-top: 10px;">
-                            <span class="comparison-item-label"><strong>Resultado:</strong></span>
+                            <span class="comparison-item-label"><strong>Resultado Op:</strong></span>
                             <span class="comparison-item-value" style="color: ${resultado >= 0 ? '#27ae60' : '#e74c3c'}">
                                 <strong>${formatMoney(resultado)}</strong>
+                            </span>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="comparison-item-label"><strong>Resultado Líquido:</strong></span>
+                            <span class="comparison-item-value" style="color: ${resultadoLiquido >= 0 ? '#27ae60' : '#e74c3c'}">
+                                <strong>${formatMoney(resultadoLiquido)}</strong>
                             </span>
                         </div>
                         <div class="comparison-item">
@@ -647,6 +718,7 @@
             
             grid.innerHTML = html;
         }
+
 
         function changeMonth() {
             const selectedMonth = document.getElementById('monthSelect').value;
