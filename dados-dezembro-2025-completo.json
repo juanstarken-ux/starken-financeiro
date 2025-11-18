@@ -1,0 +1,98 @@
+{
+  "periodo": "Dezembro 2025",
+  "data_atualizacao": "17/01/2025",
+  "resumo_executivo": {
+    "receita_total": 38030.00,
+    "receita_recebida": 0.00,
+    "receita_pendente": 38030.00,
+    "percentual_recebido": 0.0,
+    "percentual_pendente": 100.0,
+    "mrr": 38030.00,
+    "total_clientes": 18,
+    "ticket_medio": 2112.78,
+    "variacao_vs_novembro": 6.3
+  },
+  "todos_clientes_pendentes": [
+    {"nome": "Mortadella Blumenau 1/2", "valor": 3000.00, "vencimento": "10/12"},
+    {"nome": "Mortadella Blumenau 2/2", "valor": 3000.00, "vencimento": "20/12"},
+    {"nome": "Hamburgueria Feio", "valor": 2000.00, "vencimento": "15/12"},
+    {"nome": "Academia São Pedro", "valor": 1080.00, "vencimento": "10/12"},
+    {"nome": "Estilo Tulipa", "valor": 659.00, "vencimento": "10/12"},
+    {"nome": "JPR Móveis Rústicos", "valor": 2000.00, "vencimento": "10/12"},
+    {"nome": "Brazza BNU 1/2", "valor": 1500.00, "vencimento": "10/12"},
+    {"nome": "Brazza BNU 2/2", "valor": 1500.00, "vencimento": "20/12"},
+    {"nome": "Matriz 1", "valor": 3373.50, "vencimento": "-"},
+    {"nome": "Matriz 2", "valor": 3373.50, "vencimento": "-"},
+    {"nome": "Matriz 3", "valor": 3373.50, "vencimento": "-"},
+    {"nome": "Matriz 4", "valor": 3373.50, "vencimento": "-"},
+    {"nome": "Realizzati Móveis", "valor": 2500.00, "vencimento": "25/12"},
+    {"nome": "Oca Restaurante (Alpha)", "valor": 2000.00, "valor_liquido": 1700.00},
+    {"nome": "Madrugão Lanches (Alpha)", "valor": 2000.00, "valor_liquido": 1700.00},
+    {"nome": "Divino Tempero", "valor": 1000.00, "vencimento": "20/12"},
+    {"nome": "Suprema Pizza", "valor": 2000.00, "status": "Pendente"},
+    {"nome": "Shield Car", "valor": 297.00, "status": "Pendente"}
+  ],
+  "analise_por_categoria": {
+    "clientes_recorrentes": {
+      "total": 17180.00,
+      "percentual": 45.2,
+      "clientes": ["Mortadella", "Brazza", "Hamburgueria Feio", "Academia", "Tulipa", "JPR"]
+    },
+    "matriz_repasses": {
+      "total": 13494.00,
+      "percentual": 35.5,
+      "clientes": ["Matriz 1", "Matriz 2", "Matriz 3", "Matriz 4"]
+    },
+    "alpha_repasses": {
+      "total": 4000.00,
+      "valor_liquido": 3400.00,
+      "percentual": 10.5,
+      "clientes": ["Oca", "Madrugão"]
+    },
+    "outros": {
+      "total": 3356.00,
+      "percentual": 8.8,
+      "clientes": ["Realizzati", "Divino", "Suprema", "Shield Car"]
+    }
+  },
+  "mudancas_vs_novembro": {
+    "saidas": [
+      "Renomaq (R$ 800)",
+      "Alexandria Burger (R$ 1.000)",
+      "Pizzaria Don Chevico (R$ 2.844)"
+    ],
+    "entradas": [
+      "Matriz 3 (R$ 3.373,50)",
+      "Matriz 4 (R$ 3.373,50)"
+    ],
+    "aumento_valores": [
+      "Estilo Tulipa: R$ 500 → R$ 659"
+    ]
+  },
+  "projecao_recebimento": {
+    "primeira_quinzena": 11239.00,
+    "segunda_quinzena": 13873.50,
+    "sem_data": 12917.50,
+    "total": 38030.00
+  },
+  "alertas_criticos": [
+    "🔴 NENHUM recebimento ainda em dezembro (0%)",
+    "🔴 100% da receita pendente - risco de fluxo de caixa",
+    "⚠️ R$ 13.494 dos repasses Matriz sem data definida",
+    "⚠️ Dependência alta: Matriz representa 35,5% da receita",
+    "⚠️ Perdeu 3 clientes que totalizavam R$ 4.644"
+  ],
+  "acoes_urgentes": [
+    "🎯 URGENTE: Cobrar recebimentos da primeira quinzena (R$ 11.239)",
+    "🎯 Confirmar datas de pagamento da Matriz (R$ 13.494)",
+    "🎯 Recuperar clientes perdidos (Renomaq, Alexandria, Don Chevico)",
+    "🎯 Definir data para repasses Alpha (Oca e Madrugão)",
+    "🎯 Acompanhar diariamente os recebimentos até normalizar"
+  ],
+  "pontos_positivos": [
+    "✅ Crescimento de 6,3% vs novembro",
+    "✅ Matriz 3 e 4 entraram (+R$ 6.747)",
+    "✅ Ticket médio subiu para R$ 2.112",
+    "✅ Oca e Madrugão têm valor líquido confirmado"
+  ]
+}

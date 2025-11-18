@@ -1,0 +1,47 @@
+{
+  "periodo": "Novembro 2025 - ATUALIZADO",
+  "data_atualizacao": "17/01/2025",
+  "resumo_executivo": {
+    "receita_total": 35768.18,
+    "receita_recebida": 10924.18,
+    "receita_pendente": 24844.00,
+    "percentual_recebido": 30.5,
+    "percentual_pendente": 69.5,
+    "mrr": 35768.18,
+    "total_clientes": 19,
+    "ticket_medio": 1882.54,
+    "variacao_vs_outubro": -14.6
+  },
+  "clientes_pagos": [
+    {"nome": "Mortadella Blumenau 1/2", "valor": 3000.00, "status": "Feito"},
+    {"nome": "Academia São Pedro", "valor": 1080.00, "status": "Feito"},
+    {"nome": "Estilo Tulipa", "valor": 500.00, "status": "Feito"},
+    {"nome": "JPR Móveis Rústicos", "valor": 2000.00, "status": "Feito"},
+    {"nome": "Brazza BNU 1/2", "valor": 1500.00, "status": "Feito"},
+    {"nome": "Pizzaria Don Chevico", "valor": 2844.18, "status": "Feito"}
+  ],
+  "clientes_pendentes": [
+    {"nome": "Mortadella Blumenau 2/2", "valor": 3000.00},
+    {"nome": "Hamburgueria Feio", "valor": 2000.00},
+    {"nome": "Renomaq", "valor": 800.00},
+    {"nome": "Alexandria Burger 1/2", "valor": 1000.00},
+    {"nome": "Brazza BNU 2/2", "valor": 1500.00},
+    {"nome": "Realizzati Móveis", "valor": 2500.00},
+    {"nome": "Oca Restaurante (Alpha)", "valor": 2000.00},
+    {"nome": "Madrugão Lanches (Alpha)", "valor": 2000.00},
+    {"nome": "Divino Tempero", "valor": 1000.00},
+    {"nome": "Suprema Pizza", "valor": 2000.00},
+    {"nome": "Shield Car", "valor": 297.00},
+    {"nome": "Matriz 1", "valor": 3373.50},
+    {"nome": "Matriz 2", "valor": 3373.50}
+  ],
+  "novos_clientes": [
+    "Matriz 1 e 2 (R$ 6.747,00 - Repasses Alpha)"
+  ],
+  "alertas": [
+    "⚠️ Taxa de recebimento muito baixa: 30,5%",
+    "⚠️ R$ 24.844 ainda pendente (69,5%)",
+    "⚠️ Matriz 1 e 2 entraram mas ainda não pagaram",
+    "⚠️ Queda de 14,6% vs outubro"
+  ]
+}

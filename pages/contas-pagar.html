@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contas a Pagar - Starken Tecnologia</title>
+    <script src="../auth.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #4A6B54;
+            --secondary-green: #7A9B84;
+            --light-green: #B8D4BE;
+            --bg-gray: #f5f7fa;
+            --white: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #e1e8ed;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            padding: 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-image {
+            width: 140px;
+            height: auto;
+            display: block;
+            margin: 0 auto 15px;
+            
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--white);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .company-info {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 8px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--white);
+            border-left-color: var(--light-green);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255,255,255,0.15);
+            color: var(--white);
+            border-left-color: var(--white);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title-section {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* Month Selector */
+        .month-selector {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .month-selector-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .month-select {
+            padding: 10px 15px;
+            border: 2px solid var(--primary-green);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            background-color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .month-select:focus {
+            outline: none;
+            border-color: var(--secondary-green);
+            box-shadow: 0 0 0 3px rgba(74, 107, 84, 0.1);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .summary-value.danger {
+            color: var(--danger);
+        }
+
+        .summary-value.success {
+            color: var(--success);
+        }
+
+        .summary-value.warning {
+            color: var(--warning);
+        }
+
+        /* Table */
+        .data-table {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .table-count {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--bg-gray);
+        }
+
+        th {
+            padding: 15px 25px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th.text-right {
+            text-align: right;
+        }
+
+        td {
+            padding: 18px 25px;
+            border-top: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        td.text-right {
+            text-align: right;
+        }
+
+        tr:hover {
+            background-color: var(--bg-gray);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .status-badge.pendente,
+        .status-badge.a-pagar {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.paga,
+        .status-badge.feito {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .category-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            background-color: var(--light-green);
+            color: var(--primary-green);
+        }
+
+        .amount {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../logo-starken.png" alt="Starken Tecnologia" class="logo-image">
+                <div class="company-info">Starken Tecnologia Ltda<br>CNPJ: 62.839.769/0001-55</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../index.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="contas-pagar.html" class="nav-item active">
+                    <span class="nav-icon">💳</span>
+                    Contas a Pagar
+                </a>
+                <a href="contas-receber.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    Contas a Receber
+                </a>
+                <a href="dre.html" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    DRE
+                </a>
+                <a href="analiticos.html" class="nav-item">
+                    <span class="nav-icon">🔍</span>
+                    Analíticos
+                </a>
+                <a href="relatorios.html" class="nav-item">
+                    <span class="nav-icon">📄</span>
+                    Relatórios
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title-section">
+                    <h1 class="page-title">Contas a Pagar</h1>
+                    <p class="page-subtitle" id="pageSubtitle">Gestão completa de despesas e pagamentos</p>
+                </div>
+            </div>
+
+            <!-- Month Selector -->
+            <div class="month-selector">
+                <span class="month-selector-label">📅 Selecione o Período:</span>
+                <select class="month-select" id="monthSelect" onchange="changeMonth()">
+                    <option value="2025-11">Novembro 2025</option>
+                    <option value="2025-12" selected>Dezembro 2025</option>
+                </select>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Total a Pagar</div>
+                    <div class="summary-value danger" id="totalAPagar">R$ 0,00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Pagas no Mês</div>
+                    <div class="summary-value success" id="totalPago">R$ 0,00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Pendente</div>
+                    <div class="summary-value warning" id="totalPendente">R$ 0,00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Taxa de Pagamento</div>
+                    <div class="summary-value" id="taxaPagamento">0%</div>
+                </div>
+            </div>
+
+            <!-- Alpha Repasse Card (Separate) -->
+            <div class="data-table" style="margin-bottom: 30px; border-left: 4px solid #f39c12;">
+                <div class="table-header" style="background-color: #fff9f0;">
+                    <div>
+                        <h3 class="table-title" style="color: #f39c12;">💼 Repasse Alpha - Franquia</h3>
+                        <p style="font-size: 12px; color: var(--text-light); margin-top: 5px;">Este valor não entra no cálculo de despesas operacionais</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; color: var(--text-light); margin-bottom: 5px;">Valor Total</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #f39c12;" id="alphaValue">R$ 0,00</div>
+                        <div style="font-size: 12px; margin-top: 5px;">
+                            <span id="alphaStatus" style="padding: 4px 10px; border-radius: 12px; background-color: #fff3cd; color: #856404; font-weight: 600;">A Pagar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="data-table">
+                <div class="table-header">
+                    <h3 class="table-title">Despesas do Mês</h3>
+                    <span class="table-count" id="tableCount">0 registros</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th class="text-right">Valor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Dados carregados dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Carregar dados -->
+    <script src="../dados-mensais.js"></script>
+    <script>
+        // Formatar valor em BRL
+        function formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        // Mapear categorias
+        function getCategoryName(categoria) {
+            const map = {
+                'comercial': 'Comercial',
+                'estrutura': 'Estrutura',
+                'ferramentas': 'Ferramentas',
+                'pessoal': 'Pessoal'
+            };
+            return map[categoria] || categoria;
+        }
+
+        // Carregar dados do mês selecionado
+        function loadMonthData(mes) {
+            const dados = dadosMensais[mes];
+            if (!dados) {
+                console.error('Dados não encontrados para o mês:', mes);
+                return;
+            }
+
+            // Atualizar subtítulo
+            document.getElementById('pageSubtitle').textContent =
+                `Gestão completa de despesas e pagamentos - ${dados.periodo}`;
+
+            // Calcular totais SEM Alpha
+            let totalSemAlpha = 0;
+            let pagoSemAlpha = 0;
+            let pendenteSemAlpha = 0;
+            let alphaValor = 0;
+            let alphaStatusTexto = 'A Pagar';
+
+            const categorias = dados.despesas.categorias;
+
+            // Separar Alpha das outras despesas
+            for (const [categoriaKey, categoriaData] of Object.entries(categorias)) {
+                if (categoriaData.itens && Array.isArray(categoriaData.itens)) {
+                    categoriaData.itens.forEach(item => {
+                        // Se for pagamento Alpha, separar
+                        if (item.nome && (item.nome.toLowerCase().includes('alpha') || item.nome.toLowerCase().includes('pagamento - alpha'))) {
+                            alphaValor = item.valor;
+                            alphaStatusTexto = item.status || 'A Pagar';
+                        } else {
+                            // Adicionar às despesas operacionais
+                            totalSemAlpha += item.valor;
+                            if (item.status && (item.status.toLowerCase() === 'feito' || item.status.toLowerCase() === 'paga')) {
+                                pagoSemAlpha += item.valor;
+                            } else {
+                                pendenteSemAlpha += item.valor;
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Atualizar cards de resumo (SEM Alpha)
+            document.getElementById('totalAPagar').textContent = formatMoney(totalSemAlpha);
+            document.getElementById('totalPago').textContent = formatMoney(pagoSemAlpha);
+            document.getElementById('totalPendente').textContent = formatMoney(pendenteSemAlpha);
+
+            const taxaPagamento = totalSemAlpha > 0
+                ? ((pagoSemAlpha / totalSemAlpha) * 100).toFixed(1)
+                : 0;
+            document.getElementById('taxaPagamento').textContent = taxaPagamento + '%';
+
+            // Atualizar card Alpha separado
+            document.getElementById('alphaValue').textContent = formatMoney(alphaValor);
+            const alphaStatusEl = document.getElementById('alphaStatus');
+            if (alphaStatusTexto.toLowerCase() === 'feito' || alphaStatusTexto.toLowerCase() === 'paga') {
+                alphaStatusEl.textContent = 'Pago';
+                alphaStatusEl.style.backgroundColor = '#d4edda';
+                alphaStatusEl.style.color = '#155724';
+            } else {
+                alphaStatusEl.textContent = 'A Pagar';
+                alphaStatusEl.style.backgroundColor = '#fff3cd';
+                alphaStatusEl.style.color = '#856404';
+            }
+
+            // Contar total de itens (excluindo Alpha)
+            let totalItens = 0;
+
+            // Construir tabela (SEM Alpha)
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            // Iterar por cada categoria
+            for (const [categoriaKey, categoriaData] of Object.entries(categorias)) {
+                if (categoriaData.itens && Array.isArray(categoriaData.itens)) {
+                    categoriaData.itens.forEach(item => {
+                        // Pular Alpha
+                        if (item.nome && (item.nome.toLowerCase().includes('alpha') || item.nome.toLowerCase().includes('pagamento - alpha'))) {
+                            return;
+                        }
+
+                        totalItens++;
+                        const tr = document.createElement('tr');
+
+                        // Status badge
+                        let statusClass = 'pendente';
+                        let statusText = item.status || 'A Pagar';
+
+                        if (statusText.toLowerCase() === 'feito' || statusText.toLowerCase() === 'paga') {
+                            statusClass = 'feito';
+                            statusText = 'Paga';
+                        } else {
+                            statusClass = 'a-pagar';
+                            statusText = 'A Pagar';
+                        }
+
+                        tr.innerHTML = `
+                            <td>${item.nome || item.descricao}</td>
+                            <td><span class="category-badge">${getCategoryName(categoriaKey)}</span></td>
+                            <td class="text-right"><span class="amount">${formatMoney(item.valor)}</span></td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        `;
+
+                        tbody.appendChild(tr);
+                    });
+                }
+            }
+
+            // Atualizar contador
+            document.getElementById('tableCount').textContent = `${totalItens} registros`;
+        }
+
+        // Mudar mês
+        function changeMonth() {
+            const selectedMonth = document.getElementById('monthSelect').value;
+            loadMonthData(selectedMonth);
+        }
+
+        // Carregar dados do mês padrão (Dezembro)
+        window.addEventListener('DOMContentLoaded', function() {
+            const defaultMonth = document.getElementById('monthSelect').value;
+            loadMonthData(defaultMonth);
+        });
+    </script>
+</body>
+</html>

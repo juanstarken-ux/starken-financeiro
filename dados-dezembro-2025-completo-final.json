@@ -1,0 +1,186 @@
+{
+  "periodo": "Dezembro 2025",
+  "data_atualizacao": "17/01/2025",
+  "resumo_executivo": {
+    "receita_prevista": 38030.00,
+    "receita_recebida": 0.00,
+    "receita_pendente": 38030.00,
+    "despesa_total": 21360.90,
+    "despesa_paga": 0.00,
+    "despesa_pendente": 21360.90,
+    "resultado_projetado": 16669.10,
+    "margem_projetada": 43.8,
+    "taxa_recebimento": 0.0,
+    "taxa_pagamento": 0.0
+  },
+  "receitas": {
+    "total": 38030.00,
+    "recebido": 0.00,
+    "pendente": 38030.00,
+    "clientes": 18,
+    "ticket_medio": 2112.78,
+    "observacao": "100% ainda pendente - início do mês"
+  },
+  "despesas": {
+    "ferramentas": {
+      "total": 2760.90,
+      "percentual": 12.9,
+      "pago": 0.00,
+      "pendente": 2760.90,
+      "itens": [
+        {"nome": "Mac Ederson", "valor": 1200.00, "tipo": "Equipamento"},
+        {"nome": "Claude Code", "valor": 500.00, "tipo": "IA/Desenvolvimento"},
+        {"nome": "ClickUp", "valor": 350.00, "tipo": "Gestão"},
+        {"nome": "VPS Hostinger", "valor": 200.00, "tipo": "Infraestrutura"},
+        {"nome": "Lovable", "valor": 130.00, "tipo": "Desenvolvimento"},
+        {"nome": "Adobe", "valor": 110.00, "tipo": "Design"},
+        {"nome": "CapCut", "valor": 65.90, "tipo": "Vídeo"},
+        {"nome": "Canva Pro", "valor": 35.00, "tipo": "Design"},
+        {"nome": "Railway Backend", "valor": 35.00, "tipo": "Infraestrutura"},
+        {"nome": "Netlify", "valor": 35.00, "tipo": "Hospedagem"},
+        {"nome": "Criativivo", "valor": 100.00, "tipo": "Design"}
+      ]
+    },
+    "pessoal": {
+      "total": 11100.00,
+      "percentual": 51.9,
+      "pago": 0.00,
+      "pendente": 11100.00,
+      "itens": [
+        {"nome": "Ederson", "valor": 3200.00, "funcao": "Desenvolvedor"},
+        {"nome": "Victor", "valor": 3000.00, "funcao": "Desenvolvedor"},
+        {"nome": "Igor", "valor": 2300.00, "funcao": "Desenvolvedor"},
+        {"nome": "Kim", "valor": 1300.00, "funcao": "Design"},
+        {"nome": "Erick", "valor": 1300.00, "funcao": "Desenvolvedor"}
+      ]
+    },
+    "comercial": {
+      "total": 7500.00,
+      "percentual": 35.1,
+      "pago": 0.00,
+      "pendente": 7500.00,
+      "itens": [
+        {"nome": "Dante - Closer", "valor": 3500.00, "tipo": "Salário"},
+        {"nome": "Nathan - SDR", "valor": 2000.00, "tipo": "Comissão"},
+        {"nome": "João - SDR", "valor": 2000.00, "tipo": "Comissão"}
+      ]
+    },
+    "total_geral": 21360.90,
+    "total_pago": 0.00,
+    "total_pendente": 21360.90
+  },
+  "analise_comparativa": {
+    "novembro_vs_dezembro": {
+      "receita_nov": 35768.18,
+      "receita_dez": 38030.00,
+      "var_receita": 6.3,
+      "despesa_nov": 16509.00,
+      "despesa_dez": 21360.90,
+      "var_despesa": 29.4
+    },
+    "mudancas_equipe": {
+      "saidas": ["Eloize"],
+      "entradas": ["Kim"],
+      "promocoes": [
+        "Dante: R$ 2.500 → R$ 3.500 (+40%)",
+        "Ederson: R$ 3.000 → R$ 3.200 (+6,7%)",
+        "Nathan: R$ 750 → R$ 2.000 (+166,7%)",
+        "João: R$ 750 → R$ 2.000 (+166,7%)"
+      ]
+    },
+    "mudancas_ferramentas": {
+      "novos": ["Mac Ederson (R$ 1.200)", "VPS Hostinger (R$ 200)"],
+      "mantidos": ["ClickUp", "Claude Code", "Adobe", "Canva", "Railway", "Netlify"]
+    }
+  },
+  "estrutura_custos": {
+    "custos_fixos": {
+      "total": 18600.00,
+      "percentual": 87.1,
+      "itens": ["Pessoal: R$ 11.100", "Comercial: R$ 7.500"]
+    },
+    "custos_variaveis": {
+      "total": 2760.90,
+      "percentual": 12.9,
+      "itens": ["Ferramentas e Software"]
+    }
+  },
+  "fluxo_caixa_projetado": {
+    "cenario_pessimista": {
+      "taxa_recebimento": 30.0,
+      "receita": 11409.00,
+      "despesa": 21360.90,
+      "resultado": -9951.90,
+      "status": "CRÍTICO"
+    },
+    "cenario_realista": {
+      "taxa_recebimento": 60.0,
+      "receita": 22818.00,
+      "despesa": 21360.90,
+      "resultado": 1457.10,
+      "status": "APERTADO"
+    },
+    "cenario_otimista": {
+      "taxa_recebimento": 90.0,
+      "receita": 34227.00,
+      "despesa": 21360.90,
+      "resultado": 12866.10,
+      "status": "SAUDÁVEL"
+    },
+    "break_even": {
+      "taxa_necessaria": 56.2,
+      "valor_necessario": 21360.90,
+      "observacao": "Precisa receber pelo menos 56,2% para empatar"
+    }
+  },
+  "alertas_criticos": [
+    "🔴 Despesas subiram 29,4% vs novembro (de R$ 16.509 para R$ 21.361)",
+    "🔴 Custo fixo representa 87,1% das despesas totais",
+    "🔴 Aumento significativo na folha comercial (+166% para SDRs)",
+    "🔴 Necessário receber 56,2% só para empatar",
+    "🔴 0% pago e 0% recebido até agora",
+    "⚠️ Investimento em equipamento: R$ 1.200 (Mac)",
+    "⚠️ Ferramentas representam R$ 2.761 mensais"
+  ],
+  "pontos_positivos": [
+    "✅ Receita cresceu 6,3% (R$ 35.768 → R$ 38.030)",
+    "✅ Estrutura comercial fortalecida (SDRs)",
+    "✅ Investimento em produtividade (Mac, ferramentas)",
+    "✅ Margem projetada positiva: 43,8%"
+  ],
+  "prioridades_dezembro": [
+    {
+      "prioridade": "URGENTE",
+      "acao": "Garantir recebimento mínimo de R$ 21.361 (56,2%)",
+      "prazo": "Imediato"
+    },
+    {
+      "prioridade": "ALTA",
+      "acao": "Focar em clientes da 1ª quinzena (R$ 11.239)",
+      "prazo": "Até dia 15"
+    },
+    {
+      "prioridade": "ALTA",
+      "acao": "Confirmar pagamento Matriz 1-4 (R$ 13.494)",
+      "prazo": "Esta semana"
+    },
+    {
+      "prioridade": "MÉDIA",
+      "acao": "Revisar custos de ferramentas (R$ 2.761)",
+      "prazo": "Este mês"
+    },
+    {
+      "prioridade": "MÉDIA",
+      "acao": "Validar ROI do aumento comercial",
+      "prazo": "Acompanhar"
+    }
+  ],
+  "recomendacoes_estrategicas": [
+    "📊 Monitorar diariamente os recebimentos até atingir break-even",
+    "📊 Avaliar se aumento de 166% para SDRs está gerando resultados",
+    "📊 Considerar parcelamento de despesas não urgentes",
+    "📊 Revisar stack de ferramentas - identificar sobreposições",
+    "📊 Criar meta de recebimento: 70%+ para ter margem saudável",
+    "📊 Negociar prazos de pagamento se recebimentos atrasarem"
+  ]
+}

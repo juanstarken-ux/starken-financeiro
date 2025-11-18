@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Chart.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <h1>Teste de Carregamento Chart.js</h1>
+    <canvas id="test" width="400" height="200"></canvas>
+    
+    <script>
+        console.log('Chart.js loaded?', typeof Chart);
+        
+        if (typeof Chart !== 'undefined') {
+            const ctx = document.getElementById('test');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['A', 'B', 'C'],
+                    datasets: [{
+                        label: 'Teste',
+                        data: [10, 20, 30],
+                        backgroundColor: '#4A6B54'
+                    }]
+                }
+            });
+            document.body.innerHTML += '<p>✅ Chart.js funcionando!</p>';
+        } else {
+            document.body.innerHTML += '<p>❌ Chart.js NÃO carregou!</p>';
+        }
+    </script>
+</body>
+</html>

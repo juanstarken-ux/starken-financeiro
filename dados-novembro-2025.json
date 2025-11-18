@@ -1,0 +1,187 @@
+{
+  "periodo": "Novembro 2025",
+  "resumo_executivo": {
+    "receita_total_prevista": 29021.18,
+    "receita_recebida": 11924.18,
+    "receita_a_receber": 17097.00,
+    "percentual_recebido": 41.1,
+    "percentual_pendente": 58.9,
+    "mrr": 29021.18,
+    "variacao_mrr": -30.7,
+    "total_clientes": 17,
+    "ticket_medio": 1707.13
+  },
+  "clientes_recebidos": [
+    {
+      "nome": "Mortadella Blumenau 1/2",
+      "valor": 3000.00,
+      "status": "Feito",
+      "vencimento": "10/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Academia São Pedro",
+      "valor": 1080.00,
+      "status": "Feito",
+      "vencimento": "10/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Estilo Tulipa",
+      "valor": 500.00,
+      "status": "Feito",
+      "vencimento": "10/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "JPR Móveis Rústicos",
+      "valor": 2000.00,
+      "status": "Feito",
+      "vencimento": "10/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Brazza BNU 1/2",
+      "valor": 1500.00,
+      "status": "Feito",
+      "vencimento": "10/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Pizzaria Don Chevico",
+      "valor": 2844.18,
+      "status": "Feito",
+      "vencimento": "-",
+      "tipo": "Novo Cliente"
+    }
+  ],
+  "clientes_a_receber": [
+    {
+      "nome": "Mortadella Blumenau 2/2",
+      "valor": 3000.00,
+      "status": "A Pagar",
+      "vencimento": "20/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Hamburgueria Feio",
+      "valor": 2000.00,
+      "status": "A Pagar",
+      "vencimento": "15/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Renomaq",
+      "valor": 800.00,
+      "status": "A Pagar",
+      "vencimento": "10/11/2025",
+      "tipo": "Novo Cliente"
+    },
+    {
+      "nome": "Alexandria Burger Indaial 1/2",
+      "valor": 1000.00,
+      "status": "A Pagar",
+      "vencimento": "10/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Brazza BNU 2/2",
+      "valor": 1500.00,
+      "status": "A Pagar",
+      "vencimento": "20/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Realizzati Móveis",
+      "valor": 2500.00,
+      "status": "A Pagar",
+      "vencimento": "25/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Oca Restaurante (Alpha)",
+      "valor": 2000.00,
+      "status": "A Pagar",
+      "vencimento": "-",
+      "tipo": "Repasse Alpha"
+    },
+    {
+      "nome": "Madrugão Lanches (Alpha)",
+      "valor": 2000.00,
+      "status": "A Pagar",
+      "vencimento": "-",
+      "tipo": "Repasse Alpha"
+    },
+    {
+      "nome": "Divino Tempero",
+      "valor": 1000.00,
+      "status": "A Pagar",
+      "vencimento": "20/11/2025",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Suprema Pizza",
+      "valor": 2000.00,
+      "status": "A Pagar",
+      "vencimento": "-",
+      "tipo": "Clientes Diretos"
+    },
+    {
+      "nome": "Shield Car Blumenau",
+      "valor": 297.00,
+      "status": "A Pagar",
+      "vencimento": "-",
+      "tipo": "Clientes Diretos"
+    }
+  ],
+  "analise_por_tipo": {
+    "clientes_diretos": {
+      "recebido": 8080.00,
+      "a_receber": 13097.00,
+      "total": 21177.00,
+      "percentual": 72.9
+    },
+    "repasses_alpha": {
+      "recebido": 0.00,
+      "a_receber": 4000.00,
+      "total": 4000.00,
+      "percentual": 13.8
+    },
+    "novos_clientes": {
+      "recebido": 2844.18,
+      "a_receber": 800.00,
+      "total": 3644.18,
+      "percentual": 12.6
+    }
+  },
+  "comparacao_outubro": {
+    "outubro_mrr": 41865.00,
+    "novembro_mrr": 29021.18,
+    "variacao_absoluta": -12843.82,
+    "variacao_percentual": -30.7,
+    "outubro_clientes": 17,
+    "novembro_clientes": 17,
+    "outubro_ticket_medio": 2462.06,
+    "novembro_ticket_medio": 1707.13
+  },
+  "alertas": [
+    "⚠️ Queda significativa de 30,7% no MRR vs outubro",
+    "⚠️ Falta de repasses da Matriz Alpha (R$ 4.000 pendentes)",
+    "⚠️ 58,9% da receita ainda não foi recebida",
+    "⚠️ Ticket médio caiu de R$ 2.462 para R$ 1.707",
+    "⚠️ Dependência alta de poucos clientes grandes"
+  ],
+  "pontos_positivos": [
+    "✅ Novo cliente: Pizzaria Don Chevico (R$ 2.844)",
+    "✅ Novo cliente: Renomaq (R$ 800)",
+    "✅ Manteve mesma quantidade de clientes (17)",
+    "✅ 41% já recebido no início do mês"
+  ],
+  "recomendacoes": [
+    "🎯 Urgente: Acelerar recebimento dos R$ 17.097 pendentes",
+    "🎯 Investigar queda nos repasses da Matriz Alpha",
+    "🎯 Focar em captação de novos clientes para recuperar MRR",
+    "🎯 Revisar estratégia de precificação para aumentar ticket médio",
+    "🎯 Criar plano de ação para recuperar patamar de R$ 40k+ MRR"
+  ]
+}

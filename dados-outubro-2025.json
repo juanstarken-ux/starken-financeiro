@@ -1,0 +1,310 @@
+{
+  "periodo": "Outubro 2025",
+  "resumo_executivo": {
+    "receita_total": 41865.05,
+    "receita_a_receber": 4500.00,
+    "receita_estornada": 1470.16,
+    "receita_bruta": 46365.05,
+    "despesa_total": 43047.07,
+    "resultado_realizado": -1182.02,
+    "resultado_projetado": 3317.98,
+    "mrr": 41865.05,
+    "crescimento_mrr": 4.3,
+    "total_clientes": 17,
+    "ticket_medio": 2462.06,
+    "taxa_recebimento": 90.3
+  },
+  "contas_receber": {
+    "matriz_alpha": {
+      "total": 26885.05,
+      "clientes": 10,
+      "ticket_medio": 2688.51,
+      "detalhamento": [
+        {
+          "nome": "Baruki Beer",
+          "valor": 6126.43,
+          "data_recebimento": "01/10/2025",
+          "origem": "Matriz (grátis)",
+          "banco": "Asaas"
+        },
+        {
+          "nome": "World Burger",
+          "valor": 3281.75,
+          "data_recebimento": "14/10/2025",
+          "origem": "Prospecção",
+          "banco": "Infinite"
+        },
+        {
+          "nome": "Pizzaria Madrid",
+          "valor": 3149.75,
+          "data_recebimento": "01/10/2025",
+          "origem": "Matriz (grátis)",
+          "banco": "Asaas"
+        },
+        {
+          "nome": "Oficina da Massa",
+          "valor": 2897.77,
+          "data_recebimento": "31/10/2025",
+          "origem": "Matriz (grátis)",
+          "banco": "Asaas"
+        },
+        {
+          "nome": "Esfiha Rio",
+          "valor": 2807.91,
+          "data_recebimento": "27/10/2025",
+          "origem": "Matriz",
+          "banco": "Infinite"
+        },
+        {
+          "nome": "Bigu's Burger",
+          "valor": 2679.40,
+          "data_recebimento": "31/10/2025",
+          "origem": "Prospecção",
+          "banco": "Infinite"
+        },
+        {
+          "nome": "Jun Yu Restaurante",
+          "valor": 2546.02,
+          "data_recebimento": "14/10/2025",
+          "origem": "Matriz (grátis)",
+          "banco": "Infinite"
+        },
+        {
+          "nome": "Restaurante OCA",
+          "valor": 1698.01,
+          "data_recebimento": "27/10/2025",
+          "origem": "Matriz (grátis)",
+          "banco": "Asaas"
+        },
+        {
+          "nome": "Madrugão Lanches",
+          "valor": 1698.01,
+          "data_recebimento": "27/10/2025",
+          "origem": "Matriz (grátis)",
+          "banco": "Asaas"
+        }
+      ],
+      "estornos": [
+        {
+          "nome": "Yellow Freshfood",
+          "valor": -1470.16,
+          "data": "27/10/2025",
+          "motivo": "Estorno + taxa marketing 2%"
+        }
+      ]
+    },
+    "clientes_diretos": {
+      "total": 14980.00,
+      "clientes": 7,
+      "ticket_medio": 2140.00,
+      "detalhamento": [
+        {
+          "nome": "Mortadella Blumenau",
+          "valor": 6000.00,
+          "parcelas": "2x R$ 3.000",
+          "status": "Recebido"
+        },
+        {
+          "nome": "Brazza BNU",
+          "valor": 3000.00,
+          "parcelas": "2x R$ 1.500",
+          "status": "Recebido"
+        },
+        {
+          "nome": "Hamburgueria Feio",
+          "valor": 2000.00,
+          "status": "Recebido"
+        },
+        {
+          "nome": "JPR Móveis Rústicos",
+          "valor": 2000.00,
+          "status": "Recebido"
+        },
+        {
+          "nome": "Academia São Pedro",
+          "valor": 1080.00,
+          "status": "Recebido"
+        },
+        {
+          "nome": "Estilo Tulipa",
+          "valor": 659.00,
+          "status": "Recebido"
+        },
+        {
+          "nome": "Outros",
+          "valor": 241.00,
+          "status": "Recebido"
+        }
+      ]
+    },
+    "a_receber": {
+      "total": 4500.00,
+      "detalhamento": [
+        {
+          "nome": "Realizzati Móveis",
+          "valor": 2500.00,
+          "vencimento": "25/11/2025",
+          "status": "Pendente"
+        },
+        {
+          "nome": "Alexandria Burger (1/2)",
+          "valor": 1000.00,
+          "vencimento": "10/11/2025",
+          "status": "Pendente"
+        },
+        {
+          "nome": "Alexandria Burger (2/2)",
+          "valor": 1000.00,
+          "vencimento": "20/11/2025",
+          "status": "Pendente"
+        }
+      ]
+    }
+  },
+  "contas_pagar": {
+    "total": 43047.07,
+    "status_pagamento": 100.0,
+    "categorias": {
+      "pessoal": {
+        "total": 16018.70,
+        "percentual": 37.2,
+        "detalhamento": {
+          "salarios": {
+            "total": 11155.00,
+            "funcionarios": [
+              {"nome": "Igor", "valor": 2300.00},
+              {"nome": "Eloize", "valor": 3255.00},
+              {"nome": "Ederson", "valor": 3000.00},
+              {"nome": "Victor", "valor": 2700.00}
+            ]
+          },
+          "comercial": {
+            "total": 3170.00,
+            "detalhamento": [
+              {"nome": "Dante (Closer)", "valor": 3170.00}
+            ]
+          },
+          "servicos": {
+            "total": 475.00,
+            "detalhamento": [
+              {"nome": "Natali", "valor": 475.00}
+            ]
+          },
+          "investimento_equipamento": 1118.70
+        }
+      },
+      "locacao_aluguel": {
+        "total": 11200.00,
+        "percentual": 26.0,
+        "detalhamento": [
+          {
+            "descricao": "Monica - Sala nova (Caução)",
+            "valor": 8400.00
+          },
+          {
+            "descricao": "Monica - Aluguel Novembro",
+            "valor": 2800.00
+          }
+        ]
+      },
+      "alpha_franquia": {
+        "total": 5065.00,
+        "percentual": 11.8,
+        "detalhamento": "Taxa de franquia Matriz Alpha"
+      },
+      "adiantamentos": {
+        "total": 3573.49,
+        "percentual": 8.3,
+        "detalhamento": [
+          {"nome": "Juan Fernando (sócio)", "valor": 3573.49}
+        ]
+      },
+      "outros": {
+        "total": 3285.10,
+        "percentual": 7.6
+      },
+      "ferramentas_software": {
+        "total": 1163.79,
+        "percentual": 2.7,
+        "status": "Parcialmente pago"
+      },
+      "alimentacao": {
+        "total": 1017.68,
+        "percentual": 2.4
+      },
+      "operacionais": {
+        "total": 1013.74,
+        "percentual": 2.4
+      },
+      "combustivel": {
+        "total": 709.57,
+        "percentual": 1.6
+      }
+    }
+  },
+  "analise_bancos": {
+    "asaas": {
+      "clientes": 6,
+      "tcv": 27400.00,
+      "repasses": 14929.00,
+      "taxa_retida": 45.5
+    },
+    "infinite": {
+      "clientes": 4,
+      "tcv": 31000.00,
+      "repasses": 13426.00,
+      "taxa_retida": 56.7
+    }
+  },
+  "analise_origem": {
+    "matriz_gratis": {
+      "clientes": 6,
+      "tcv": 43900.00,
+      "repasses": 19131.00,
+      "percentual_recebido": 43.6
+    },
+    "prospeccao": {
+      "clientes": 3,
+      "tcv": 7000.00,
+      "repasses": 5942.00,
+      "percentual_recebido": 84.9
+    },
+    "matriz": {
+      "clientes": 1,
+      "tcv": 7500.00,
+      "repasses": 3282.00,
+      "percentual_recebido": 43.8
+    }
+  },
+  "pontos_positivos": [
+    "100% das contas pagas em outubro",
+    "Projeção financeira positiva com recebíveis (+R$ 3.317,98)",
+    "Baixo endividamento",
+    "Taxa de recebimento de 90,3%",
+    "Boa diversificação entre clientes Matriz e diretos",
+    "Crescimento de 4,3% no MRR vs setembro"
+  ],
+  "pontos_atencao": [
+    "61% dos gastos são custos fixos (Pessoal + Locação)",
+    "Resultado negativo em outubro (-R$ 1.182,02)",
+    "Dependência de recebíveis para resultado positivo",
+    "Yellow Freshfood: R$ 1.470,16 estornado",
+    "Apenas 4 clientes respondem por 50% da receita"
+  ],
+  "recomendacoes": [
+    "Acompanhar de perto o recebimento dos R$ 4.500,00 pendentes",
+    "Manter controle rigoroso dos custos fixos",
+    "Avaliar necessidade e ROI de todas as ferramentas/software",
+    "Expandir base de clientes para reduzir dependência",
+    "Criar reserva de emergência para meses com resultado negativo",
+    "Negociar taxas bancárias (Asaas 45,5% e Infinite 56,7% retidos)"
+  ],
+  "evolucao_mrr": {
+    "maio": 35200,
+    "junho": 37800,
+    "julho": 38900,
+    "agosto": 40150,
+    "setembro": 40150,
+    "outubro": 41865
+  }
+}

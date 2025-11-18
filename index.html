@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starken Tecnologia - Dashboard Financeiro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="auth.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #4A6B54;
+            --secondary-green: #7A9B84;
+            --light-green: #B8D4BE;
+            --bg-gray: #f5f7fa;
+            --white: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #e1e8ed;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            padding: 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-image {
+            width: 140px;
+            height: auto;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--white);
+            text-align: center;
+            letter-spacing: 1px;
+            display: none;
+        }
+
+        .company-info {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 8px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--white);
+            border-left-color: var(--light-green);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255,255,255,0.15);
+            color: var(--white);
+            border-left-color: var(--white);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .page-header-content {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        #user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .kpi-title {
+            font-size: 13px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .kpi-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .kpi-change.positive {
+            color: var(--success);
+        }
+
+        .kpi-change.negative {
+            color: var(--danger);
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .table-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--bg-gray);
+        }
+
+        th {
+            padding: 15px 25px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 18px 25px;
+            border-top: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: var(--bg-gray);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Grid Layout */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Clients Section */
+        .clients-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-header-clients {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title-clients {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle-clients {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .clients-tabs {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .client-tab {
+            padding: 12px 24px;
+            border: 2px solid var(--border-color);
+            background: var(--white);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .client-tab:hover {
+            border-color: var(--primary-green);
+            background: var(--bg-gray);
+        }
+
+        .client-tab.active {
+            background: var(--primary-green);
+            color: var(--white);
+            border-color: var(--primary-green);
+        }
+
+        .tab-icon {
+            font-size: 18px;
+        }
+
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .client-card {
+            background: linear-gradient(135deg, var(--bg-gray) 0%, var(--white) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .client-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(74, 107, 84, 0.15);
+            border-color: var(--primary-green);
+        }
+
+        .client-logo {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .client-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .client-category {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .client-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-green);
+            padding: 8px 12px;
+            background: rgba(74, 107, 84, 0.1);
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        /* Utility Classes */
+        .text-success { color: var(--success); }
+        .text-warning { color: var(--warning); }
+        .text-danger { color: var(--danger); }
+        .text-muted { color: var(--text-light); }
+
+        .bg-primary { background-color: var(--primary-green); }
+        .bg-success { background-color: #d4edda; }
+        .bg-warning { background-color: #fff3cd; }
+        .bg-danger { background-color: #f8d7da; }
+
+        .mb-30 { margin-bottom: 30px; }
+        .mt-20 { margin-top: 20px; }
+
+        /* Client Badge */
+        .client-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background-color: var(--light-green);
+            color: var(--primary-green);
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* Modern Client Tables */
+        .client-tables-container {
+            margin-top: 30px;
+        }
+
+        .client-table-header {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        @media (max-width: 1200px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .company-table-card {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 2px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .company-table-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .starken-card {
+            border-top: 4px solid var(--primary-green);
+        }
+
+        .alpha-card {
+            border-top: 4px solid #7A9B84;
+        }
+
+        .company-table-header {
+            background: linear-gradient(135deg, #f8faf9 0%, #ffffff 100%);
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .company-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--primary-green);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(74, 107, 84, 0.2);
+        }
+
+        .alpha-icon {
+            background: linear-gradient(135deg, #7A9B84 0%, #B8D4BE 100%);
+        }
+
+        .company-info {
+            flex: 1;
+        }
+
+        .company-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .company-label {
+            font-size: 13px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .company-stats {
+            text-align: right;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .table-wrapper {
+            padding: 0;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .modern-table thead {
+            background: var(--bg-gray);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modern-table th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .modern-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .modern-table tbody tr:hover {
+            background: #f8faf9;
+        }
+
+        .modern-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges */
+        .badge-active, .badge-new, .badge-completed, .badge-pending,
+        .badge-tcv, .badge-bonus, .badge-transition {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-block;
+        }
+
+        .badge-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-new {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .badge-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-tcv {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .badge-bonus {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-transition {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* Month Selector */
+        .month-selector-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .month-selector-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .month-select {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .month-select:hover {
+            border-color: var(--primary-green);
+        }
+
+        .month-select:focus {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(74, 107, 84, 0.1);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="logo-starken.png" alt="Starken Tecnologia" class="logo-image">
+                <div class="company-info">Starken Tecnologia Ltda<br>CNPJ: 62.839.769/0001-55</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item active">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="pages/contas-pagar.html" class="nav-item">
+                    <span class="nav-icon">💳</span>
+                    Contas a Pagar
+                </a>
+                <a href="pages/contas-receber.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    Contas a Receber
+                </a>
+                <a href="pages/dre.html" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    DRE
+                </a>
+                <a href="pages/analiticos.html" class="nav-item">
+                    <span class="nav-icon">🔍</span>
+                    Analíticos
+                </a>
+                <a href="pages/relatorios.html" class="nav-item">
+                    <span class="nav-icon">📄</span>
+                    Relatórios
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-header-content">
+                    <h1 class="page-title">Dashboard Financeiro</h1>
+                    <p class="page-subtitle" id="page-subtitle">Visão geral do desempenho financeiro - <span id="periodo-atual">Novembro 2025</span></p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <!-- Month Selector -->
+                    <div class="month-selector-container">
+                        <span class="month-selector-label">📅 Período:</span>
+                        <select class="month-select" onchange="changeMes(this.value)">
+                            <option value="2025-11" selected>Novembro 2025 (Atual)</option>
+                            <option value="2025-12">Dezembro 2025 (Projeção)</option>
+                        </select>
+                    </div>
+
+                    <div id="user-info">
+                        <!-- Informações do usuário serão inseridas aqui pelo JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-title">MRR Atual</div>
+                        <div class="kpi-icon bg-success">💰</div>
+                    </div>
+                    <div class="kpi-value" id="kpi-mrr">R$ 35.768</div>
+                    <div class="kpi-change" id="kpi-mrr-change">Mês atual
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-title">Clientes Ativos</div>
+                        <div class="kpi-icon bg-primary">👥</div>
+                    </div>
+                    <div class="kpi-value" id="kpi-clientes">21</div>
+                    <div class="kpi-change" id="kpi-clientes-change">13 Starken + 8 Alpha
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-title">Despesas Mês</div>
+                        <div class="kpi-icon bg-warning">💸</div>
+                    </div>
+                    <div class="kpi-value" id="kpi-despesas">R$ 20.370</div>
+                    <div class="kpi-change" id="kpi-despesas-change">Operacional sem Alpha
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-title">Resultado Projetado</div>
+                        <div class="kpi-icon bg-success">📊</div>
+                    </div>
+                    <div class="kpi-value" id="kpi-resultado">R$ 15.398</div>
+                    <div class="kpi-change positive" id="kpi-resultado-margem">43,1% de margem
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Evolução da Receita (Últimos 6 Meses)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Despesas por Categoria</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="expensesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clientes Ativos Section -->
+            <div class="clients-section">
+                <div class="section-header-clients">
+                    <h2 class="section-title-clients">Clientes Ativos</h2>
+                    <p class="section-subtitle-clients">Portfólio atual de 21 clientes da Starken e Alpha</p>
+                </div>
+
+                <div class="clients-tabs">
+                    <button class="client-tab active" onclick="showClientTab('starken')">
+                        <span class="tab-icon">🚀</span>
+                        <span class="tab-label">Starken (13)</span>
+                    </button>
+                    <button class="client-tab" onclick="showClientTab('alpha')">
+                        <span class="tab-icon">⭐</span>
+                        <span class="tab-label">Alpha (8)</span>
+                    </button>
+                </div>
+
+                <!-- Starken Clients -->
+                <div id="starken-clients" class="clients-grid">
+                    <div class="client-card">
+                        <div class="client-logo">🍕</div>
+                        <h3 class="client-name">Mortadella Blumenau</h3>
+                        <p class="client-category">Pizzaria</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍕</div>
+                        <h3 class="client-name">Mortadella Tabajara</h3>
+                        <p class="client-category">Pizzaria</p>
+                        <div class="client-value">Bônus Mortadella</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍔</div>
+                        <h3 class="client-name">Hamburgueria Feio</h3>
+                        <p class="client-category">Hamburgueria</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">💪</div>
+                        <h3 class="client-name">Academia São Pedro</h3>
+                        <p class="client-category">Academia</p>
+                        <div class="client-value">R$ 1.080/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🪑</div>
+                        <h3 class="client-name">JPR Móveis Rústicos</h3>
+                        <p class="client-category">Móveis</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍖</div>
+                        <h3 class="client-name">Brazza BNU</h3>
+                        <p class="client-category">Churrascaria</p>
+                        <div class="client-value">R$ 3.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🪑</div>
+                        <h3 class="client-name">Realizzati Móveis</h3>
+                        <p class="client-category">Móveis</p>
+                        <div class="client-value">R$ 2.500/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍕</div>
+                        <h3 class="client-name">Suprema Pizza</h3>
+                        <p class="client-category">Pizzaria</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🚗</div>
+                        <h3 class="client-name">Shield Car Blumenau</h3>
+                        <p class="client-category">Automotivo</p>
+                        <div class="client-value">R$ 297/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">👗</div>
+                        <h3 class="client-name">Estilo Tulipa</h3>
+                        <p class="client-category">Moda</p>
+                        <div class="client-value">R$ 659/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🌮</div>
+                        <h3 class="client-name">Rosa Mexicano Blumenau</h3>
+                        <p class="client-category">Mexicano</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🌮</div>
+                        <h3 class="client-name">Rosa Mexicano Brusque</h3>
+                        <p class="client-category">Mexicano</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍔</div>
+                        <h3 class="client-name">Alexandria Burger</h3>
+                        <p class="client-category">Hamburgueria</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                </div>
+
+                <!-- Alpha Clients -->
+                <div id="alpha-clients" class="clients-grid" style="display: none;">
+                    <div class="client-card">
+                        <div class="client-logo">🍽️</div>
+                        <h3 class="client-name">Oca Restaurante</h3>
+                        <p class="client-category">Restaurante</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🌮</div>
+                        <h3 class="client-name">Madrugão Lanches</h3>
+                        <p class="client-category">Lanchonete</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍔</div>
+                        <h3 class="client-name">World Burger</h3>
+                        <p class="client-category">TCV</p>
+                        <div class="client-value">Ticket Médio</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🥟</div>
+                        <h3 class="client-name">Esfiha Rio</h3>
+                        <p class="client-category">Em transição para matriz</p>
+                        <div class="client-value">-</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍝</div>
+                        <h3 class="client-name">Oficina da Massa</h3>
+                        <p class="client-category">TCV</p>
+                        <div class="client-value">Ticket Médio</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍔</div>
+                        <h3 class="client-name">Bigu's Burger</h3>
+                        <p class="client-category">TCV</p>
+                        <div class="client-value">Ticket Médio</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍕</div>
+                        <h3 class="client-name">Pizzaria Madrid</h3>
+                        <p class="client-category">TCV</p>
+                        <div class="client-value">Ticket Médio</div>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <!-- Two Column Client Tables -->
+            <div class="client-tables-container">
+                <div class="client-table-header">
+                    <h2 class="section-title">Carteira de Clientes (21 Ativos)</h2>
+                    <p class="section-subtitle">Distribuição entre Starken (Matriz) e Alpha (Projeto)</p>
+                </div>
+
+                <div class="tables-grid">
+                    <!-- STARKEN TABLE -->
+                    <div class="company-table-card starken-card">
+                        <div class="company-table-header">
+                            <div class="company-icon">🚀</div>
+                            <div class="company-info">
+                                <h3 class="company-name">Starken</h3>
+                                <p class="company-label">Empresa Matriz · 13 Clientes</p>
+                            </div>
+                            <div class="company-stats">
+                                <div class="stat-value">R$ 23.036</div>
+                                <div class="stat-label">MRR Total</div>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Cidade</th>
+                                        <th>MRR</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Mortadella Blumenau</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Mortadella Tabajara</strong></td>
+                                        <td>Blumenau</td>
+                                        <td><span class="badge-bonus">Bônus</span></td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Brazza BNU</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 3.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Realizzati Móveis</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 2.500</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>JPR Móveis Rústicos</strong></td>
+                                        <td>Luiz Alves</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Hamburgueria Feio</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Academia São Pedro</strong></td>
+                                        <td>Brusque</td>
+                                        <td>R$ 1.080</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Suprema Pizza</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Shield Car Blumenau</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 297</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Estilo Tulipa</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 659</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Rosa Mexicano Blumenau</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Rosa Mexicano Brusque</strong></td>
+                                        <td>Brusque</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Alexandria Burger</strong></td>
+                                        <td>Indaial</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ALPHA TABLE -->
+                    <div class="company-table-card alpha-card">
+                        <div class="company-table-header">
+                            <div class="company-icon alpha-icon">⭐</div>
+                            <div class="company-info">
+                                <h3 class="company-name">Alpha</h3>
+                                <p class="company-label">Projeto Nichado · 8 Clientes</p>
+                            </div>
+                            <div class="company-stats">
+                                <div class="stat-value">R$ 4.000</div>
+                                <div class="stat-label">MRR Recorrente</div>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Cidade</th>
+                                        <th>Modelo</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Oca Restaurante</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Madrugão Lanches</strong></td>
+                                        <td>Blumenau</td>
+                                        <td>R$ 2.000</td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Pizzaria Don Chevico</strong></td>
+                                        <td>-</td>
+                                        <td><span class="badge-tcv">TCV</span></td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>World Burger</strong></td>
+                                        <td>-</td>
+                                        <td><span class="badge-tcv">TCV</span></td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Oficina da Massa</strong></td>
+                                        <td>-</td>
+                                        <td><span class="badge-tcv">TCV</span></td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Bigu's Burger</strong></td>
+                                        <td>-</td>
+                                        <td><span class="badge-tcv">TCV</span></td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Pizzaria Madrid</strong></td>
+                                        <td>-</td>
+                                        <td><span class="badge-tcv">TCV</span></td>
+                                        <td><span class="badge-active">Ativo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Esfiha Rio</strong></td>
+                                        <td>-</td>
+                                        <td><span class="badge-transition">Transição Matriz</span></td>
+                                        <td><span class="badge-pending">Em transição</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script src="dados-mensais.js"></script>
+    <script>
+        // Verificar se dados foram carregados
+        console.log('Dados mensais carregados:', typeof dadosMensais !== 'undefined');
+        console.log('Novembro:', dadosMensais['2025-11']);
+        console.log('Dezembro:', dadosMensais['2025-12']);
+
+        // ==========================================
+        // SISTEMA DE GESTÃO DE MESES - DASHBOARD
+        // ==========================================
+
+        // Estado global do dashboard - DECLARADO ANTES DOS CHARTS
+        const DashboardState = {
+            mesAtual: '2025-11', // Mês atual padrão: Novembro
+            charts: {
+                mrr: null,
+                despesas: null
+            }
+        };
+
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        DashboardState.charts.mrr = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Novembro'],
+                datasets: [{
+                    label: 'MRR',
+                    data: [35768],
+                    borderColor: '#4A6B54',
+                    backgroundColor: 'rgba(74, 107, 84, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#4A6B54',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#2c3e50',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return 'MRR: R$ ' + context.parsed.y.toLocaleString('pt-BR');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + (value / 1000) + 'k';
+                            },
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: '#e1e8ed'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Expenses Pie Chart
+        const expensesCtx = document.getElementById('expensesChart').getContext('2d');
+        DashboardState.charts.despesas = new Chart(expensesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pessoal', 'Repasse Alpha', 'Comercial', 'Estrutura', 'Ferramentas'],
+                datasets: [{
+                    data: [11300, 7500, 6000, 3009, 2560.90],
+                    backgroundColor: [
+                        '#4A6B54',
+                        '#7A9B84',
+                        '#B8D4BE',
+                        '#27ae60',
+                        '#f39c12'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#2c3e50',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': R$ ' + value.toLocaleString('pt-BR') + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Navigation interactivity - removed preventDefault to allow normal link navigation
+
+        // Client tabs functionality
+        function showClientTab(tabName) {
+            // Hide all client grids
+            document.getElementById('starken-clients').style.display = 'none';
+            document.getElementById('alpha-clients').style.display = 'none';
+
+            // Show selected grid
+            document.getElementById(tabName + '-clients').style.display = 'grid';
+
+            // Update active tab
+            const tabs = document.querySelectorAll('.client-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.closest('.client-tab').classList.add('active');
+        }
+
+        // Utilitários
+        const Utils = {
+            formatarReais: (valor) => {
+                return 'R$ ' + Math.round(valor).toLocaleString('pt-BR');
+            },
+
+            calcularVariacao: (valorAtual, valorAnterior) => {
+                return ((valorAtual - valorAnterior) / valorAnterior * 100).toFixed(1);
+            }
+        };
+
+        // Gerenciador de KPIs
+        const KPIManager = {
+            elementos: {
+                mrr: null,
+                mrrChange: null,
+                clientes: null,
+                clientesChange: null,
+                despesas: null,
+                despesasChange: null,
+                resultado: null,
+                resultadoMargem: null,
+                periodoAtual: null
+            },
+
+            init: function() {
+                // Cache de elementos do DOM
+                this.elementos.mrr = document.getElementById('kpi-mrr');
+                this.elementos.mrrChange = document.getElementById('kpi-mrr-change');
+                this.elementos.clientes = document.getElementById('kpi-clientes');
+                this.elementos.clientesChange = document.getElementById('kpi-clientes-change');
+                this.elementos.despesas = document.getElementById('kpi-despesas');
+                this.elementos.despesasChange = document.getElementById('kpi-despesas-change');
+                this.elementos.resultado = document.getElementById('kpi-resultado');
+                this.elementos.resultadoMargem = document.getElementById('kpi-resultado-margem');
+                this.elementos.periodoAtual = document.getElementById('periodo-atual');
+            },
+
+            atualizar: function(mesChave) {
+                console.log('=== Atualizando KPIs para:', mesChave);
+                const dados = dadosMensais[mesChave];
+                if (!dados) {
+                    console.error('Dados não encontrados para o mês:', mesChave);
+                    return;
+                }
+                console.log('Dados do mês:', dados);
+
+                // Calcular valores
+                const despesasSemAlpha = dados.despesas.total - 7500;
+                const resultado = dados.receitas.total - despesasSemAlpha;
+                const margem = ((resultado / dados.receitas.total) * 100).toFixed(1);
+
+                // Atualizar MRR
+                this.elementos.mrr.textContent = Utils.formatarReais(dados.receitas.total);
+                this.elementos.periodoAtual.textContent = dados.periodo;
+
+                // Lógica de comparação entre meses
+                if (mesChave === '2025-12') {
+                    const novembro = dadosMensais['2025-11'];
+
+                    // MRR comparação
+                    const variacaoMRR = Utils.calcularVariacao(dados.receitas.total, novembro.receitas.total);
+                    this.elementos.mrrChange.textContent = `↑ ${variacaoMRR}% vs novembro`;
+                    this.elementos.mrrChange.className = 'kpi-change positive';
+
+                    // Clientes
+                    this.elementos.clientesChange.textContent = '+10 novos clientes em dezembro';
+
+                    // Despesas comparação
+                    const despesasNovSemAlpha = novembro.despesas.total - 7500;
+                    const variacaoDespesas = Utils.calcularVariacao(despesasSemAlpha, despesasNovSemAlpha);
+                    this.elementos.despesasChange.textContent = `↑ ${variacaoDespesas}% vs novembro`;
+                    this.elementos.despesasChange.className = 'kpi-change negative';
+                } else {
+                    // Novembro (mês atual)
+                    this.elementos.mrrChange.textContent = 'Mês atual';
+                    this.elementos.mrrChange.className = 'kpi-change';
+
+                    this.elementos.clientesChange.textContent = '13 Starken + 8 Alpha';
+
+                    this.elementos.despesasChange.textContent = 'Operacional sem Alpha';
+                    this.elementos.despesasChange.className = 'kpi-change';
+                }
+
+                // Atualizar valores de despesas e resultado
+                this.elementos.despesas.textContent = Utils.formatarReais(despesasSemAlpha);
+                this.elementos.resultado.textContent = Utils.formatarReais(resultado);
+                this.elementos.resultadoMargem.textContent = `${margem}% de margem`;
+            }
+        };
+
+        // Gerenciador de Gráficos
+        const ChartManager = {
+            atualizarMRR: function(mesChave) {
+                if (!DashboardState.charts.mrr) return;
+
+                const dados = dadosMensais[mesChave];
+                let labels, values;
+
+                if (mesChave === '2025-12') {
+                    // Dezembro: mostrar evolução de Nov -> Dez
+                    labels = ['Novembro', 'Dezembro'];
+                    values = [
+                        dadosMensais['2025-11'].receitas.total,
+                        dados.receitas.total
+                    ];
+                } else {
+                    // Novembro: mostrar apenas o mês atual
+                    labels = ['Novembro'];
+                    values = [dados.receitas.total];
+                }
+
+                DashboardState.charts.mrr.data.labels = labels;
+                DashboardState.charts.mrr.data.datasets[0].data = values;
+                DashboardState.charts.mrr.update('none'); // Update sem animação para melhor performance
+            },
+
+            atualizarDespesas: function(mesChave) {
+                if (!DashboardState.charts.despesas) return;
+
+                const dados = dadosMensais[mesChave];
+                const cat = dados.despesas.categorias;
+
+                const valores = [
+                    cat.pessoal.total,
+                    7500, // Repasse Alpha (fixo)
+                    cat.comercial.total,
+                    cat.estrutura.total - 7500, // Estrutura sem Alpha
+                    cat.ferramentas.total
+                ];
+
+                DashboardState.charts.despesas.data.datasets[0].data = valores;
+                DashboardState.charts.despesas.update('none'); // Update sem animação
+            },
+
+            atualizarTodos: function(mesChave) {
+                this.atualizarMRR(mesChave);
+                this.atualizarDespesas(mesChave);
+            }
+        };
+
+        // Função principal para mudar o mês
+        function changeMes(mesChave) {
+            console.log('');
+            console.log('═══════════════════════════════════════');
+            console.log('🔄 MUDANÇA DE MÊS:', mesChave);
+            console.log('═══════════════════════════════════════');
+
+            // Atualizar estado
+            DashboardState.mesAtual = mesChave;
+
+            // Atualizar todos os componentes
+            KPIManager.atualizar(mesChave);
+            ChartManager.atualizarTodos(mesChave);
+
+            console.log('✅ Atualização concluída!');
+            console.log('');
+        }
+
+        // Inicialização do dashboard
+        window.addEventListener('load', function() {
+            console.log('Inicializando Dashboard Financeiro...');
+
+            // Inicializar gerenciadores
+            KPIManager.init();
+
+            // Carregar dados do mês atual (Novembro)
+            KPIManager.atualizar(DashboardState.mesAtual);
+
+            console.log('Dashboard inicializado com sucesso!');
+        });
+    </script>
+</body>
+</html>

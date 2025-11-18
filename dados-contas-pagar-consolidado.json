@@ -1,0 +1,138 @@
+{
+  "outubro_2025": {
+    "alpha_pendente": {
+      "total": 7500.00,
+      "status": "A Pagar",
+      "descricao": "Franquia Alpha - Outubro pendente",
+      "itens": [
+        {"descricao": "Franquia", "valor": 7500.00, "status": "A Pagar"}
+      ]
+    },
+    "resumo": {
+      "total_pendente": 7500.00,
+      "observacao": "Pagamento de franquia Alpha de outubro ainda pendente em novembro"
+    }
+  },
+  "novembro_2025": {
+    "comercial": {
+      "total": 6000.00,
+      "pago": 4000.00,
+      "pendente": 2000.00,
+      "percentual_pago": 66.7,
+      "itens": [
+        {"descricao": "Dante - Closer", "valor": 2500.00, "status": "Feito", "tipo": "Salário"},
+        {"descricao": "Nathan - SDR", "valor": 750.00, "status": "A Pagar", "tipo": "Comissão"},
+        {"descricao": "João - SDR", "valor": 750.00, "status": "A Pagar", "tipo": "Comissão"},
+        {"descricao": "Nathan", "valor": 750.00, "status": "Feito", "tipo": "Comissão"},
+        {"descricao": "João", "valor": 750.00, "status": "Feito", "tipo": "Comissão"},
+        {"descricao": "Dante", "valor": 500.00, "status": "A Pagar", "tipo": "Bonificação"}
+      ]
+    },
+    "estrutura": {
+      "total": 10509.00,
+      "pago": 2800.00,
+      "pendente": 7709.00,
+      "percentual_pago": 26.6,
+      "itens": [
+        {"descricao": "Aluguel - Sala", "valor": 2800.00, "status": "Feito", "categoria": "Locação"},
+        {"descricao": "Celesc - Energia", "valor": 100.00, "status": "A Pagar", "categoria": "Utilidades"},
+        {"descricao": "Internet - Claro", "valor": 109.00, "status": "A Pagar", "categoria": "Comunicação"},
+        {"descricao": "Pagamento - Alpha", "valor": 7500.00, "status": "A Pagar", "categoria": "Franquia"}
+      ]
+    },
+    "resumo": {
+      "total_geral": 16509.00,
+      "total_pago": 6800.00,
+      "total_pendente": 9709.00,
+      "percentual_pago": 41.2,
+      "percentual_pendente": 58.8
+    }
+  },
+  "analise_detalhada": {
+    "por_categoria": {
+      "pessoal_comercial": {
+        "total": 6000.00,
+        "pago": 4000.00,
+        "pendente": 2000.00,
+        "percentual": 36.3,
+        "detalhamento": {
+          "salarios": 2500.00,
+          "comissoes": 3000.00,
+          "bonificacoes": 500.00
+        }
+      },
+      "franquia_alpha": {
+        "total": 15000.00,
+        "pago": 0.00,
+        "pendente": 15000.00,
+        "percentual": 90.9,
+        "observacao": "R$ 7.500 de outubro + R$ 7.500 de novembro pendentes"
+      },
+      "locacao": {
+        "total": 2800.00,
+        "pago": 2800.00,
+        "pendente": 0.00,
+        "percentual": 17.0
+      },
+      "utilidades": {
+        "total": 209.00,
+        "pago": 0.00,
+        "pendente": 209.00,
+        "percentual": 1.3,
+        "itens": ["Energia: R$ 100", "Internet: R$ 109"]
+      }
+    },
+    "por_status": {
+      "pago": {
+        "valor": 6800.00,
+        "percentual": 29.0,
+        "itens": 4
+      },
+      "pendente": {
+        "valor": 17209.00,
+        "percentual": 71.0,
+        "itens": 8
+      }
+    },
+    "evolucao": {
+      "outubro_conhecido": 7500.00,
+      "novembro_total": 16509.00,
+      "variacao_absoluta": 9009.00,
+      "variacao_percentual": 120.1,
+      "observacao": "Dados de outubro incompletos - apenas Alpha franquia"
+    }
+  },
+  "fluxo_caixa": {
+    "receitas_dezembro": 38030.00,
+    "despesas_pendentes_total": 17209.00,
+    "resultado_projetado": 20821.00,
+    "margem_percentual": 54.7,
+    "alertas": [
+      "⚠️ R$ 15.000 de franquia Alpha acumulada (out + nov)",
+      "⚠️ 71% das despesas ainda pendentes",
+      "⚠️ Necessário receber pelo menos 45% da receita para cobrir despesas"
+    ]
+  },
+  "prioridades_pagamento": {
+    "urgente": [
+      {"item": "Franquia Alpha (Outubro)", "valor": 7500.00, "motivo": "Atrasado"},
+      {"item": "Franquia Alpha (Novembro)", "valor": 7500.00, "motivo": "Contrato"},
+      {"item": "Dante - Bonificação", "valor": 500.00, "motivo": "Equipe comercial"}
+    ],
+    "importante": [
+      {"item": "Nathan SDR - Comissão", "valor": 750.00},
+      {"item": "João SDR - Comissão", "valor": 750.00}
+    ],
+    "normal": [
+      {"item": "Celesc - Energia", "valor": 100.00},
+      {"item": "Internet Claro", "valor": 109.00}
+    ]
+  },
+  "recomendacoes": [
+    "🎯 URGENTE: Negociar pagamento da franquia Alpha acumulada (R$ 15.000)",
+    "🎯 Priorizar recebimento da 1ª quinzena de dezembro (R$ 11.239)",
+    "🎯 Garantir pagamento das comissões da equipe comercial (R$ 2.000)",
+    "🎯 Manter utilidades em dia (R$ 209)",
+    "🎯 Criar reserva de emergência para evitar acúmulo de pendências"
+  ]
+}

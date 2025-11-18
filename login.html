@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Starken Dashboard Financeiro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #4A6B54 0%, #2d4a37 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-image {
+            width: 180px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .logo-section h1 {
+            color: #4A6B54;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .logo-section p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .company-info {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .company-info h2 {
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .company-info p {
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4A6B54;
+            box-shadow: 0 0 0 3px rgba(74, 107, 84, 0.1);
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4A6B54 0%, #5a8065 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 107, 84, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #c33;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+        }
+
+        .partner-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4A6B54, #5a8065);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <img src="logo-starken.png" alt="Starken Tecnologia" class="logo-image">
+            <h1>Dashboard Financeiro</h1>
+            <p>🔐 Área Exclusiva de Sócios</p>
+        </div>
+
+        <div class="company-info">
+            <h2>Starken Tecnologia Ltda</h2>
+            <p>CNPJ: 62.839.769/0001-55</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="partner">Sócio</label>
+                <select id="partner" required>
+                    <option value="">Selecione seu nome</option>
+                    <option value="juan">Juan Minni - CEO</option>
+                    <option value="dante">Dante Martins - CCO</option>
+                    <option value="gabriel">Gabriel Anibelli - CPO</option>
+                    <option value="victor">Victor Lapegna - COO</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <div class="password-toggle">
+                    <input type="password" id="password" placeholder="Digite sua senha" required>
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword()">👁️</button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">Entrar no Dashboard</button>
+        </form>
+
+        <div class="footer-text">
+            Dashboard Financeiro v1.0<br>
+            © 2025 Starken Tecnologia
+        </div>
+    </div>
+
+    <script>
+        // Credenciais dos sócios (em produção, isso seria validado no backend)
+        const partners = {
+            juan: {
+                name: 'Juan Minni',
+                role: 'CEO',
+                password: 'Starken2025#@PER@',
+                email: 'juan@starkentecnologia.com.br'
+            },
+            dante: {
+                name: 'Dante Martins',
+                role: 'CCO - Chief Commercial Officer',
+                password: 'Starken2025#@PER@',
+                email: 'dante@starkentecnologia.com.br'
+            },
+            gabriel: {
+                name: 'Gabriel Anibelli',
+                role: 'CPO - Chief Public Relations Officer',
+                password: 'Starken2025#@PER@',
+                email: 'gabriel@starkentecnologia.com.br'
+            },
+            victor: {
+                name: 'Victor Lapegna',
+                role: 'COO - Chief Operating Officer',
+                password: 'Starken2025#@PER@',
+                email: 'victor@starkentecnologia.com.br'
+            }
+        };
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle-btn');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 4000);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const partnerSelect = document.getElementById('partner').value;
+            const password = document.getElementById('password').value;
+
+            if (!partnerSelect) {
+                showError('Por favor, selecione seu nome.');
+                return;
+            }
+
+            if (!password) {
+                showError('Por favor, digite sua senha.');
+                return;
+            }
+
+            // Validar credenciais
+            const partner = partners[partnerSelect];
+
+            if (partner && partner.password === password) {
+                // Salvar dados do sócio logado no localStorage
+                const sessionData = {
+                    id: partnerSelect,
+                    name: partner.name,
+                    role: partner.role,
+                    email: partner.email,
+                    loginTime: new Date().toISOString()
+                };
+
+                localStorage.setItem('starken_session', JSON.stringify(sessionData));
+
+                // Redirecionar para o dashboard
+                window.location.href = 'index.html';
+            } else {
+                showError('Senha incorreta. Tente novamente.');
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        });
+
+        // Verificar se já está logado
+        window.addEventListener('load', function() {
+            const session = localStorage.getItem('starken_session');
+            if (session) {
+                // Já está logado, redirecionar para o dashboard
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
