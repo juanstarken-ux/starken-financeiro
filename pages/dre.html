@@ -20,6 +20,7 @@
             --success: #27ae60;
             --warning: #f39c12;
             --danger: #e74c3c;
+            --info: #3498db;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -39,12 +40,7 @@
         }
         .sidebar-header { padding: 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .logo-image { width: 140px; height: auto; display: block; margin: 0 auto 15px; }
-        .company-info {
-            text-align: center;
-            font-size: 11px;
-            color: rgba(255,255,255,0.7);
-            margin-top: 8px;
-        }
+        .company-info { text-align: center; font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 8px; }
         .sidebar-nav { padding: 20px 0; }
         .nav-item {
             padding: 14px 25px;
@@ -56,37 +52,14 @@
             text-decoration: none;
             border-left: 3px solid transparent;
         }
-        .nav-item:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: var(--white);
-            border-left-color: var(--light-green);
-        }
-        .nav-item.active {
-            background-color: rgba(255,255,255,0.15);
-            color: var(--white);
-            border-left-color: var(--white);
-            font-weight: 600;
-        }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: var(--white); border-left-color: var(--light-green); }
+        .nav-item.active { background-color: rgba(255,255,255,0.15); color: var(--white); border-left-color: var(--white); font-weight: 600; }
         .nav-icon { margin-right: 12px; font-size: 18px; }
         .main-content { flex: 1; margin-left: 260px; padding: 30px; }
-        .page-header {
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .page-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-        .page-subtitle {
-            color: var(--text-light);
-            font-size: 14px;
-        }
+        .page-header { margin-bottom: 30px; }
+        .page-title { font-size: 28px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-light); font-size: 14px; }
         
-        /* Month Selector */
         .month-selector {
             background: var(--white);
             padding: 20px;
@@ -98,11 +71,7 @@
             align-items: center;
             gap: 15px;
         }
-        .month-selector-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
+        .month-selector-label { font-size: 14px; font-weight: 600; color: var(--text-dark); }
         .month-select {
             padding: 10px 15px;
             border: 2px solid var(--primary-green);
@@ -112,8 +81,46 @@
             color: var(--text-dark);
             background-color: var(--white);
             cursor: pointer;
-            transition: all 0.3s ease;
             min-width: 200px;
+        }
+        
+        /* Analysis Cards */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 1400px) { .analysis-grid { grid-template-columns: repeat(2, 1fr); } }
+        
+        .analysis-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--primary-green);
+        }
+        
+        .analysis-label {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .analysis-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .analysis-subtitle {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 5px;
         }
         
         /* DRE Grid */
@@ -121,12 +128,10 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
-        @media (max-width: 1200px) {
-            .dre-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 1200px) { .dre-grid { grid-template-columns: 1fr; } }
         
         .dre-card {
             background: var(--white);
@@ -145,17 +150,8 @@
             border-bottom: 2px solid var(--border-color);
         }
         
-        .dre-card-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-        
-        .dre-card-total {
-            font-size: 24px;
-            font-weight: 700;
-        }
-        
+        .dre-card-title { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+        .dre-card-total { font-size: 24px; font-weight: 700; }
         .dre-card-total.receita { color: var(--success); }
         .dre-card-total.despesa { color: var(--danger); }
         
@@ -168,19 +164,28 @@
         }
         
         .dre-item:last-child { border-bottom: none; }
+        .dre-item-name { font-size: 14px; color: var(--text-dark); }
+        .dre-item-value { font-size: 15px; font-weight: 600; color: var(--text-dark); }
         
-        .dre-item-name {
-            font-size: 14px;
-            color: var(--text-dark);
+        .dre-item.highlight {
+            background: #fff3cd;
+            padding: 12px 15px;
+            margin: 10px -15px;
+            border-radius: 8px;
+            border: 2px solid #ffc107;
         }
         
-        .dre-item-value {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
+        .dre-item.highlight .dre-item-name { font-weight: 700; color: #856404; }
+        .dre-item.highlight .dre-item-value { color: #856404; }
         
         /* Resultado Card */
+        .resultado-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
         .resultado-card {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
             color: var(--white);
@@ -210,17 +215,76 @@
             opacity: 0.8;
         }
         
+        .alpha-card {
+            background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
+            color: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
         /* Chart Container */
         .chart-container {
             position: relative;
-            height: 300px;
+            height: 280px;
             margin-top: 20px;
         }
+        
+        /* Comparison Section */
+        .comparison-section {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+        
+        .comparison-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 1200px) { .comparison-grid { grid-template-columns: 1fr; } }
+        
+        .month-comparison {
+            padding: 20px;
+            background: var(--bg-gray);
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-green);
+        }
+        
+        .month-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+        
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        
+        .comparison-item-label { color: var(--text-light); }
+        .comparison-item-value { font-weight: 600; color: var(--text-dark); }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <img src="../logo-starken.png" alt="Starken Tecnologia" class="logo-image">
@@ -248,16 +312,12 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <div class="page-header">
-                <div>
-                    <h1 class="page-title">DRE - Demonstração do Resultado</h1>
-                    <p class="page-subtitle" id="pageSubtitle">Análise de receitas, despesas e resultado mensal</p>
-                </div>
+                <h1 class="page-title">DRE - Demonstração do Resultado</h1>
+                <p class="page-subtitle" id="pageSubtitle">Análise de receitas, despesas e resultado mensal</p>
             </div>
 
-            <!-- Month Selector -->
             <div class="month-selector">
                 <span class="month-selector-label">📅 Selecione o Período:</span>
                 <select class="month-select" id="monthSelect" onchange="changeMonth()">
@@ -267,31 +327,49 @@
                 </select>
             </div>
 
+            <!-- Analysis Cards -->
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <div class="analysis-label">Ticket Médio</div>
+                    <div class="analysis-value" id="ticketMedio">R$ 0</div>
+                    <div class="analysis-subtitle">Por cliente</div>
+                </div>
+                <div class="analysis-card">
+                    <div class="analysis-label">Total Clientes</div>
+                    <div class="analysis-value" id="totalClientes">0</div>
+                    <div class="analysis-subtitle">No período</div>
+                </div>
+                <div class="analysis-card">
+                    <div class="analysis-label">Margem Líquida</div>
+                    <div class="analysis-value" id="margemLiquida">0%</div>
+                    <div class="analysis-subtitle">Resultado / Receita</div>
+                </div>
+                <div class="analysis-card">
+                    <div class="analysis-label">Burn Rate</div>
+                    <div class="analysis-value" id="burnRate">R$ 0</div>
+                    <div class="analysis-subtitle">Despesas / Mês</div>
+                </div>
+            </div>
+
             <!-- DRE Grid -->
             <div class="dre-grid">
-                <!-- Receitas -->
                 <div class="dre-card">
                     <div class="dre-card-header">
                         <h3 class="dre-card-title">📈 Receitas</h3>
                         <div class="dre-card-total receita" id="totalReceitas">R$ 0,00</div>
                     </div>
-                    <div id="receitasItens">
-                        <!-- Dinamico -->
-                    </div>
+                    <div id="receitasItens"></div>
                     <div class="chart-container">
                         <canvas id="receitasChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Despesas -->
                 <div class="dre-card">
                     <div class="dre-card-header">
-                        <h3 class="dre-card-title">📉 Despesas</h3>
-                        <div class="dre-card-total despesa" id="totalDespesas">R$ 0,00</div>
+                        <h3 class="dre-card-title">📉 Despesas Operacionais</h3>
+                        <div class="dre-card-total despesa" id="totalDespesasOperacionais">R$ 0,00</div>
                     </div>
-                    <div id="despesasItens">
-                        <!-- Dinamico -->
-                    </div>
+                    <div id="despesasItens"></div>
                     <div class="chart-container">
                         <canvas id="despesasChart"></canvas>
                     </div>
@@ -299,10 +377,24 @@
             </div>
 
             <!-- Resultado -->
-            <div class="resultado-card">
-                <div class="resultado-label">Resultado do Período</div>
-                <div class="resultado-value" id="resultadoValue">R$ 0,00</div>
-                <div class="resultado-subtitle" id="resultadoSubtitle">Lucro/Prejuízo Líquido</div>
+            <div class="resultado-grid">
+                <div class="resultado-card">
+                    <div class="resultado-label">Resultado Operacional</div>
+                    <div class="resultado-value" id="resultadoValue">R$ 0,00</div>
+                    <div class="resultado-subtitle" id="resultadoSubtitle">Receitas - Despesas Operacionais</div>
+                </div>
+                
+                <div class="alpha-card">
+                    <div class="resultado-label">⭐ Repasse Alpha</div>
+                    <div class="resultado-value" id="alphaValue">R$ 0,00</div>
+                    <div class="resultado-subtitle">Pagamento à franquia</div>
+                </div>
+            </div>
+
+            <!-- Comparação Mensal -->
+            <div class="comparison-section">
+                <h3 class="comparison-title">📊 Comparação entre Meses</h3>
+                <div class="comparison-grid" id="comparisonGrid"></div>
             </div>
         </main>
     </div>
@@ -321,7 +413,6 @@
 
         function updateReceitasChart(dados) {
             const ctx = document.getElementById('receitasChart');
-            
             if (receitasChart) receitasChart.destroy();
             
             receitasChart = new Chart(ctx, {
@@ -331,14 +422,24 @@
                     datasets: [{
                         data: [dados.receitas.recebido, dados.receitas.pendente],
                         backgroundColor: ['#27ae60', '#f39c12'],
-                        borderWidth: 0
+                        borderWidth: 0,
+                        hoverOffset: 10
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom' }
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                                    return ctx.label + ': ' + formatMoney(ctx.parsed) + ' (' + pct + '%)';
+                                }
+                            }
+                        }
                     }
                 }
             });
@@ -350,11 +451,15 @@
             
             const labels = [];
             const values = [];
-            const colors = ['#e74c3c', '#f39c12', '#3498db', '#9b59b6', '#1abc9c', '#34495e', '#16a085', '#27ae60'];
+            const colors = ['#e74c3c', '#f39c12', '#3498db', '#9b59b6', '#1abc9c', '#34495e', '#16a085'];
             
+            let totalSemAlpha = 0;
             Object.keys(categorias).forEach((key, index) => {
-                labels.push(key.replace(/_/g, ' ').toUpperCase());
-                values.push(categorias[key].total);
+                if (key !== 'estrutura' || !categorias[key].itens.find(i => i.nome.includes('Alpha'))) {
+                    labels.push(key.replace(/_/g, ' ').toUpperCase());
+                    values.push(categorias[key].total);
+                    totalSemAlpha += categorias[key].total;
+                }
             });
             
             if (despesasChart) despesasChart.destroy();
@@ -366,7 +471,8 @@
                     datasets: [{
                         data: values,
                         backgroundColor: colors,
-                        borderWidth: 0
+                        borderWidth: 0,
+                        hoverOffset: 10
                     }]
                 },
                 options: {
@@ -386,6 +492,32 @@
             document.getElementById('pageSubtitle').textContent = 
                 `Análise de receitas, despesas e resultado - ${dados.periodo}`;
 
+            // Analysis Cards
+            const numClientes = dados.receitas.clientes.length;
+            const ticketMedio = numClientes > 0 ? dados.receitas.total / numClientes : 0;
+            
+            // Calcular despesas sem Alpha
+            let alphaTotal = 0;
+            let despesasSemAlpha = 0;
+            
+            Object.values(dados.despesas.categorias).forEach(cat => {
+                cat.itens.forEach(item => {
+                    if (item.nome.includes('Alpha') || item.nome.includes('alpha')) {
+                        alphaTotal += item.valor;
+                    } else {
+                        despesasSemAlpha += item.valor;
+                    }
+                });
+            });
+            
+            const resultado = dados.receitas.recebido - despesasSemAlpha;
+            const margemLiquida = dados.receitas.recebido > 0 ? (resultado / dados.receitas.recebido * 100).toFixed(1) : 0;
+            
+            document.getElementById('ticketMedio').textContent = formatMoney(ticketMedio);
+            document.getElementById('totalClientes').textContent = numClientes;
+            document.getElementById('margemLiquida').textContent = margemLiquida + '%';
+            document.getElementById('burnRate').textContent = formatMoney(despesasSemAlpha);
+
             // Receitas
             document.getElementById('totalReceitas').textContent = formatMoney(dados.receitas.total);
             const receitasItens = document.getElementById('receitasItens');
@@ -404,39 +536,116 @@
                 </div>
             `;
             
-            // Despesas
-            document.getElementById('totalDespesas').textContent = formatMoney(dados.despesas.total);
+            // Despesas (sem Alpha)
+            document.getElementById('totalDespesasOperacionais').textContent = formatMoney(despesasSemAlpha);
             const despesasItens = document.getElementById('despesasItens');
             let despesasHTML = '';
             
             Object.keys(dados.despesas.categorias).forEach(key => {
                 const categoria = dados.despesas.categorias[key];
                 const nome = key.replace(/_/g, ' ').toUpperCase();
-                despesasHTML += `
-                    <div class="dre-item">
-                        <span class="dre-item-name">${nome}</span>
-                        <span class="dre-item-value">${formatMoney(categoria.total)}</span>
-                    </div>
-                `;
+                
+                // Calcular total da categoria sem Alpha
+                let totalCat = 0;
+                categoria.itens.forEach(item => {
+                    if (!item.nome.includes('Alpha') && !item.nome.includes('alpha')) {
+                        totalCat += item.valor;
+                    }
+                });
+                
+                if (totalCat > 0) {
+                    despesasHTML += `
+                        <div class="dre-item">
+                            <span class="dre-item-name">${nome}</span>
+                            <span class="dre-item-value">${formatMoney(totalCat)}</span>
+                        </div>
+                    `;
+                }
             });
             despesasItens.innerHTML = despesasHTML;
             
+            // Alpha Card
+            document.getElementById('alphaValue').textContent = formatMoney(alphaTotal);
+            
             // Resultado
-            const resultado = dados.receitas.recebido - dados.despesas.pago;
             const resultadoEl = document.getElementById('resultadoValue');
             resultadoEl.textContent = formatMoney(resultado);
             
             if (resultado >= 0) {
                 resultadoEl.style.color = '#d4edda';
-                document.getElementById('resultadoSubtitle').textContent = '✅ Lucro Líquido';
+                document.getElementById('resultadoSubtitle').textContent = '✅ Lucro Operacional';
             } else {
                 resultadoEl.style.color = '#f8d7da';
-                document.getElementById('resultadoSubtitle').textContent = '⚠️ Prejuízo';
+                document.getElementById('resultadoSubtitle').textContent = '⚠️ Prejuízo Operacional';
             }
             
             // Charts
             updateReceitasChart(dados);
             updateDespesasChart(dados);
+            
+            // Comparação
+            updateComparison();
+        }
+
+        function updateComparison() {
+            const meses = ['2025-10', '2025-11', '2025-12'];
+            const nomes = ['Outubro', 'Novembro', 'Dezembro'];
+            const grid = document.getElementById('comparisonGrid');
+            
+            let html = '';
+            meses.forEach((mes, index) => {
+                const dados = dadosMensais[mes];
+                if (!dados) return;
+                
+                // Calcular sem Alpha
+                let alphaTotal = 0;
+                let despesasSemAlpha = 0;
+                Object.values(dados.despesas.categorias).forEach(cat => {
+                    cat.itens.forEach(item => {
+                        if (item.nome.includes('Alpha') || item.nome.includes('alpha')) {
+                            alphaTotal += item.valor;
+                        } else {
+                            despesasSemAlpha += item.valor;
+                        }
+                    });
+                });
+                
+                const resultado = dados.receitas.recebido - despesasSemAlpha;
+                
+                html += `
+                    <div class="month-comparison">
+                        <div class="month-name">${nomes[index]}</div>
+                        <div class="comparison-item">
+                            <span class="comparison-item-label">Receitas:</span>
+                            <span class="comparison-item-value">${formatMoney(dados.receitas.total)}</span>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="comparison-item-label">Recebido:</span>
+                            <span class="comparison-item-value">${formatMoney(dados.receitas.recebido)}</span>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="comparison-item-label">Despesas Op:</span>
+                            <span class="comparison-item-value">${formatMoney(despesasSemAlpha)}</span>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="comparison-item-label">Pagamento Alpha:</span>
+                            <span class="comparison-item-value">${formatMoney(alphaTotal)}</span>
+                        </div>
+                        <div class="comparison-item" style="border-top: 2px solid #ddd; padding-top: 10px; margin-top: 10px;">
+                            <span class="comparison-item-label"><strong>Resultado:</strong></span>
+                            <span class="comparison-item-value" style="color: ${resultado >= 0 ? '#27ae60' : '#e74c3c'}">
+                                <strong>${formatMoney(resultado)}</strong>
+                            </span>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="comparison-item-label">Taxa Receb:</span>
+                            <span class="comparison-item-value">${dados.receitas.taxa_recebimento}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
         }
 
         function changeMonth() {
