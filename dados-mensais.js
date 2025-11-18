@@ -140,7 +140,7 @@ const dadosMensais = {
       ]
     },
     despesas: {
-      total: 27869.90,
+      total: 28869.90,
       pago: 15360.90,
       pendente: 12509.00,
       categorias: {
@@ -166,12 +166,12 @@ const dadosMensais = {
           ]
         },
         estrutura: {
-          total: 10509.00,
+          total: 11509.00,
           itens: [
             {nome: "Aluguel - Sala", valor: 2800.00, status: "Feito"},
             {nome: "Celesc - Energia", valor: 100.00, status: "A Pagar"},
             {nome: "Internet - Claro", valor: 109.00, status: "A Pagar"},
-            {nome: "Pagamento - Alpha", valor: 7500.00, status: "A Pagar"}
+            {nome: "Pagamento - Alpha", valor: 8500.00, status: "A Pagar"}
           ]
         },
         ferramentas: {
@@ -223,7 +223,7 @@ const dadosMensais = {
       ]
     },
     despesas: {
-      total: 31869.90,
+      total: 32869.90,
       pago: 0.00,
       pendente: 31869.90,
       categorias: {
@@ -246,12 +246,12 @@ const dadosMensais = {
           ]
         },
         estrutura: {
-          total: 10509.00,
+          total: 11509.00,
           itens: [
             {nome: "Aluguel - Sala", valor: 2800.00, status: "A Pagar"},
             {nome: "Celesc - Energia", valor: 100.00, status: "A Pagar"},
             {nome: "Internet - Claro", valor: 109.00, status: "A Pagar"},
-            {nome: "Pagamento - Alpha", valor: 7500.00, status: "A Pagar"}
+            {nome: "Pagamento - Alpha", valor: 8500.00, status: "A Pagar"}
           ]
         },
         ferramentas: {
