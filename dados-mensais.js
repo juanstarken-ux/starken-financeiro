@@ -2,6 +2,114 @@
 // Atualizado: 17/01/2025
 
 const dadosMensais = {
+  // OUTUBRO 2025
+  "2025-10": {
+    periodo: "Outubro 2025",
+    receitas: {
+      total: 46365.05,
+      recebido: 41865.05,
+      pendente: 4500.00,
+      taxa_recebimento: 90.3,
+      clientes: [
+        // FRANQUIAS - REPASSES MATRIZ ALPHA
+        {nome: "Baruki Beer (Alpha)", valor: 6126.43, status: "Feito", vencimento: "01/10", origem: "Matriz"},
+        {nome: "World Burger (Alpha)", valor: 3281.75, status: "Feito", vencimento: "14/10", origem: "Prospecção"},
+        {nome: "Pizzaria Madrid (Alpha)", valor: 3149.75, status: "Feito", vencimento: "01/10", origem: "Matriz"},
+        {nome: "Oficina da Massa (Alpha)", valor: 2897.77, status: "Feito", vencimento: "31/10", origem: "Matriz"},
+        {nome: "Esfiha Rio (Alpha)", valor: 2807.91, status: "Feito", vencimento: "27/10", origem: "Prospecção"},
+        {nome: "Bigu's Burger (Alpha)", valor: 2679.40, status: "Feito", vencimento: "31/10", origem: "Matriz"},
+        {nome: "Jun Yu Restaurante (Alpha)", valor: 2546.02, status: "Feito", vencimento: "14/10", origem: "Prospecção"},
+        {nome: "Oca Restaurante (Alpha)", valor: 1698.01, status: "Feito", vencimento: "27/10", origem: "Matriz"},
+        {nome: "Madrugão Lanches (Alpha)", valor: 1698.01, status: "Feito", vencimento: "27/10", origem: "Matriz"},
+        // CLIENTES DIRETOS BLUMENAU
+        {nome: "Mortadella Blumenau 1/2", valor: 3000.00, status: "Feito", responsavel: "Juan"},
+        {nome: "Mortadella Blumenau 2/2", valor: 3000.00, status: "Feito", responsavel: "Juan"},
+        {nome: "Brazza BNU 1/2", valor: 1500.00, status: "Feito", responsavel: "Juan"},
+        {nome: "Brazza BNU 2/2", valor: 1500.00, status: "Feito", responsavel: "Juan"},
+        {nome: "Hamburgueria Feio", valor: 2000.00, status: "Feito", responsavel: "Juan"},
+        {nome: "JPR Móveis Rústicos", valor: 2000.00, status: "Feito", responsavel: "Juan"},
+        {nome: "Academia São Pedro", valor: 1080.00, status: "Feito", responsavel: "Juan"},
+        {nome: "Estilo Tulipa", valor: 500.00, status: "Feito", responsavel: "Juan"},
+        {nome: "Shield Car Blumenau", valor: 400.00, status: "Feito", responsavel: "Juan"},
+        // A RECEBER
+        {nome: "Realizzati Móveis", valor: 2500.00, status: "A Receber", vencimento: "25/11", responsavel: "Juan"},
+        {nome: "Alexandria Burger 1/2", valor: 1000.00, status: "A Receber", vencimento: "10/11", responsavel: "Juan"},
+        {nome: "Alexandria Burger 2/2", valor: 1000.00, status: "A Receber", vencimento: "20/11", responsavel: "Juan"}
+      ]
+    },
+    despesas: {
+      total: 43047.07,
+      pago: 43047.07,
+      pendente: 0.00,
+      categorias: {
+        pessoal: {
+          total: 16018.70,
+          itens: [
+            {nome: "Igor - Salário", valor: 2300.00, status: "Feito"},
+            {nome: "Eloize - Salário", valor: 3255.00, status: "Feito"},
+            {nome: "Ederson - Salário", valor: 3000.00, status: "Feito"},
+            {nome: "Victor - Salário", valor: 2700.00, status: "Feito"},
+            {nome: "Dante - Closer", valor: 3170.00, status: "Feito"},
+            {nome: "Natali - Serviços", valor: 475.00, status: "Feito"},
+            {nome: "Equipamento (Mac)", valor: 1118.70, status: "Feito"}
+          ]
+        },
+        locacao_aluguel: {
+          total: 11200.00,
+          itens: [
+            {nome: "Monica - Caução Sala Nova", valor: 8400.00, status: "Feito"},
+            {nome: "Monica - Aluguel Novembro", valor: 2800.00, status: "Feito"}
+          ]
+        },
+        adiantamentos: {
+          total: 3573.49,
+          itens: [
+            {nome: "Juan Fernando (sócio)", valor: 3573.49, status: "Feito"}
+          ]
+        },
+        alpha_franquia: {
+          total: 5065.00,
+          itens: [
+            {nome: "Taxas e Repasses Alpha", valor: 5065.00, status: "Feito"}
+          ]
+        },
+        outros: {
+          total: 3285.10,
+          itens: [
+            {nome: "Despesas Diversas", valor: 3285.10, status: "Feito"}
+          ]
+        },
+        ferramentas: {
+          total: 1163.79,
+          itens: [
+            {nome: "ClickUp", valor: 350.00, status: "Feito"},
+            {nome: "Claude Code", valor: 500.00, status: "Feito"},
+            {nome: "Canva Pro", valor: 35.00, status: "Feito"},
+            {nome: "Outros Softwares", valor: 278.79, status: "Feito"}
+          ]
+        },
+        alimentacao: {
+          total: 1017.68,
+          itens: [
+            {nome: "Alimentação Equipe", valor: 1017.68, status: "Feito"}
+          ]
+        },
+        operacionais: {
+          total: 1013.74,
+          itens: [
+            {nome: "Despesas Operacionais", valor: 1013.74, status: "Feito"}
+          ]
+        },
+        combustivel: {
+          total: 709.57,
+          itens: [
+            {nome: "Combustível", valor: 709.57, status: "Feito"}
+          ]
+        }
+      }
+    }
+  },
+
   // NOVEMBRO 2025
   "2025-11": {
     periodo: "Novembro 2025",
