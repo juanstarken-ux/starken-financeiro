@@ -723,162 +723,52 @@
             <section class="section">
                 <h2 class="section-title">
                     <span class="section-title-icon">📋</span>
-                    Relatórios Recentes (Últimos 12 Meses)
+                    Atas de Reuniões e Relatórios
                 </h2>
+
+                <!-- Upload Section -->
+                <div style="background: #fff; border: 2px dashed #4A6B54; border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">📤</div>
+                    <h3 style="font-size: 18px; font-weight: 600; color: #2c3e50; margin-bottom: 10px;">
+                        Upload de Ata de Reunião
+                    </h3>
+                    <p style="color: #7f8c8d; margin-bottom: 25px;">
+                        Faça upload de PDFs, Word ou imagens das atas de reuniões
+                    </p>
+                    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display: none;" onchange="handleFileUpload(event)">
+                    <button onclick="document.getElementById('fileInput').click()" style="
+                        background: #4A6B54;
+                        color: white;
+                        border: none;
+                        padding: 12px 30px;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='#3d5a46'" onmouseout="this.style.background='#4A6B54'">
+                        Selecionar Arquivo
+                    </button>
+                    <div id="uploadStatus" style="margin-top: 15px; font-size: 14px;"></div>
+                </div>
+
                 <div class="reports-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Tipo de Relatório</th>
-                                <th>Período</th>
-                                <th>Data de Geração</th>
+                                <th>Tipo de Reunião</th>
+                                <th>Data da Reunião</th>
+                                <th>Participantes</th>
                                 <th>Status</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="reportsTableBody">
                             <tr>
-                                <td><strong>Relatório Mensal Executivo</strong></td>
-                                <td>Outubro/2025</td>
-                                <td>01/11/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>DRE Comparativo</strong></td>
-                                <td>Mai-Out/2025</td>
-                                <td>01/11/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Relatório de Benefícios dos Sócios</strong></td>
-                                <td>Outubro/2025</td>
-                                <td>31/10/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Análise de Clientes</strong></td>
-                                <td>Q3 2025</td>
-                                <td>01/10/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Relatório Mensal Executivo</strong></td>
-                                <td>Setembro/2025</td>
-                                <td>01/10/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Performance Comercial</strong></td>
-                                <td>Setembro/2025</td>
-                                <td>30/09/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Relatório Mensal Executivo</strong></td>
-                                <td>Agosto/2025</td>
-                                <td>01/09/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Relatório Mensal Executivo</strong></td>
-                                <td>Julho/2025</td>
-                                <td>01/08/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Análise de Clientes</strong></td>
-                                <td>Q2 2025</td>
-                                <td>01/07/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Relatório Mensal Executivo</strong></td>
-                                <td>Junho/2025</td>
-                                <td>01/07/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Performance Comercial</strong></td>
-                                <td>Junho/2025</td>
-                                <td>30/06/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Relatório Mensal Executivo</strong></td>
-                                <td>Maio/2025</td>
-                                <td>01/06/2025</td>
-                                <td><span style="color: var(--success); font-weight: 600;">✓ Disponível</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-view">Ver</button>
-                                        <button class="btn-download">Download</button>
-                                    </div>
+                                <td colspan="5" style="text-align: center; padding: 60px 20px; color: #7f8c8d;">
+                                    <div style="font-size: 48px; margin-bottom: 15px;">📄</div>
+                                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Nenhuma ata disponível</div>
+                                    <div style="font-size: 14px;">Faça o upload da primeira ata de reunião usando o botão acima</div>
                                 </td>
                             </tr>
                         </tbody>
@@ -1219,5 +1109,153 @@
             });
         });
     </script>
+
+    <script>
+        // Carregar atas salvas do localStorage
+        function loadSavedReports() {
+            const reports = JSON.parse(localStorage.getItem('meetingReports') || '[]');
+            const tbody = document.getElementById('reportsTableBody');
+            
+            if (reports.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 60px 20px; color: #7f8c8d;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">📄</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Nenhuma ata disponível</div>
+                            <div style="font-size: 14px;">Faça o upload da primeira ata de reunião usando o botão acima</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            reports.forEach((report, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${report.type}</strong></td>
+                    <td>${report.date}</td>
+                    <td>${report.participants}</td>
+                    <td><span style="color: #27ae60; font-weight: 600;">✓ Disponível</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view" onclick="viewReport(${index})">Ver</button>
+                            <button class="btn-download" onclick="downloadReport(${index})">Download</button>
+                            <button class="btn-delete" onclick="deleteReport(${index})">Excluir</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('uploadStatus');
+            statusEl.innerHTML = '<span style="color: #3498db;">📤 Processando...</span>';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const reportData = {
+                    type: prompt('Tipo de reunião:', 'Board Meeting') || 'Reunião',
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    participants: prompt('Participantes (separados por vírgula):', 'Gabriel, Dante, Victor') || 'Não especificado',
+                    fileName: file.name,
+                    fileData: e.target.result,
+                    uploadDate: new Date().toISOString()
+                };
+
+                const reports = JSON.parse(localStorage.getItem('meetingReports') || '[]');
+                reports.unshift(reportData);
+                localStorage.setItem('meetingReports', JSON.stringify(reports));
+
+                statusEl.innerHTML = '<span style="color: #27ae60;">✅ Upload concluído!</span>';
+                setTimeout(() => {
+                    statusEl.innerHTML = '';
+                    loadSavedReports();
+                    event.target.value = '';
+                }, 2000);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function viewReport(index) {
+            const reports = JSON.parse(localStorage.getItem('meetingReports') || '[]');
+            const report = reports[index];
+            if (report && report.fileData) {
+                window.open(report.fileData, '_blank');
+            }
+        }
+
+        function downloadReport(index) {
+            const reports = JSON.parse(localStorage.getItem('meetingReports') || '[]');
+            const report = reports[index];
+            if (report && report.fileData) {
+                const a = document.createElement('a');
+                a.href = report.fileData;
+                a.download = report.fileName;
+                a.click();
+            }
+        }
+
+        function deleteReport(index) {
+            if (!confirm('Deseja realmente excluir esta ata?')) return;
+            
+            const reports = JSON.parse(localStorage.getItem('meetingReports') || '[]');
+            reports.splice(index, 1);
+            localStorage.setItem('meetingReports', JSON.stringify(reports));
+            loadSavedReports();
+        }
+
+        // Carregar ao iniciar
+        window.addEventListener('DOMContentLoaded', loadSavedReports);
+    </script>
+    
+    <style>
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        .btn-view, .btn-download, .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-view {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #2980b9;
+        }
+        
+        .btn-download {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background: #229954;
+        }
+        
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+    </style>
 </body>
 </html>
