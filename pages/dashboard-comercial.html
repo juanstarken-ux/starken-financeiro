@@ -277,19 +277,37 @@
                 <p class="page-subtitle">Visão completa do pipeline de vendas e performance comercial</p>
             </div>
 
-            <!-- Filtro de Mês -->
+            <!-- Filtro de Mês com Botões -->
             <div class="chart-card" style="margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <label style="font-weight: 600; color: var(--text-dark);">Período:</label>
-                    <select id="monthFilter" onchange="updateDashboard()" style="padding: 10px 15px; border: 2px solid var(--primary-green); border-radius: 8px; font-size: 14px; font-weight: 600; background: white; cursor: pointer; min-width: 200px;">
-                        <option value="2025-11">Novembro 2025</option>
-                        <option value="2025-12">Dezembro 2025</option>
-                        <option value="2026-01">Janeiro 2026</option>
-                        <option value="2026-02">Fevereiro 2026</option>
-                        <option value="2026-03">Março 2026</option>
-                    </select>
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <label style="font-weight: 600; color: var(--text-dark); margin-right: 10px;">Período:</label>
+                    <input type="hidden" id="monthFilter" value="2025-11">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="selectMonth('2025-10')" id="btn-2025-10" class="month-btn" style="padding: 12px 24px; border: 2px solid var(--primary-green); border-radius: 8px; font-size: 14px; font-weight: 600; background: white; color: var(--primary-green); cursor: pointer; transition: all 0.3s ease;">
+                            Outubro 2025
+                        </button>
+                        <button onclick="selectMonth('2025-11')" id="btn-2025-11" class="month-btn month-btn-active" style="padding: 12px 24px; border: 2px solid var(--primary-green); border-radius: 8px; font-size: 14px; font-weight: 600; background: var(--primary-green); color: white; cursor: pointer; transition: all 0.3s ease;">
+                            Novembro 2025
+                        </button>
+                        <button onclick="selectMonth('2025-12')" id="btn-2025-12" class="month-btn" style="padding: 12px 24px; border: 2px solid var(--primary-green); border-radius: 8px; font-size: 14px; font-weight: 600; background: white; color: var(--primary-green); cursor: pointer; transition: all 0.3s ease;">
+                            Dezembro 2025
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <style>
+                .month-btn:hover {
+                    background: var(--secondary-green) !important;
+                    color: white !important;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                }
+                .month-btn-active {
+                    background: var(--primary-green) !important;
+                    color: white !important;
+                }
+            </style>
 
             <!-- KPIs -->
             <div class="kpi-grid">
@@ -490,6 +508,7 @@
 
         // Dados dos Contratos Fechados por Mês
         const contratosFechadosPorMes = {
+            '2025-10': [],
             '2025-11': [
                 { cliente: 'Smart Home', valorMensal: 297, duracao: 'Recorrente', valorTotal: 297, dataFechamento: '15/11/2025', obs: 'R$ 297/mês + 15% das vendas' },
                 { cliente: 'Suprema Pizza', valorMensal: 2000, duracao: '3 meses', valorTotal: 6000, dataFechamento: '18/11/2025', obs: 'Contrato de 3 meses' },
@@ -505,6 +524,7 @@
 
         // Dados do Pipeline Ativo por Mês
         const pipelinePorMes = {
+            '2025-10': [],
             '2025-11': [],
             '2025-12': [],
             '2026-01': [],
@@ -591,10 +611,35 @@
             });
         }
 
+        // Função para selecionar mês via botões
+        function selectMonth(mes) {
+            // Atualizar valor hidden
+            document.getElementById('monthFilter').value = mes;
+
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.month-btn').forEach(btn => {
+                btn.classList.remove('month-btn-active');
+                btn.style.background = 'white';
+                btn.style.color = 'var(--primary-green)';
+            });
+
+            // Adicionar classe active ao botão clicado
+            const btnClicado = document.getElementById(`btn-${mes}`);
+            if (btnClicado) {
+                btnClicado.classList.add('month-btn-active');
+                btnClicado.style.background = 'var(--primary-green)';
+                btnClicado.style.color = 'white';
+            }
+
+            // Atualizar dashboard
+            updateDashboard();
+        }
+
         // Função principal de atualização
         function updateDashboard() {
             const mes = document.getElementById('monthFilter').value;
             const mesNome = {
+                '2025-10': 'Outubro 2025',
                 '2025-11': 'Novembro 2025',
                 '2025-12': 'Dezembro 2025',
                 '2026-01': 'Janeiro 2026',
@@ -627,6 +672,7 @@
         // Função para atualizar projeções
         function updateProjecoes(mes) {
             const mesNome = {
+                '2025-10': 'Outubro',
                 '2025-11': 'Novembro',
                 '2025-12': 'Dezembro',
                 '2026-01': 'Janeiro',
@@ -635,6 +681,7 @@
             }[mes];
 
             const mesCompleto = {
+                '2025-10': 'Outubro 2025',
                 '2025-11': 'Novembro 2025',
                 '2025-12': 'Dezembro 2025',
                 '2026-01': 'Janeiro 2026',
@@ -644,6 +691,7 @@
 
             // Metas por mês
             const metas = {
+                '2025-10': 30000,
                 '2025-11': 90000,
                 '2025-12': 120000,
                 '2026-01': 100000,
@@ -653,6 +701,12 @@
 
             // Dados reais de MRR por mês (Total a Receber)
             const mrrRealPorMes = {
+                '2025-10': {
+                    totalReceber: 0,
+                    recebido: 0,
+                    pendente: 0,
+                    taxaRecebimento: 0
+                },
                 '2025-11': {
                     totalReceber: 34768.18,
                     recebido: 12924.18,
