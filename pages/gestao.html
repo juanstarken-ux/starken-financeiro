@@ -808,8 +808,7 @@
         // PROTEÇÃO CEO - Verificar permissão antes de carregar a página
         (function() {
             if (!isCEO()) {
-                // Não é CEO, redirecionar com mensagem
-                alert('⛔ Acesso Restrito\n\nEsta página é exclusiva para o CEO (Juan Minni).\n\nVocê será redirecionado para o dashboard principal.');
+                // Não é CEO, redirecionar silenciosamente (sem popup)
                 window.location.replace('../index.html');
                 throw new Error('Access denied - CEO only');
             }
