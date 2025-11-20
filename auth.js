@@ -117,12 +117,24 @@ function updateHeaderWithPartner() {
     }
 }
 
+// Ocultar menu Gestão Financeira para não-CEOs
+function hideFinanceMenuForPartners() {
+    const gestaoLinks = document.querySelectorAll('a[href="gestao.html"], a[href="pages/gestao.html"]');
+    if (!isCEO()) {
+        gestaoLinks.forEach(link => {
+            if (link) link.style.display = 'none';
+        });
+    }
+}
+
 // Executar quando a página carregar
 if (window.location.pathname !== '/login.html' && !window.location.pathname.endsWith('/login.html')) {
     window.addEventListener('DOMContentLoaded', function() {
         const partner = checkAuth();
         if (partner) {
             updateHeaderWithPartner();
+            // Ocultar menu de gestão financeira se não for CEO
+            hideFinanceMenuForPartners();
         }
     });
 }
