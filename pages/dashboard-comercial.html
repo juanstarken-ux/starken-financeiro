@@ -324,33 +324,47 @@
                     <h3 class="chart-card-title" style="color: white;" id="projecoesTitle">🎯 Projeções - Novembro 2025</h3>
                 </div>
                 <div style="padding: 20px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                        <!-- Projeção MRR -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <!-- Projeção MRR Mensal -->
                         <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">📈 Projeção MRR</div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="projecaoMRR">R$ 48.959</div>
-                            <div style="font-size: 12px; opacity: 0.8;" id="projecaoMRRDesc">+17% vs atual (R$ 41.865)</div>
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">📈 Projeção MRR Mensal</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="projecaoMRR">R$ 34.768</div>
+                            <div style="font-size: 12px; opacity: 0.8;" id="projecaoMRRDesc">Total a receber recorrente</div>
                         </div>
 
-                        <!-- TCV Mês Atual -->
+                        <!-- Faturamento em Contratos -->
                         <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;" id="tcvMesLabel">💰 TCV Novembro</div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="tcvMesValor">R$ 30.594</div>
-                            <div style="font-size: 12px; opacity: 0.8;" id="tcvMesDesc">Meta: R$ 90.000 (34% atingido)</div>
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">💰 Faturamento Contratos</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="faturamentoContratos">R$ 0</div>
+                            <div style="font-size: 12px; opacity: 0.8;" id="faturamentoDesc">Valor mensal dos contratos</div>
+                        </div>
+
+                        <!-- TCV - Total Contract Value -->
+                        <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">📊 TCV - Total Fechado</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="tcvTotal">R$ 0</div>
+                            <div style="font-size: 12px; opacity: 0.8;" id="tcvDesc">Valor total dos contratos</div>
                         </div>
 
                         <!-- Meta Mês -->
                         <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;" id="metaMesLabel">🎯 Meta Novembro</div>
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;" id="metaMesLabel">🎯 Meta do Mês</div>
                             <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="metaMesValor">R$ 90.000</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Em contratos fechados (TCV)</div>
+                            <div style="font-size: 12px; opacity: 0.8;" id="metaDesc">Meta em contratos fechados</div>
                         </div>
 
                         <!-- Pipeline Ativo -->
                         <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
                             <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">🔥 Pipeline Ativo</div>
                             <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="pipelineTotal">R$ 0</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Valor total em negociação</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Oportunidades em negociação</div>
+                        </div>
+
+                        <!-- Atingimento da Meta -->
+                        <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">🎖️ Atingimento</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="atingimentoPercent">0%</div>
+                            <div style="font-size: 12px; opacity: 0.8;" id="atingimentoDesc">Da meta mensal</div>
                         </div>
                     </div>
                 </div>
@@ -663,39 +677,42 @@
 
             // Obter dados de MRR do mês
             const mrrDados = mrrRealPorMes[mes] || mrrRealPorMes['2025-11'];
-            const mrr = projecaoMRR[mes] || projecaoMRR['2025-11'];
 
-            // Atualizar MRR (Total a Receber)
+            // 1. Atualizar MRR Mensal (Total a Receber)
             document.getElementById('projecaoMRR').textContent = `R$ ${mrrDados.totalReceber.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('projecaoMRRDesc').textContent = `Total a receber recorrente`;
 
-            // Calcular percentual vs base (R$ 41.865 MRR base)
-            const mrrBase = 41865;
-            const percentualVsBase = ((mrrDados.totalReceber - mrrBase) / mrrBase * 100).toFixed(1);
-            const sinal = percentualVsBase >= 0 ? '+' : '';
-            document.getElementById('projecaoMRRDesc').textContent = `${sinal}${percentualVsBase}% vs MRR base | ${mrrDados.taxaRecebimento}% recebido`;
-
-            // Atualizar TCV com dados de contratos fechados
+            // 2. Obter contratos do mês
             const contratos = contratosFechadosPorMes[mes] || [];
-            const tcvMes = contratos.reduce((sum, c) => sum + c.valorTotal, 0);
+
+            // Calcular Faturamento (soma dos valores mensais)
+            const faturamentoMensal = contratos.reduce((sum, c) => sum + c.valorMensal, 0);
+            document.getElementById('faturamentoContratos').textContent = `R$ ${faturamentoMensal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('faturamentoDesc').textContent = `${contratos.length} contrato${contratos.length !== 1 ? 's' : ''} fechado${contratos.length !== 1 ? 's' : ''}`;
+
+            // 3. Calcular TCV (soma dos valores totais)
+            const tcvTotal = contratos.reduce((sum, c) => sum + c.valorTotal, 0);
+            document.getElementById('tcvTotal').textContent = `R$ ${tcvTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('tcvDesc').textContent = `Valor total dos contratos`;
+
+            // 4. Atualizar Meta do mês
             const metaMes = metas[mes] || 0;
-            const percentualMeta = metaMes > 0 ? Math.round((tcvMes / metaMes) * 100) : 0;
-
-            // Usar recebido no mês se existir, senão usar TCV
-            const valorExibir = mrrDados.recebido > 0 ? mrrDados.recebido : tcvMes;
-            const textoLabel = mrrDados.recebido > 0 ? 'Recebido' : 'TCV';
-
-            document.getElementById('tcvMesLabel').textContent = `💰 ${textoLabel} ${mesNome}`;
-            document.getElementById('tcvMesValor').textContent = `R$ ${valorExibir.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-            if (mrrDados.pendente > 0) {
-                document.getElementById('tcvMesDesc').textContent = `Pendente: R$ ${mrrDados.pendente.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            } else {
-                document.getElementById('tcvMesDesc').textContent = `Meta: R$ ${metaMes.toLocaleString('pt-BR')} (${percentualMeta}% atingido)`;
-            }
-
-            // Atualizar Meta do mês
             document.getElementById('metaMesLabel').textContent = `🎯 Meta ${mesNome}`;
             document.getElementById('metaMesValor').textContent = `R$ ${metaMes.toLocaleString('pt-BR')}`;
+            document.getElementById('metaDesc').textContent = `Meta em contratos fechados`;
+
+            // 5. Calcular Atingimento
+            const percentualMeta = metaMes > 0 ? Math.round((tcvTotal / metaMes) * 100) : 0;
+            document.getElementById('atingimentoPercent').textContent = `${percentualMeta}%`;
+
+            let statusAtingimento = '';
+            if (percentualMeta >= 100) statusAtingimento = '🎉 Meta atingida!';
+            else if (percentualMeta >= 80) statusAtingimento = '🔥 Quase lá!';
+            else if (percentualMeta >= 50) statusAtingimento = '📈 No caminho certo';
+            else if (percentualMeta > 0) statusAtingimento = '⏳ Em andamento';
+            else statusAtingimento = '🎯 Vamos começar!';
+
+            document.getElementById('atingimentoDesc').textContent = statusAtingimento;
         }
 
         // Inicializar gráficos
