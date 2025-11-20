@@ -615,32 +615,83 @@
                 '2026-03': 120000
             };
 
-            // Projeção de MRR por mês
+            // Dados reais de MRR por mês (Total a Receber)
+            const mrrRealPorMes = {
+                '2025-11': {
+                    totalReceber: 34768.18,
+                    recebido: 12924.18,
+                    pendente: 21844.00,
+                    taxaRecebimento: 37.2
+                },
+                '2025-12': {
+                    totalReceber: 0, // A definir
+                    recebido: 0,
+                    pendente: 0,
+                    taxaRecebimento: 0
+                },
+                '2026-01': {
+                    totalReceber: 0,
+                    recebido: 0,
+                    pendente: 0,
+                    taxaRecebimento: 0
+                },
+                '2026-02': {
+                    totalReceber: 0,
+                    recebido: 0,
+                    pendente: 0,
+                    taxaRecebimento: 0
+                },
+                '2026-03': {
+                    totalReceber: 0,
+                    recebido: 0,
+                    pendente: 0,
+                    taxaRecebimento: 0
+                }
+            };
+
+            // Projeção de MRR (baseada no Total a Receber + projeções futuras)
             const projecaoMRR = {
-                '2025-11': { valor: 48959, percentual: 17 },
-                '2025-12': { valor: 55000, percentual: 31 },
-                '2026-01': { valor: 60000, percentual: 43 },
-                '2026-02': { valor: 65000, percentual: 55 },
-                '2026-03': { valor: 70000, percentual: 67 }
+                '2025-11': { valor: 34768, percentual: -17, descricao: 'MRR Real' },
+                '2025-12': { valor: 42000, percentual: 0, descricao: 'Projeção' },
+                '2026-01': { valor: 48000, percentual: 15, descricao: 'Projeção' },
+                '2026-02': { valor: 52000, percentual: 24, descricao: 'Projeção' },
+                '2026-03': { valor: 56000, percentual: 34, descricao: 'Projeção' }
             };
 
             // Atualizar título
             document.getElementById('projecoesTitle').textContent = `🎯 Projeções - ${mesCompleto}`;
 
-            // Atualizar MRR
+            // Obter dados de MRR do mês
+            const mrrDados = mrrRealPorMes[mes] || mrrRealPorMes['2025-11'];
             const mrr = projecaoMRR[mes] || projecaoMRR['2025-11'];
-            document.getElementById('projecaoMRR').textContent = `R$ ${mrr.valor.toLocaleString('pt-BR')}`;
-            document.getElementById('projecaoMRRDesc').textContent = `+${mrr.percentual}% vs atual (R$ 41.865)`;
 
-            // Atualizar TCV do mês
+            // Atualizar MRR (Total a Receber)
+            document.getElementById('projecaoMRR').textContent = `R$ ${mrrDados.totalReceber.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            // Calcular percentual vs base (R$ 41.865 MRR base)
+            const mrrBase = 41865;
+            const percentualVsBase = ((mrrDados.totalReceber - mrrBase) / mrrBase * 100).toFixed(1);
+            const sinal = percentualVsBase >= 0 ? '+' : '';
+            document.getElementById('projecaoMRRDesc').textContent = `${sinal}${percentualVsBase}% vs MRR base | ${mrrDados.taxaRecebimento}% recebido`;
+
+            // Atualizar TCV com dados de contratos fechados
             const contratos = contratosFechadosPorMes[mes] || [];
             const tcvMes = contratos.reduce((sum, c) => sum + c.valorTotal, 0);
             const metaMes = metas[mes] || 0;
             const percentualMeta = metaMes > 0 ? Math.round((tcvMes / metaMes) * 100) : 0;
 
-            document.getElementById('tcvMesLabel').textContent = `💰 TCV ${mesNome}`;
-            document.getElementById('tcvMesValor').textContent = `R$ ${tcvMes.toLocaleString('pt-BR')}`;
-            document.getElementById('tcvMesDesc').textContent = `Meta: R$ ${metaMes.toLocaleString('pt-BR')} (${percentualMeta}% atingido)`;
+            // Usar recebido no mês se existir, senão usar TCV
+            const valorExibir = mrrDados.recebido > 0 ? mrrDados.recebido : tcvMes;
+            const textoLabel = mrrDados.recebido > 0 ? 'Recebido' : 'TCV';
+
+            document.getElementById('tcvMesLabel').textContent = `💰 ${textoLabel} ${mesNome}`;
+            document.getElementById('tcvMesValor').textContent = `R$ ${valorExibir.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            if (mrrDados.pendente > 0) {
+                document.getElementById('tcvMesDesc').textContent = `Pendente: R$ ${mrrDados.pendente.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            } else {
+                document.getElementById('tcvMesDesc').textContent = `Meta: R$ ${metaMes.toLocaleString('pt-BR')} (${percentualMeta}% atingido)`;
+            }
 
             // Atualizar Meta do mês
             document.getElementById('metaMesLabel').textContent = `🎯 Meta ${mesNome}`;
