@@ -318,6 +318,44 @@
                 </div>
             </div>
 
+            <!-- Projeções -->
+            <div class="chart-card" style="margin-bottom: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="chart-card-header" style="border-bottom-color: rgba(255,255,255,0.2);">
+                    <h3 class="chart-card-title" style="color: white;">🎯 Projeções 2025-2026</h3>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <!-- Projeção MRR -->
+                        <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">📈 Projeção MRR</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">R$ 48.959</div>
+                            <div style="font-size: 12px; opacity: 0.8;">+17% vs atual (R$ 41.865)</div>
+                        </div>
+
+                        <!-- TCV Novembro -->
+                        <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">💰 TCV Novembro</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">R$ 30.594</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Meta: R$ 90.000 (34% atingido)</div>
+                        </div>
+
+                        <!-- Meta Dezembro -->
+                        <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">🎯 Meta Dezembro</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">R$ 150.000</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Em contratos fechados (TCV)</div>
+                        </div>
+
+                        <!-- Pipeline Ativo -->
+                        <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">🔥 Pipeline Ativo</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="pipelineTotal">R$ 0</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Valor total em negociação</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Charts Row 1 -->
             <div class="charts-grid">
                 <div class="chart-card">
@@ -548,6 +586,17 @@
             updateKPIs(mes);
             updateContratosFechados(mes);
             updatePipeline(mes);
+            updatePipelineTotal(mes);
+        }
+
+        // Função para atualizar total do pipeline
+        function updatePipelineTotal(mes) {
+            const pipeline = pipelinePorMes[mes] || [];
+            const total = pipeline.reduce((sum, p) => sum + p.valor, 0);
+            const pipelineElement = document.getElementById('pipelineTotal');
+            if (pipelineElement) {
+                pipelineElement.textContent = `R$ ${total.toLocaleString('pt-BR')}`;
+            }
         }
 
         // Inicializar gráficos
@@ -652,18 +701,18 @@
         charts.performance = new Chart(performanceCtx, {
             type: 'bar',
             data: {
-                labels: ['Out', 'Nov'],
+                labels: ['Out', 'Nov', 'Dez'],
                 datasets: [
                     {
                         label: 'Meta',
-                        data: [30000, 30000],
+                        data: [30000, 90000, 150000],
                         backgroundColor: 'rgba(231, 76, 60, 0.5)',
                         borderColor: 'rgba(231, 76, 60, 1)',
                         borderWidth: 2
                     },
                     {
                         label: 'Realizado',
-                        data: [24000, 30594],
+                        data: [24000, 30594, 0],
                         backgroundColor: 'rgba(74, 107, 84, 0.7)',
                         borderColor: 'rgba(74, 107, 84, 1)',
                         borderWidth: 2
