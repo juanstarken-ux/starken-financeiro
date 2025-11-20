@@ -64,6 +64,27 @@ function getLoggedPartner() {
     }
 }
 
+// Verificar se o usuário é CEO (Juan Minni)
+function isCEO() {
+    const partner = getLoggedPartner();
+    if (!partner) return false;
+
+    // Juan Minni é o único com acesso CEO
+    return partner.username === 'juan' || partner.name === 'Juan Minni' || partner.role === 'CEO';
+}
+
+// Verificar se o usuário tem permissão para acessar uma página
+function checkPagePermission(requiredRole) {
+    const partner = getLoggedPartner();
+    if (!partner) return false;
+
+    if (requiredRole === 'CEO') {
+        return isCEO();
+    }
+
+    return true; // Outras páginas são acessíveis a todos
+}
+
 // Atualizar informações do sócio no header
 function updateHeaderWithPartner() {
     const partner = getLoggedPartner();
