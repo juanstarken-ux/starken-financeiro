@@ -197,9 +197,9 @@ const dadosMensais = {
   "2025-12": {
     periodo: "Dezembro 2025",
     receitas: {
-      total: 38030.00,
+      total: 42030.00,
       recebido: 0.00,
-      pendente: 38030.00,
+      pendente: 42030.00,
       taxa_recebimento: 0.0,
       clientes: [
         {nome: "Mortadella Blumenau 1/2", valor: 3000.00, status: "A Pagar", vencimento: "10/12"},
@@ -215,8 +215,10 @@ const dadosMensais = {
         {nome: "Matriz 3", valor: 3373.50, status: "A Pagar"},
         {nome: "Matriz 4", valor: 3373.50, status: "A Pagar"},
         {nome: "Realizzati Móveis", valor: 2500.00, status: "A Pagar", vencimento: "25/12"},
-        {nome: "Oca Restaurante (Alpha)", valor: 2000.00, status: "A Pagar", liquido: 1700.00},
-        {nome: "Madrugão Lanches (Alpha)", valor: 2000.00, status: "A Pagar", liquido: 1700.00},
+        {nome: "Oca Restaurante (Alpha)", valor: 2000.00, status: "A Pagar", liquido: 1700.00, origem: "Outbound"},
+        {nome: "Madrugão Lanches (Alpha)", valor: 2000.00, status: "A Pagar", liquido: 1700.00, origem: "Outbound"},
+        {nome: "Saporitto Pizzaria (Alpha)", valor: 1500.00, status: "A Pagar", origem: "Outbound", cidade: "Blumenau"},
+        {nome: "Fratellis Pizzaria (Alpha)", valor: 2500.00, status: "A Pagar", origem: "Outbound", cidade: "Blumenau"},
         {nome: "Divino Tempero", valor: 1000.00, status: "A Pagar", vencimento: "20/12"},
         {nome: "Suprema Pizza", valor: 2000.00, status: "Pendente"},
         {nome: "Shield Car Blumenau", valor: 297.00, status: "Pendente"}
