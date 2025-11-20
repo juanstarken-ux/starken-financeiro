@@ -256,7 +256,7 @@
                     <span class="nav-icon">📄</span>
                     Relatórios
                 </a>
-                <a href="gestao.html" class="nav-item">
+                <a href="gestao.html" class="nav-item" id="menu-gestao-financeira" style="display: none;">
                     <span class="nav-icon">⚙️</span>
                     Gestão
                 </a>
@@ -678,6 +678,16 @@
             }
         });
 
+        // Mostrar menu Gestão apenas para CEO
+        function showGestaoMenuForCEO() {
+            if (typeof isCEO === 'function' && isCEO()) {
+                const gestaoMenu = document.getElementById('menu-gestao-financeira');
+                if (gestaoMenu) {
+                    gestaoMenu.style.display = 'flex';
+                }
+            }
+        }
+
         // Inicializar dashboard com dados de novembro
         console.log('🚀 Inicializando dashboard...');
         console.log('📦 Dados disponíveis:', Object.keys(contratosFechadosPorMes));
@@ -687,10 +697,12 @@
             document.addEventListener('DOMContentLoaded', function() {
                 console.log('✅ DOM carregado, chamando updateDashboard()');
                 updateDashboard();
+                showGestaoMenuForCEO();
             });
         } else {
             console.log('✅ DOM já carregado, chamando updateDashboard()');
             updateDashboard();
+            showGestaoMenuForCEO();
         }
     </script>
 </body>

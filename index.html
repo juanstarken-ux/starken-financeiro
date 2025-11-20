@@ -788,7 +788,7 @@
                     <span class="nav-icon">📈</span>
                     DRE
                 </a>
-                <a href="pages/gestao.html" class="nav-item" id="menu-gestao-financeira">
+                <a href="pages/gestao.html" class="nav-item" id="menu-gestao-financeira" style="display: none;">
                     <span class="nav-icon">💳</span>
                     Gestão Financeira
                 </a>
@@ -1611,6 +1611,16 @@
             console.log('');
         }
 
+        // Mostrar menu Gestão apenas para CEO
+        function showGestaoMenuForCEO() {
+            if (typeof isCEO === 'function' && isCEO()) {
+                const gestaoMenu = document.getElementById('menu-gestao-financeira');
+                if (gestaoMenu) {
+                    gestaoMenu.style.display = 'flex';
+                }
+            }
+        }
+
         // Inicialização do dashboard
         window.addEventListener('load', function() {
             console.log('Inicializando Dashboard Financeiro...');
@@ -1620,6 +1630,9 @@
 
             // Carregar dados do mês atual (Novembro)
             KPIManager.atualizar(DashboardState.mesAtual);
+
+            // Mostrar menu Gestão para CEO
+            showGestaoMenuForCEO();
 
             console.log('Dashboard inicializado com sucesso!');
         });
