@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Comercial - Starken Tecnologia</title>
+    <script src="../auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-green: #4A6B54;
+            --secondary-green: #7A9B84;
+            --light-green: #B8D4BE;
+            --bg-gray: #f5f7fa;
+            --white: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #e1e8ed;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .dashboard-container { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-header { padding: 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo-image { width: 140px; height: auto; display: block; margin: 0 auto 15px; cursor: pointer; }
+        .company-info { text-align: center; font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 8px; }
+        .sidebar-nav { padding: 20px 0; }
+        .nav-item {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); color: var(--white); border-left-color: var(--light-green); }
+        .nav-item.active { background-color: rgba(255,255,255,0.15); color: var(--white); border-left-color: var(--white); font-weight: 600; }
+        .nav-icon { margin-right: 12px; font-size: 18px; }
+
+        /* Main Content */
+        .main-content { flex: 1; margin-left: 260px; padding: 30px; }
+        .page-header { margin-bottom: 30px; }
+        .page-title { font-size: 28px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-light); font-size: 14px; }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1400px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+        .kpi-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 5px;
+        }
+
+        .kpi-trend {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .kpi-trend.up { color: var(--success); }
+        .kpi-trend.down { color: var(--danger); }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) { .charts-grid { grid-template-columns: 1fr; } }
+
+        .chart-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-card-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .chart-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-container.tall { height: 400px; }
+
+        /* Pipeline Table */
+        .pipeline-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .pipeline-table th {
+            background-color: var(--bg-gray);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .pipeline-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pipeline-table tr:hover {
+            background-color: var(--bg-gray);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.prospeccao { background-color: #e3f2fd; color: #1976d2; }
+        .status-badge.qualificacao { background-color: #fff3e0; color: #f57c00; }
+        .status-badge.proposta { background-color: #f3e5f5; color: #7b1fa2; }
+        .status-badge.negociacao { background-color: #fff9c4; color: #f57f17; }
+        .status-badge.fechado { background-color: #e8f5e9; color: #2e7d32; }
+        .status-badge.perdido { background-color: #ffebee; color: #c62828; }
+
+        /* Logout */
+        .logout-section {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(255,255,255,0.1);
+            color: var(--white);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../logo-starken.png" alt="Starken Logo" class="logo-image" onclick="window.location.href='../index.html'">
+                <div class="company-info">
+                    Starken Tecnologia Ltda<br>
+                    CNPJ: 62.839.769/0001-55
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../index.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    Dashboard Financeiro
+                </a>
+                <a href="dashboard-comercial.html" class="nav-item active">
+                    <span class="nav-icon">💼</span>
+                    Dashboard Comercial
+                </a>
+                <a href="contas-pagar.html" class="nav-item">
+                    <span class="nav-icon">💳</span>
+                    Contas a Pagar
+                </a>
+                <a href="contas-receber.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    Contas a Receber
+                </a>
+                <a href="dre.html" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    DRE
+                </a>
+                <a href="analiticos.html" class="nav-item">
+                    <span class="nav-icon">📉</span>
+                    Analíticos
+                </a>
+                <a href="relatorios.html" class="nav-item">
+                    <span class="nav-icon">📄</span>
+                    Relatórios
+                </a>
+                <a href="gestao.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    Gestão
+                </a>
+            </nav>
+            <div class="logout-section">
+                <button class="logout-btn" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard Comercial</h1>
+                <p class="page-subtitle">Visão completa do pipeline de vendas e performance comercial</p>
+            </div>
+
+            <!-- Filtro de Mês -->
+            <div class="chart-card" style="margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <label style="font-weight: 600; color: var(--text-dark);">Período:</label>
+                    <select id="monthFilter" onchange="updateDashboard()" style="padding: 10px 15px; border: 2px solid var(--primary-green); border-radius: 8px; font-size: 14px; font-weight: 600; background: white; cursor: pointer; min-width: 200px;">
+                        <option value="2025-11">Novembro 2025</option>
+                        <option value="2025-12">Dezembro 2025</option>
+                        <option value="2026-01">Janeiro 2026</option>
+                        <option value="2026-02">Fevereiro 2026</option>
+                        <option value="2026-03">Março 2026</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total de Contratos Fechados</div>
+                    <div class="kpi-value" id="kpiTotalContratos">R$ 0</div>
+                    <div class="kpi-trend" id="kpiTotalTrend">-</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Ticket Médio</div>
+                    <div class="kpi-value" id="kpiTicketMedio">R$ 0</div>
+                    <div class="kpi-trend" id="kpiTicketTrend">-</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Contratos Fechados</div>
+                    <div class="kpi-value" id="kpiNumeroContratos">0</div>
+                    <div class="kpi-trend" id="kpiNumeroTrend">-</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">MRR Novos Contratos</div>
+                    <div class="kpi-value" id="kpiMRR">R$ 0</div>
+                    <div class="kpi-trend" id="kpiMRRTrend">-</div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1 -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Funil de Vendas</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Conversões Mensais</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="conversionsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Vendas por Origem</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="sourceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Performance Mensal</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contratos Fechados -->
+            <div class="chart-card full-width">
+                <div class="chart-card-header">
+                    <h3 class="chart-card-title" id="contratosFechadosTitle">Contratos Fechados - Novembro 2025</h3>
+                </div>
+                <table class="pipeline-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Valor Mensal</th>
+                            <th>Duração</th>
+                            <th>Valor Total</th>
+                            <th>Data Fechamento</th>
+                            <th>Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contratosFechadosBody">
+                        <!-- Preenchido via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pipeline Detalhado -->
+            <div class="chart-card full-width">
+                <div class="chart-card-header">
+                    <h3 class="chart-card-title" id="pipelineTitle">Pipeline Ativo - Novembro 2025</h3>
+                </div>
+                <table class="pipeline-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Estágio</th>
+                            <th>Valor Estimado</th>
+                            <th>Probabilidade</th>
+                            <th>Previsão Fechamento</th>
+                            <th>Origem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pipelineTableBody">
+                        <!-- Preenchido via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Proteção de autenticação
+        if (!isAuthenticated()) {
+            window.location.href = '../login.html';
+        } else {
+            console.log('✅ Usuário autenticado, iniciando dashboard...');
+        }
+
+        // Dados dos Contratos Fechados por Mês
+        const contratosFechadosPorMes = {
+            '2025-11': [
+                { cliente: 'Smart Home', valorMensal: 297, duracao: 'Recorrente', valorTotal: 297, dataFechamento: '15/11/2025', obs: 'R$ 297/mês + 15% das vendas' },
+                { cliente: 'Suprema Pizza', valorMensal: 2000, duracao: '3 meses', valorTotal: 6000, dataFechamento: '18/11/2025', obs: 'Contrato de 3 meses' },
+                { cliente: 'Saporitto Pizzaria', valorMensal: 2500, duracao: '6 meses', valorTotal: 15000, dataFechamento: '20/11/2025', obs: 'Plano Premium' },
+                { cliente: 'Saporitto Pizzaria', valorMensal: 1500, duracao: '6 meses', valorTotal: 9000, dataFechamento: '20/11/2025', obs: 'Plano Básico' },
+                { cliente: 'Shield Car', valorMensal: 297, duracao: 'Recorrente', valorTotal: 297, dataFechamento: '22/11/2025', obs: 'R$ 297/mês + comissão' }
+            ],
+            '2025-12': [],
+            '2026-01': [],
+            '2026-02': [],
+            '2026-03': []
+        };
+
+        // Dados do Pipeline Ativo por Mês
+        const pipelinePorMes = {
+            '2025-11': [
+                { cliente: 'Tech Solutions Ltda', estagio: 'negociacao', valor: 8500, probabilidade: '80%', fechamento: '25/11/2025', origem: 'Indicação' },
+                { cliente: 'Comércio Digital SA', estagio: 'proposta', valor: 6200, probabilidade: '60%', fechamento: '30/11/2025', origem: 'Website' },
+                { cliente: 'Indústria Beta', estagio: 'qualificacao', valor: 12000, probabilidade: '40%', fechamento: '10/12/2025', origem: 'LinkedIn' },
+                { cliente: 'Varejo Premium', estagio: 'negociacao', valor: 5800, probabilidade: '75%', fechamento: '28/11/2025', origem: 'Indicação' }
+            ],
+            '2025-12': [
+                { cliente: 'Logística Express', estagio: 'proposta', valor: 9200, probabilidade: '65%', fechamento: '05/12/2025', origem: 'Website' },
+                { cliente: 'Educação Online', estagio: 'qualificacao', valor: 7100, probabilidade: '45%', fechamento: '20/12/2025', origem: 'Instagram' },
+                { cliente: 'Consultoria Pro', estagio: 'negociacao', valor: 11500, probabilidade: '85%', fechamento: '22/12/2025', origem: 'Indicação' }
+            ],
+            '2026-01': [
+                { cliente: 'Saúde Integral', estagio: 'prospeccao', valor: 5500, probabilidade: '25%', fechamento: '18/01/2026', origem: 'LinkedIn' },
+                { cliente: 'Finanças Corp', estagio: 'proposta', valor: 13800, probabilidade: '70%', fechamento: '15/01/2026', origem: 'Website' }
+            ],
+            '2026-02': [],
+            '2026-03': []
+        };
+
+        let charts = {};
+
+        // Função para atualizar KPIs
+        function updateKPIs(mes) {
+            console.log('📊 Atualizando KPIs para:', mes);
+            const contratos = contratosFechadosPorMes[mes] || [];
+            console.log('📋 Contratos encontrados:', contratos.length);
+
+            // Calcular totais
+            const totalContratos = contratos.reduce((sum, c) => sum + c.valorTotal, 0);
+            const numeroContratos = contratos.length;
+            const ticketMedio = numeroContratos > 0 ? totalContratos / numeroContratos : 0;
+            const mrrNovos = contratos.reduce((sum, c) => sum + c.valorMensal, 0);
+
+            console.log('💰 Total:', totalContratos, 'Ticket Médio:', ticketMedio, 'MRR:', mrrNovos);
+
+            // Atualizar DOM
+            document.getElementById('kpiTotalContratos').textContent = `R$ ${totalContratos.toLocaleString('pt-BR')}`;
+            document.getElementById('kpiTicketMedio').textContent = `R$ ${ticketMedio.toLocaleString('pt-BR', {maximumFractionDigits: 0})}`;
+            document.getElementById('kpiNumeroContratos').textContent = numeroContratos;
+            document.getElementById('kpiMRR').textContent = `R$ ${mrrNovos.toLocaleString('pt-BR')}`;
+
+            // Trends (comparar com mês anterior se possível)
+            document.getElementById('kpiTotalTrend').textContent = numeroContratos > 0 ? `${numeroContratos} contratos fechados` : 'Nenhum contrato';
+            document.getElementById('kpiTicketTrend').textContent = numeroContratos > 0 ? 'Média por contrato' : '-';
+            document.getElementById('kpiNumeroTrend').textContent = numeroContratos > 0 ? 'Total do período' : '-';
+            document.getElementById('kpiMRRTrend').textContent = numeroContratos > 0 ? 'Receita mensal recorrente' : '-';
+        }
+
+        // Função para atualizar tabela de contratos fechados
+        function updateContratosFechados(mes) {
+            const contratos = contratosFechadosPorMes[mes] || [];
+            const tbody = document.getElementById('contratosFechadosBody');
+            tbody.innerHTML = '';
+
+            if (contratos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-light);">Nenhum contrato fechado neste período</td></tr>';
+                return;
+            }
+
+            contratos.forEach(contrato => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${contrato.cliente}</strong></td>
+                    <td>R$ ${contrato.valorMensal.toLocaleString('pt-BR')}</td>
+                    <td>${contrato.duracao}</td>
+                    <td><strong style="color: var(--success)">R$ ${contrato.valorTotal.toLocaleString('pt-BR')}</strong></td>
+                    <td>${contrato.dataFechamento}</td>
+                    <td style="font-size: 13px; color: var(--text-light);">${contrato.obs}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Função para atualizar tabela de pipeline
+        function updatePipeline(mes) {
+            const pipeline = pipelinePorMes[mes] || [];
+            const tbody = document.getElementById('pipelineTableBody');
+            tbody.innerHTML = '';
+
+            if (pipeline.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-light);">Nenhuma oportunidade ativa neste período</td></tr>';
+                return;
+            }
+
+            pipeline.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.cliente}</td>
+                    <td><span class="status-badge ${item.estagio}">${item.estagio.toUpperCase()}</span></td>
+                    <td>R$ ${item.valor.toLocaleString('pt-BR')}</td>
+                    <td>${item.probabilidade}</td>
+                    <td>${item.fechamento}</td>
+                    <td>${item.origem}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Função principal de atualização
+        function updateDashboard() {
+            const mes = document.getElementById('monthFilter').value;
+            const mesNome = {
+                '2025-11': 'Novembro 2025',
+                '2025-12': 'Dezembro 2025',
+                '2026-01': 'Janeiro 2026',
+                '2026-02': 'Fevereiro 2026',
+                '2026-03': 'Março 2026'
+            }[mes];
+
+            // Atualizar títulos
+            document.getElementById('contratosFechadosTitle').textContent = `Contratos Fechados - ${mesNome}`;
+            document.getElementById('pipelineTitle').textContent = `Pipeline Ativo - ${mesNome}`;
+
+            // Atualizar dados
+            updateKPIs(mes);
+            updateContratosFechados(mes);
+            updatePipeline(mes);
+        }
+
+        // Inicializar gráficos
+        // Gráfico: Funil de Vendas
+        const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+        charts.funnel = new Chart(funnelCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Prospecção', 'Qualificação', 'Proposta', 'Negociação', 'Fechado'],
+                datasets: [{
+                    label: 'Número de Oportunidades',
+                    data: [45, 32, 18, 12, 8],
+                    backgroundColor: [
+                        'rgba(33, 150, 243, 0.7)',
+                        'rgba(255, 152, 0, 0.7)',
+                        'rgba(156, 39, 176, 0.7)',
+                        'rgba(255, 235, 59, 0.7)',
+                        'rgba(76, 175, 80, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(33, 150, 243, 1)',
+                        'rgba(255, 152, 0, 1)',
+                        'rgba(156, 39, 176, 1)',
+                        'rgba(255, 235, 59, 1)',
+                        'rgba(76, 175, 80, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Gráfico: Conversões Mensais
+        const conversionsCtx = document.getElementById('conversionsChart').getContext('2d');
+        charts.conversions = new Chart(conversionsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'],
+                datasets: [{
+                    label: 'Vendas Fechadas',
+                    data: [3, 4, 3, 5, 4, 5],
+                    borderColor: '#4A6B54',
+                    backgroundColor: 'rgba(74, 107, 84, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Gráfico: Vendas por Origem
+        const sourceCtx = document.getElementById('sourceChart').getContext('2d');
+        charts.source = new Chart(sourceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Indicação', 'Website', 'LinkedIn', 'Instagram', 'Cold Call'],
+                datasets: [{
+                    data: [35, 28, 18, 12, 7],
+                    backgroundColor: [
+                        '#4A6B54',
+                        '#7A9B84',
+                        '#B8D4BE',
+                        '#27ae60',
+                        '#f39c12'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Gráfico: Performance Mensal (Valor de Contratos Fechados)
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        charts.performance = new Chart(performanceCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov'],
+                datasets: [
+                    {
+                        label: 'Meta',
+                        data: [25000, 25000, 30000, 30000, 30000, 30000],
+                        backgroundColor: 'rgba(231, 76, 60, 0.5)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Realizado',
+                        data: [18000, 22000, 19000, 28000, 24000, 30594],
+                        backgroundColor: 'rgba(74, 107, 84, 0.7)',
+                        borderColor: 'rgba(74, 107, 84, 1)',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Inicializar dashboard com dados de novembro
+        console.log('🚀 Inicializando dashboard...');
+        console.log('📦 Dados disponíveis:', Object.keys(contratosFechadosPorMes));
+
+        // Aguardar DOM estar totalmente carregado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('✅ DOM carregado, chamando updateDashboard()');
+                updateDashboard();
+            });
+        } else {
+            console.log('✅ DOM já carregado, chamando updateDashboard()');
+            updateDashboard();
+        }
+    </script>
+</body>
+</html>

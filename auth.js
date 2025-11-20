@@ -26,6 +26,19 @@
     }
 })();
 
+// Verificar se o usuário está autenticado (retorna boolean)
+function isAuthenticated() {
+    const session = localStorage.getItem('starken_session');
+    if (!session) return false;
+
+    try {
+        const sessionData = JSON.parse(session);
+        return !!sessionData;
+    } catch (e) {
+        return false;
+    }
+}
+
 // Verificar se o usuário está autenticado
 function checkAuth() {
     const session = localStorage.getItem('starken_session');

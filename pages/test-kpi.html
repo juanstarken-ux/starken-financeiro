@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Test KPI</title>
+</head>
+<body>
+    <h1>Test Dashboard</h1>
+    <div id="kpiTotal">Carregando...</div>
+
+    <script>
+        console.log('Script iniciado');
+
+        const contratos = [
+            { valorTotal: 297 },
+            { valorTotal: 6000 },
+            { valorTotal: 15000 },
+            { valorTotal: 9000 },
+            { valorTotal: 297 }
+        ];
+
+        const total = contratos.reduce((sum, c) => sum + c.valorTotal, 0);
+        console.log('Total calculado:', total);
+
+        document.getElementById('kpiTotal').textContent = 'R$ ' + total.toLocaleString('pt-BR');
+        console.log('DOM atualizado');
+    </script>
+</body>
+</html>
