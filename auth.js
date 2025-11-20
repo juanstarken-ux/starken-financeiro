@@ -119,13 +119,48 @@ function updateHeaderWithPartner() {
 
 // Ocultar menu Gestão Financeira para não-CEOs
 function hideFinanceMenuForPartners() {
-    const gestaoLinks = document.querySelectorAll('a[href="gestao.html"], a[href="pages/gestao.html"]');
     if (!isCEO()) {
+        // Adicionar CSS global para ocultar menu
+        const style = document.createElement('style');
+        style.id = 'hide-finance-menu';
+        style.textContent = `
+            a[href="gestao.html"],
+            a[href="pages/gestao.html"],
+            #menu-gestao-financeira {
+                display: none !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Também ocultar via JavaScript como backup
+        const gestaoLinks = document.querySelectorAll('a[href="gestao.html"], a[href="pages/gestao.html"], #menu-gestao-financeira');
         gestaoLinks.forEach(link => {
-            if (link) link.style.display = 'none';
+            if (link) {
+                link.style.setProperty('display', 'none', 'important');
+                link.remove(); // Remover completamente do DOM
+            }
         });
     }
 }
+
+// EXECUÇÃO IMEDIATA - antes do DOMContentLoaded
+(function() {
+    if (window.location.pathname !== '/login.html' && !window.location.pathname.endsWith('/login.html')) {
+        // Ocultar IMEDIATAMENTE se não for CEO
+        if (!isCEO()) {
+            const style = document.createElement('style');
+            style.id = 'hide-finance-menu-immediate';
+            style.textContent = `
+                a[href="gestao.html"],
+                a[href="pages/gestao.html"],
+                #menu-gestao-financeira {
+                    display: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+})();
 
 // Executar quando a página carregar
 if (window.location.pathname !== '/login.html' && !window.location.pathname.endsWith('/login.html')) {

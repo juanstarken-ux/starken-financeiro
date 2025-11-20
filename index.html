@@ -784,7 +784,7 @@
                     <span class="nav-icon">📈</span>
                     DRE
                 </a>
-                <a href="pages/gestao.html" class="nav-item">
+                <a href="pages/gestao.html" class="nav-item" id="menu-gestao-financeira">
                     <span class="nav-icon">💳</span>
                     Gestão Financeira
                 </a>
@@ -1607,21 +1607,9 @@
             console.log('');
         }
 
-        // Ocultar menu Gestão Financeira para sócios
-        function updateMenuBasedOnPermissions() {
-            const gestaoLink = document.querySelector('a[href="pages/gestao.html"]');
-            if (gestaoLink && !isCEO()) {
-                // Ocultar link para não-CEOs
-                gestaoLink.style.display = 'none';
-            }
-        }
-
         // Inicialização do dashboard
         window.addEventListener('load', function() {
             console.log('Inicializando Dashboard Financeiro...');
-
-            // Atualizar menu baseado em permissões
-            updateMenuBasedOnPermissions();
 
             // Inicializar gerenciadores
             KPIManager.init();
