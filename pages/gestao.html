@@ -823,47 +823,55 @@
         // Variável global para o mês selecionado
         let selectedMonth = new Date().toISOString().slice(0, 7);
 
-        // Dados de receitas e despesas por mês
+        // Dados de receitas e despesas por mês (de dados-mensais.js)
         const monthlyData = {
-            '2024-10': {
+            '2025-10': {
                 receitaProjetada: 46365.05,
                 receitaRecebida: 41865.05,
                 despesas: 43047.07
             },
-            '2024-11': {
-                receitaProjetada: 35768.18,
-                receitaRecebida: 10924.18,
-                despesas: 16509.00
+            '2025-11': {
+                receitaProjetada: 34768.18,
+                receitaRecebida: 12924.18,
+                despesas: 28869.90
+            },
+            '2025-12': {
+                receitaProjetada: 42030.00,
+                receitaRecebida: 0.00,
+                despesas: 32869.90
             }
         };
 
-        // Pré-carregar dados de despesas de Outubro e Novembro
+        // Pré-carregar dados de despesas de Outubro e Novembro 2025
         function preloadMonthlyExpenses() {
             const existingTransactions = getTransactions();
 
             // Verificar se já existem transações pré-carregadas
-            const hasOctoberData = existingTransactions.some(t => t.date.startsWith('2024-10'));
-            const hasNovemberData = existingTransactions.some(t => t.date.startsWith('2024-11'));
+            const hasOctoberData = existingTransactions.some(t => t.date.startsWith('2025-10'));
+            const hasNovemberData = existingTransactions.some(t => t.date.startsWith('2025-11'));
 
             const newTransactions = [];
             let nextId = existingTransactions.length > 0 ? Math.max(...existingTransactions.map(t => t.id)) + 1 : 1;
 
-            // Dados de Outubro 2024
+            // Dados de Outubro 2025
             if (!hasOctoberData) {
                 const octoberExpenses = [
-                    { category: 'Pessoal', description: 'Salários (Igor, Eloize, Ederson, Victor)', amount: 11155.00, date: '2024-10-05' },
-                    { category: 'Pessoal', description: 'Dante - Closer (Comercial)', amount: 3170.00, date: '2024-10-10' },
-                    { category: 'Locação', description: 'Monica - Caução sala nova', amount: 8400.00, date: '2024-10-01' },
-                    { category: 'Locação', description: 'Monica - Aluguel Novembro', amount: 2800.00, date: '2024-10-25' },
-                    { category: 'Alpha', description: 'Taxa Franquia Matriz Alpha', amount: 5065.00, date: '2024-10-15' },
-                    { category: 'Outros', description: 'Adiantamento Juan Fernando', amount: 3573.49, date: '2024-10-20' },
-                    { category: 'Outros', description: 'Despesas diversas', amount: 3285.10, date: '2024-10-15' },
-                    { category: 'Ferramentas', description: 'Software e ferramentas', amount: 1163.79, date: '2024-10-08' },
-                    { category: 'Alimentação', description: 'Alimentação equipe', amount: 1017.68, date: '2024-10-12' },
-                    { category: 'Operacional', description: 'Despesas operacionais', amount: 1013.74, date: '2024-10-18' },
-                    { category: 'Combustível', description: 'Combustível', amount: 709.57, date: '2024-10-22' },
-                    { category: 'Pessoal', description: 'Natali - Serviços', amount: 475.00, date: '2024-10-14' },
-                    { category: 'Pessoal', description: 'Investimento equipamento', amount: 1118.70, date: '2024-10-28' }
+                    { category: 'Pessoal', description: 'Igor - Salário', amount: 2300.00, date: '2025-10-05' },
+                    { category: 'Pessoal', description: 'Eloize - Salário', amount: 3255.00, date: '2025-10-05' },
+                    { category: 'Pessoal', description: 'Ederson - Salário', amount: 3000.00, date: '2025-10-05' },
+                    { category: 'Pessoal', description: 'Victor - Salário', amount: 2700.00, date: '2025-10-05' },
+                    { category: 'Pessoal', description: 'Dante - Closer', amount: 3170.00, date: '2025-10-10' },
+                    { category: 'Pessoal', description: 'Natali - Serviços', amount: 475.00, date: '2025-10-14' },
+                    { category: 'Pessoal', description: 'Equipamento (Mac)', amount: 1118.70, date: '2025-10-28' },
+                    { category: 'Locação', description: 'Monica - Caução Sala Nova', amount: 8400.00, date: '2025-10-01' },
+                    { category: 'Locação', description: 'Monica - Aluguel Novembro', amount: 2800.00, date: '2025-10-25' },
+                    { category: 'Alpha', description: 'Taxas e Repasses Alpha', amount: 5065.00, date: '2025-10-15' },
+                    { category: 'Adiantamentos', description: 'Juan Fernando (sócio)', amount: 3573.49, date: '2025-10-20' },
+                    { category: 'Outros', description: 'Despesas Diversas', amount: 3285.10, date: '2025-10-15' },
+                    { category: 'Ferramentas', description: 'Software e ferramentas', amount: 1163.79, date: '2025-10-08' },
+                    { category: 'Alimentação', description: 'Alimentação Equipe', amount: 1017.68, date: '2025-10-12' },
+                    { category: 'Operacional', description: 'Despesas Operacionais', amount: 1013.74, date: '2025-10-18' },
+                    { category: 'Combustível', description: 'Combustível', amount: 709.57, date: '2025-10-22' }
                 ];
 
                 octoberExpenses.forEach(expense => {
@@ -875,17 +883,26 @@
                 });
             }
 
-            // Dados de Novembro 2024
+            // Dados de Novembro 2025
             if (!hasNovemberData) {
                 const novemberExpenses = [
-                    { category: 'Pessoal', description: 'Dante - Closer (Salário)', amount: 2500.00, date: '2024-11-05' },
-                    { category: 'Pessoal', description: 'Nathan - SDR (Comissão)', amount: 750.00, date: '2024-11-10' },
-                    { category: 'Pessoal', description: 'João - SDR (Comissão)', amount: 750.00, date: '2024-11-10' },
-                    { category: 'Pessoal', description: 'Dante - Bonificação', amount: 500.00, date: '2024-11-15' },
-                    { category: 'Locação', description: 'Aluguel - Sala', amount: 2800.00, date: '2024-11-01' },
-                    { category: 'Utilidades', description: 'Celesc - Energia', amount: 100.00, date: '2024-11-20' },
-                    { category: 'Utilidades', description: 'Internet - Claro', amount: 109.00, date: '2024-11-15' },
-                    { category: 'Alpha', description: 'Franquia Alpha (Outubro pendente)', amount: 7500.00, date: '2024-11-25' }
+                    { category: 'Pessoal', description: 'Igor', amount: 2200.00, date: '2025-11-05' },
+                    { category: 'Pessoal', description: 'Ederson', amount: 800.00, date: '2025-11-05' },
+                    { category: 'Pessoal', description: 'Victor', amount: 3000.00, date: '2025-11-05' },
+                    { category: 'Comercial', description: 'Dante - Closer', amount: 2500.00, date: '2025-11-05' },
+                    { category: 'Comercial', description: 'Nathan - SDR', amount: 750.00, date: '2025-11-10' },
+                    { category: 'Comercial', description: 'João - SDR', amount: 750.00, date: '2025-11-10' },
+                    { category: 'Locação', description: 'Aluguel - Sala', amount: 2800.00, date: '2025-11-01' },
+                    { category: 'Ferramentas', description: 'ClickUp', amount: 350.00, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'Claude Code', amount: 500.00, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'CapCut', amount: 65.90, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'Canva Pro', amount: 35.00, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'Criativivo', amount: 100.00, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'Adobe', amount: 110.00, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'Railway Backend', amount: 35.00, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'Netlify - Hospedagem', amount: 35.00, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'Lovable', amount: 130.00, date: '2025-11-08' },
+                    { category: 'Ferramentas', description: 'Mac Ederson', amount: 1200.00, date: '2025-11-15' }
                 ];
 
                 novemberExpenses.forEach(expense => {
@@ -927,12 +944,12 @@
             const selector = document.getElementById('monthSelector');
             const months = [];
 
-            // Data inicial: Outubro 2024
-            const startDate = new Date(2024, 9, 1); // Outubro = mês 9 (0-indexed)
+            // Data inicial: Outubro 2025
+            const startDate = new Date(2025, 9, 1); // Outubro = mês 9 (0-indexed)
             const currentDate = new Date();
 
-            // Adicionar 6 meses para frente a partir de hoje
-            const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 6, 1);
+            // Adicionar 6 meses para frente a partir de outubro 2025
+            const endDate = new Date(2026, 3, 1); // Até Abril 2026
 
             let date = new Date(startDate);
             while (date <= endDate) {
