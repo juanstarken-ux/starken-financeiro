@@ -7,6 +7,10 @@
     <script src="../auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        /* Ocultar menu Gestão por padrão - será mostrado apenas para CEO */
+        #menu-gestao-financeira {
+            display: none !important;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary-green: #4A6B54;
@@ -683,7 +687,7 @@
             if (typeof isCEO === 'function' && isCEO()) {
                 const gestaoMenu = document.getElementById('menu-gestao-financeira');
                 if (gestaoMenu) {
-                    gestaoMenu.style.display = 'flex';
+                    gestaoMenu.style.setProperty('display', 'flex', 'important');
                 }
             }
         }
