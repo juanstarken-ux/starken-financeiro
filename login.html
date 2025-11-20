@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Starken Dashboard Financeiro</title>
+    <title>Executive Login - Starken Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -12,29 +12,63 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #4A6B54 0%, #2d4a37 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a2a3a 0%, #2d4a37 50%, #4A6B54 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(74, 107, 84, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: pulse 8s infinite;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(74, 107, 84, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            animation: pulse 10s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
         }
 
         .login-container {
-            background: white;
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
             width: 100%;
-            max-width: 450px;
-            animation: slideUp 0.5s ease-out;
+            max-width: 1100px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 1;
         }
 
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px);
             }
             to {
                 opacity: 1;
@@ -42,217 +76,359 @@
             }
         }
 
-        .logo-section {
+        .header-section {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
 
         .logo-image {
-            width: 180px;
+            width: 120px;
             height: auto;
             margin-bottom: 20px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
 
-        .logo-section h1 {
-            color: #4A6B54;
-            font-size: 28px;
+        .header-section h1 {
+            color: #1a2a3a;
+            font-size: 32px;
             margin-bottom: 10px;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
-        .logo-section p {
+        .header-section p {
+            color: #6c757d;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .company-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4A6B54 0%, #2d4a37 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .executives-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .executives-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .executive-card {
+            background: white;
+            border: 3px solid transparent;
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .executive-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .executive-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .executive-card.selected {
+            border-color: currentColor;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .executive-card.selected::before {
+            opacity: 1;
+        }
+
+        .executive-card.ceo { color: #2563eb; }
+        .executive-card.cco { color: #7c3aed; }
+        .executive-card.cpo { color: #ea580c; }
+        .executive-card.coo { color: #059669; }
+
+        .executive-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, currentColor, transparent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .executive-info h3 {
+            color: #1a2a3a;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .executive-role {
+            color: currentColor;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .executive-title {
             color: #6c757d;
             font-size: 14px;
+            line-height: 1.5;
         }
 
-        .company-info {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 30px;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .company-info h2 {
-            color: #2c3e50;
+        .check-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: currentColor;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 5px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .company-info p {
-            color: #6c757d;
-            font-size: 13px;
+        .executive-card.selected .check-icon {
+            opacity: 1;
+            transform: scale(1);
         }
 
-        .form-group {
-            margin-bottom: 25px;
+        .password-section {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .form-group label {
+        .password-section.active {
+            opacity: 1;
+            max-height: 200px;
+            margin-top: 20px;
+        }
+
+        .password-section label {
             display: block;
             color: #2c3e50;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 15px;
         }
 
-        .form-group input,
-        .form-group select {
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .password-section input {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 15px;
+            padding: 16px 50px 16px 20px;
+            border: 3px solid #e9ecef;
+            border-radius: 15px;
+            font-size: 16px;
             transition: all 0.3s ease;
             font-family: inherit;
+            font-weight: 600;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
+        .password-section input:focus {
             outline: none;
             border-color: #4A6B54;
-            box-shadow: 0 0 0 3px rgba(74, 107, 84, 0.1);
+            box-shadow: 0 0 0 4px rgba(74, 107, 84, 0.1);
         }
 
-        .form-group select {
+        .password-toggle-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 24px;
             cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 20px;
-            padding-right: 40px;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .password-toggle-btn:hover {
+            opacity: 1;
         }
 
         .btn-login {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #4A6B54 0%, #5a8065 100%);
+            padding: 18px;
+            background: linear-gradient(135deg, #4A6B54 0%, #2d4a37 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 15px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(74, 107, 84, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(74, 107, 84, 0.3);
+            box-shadow: 0 15px 40px rgba(74, 107, 84, 0.4);
         }
 
         .btn-login:active {
             transform: translateY(0);
         }
 
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .error-message {
             background: #fee;
             color: #c33;
-            padding: 12px 16px;
-            border-radius: 8px;
+            padding: 15px 20px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
             font-size: 14px;
-            display: none;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s;
             border-left: 4px solid #c33;
         }
 
         .error-message.show {
-            display: block;
-            animation: shake 0.3s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            opacity: 1;
+            max-height: 100px;
+            margin-bottom: 25px;
         }
 
         .footer-text {
             text-align: center;
-            margin-top: 30px;
             color: #6c757d;
             font-size: 12px;
-        }
-
-        .password-toggle {
-            position: relative;
-        }
-
-        .password-toggle-btn {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #6c757d;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 5px;
-        }
-
-        .partner-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #4A6B54, #5a8065);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: 8px;
-            text-transform: uppercase;
+            margin-top: 30px;
+            line-height: 1.8;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo-section">
+        <div class="header-section">
             <img src="logo-starken.png" alt="Starken Tecnologia" class="logo-image">
-            <h1>Dashboard Financeiro</h1>
-            <p>🔐 Área Exclusiva de Sócios</p>
-        </div>
-
-        <div class="company-info">
-            <h2>Starken Tecnologia Ltda</h2>
-            <p>CNPJ: 62.839.769/0001-55</p>
+            <h1>Executive Dashboard</h1>
+            <p>Área Exclusiva de Executivos</p>
+            <div class="company-badge">STARKEN TECNOLOGIA LTDA • CNPJ 62.839.769/0001-55</div>
         </div>
 
         <div id="errorMessage" class="error-message"></div>
 
         <form id="loginForm">
-            <div class="form-group">
-                <label for="partner">Executivo</label>
-                <select id="partner" required>
-                    <option value="">Selecione seu perfil de acesso</option>
-                    <option value="juan">Juan Minni | Chief Executive Officer</option>
-                    <option value="dante">Dante Martins | Chief Commercial Officer</option>
-                    <option value="gabriel">Gabriel Anibelli | Chief Public Relations Officer</option>
-                    <option value="victor">Victor Lapegna | Chief Operating Officer</option>
-                </select>
+            <div class="executives-grid">
+                <div class="executive-card ceo" data-executive="juan">
+                    <div class="check-icon">✓</div>
+                    <div class="executive-avatar">JM</div>
+                    <div class="executive-info">
+                        <h3>Juan Minni</h3>
+                        <div class="executive-role">CEO</div>
+                        <div class="executive-title">Chief Executive Officer</div>
+                    </div>
+                </div>
+
+                <div class="executive-card cco" data-executive="dante">
+                    <div class="check-icon">✓</div>
+                    <div class="executive-avatar">DM</div>
+                    <div class="executive-info">
+                        <h3>Dante Martins</h3>
+                        <div class="executive-role">CCO</div>
+                        <div class="executive-title">Chief Commercial Officer</div>
+                    </div>
+                </div>
+
+                <div class="executive-card cpo" data-executive="gabriel">
+                    <div class="check-icon">✓</div>
+                    <div class="executive-avatar">GA</div>
+                    <div class="executive-info">
+                        <h3>Gabriel Anibelli</h3>
+                        <div class="executive-role">CPO</div>
+                        <div class="executive-title">Chief Public Relations Officer</div>
+                    </div>
+                </div>
+
+                <div class="executive-card coo" data-executive="victor">
+                    <div class="check-icon">✓</div>
+                    <div class="executive-avatar">VL</div>
+                    <div class="executive-info">
+                        <h3>Victor Lapegna</h3>
+                        <div class="executive-role">COO</div>
+                        <div class="executive-title">Chief Operating Officer</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <div class="password-toggle">
-                    <input type="password" id="password" placeholder="Digite sua senha" required>
+            <div class="password-section" id="passwordSection">
+                <label for="password">Senha de Acesso</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="password" placeholder="Digite sua senha executiva" required>
                     <button type="button" class="password-toggle-btn" onclick="togglePassword()">👁️</button>
                 </div>
             </div>
 
-            <button type="submit" class="btn-login">Entrar no Dashboard</button>
+            <button type="submit" class="btn-login" id="btnLogin" disabled>SELECIONE UM EXECUTIVO</button>
         </form>
 
         <div class="footer-text">
-            Dashboard Financeiro v1.0<br>
-            © 2025 Starken Tecnologia
+            Dashboard Financeiro v2.0 — Secure Executive Access<br>
+            © 2025 Starken Tecnologia. All rights reserved.
         </div>
     </div>
 
     <script>
-        // Credenciais dos sócios (em produção, isso seria validado no backend)
-        const partners = {
+        // Credenciais dos executivos
+        const executives = {
             juan: {
                 name: 'Juan Minni',
                 role: 'CEO',
@@ -278,6 +454,28 @@
                 email: 'victor@starkentecnologia.com.br'
             }
         };
+
+        let selectedExecutive = null;
+
+        // Selecionar executivo
+        document.querySelectorAll('.executive-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove seleção anterior
+                document.querySelectorAll('.executive-card').forEach(c => c.classList.remove('selected'));
+
+                // Adiciona nova seleção
+                this.classList.add('selected');
+                selectedExecutive = this.dataset.executive;
+
+                // Mostra campo de senha
+                document.getElementById('passwordSection').classList.add('active');
+                document.getElementById('password').focus();
+
+                // Atualiza botão
+                document.getElementById('btnLogin').disabled = false;
+                document.getElementById('btnLogin').textContent = 'ACESSAR DASHBOARD';
+            });
+        });
 
         function togglePassword() {
             const passwordInput = document.getElementById('password');
@@ -305,52 +503,40 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const partnerSelect = document.getElementById('partner').value;
+            if (!selectedExecutive) {
+                showError('Por favor, selecione um executivo');
+                return;
+            }
+
             const password = document.getElementById('password').value;
+            const executive = executives[selectedExecutive];
 
-            if (!partnerSelect) {
-                showError('Por favor, selecione seu nome.');
-                return;
-            }
-
-            if (!password) {
-                showError('Por favor, digite sua senha.');
-                return;
-            }
-
-            // Validar credenciais
-            const partner = partners[partnerSelect];
-
-            if (partner && partner.password === password) {
-                // Salvar dados do sócio logado no localStorage
+            if (password === executive.password) {
+                // Login bem-sucedido
                 const sessionData = {
-                    id: partnerSelect,
-                    username: partnerSelect, // Adicionar username para verificação
-                    name: partner.name,
-                    role: partner.role,
-                    email: partner.email,
+                    username: selectedExecutive,
+                    name: executive.name,
+                    role: executive.role,
+                    email: executive.email,
                     loginTime: new Date().toISOString()
                 };
 
                 localStorage.setItem('starken_session', JSON.stringify(sessionData));
 
-                // Redirecionar para o dashboard
+                // Redirecionar para dashboard
                 window.location.href = 'index.html';
             } else {
-                showError('Senha incorreta. Tente novamente.');
+                showError('❌ Senha incorreta. Tente novamente.');
                 document.getElementById('password').value = '';
                 document.getElementById('password').focus();
             }
         });
 
         // Verificar se já está logado
-        window.addEventListener('load', function() {
-            const session = localStorage.getItem('starken_session');
-            if (session) {
-                // Já está logado, redirecionar para o dashboard
-                window.location.href = 'index.html';
-            }
-        });
+        const session = localStorage.getItem('starken_session');
+        if (session) {
+            window.location.href = 'index.html';
+        }
     </script>
 </body>
 </html>
