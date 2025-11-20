@@ -650,11 +650,23 @@
                     <div class="stat-header">
                         <div class="stat-icon">💰</div>
                     </div>
-                    <div class="stat-label">Receitas do Mês</div>
-                    <div class="stat-value" id="totalReceitas">R$ 0</div>
+                    <div class="stat-label">Receita Projetada</div>
+                    <div class="stat-value" id="receitaProjetada">R$ 0</div>
                     <div class="stat-trend">
-                        <span>↗</span>
-                        <span>+12.5% vs mês anterior</span>
+                        <span>📊</span>
+                        <span id="percentualRecebido">0% recebido</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, var(--success), #059669);">✅</div>
+                    </div>
+                    <div class="stat-label">Receita Recebida</div>
+                    <div class="stat-value" id="receitaRecebida">R$ 0</div>
+                    <div class="stat-trend">
+                        <span>💵</span>
+                        <span id="receitaPendente">R$ 0 pendente</span>
                     </div>
                 </div>
 
@@ -665,31 +677,20 @@
                     <div class="stat-label">Despesas do Mês</div>
                     <div class="stat-value" id="totalDespesas">R$ 0</div>
                     <div class="stat-trend">
-                        <span>↗</span>
-                        <span>+8.3% vs mês anterior</span>
+                        <span id="despesasIcon">📌</span>
+                        <span id="despesasStatus">Pagas + Pendentes</span>
                     </div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, var(--success), #059669);">📊</div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, var(--info), #0284c7);">📊</div>
                     </div>
                     <div class="stat-label">Saldo Líquido</div>
                     <div class="stat-value" id="saldoLiquido">R$ 0</div>
                     <div class="stat-trend">
-                        <span>↗</span>
-                        <span>Positivo</span>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, var(--info), #0284c7);">📅</div>
-                    </div>
-                    <div class="stat-label">Transações</div>
-                    <div class="stat-value" id="totalTransacoes">0</div>
-                    <div class="stat-trend">
-                        <span>Este mês</span>
+                        <span id="saldoIcon">↗</span>
+                        <span id="saldoStatus">Receita - Despesas</span>
                     </div>
                 </div>
             </div>
@@ -822,6 +823,87 @@
         // Variável global para o mês selecionado
         let selectedMonth = new Date().toISOString().slice(0, 7);
 
+        // Dados de receitas e despesas por mês
+        const monthlyData = {
+            '2024-10': {
+                receitaProjetada: 46365.05,
+                receitaRecebida: 41865.05,
+                despesas: 43047.07
+            },
+            '2024-11': {
+                receitaProjetada: 35768.18,
+                receitaRecebida: 10924.18,
+                despesas: 16509.00
+            }
+        };
+
+        // Pré-carregar dados de despesas de Outubro e Novembro
+        function preloadMonthlyExpenses() {
+            const existingTransactions = getTransactions();
+
+            // Verificar se já existem transações pré-carregadas
+            const hasOctoberData = existingTransactions.some(t => t.date.startsWith('2024-10'));
+            const hasNovemberData = existingTransactions.some(t => t.date.startsWith('2024-11'));
+
+            const newTransactions = [];
+            let nextId = existingTransactions.length > 0 ? Math.max(...existingTransactions.map(t => t.id)) + 1 : 1;
+
+            // Dados de Outubro 2024
+            if (!hasOctoberData) {
+                const octoberExpenses = [
+                    { category: 'Pessoal', description: 'Salários (Igor, Eloize, Ederson, Victor)', amount: 11155.00, date: '2024-10-05' },
+                    { category: 'Pessoal', description: 'Dante - Closer (Comercial)', amount: 3170.00, date: '2024-10-10' },
+                    { category: 'Locação', description: 'Monica - Caução sala nova', amount: 8400.00, date: '2024-10-01' },
+                    { category: 'Locação', description: 'Monica - Aluguel Novembro', amount: 2800.00, date: '2024-10-25' },
+                    { category: 'Alpha', description: 'Taxa Franquia Matriz Alpha', amount: 5065.00, date: '2024-10-15' },
+                    { category: 'Outros', description: 'Adiantamento Juan Fernando', amount: 3573.49, date: '2024-10-20' },
+                    { category: 'Outros', description: 'Despesas diversas', amount: 3285.10, date: '2024-10-15' },
+                    { category: 'Ferramentas', description: 'Software e ferramentas', amount: 1163.79, date: '2024-10-08' },
+                    { category: 'Alimentação', description: 'Alimentação equipe', amount: 1017.68, date: '2024-10-12' },
+                    { category: 'Operacional', description: 'Despesas operacionais', amount: 1013.74, date: '2024-10-18' },
+                    { category: 'Combustível', description: 'Combustível', amount: 709.57, date: '2024-10-22' },
+                    { category: 'Pessoal', description: 'Natali - Serviços', amount: 475.00, date: '2024-10-14' },
+                    { category: 'Pessoal', description: 'Investimento equipamento', amount: 1118.70, date: '2024-10-28' }
+                ];
+
+                octoberExpenses.forEach(expense => {
+                    newTransactions.push({
+                        id: nextId++,
+                        type: 'expense',
+                        ...expense
+                    });
+                });
+            }
+
+            // Dados de Novembro 2024
+            if (!hasNovemberData) {
+                const novemberExpenses = [
+                    { category: 'Pessoal', description: 'Dante - Closer (Salário)', amount: 2500.00, date: '2024-11-05' },
+                    { category: 'Pessoal', description: 'Nathan - SDR (Comissão)', amount: 750.00, date: '2024-11-10' },
+                    { category: 'Pessoal', description: 'João - SDR (Comissão)', amount: 750.00, date: '2024-11-10' },
+                    { category: 'Pessoal', description: 'Dante - Bonificação', amount: 500.00, date: '2024-11-15' },
+                    { category: 'Locação', description: 'Aluguel - Sala', amount: 2800.00, date: '2024-11-01' },
+                    { category: 'Utilidades', description: 'Celesc - Energia', amount: 100.00, date: '2024-11-20' },
+                    { category: 'Utilidades', description: 'Internet - Claro', amount: 109.00, date: '2024-11-15' },
+                    { category: 'Alpha', description: 'Franquia Alpha (Outubro pendente)', amount: 7500.00, date: '2024-11-25' }
+                ];
+
+                novemberExpenses.forEach(expense => {
+                    newTransactions.push({
+                        id: nextId++,
+                        type: 'expense',
+                        ...expense
+                    });
+                });
+            }
+
+            // Salvar transações combinadas
+            if (newTransactions.length > 0) {
+                const allTransactions = [...existingTransactions, ...newTransactions];
+                saveTransactions(allTransactions);
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar novamente no load
@@ -830,6 +912,7 @@
                 return;
             }
 
+            preloadMonthlyExpenses();
             populateMonthSelector();
             loadTransactions();
             updateStats();
@@ -842,16 +925,24 @@
         // Preencher seletor de mês
         function populateMonthSelector() {
             const selector = document.getElementById('monthSelector');
-            const currentDate = new Date();
             const months = [];
 
-            // Gerar últimos 12 meses + próximos 3 meses
-            for (let i = -12; i <= 3; i++) {
-                const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+            // Data inicial: Outubro 2024
+            const startDate = new Date(2024, 9, 1); // Outubro = mês 9 (0-indexed)
+            const currentDate = new Date();
+
+            // Adicionar 6 meses para frente a partir de hoje
+            const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 6, 1);
+
+            let date = new Date(startDate);
+            while (date <= endDate) {
                 const monthValue = date.toISOString().slice(0, 7);
                 const monthName = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
                 const monthNameCapitalized = monthName.charAt(0).toUpperCase() + monthName.slice(1);
                 months.push({ value: monthValue, label: monthNameCapitalized });
+
+                // Avançar um mês
+                date.setMonth(date.getMonth() + 1);
             }
 
             selector.innerHTML = months.map(m =>
@@ -965,23 +1056,56 @@
         // Update Stats
         function updateStats() {
             const transactions = getTransactions();
-
             const monthTransactions = transactions.filter(t => t.date.startsWith(selectedMonth));
 
-            const totalReceitas = monthTransactions
+            // Pegar dados do mês ou usar valores das transações
+            const monthData = monthlyData[selectedMonth] || {
+                receitaProjetada: 0,
+                receitaRecebida: 0,
+                despesas: 0
+            };
+
+            // Calcular receitas das transações
+            const receitasTransacoes = monthTransactions
                 .filter(t => t.type === 'income')
                 .reduce((sum, t) => sum + t.amount, 0);
 
-            const totalDespesas = monthTransactions
+            const despesasTransacoes = monthTransactions
                 .filter(t => t.type === 'expense')
                 .reduce((sum, t) => sum + t.amount, 0);
 
-            const saldo = totalReceitas - totalDespesas;
+            // Usar dados pré-carregados ou transações
+            const receitaProjetada = monthData.receitaProjetada || receitasTransacoes;
+            const receitaRecebida = monthData.receitaRecebida || receitasTransacoes;
+            const totalDespesas = monthData.despesas || despesasTransacoes;
 
-            document.getElementById('totalReceitas').textContent = formatMoney(totalReceitas);
+            const receitaPendente = receitaProjetada - receitaRecebida;
+            const percentualRecebido = receitaProjetada > 0 ? ((receitaRecebida / receitaProjetada) * 100).toFixed(1) : 0;
+            const saldo = receitaRecebida - totalDespesas;
+
+            // Atualizar valores
+            document.getElementById('receitaProjetada').textContent = formatMoney(receitaProjetada);
+            document.getElementById('receitaRecebida').textContent = formatMoney(receitaRecebida);
             document.getElementById('totalDespesas').textContent = formatMoney(totalDespesas);
             document.getElementById('saldoLiquido').textContent = formatMoney(saldo);
-            document.getElementById('totalTransacoes').textContent = monthTransactions.length;
+
+            // Atualizar indicadores secundários
+            document.getElementById('percentualRecebido').textContent = `${percentualRecebido}% recebido`;
+            document.getElementById('receitaPendente').textContent = `${formatMoney(receitaPendente)} pendente`;
+
+            // Atualizar ícones e status baseado no saldo
+            const saldoIcon = document.getElementById('saldoIcon');
+            const saldoStatus = document.getElementById('saldoStatus');
+            if (saldo > 0) {
+                saldoIcon.textContent = '✅';
+                saldoStatus.textContent = 'Positivo';
+            } else if (saldo < 0) {
+                saldoIcon.textContent = '⚠️';
+                saldoStatus.textContent = 'Negativo';
+            } else {
+                saldoIcon.textContent = '➖';
+                saldoStatus.textContent = 'Neutro';
+            }
         }
 
         // Filter Transactions
