@@ -321,28 +321,28 @@
             <!-- Projeções -->
             <div class="chart-card" style="margin-bottom: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                 <div class="chart-card-header" style="border-bottom-color: rgba(255,255,255,0.2);">
-                    <h3 class="chart-card-title" style="color: white;">🎯 Projeções 2025-2026</h3>
+                    <h3 class="chart-card-title" style="color: white;" id="projecoesTitle">🎯 Projeções - Novembro 2025</h3>
                 </div>
                 <div style="padding: 20px;">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                         <!-- Projeção MRR -->
                         <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
                             <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">📈 Projeção MRR</div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">R$ 48.959</div>
-                            <div style="font-size: 12px; opacity: 0.8;">+17% vs atual (R$ 41.865)</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="projecaoMRR">R$ 48.959</div>
+                            <div style="font-size: 12px; opacity: 0.8;" id="projecaoMRRDesc">+17% vs atual (R$ 41.865)</div>
                         </div>
 
-                        <!-- TCV Novembro -->
+                        <!-- TCV Mês Atual -->
                         <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">💰 TCV Novembro</div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">R$ 30.594</div>
-                            <div style="font-size: 12px; opacity: 0.8;">Meta: R$ 90.000 (34% atingido)</div>
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;" id="tcvMesLabel">💰 TCV Novembro</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="tcvMesValor">R$ 30.594</div>
+                            <div style="font-size: 12px; opacity: 0.8;" id="tcvMesDesc">Meta: R$ 90.000 (34% atingido)</div>
                         </div>
 
-                        <!-- Meta Dezembro -->
+                        <!-- Meta Mês -->
                         <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">🎯 Meta Dezembro</div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">R$ 150.000</div>
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;" id="metaMesLabel">🎯 Meta Novembro</div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;" id="metaMesValor">R$ 90.000</div>
                             <div style="font-size: 12px; opacity: 0.8;">Em contratos fechados (TCV)</div>
                         </div>
 
@@ -476,9 +476,13 @@
                 { cliente: 'Varejo Premium', estagio: 'negociacao', valor: 5800, probabilidade: '75%', fechamento: '28/11/2025', origem: 'Indicação' }
             ],
             '2025-12': [
-                { cliente: 'Logística Express', estagio: 'proposta', valor: 9200, probabilidade: '65%', fechamento: '05/12/2025', origem: 'Website' },
-                { cliente: 'Educação Online', estagio: 'qualificacao', valor: 7100, probabilidade: '45%', fechamento: '20/12/2025', origem: 'Instagram' },
-                { cliente: 'Consultoria Pro', estagio: 'negociacao', valor: 11500, probabilidade: '85%', fechamento: '22/12/2025', origem: 'Indicação' }
+                { cliente: 'Logística Express', estagio: 'negociacao', valor: 12000, probabilidade: '80%', fechamento: '05/12/2025', origem: 'Website' },
+                { cliente: 'Educação Online', estagio: 'proposta', valor: 8500, probabilidade: '60%', fechamento: '12/12/2025', origem: 'Instagram' },
+                { cliente: 'Consultoria Pro', estagio: 'negociacao', valor: 15000, probabilidade: '85%', fechamento: '15/12/2025', origem: 'Indicação' },
+                { cliente: 'TechStart Innovations', estagio: 'negociacao', valor: 20000, probabilidade: '75%', fechamento: '18/12/2025', origem: 'LinkedIn' },
+                { cliente: 'Grupo Alimentos Prime', estagio: 'proposta', valor: 18000, probabilidade: '70%', fechamento: '20/12/2025', origem: 'Indicação' },
+                { cliente: 'AutoPeças Nacional', estagio: 'qualificacao', valor: 9500, probabilidade: '50%', fechamento: '27/12/2025', origem: 'Website' },
+                { cliente: 'Clínica Vida Saudável', estagio: 'negociacao', valor: 11000, probabilidade: '65%', fechamento: '22/12/2025', origem: 'Instagram' }
             ],
             '2026-01': [
                 { cliente: 'Saúde Integral', estagio: 'prospeccao', valor: 5500, probabilidade: '25%', fechamento: '18/01/2026', origem: 'LinkedIn' },
@@ -587,6 +591,7 @@
             updateContratosFechados(mes);
             updatePipeline(mes);
             updatePipelineTotal(mes);
+            updateProjecoes(mes);
         }
 
         // Função para atualizar total do pipeline
@@ -597,6 +602,65 @@
             if (pipelineElement) {
                 pipelineElement.textContent = `R$ ${total.toLocaleString('pt-BR')}`;
             }
+        }
+
+        // Função para atualizar projeções
+        function updateProjecoes(mes) {
+            const mesNome = {
+                '2025-11': 'Novembro',
+                '2025-12': 'Dezembro',
+                '2026-01': 'Janeiro',
+                '2026-02': 'Fevereiro',
+                '2026-03': 'Março'
+            }[mes];
+
+            const mesCompleto = {
+                '2025-11': 'Novembro 2025',
+                '2025-12': 'Dezembro 2025',
+                '2026-01': 'Janeiro 2026',
+                '2026-02': 'Fevereiro 2026',
+                '2026-03': 'Março 2026'
+            }[mes];
+
+            // Metas por mês
+            const metas = {
+                '2025-11': 90000,
+                '2025-12': 150000,
+                '2026-01': 100000,
+                '2026-02': 120000,
+                '2026-03': 120000
+            };
+
+            // Projeção de MRR por mês
+            const projecaoMRR = {
+                '2025-11': { valor: 48959, percentual: 17 },
+                '2025-12': { valor: 55000, percentual: 31 },
+                '2026-01': { valor: 60000, percentual: 43 },
+                '2026-02': { valor: 65000, percentual: 55 },
+                '2026-03': { valor: 70000, percentual: 67 }
+            };
+
+            // Atualizar título
+            document.getElementById('projecoesTitle').textContent = `🎯 Projeções - ${mesCompleto}`;
+
+            // Atualizar MRR
+            const mrr = projecaoMRR[mes] || projecaoMRR['2025-11'];
+            document.getElementById('projecaoMRR').textContent = `R$ ${mrr.valor.toLocaleString('pt-BR')}`;
+            document.getElementById('projecaoMRRDesc').textContent = `+${mrr.percentual}% vs atual (R$ 41.865)`;
+
+            // Atualizar TCV do mês
+            const contratos = contratosFechadosPorMes[mes] || [];
+            const tcvMes = contratos.reduce((sum, c) => sum + c.valorTotal, 0);
+            const metaMes = metas[mes] || 0;
+            const percentualMeta = metaMes > 0 ? Math.round((tcvMes / metaMes) * 100) : 0;
+
+            document.getElementById('tcvMesLabel').textContent = `💰 TCV ${mesNome}`;
+            document.getElementById('tcvMesValor').textContent = `R$ ${tcvMes.toLocaleString('pt-BR')}`;
+            document.getElementById('tcvMesDesc').textContent = `Meta: R$ ${metaMes.toLocaleString('pt-BR')} (${percentualMeta}% atingido)`;
+
+            // Atualizar Meta do mês
+            document.getElementById('metaMesLabel').textContent = `🎯 Meta ${mesNome}`;
+            document.getElementById('metaMesValor').textContent = `R$ ${metaMes.toLocaleString('pt-BR')}`;
         }
 
         // Inicializar gráficos
