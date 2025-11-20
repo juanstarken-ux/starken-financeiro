@@ -633,10 +633,15 @@
                     <h1 class="page-title">Gestão Financeira</h1>
                     <p style="color: var(--text-secondary); margin-top: 0.5rem;">Controle completo de receitas e despesas</p>
                 </div>
-                <button class="btn btn-primary" onclick="openModal()">
-                    <span>➕</span>
-                    <span>Nova Transação</span>
-                </button>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <select id="monthSelector" class="form-select" style="width: 180px; padding: 12px 16px; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 10px; cursor: pointer;" onchange="changeMonth()">
+                        <!-- Será preenchido via JavaScript -->
+                    </select>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <span>➕</span>
+                        <span>Nova Transação</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Stats Grid -->
@@ -814,6 +819,9 @@
             }
         })();
 
+        // Variável global para o mês selecionado
+        let selectedMonth = new Date().toISOString().slice(0, 7);
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar novamente no load
@@ -822,6 +830,7 @@
                 return;
             }
 
+            populateMonthSelector();
             loadTransactions();
             updateStats();
             createCategoryChart();
@@ -829,6 +838,34 @@
             // Set today's date as default
             document.getElementById('transactionDate').valueAsDate = new Date();
         });
+
+        // Preencher seletor de mês
+        function populateMonthSelector() {
+            const selector = document.getElementById('monthSelector');
+            const currentDate = new Date();
+            const months = [];
+
+            // Gerar últimos 12 meses + próximos 3 meses
+            for (let i = -12; i <= 3; i++) {
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+                const monthValue = date.toISOString().slice(0, 7);
+                const monthName = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                const monthNameCapitalized = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                months.push({ value: monthValue, label: monthNameCapitalized });
+            }
+
+            selector.innerHTML = months.map(m =>
+                `<option value="${m.value}" ${m.value === selectedMonth ? 'selected' : ''}>${m.label}</option>`
+            ).join('');
+        }
+
+        // Mudar mês selecionado
+        function changeMonth() {
+            selectedMonth = document.getElementById('monthSelector').value;
+            loadTransactions();
+            updateStats();
+            createCategoryChart();
+        }
 
         // Transactions Storage
         function getTransactions() {
@@ -884,23 +921,29 @@
 
         // Load Transactions
         function loadTransactions() {
-            const transactions = getTransactions();
+            const allTransactions = getTransactions();
             const list = document.getElementById('transactionsList');
+
+            // Filtrar transações do mês selecionado
+            const transactions = allTransactions.filter(t => t.date.startsWith(selectedMonth));
 
             if (transactions.length === 0) {
                 list.innerHTML = `
                     <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
-                        <p>Nenhuma transação registrada</p>
+                        <p>Nenhuma transação registrada neste mês</p>
                         <button class="btn btn-primary" onclick="openModal()" style="margin-top: 1rem;">
-                            Adicionar primeira transação
+                            Adicionar transação
                         </button>
                     </div>
                 `;
                 return;
             }
 
-            list.innerHTML = transactions.slice(0, 10).map(t => `
+            // Ordenar por data decrescente
+            const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            list.innerHTML = sortedTransactions.map(t => `
                 <div class="transaction-item">
                     <div class="transaction-icon ${t.type}">
                         ${t.type === 'income' ? '💵' : '💸'}
@@ -922,9 +965,8 @@
         // Update Stats
         function updateStats() {
             const transactions = getTransactions();
-            const currentMonth = new Date().toISOString().slice(0, 7);
 
-            const monthTransactions = transactions.filter(t => t.date.startsWith(currentMonth));
+            const monthTransactions = transactions.filter(t => t.date.startsWith(selectedMonth));
 
             const totalReceitas = monthTransactions
                 .filter(t => t.type === 'income')
@@ -984,8 +1026,7 @@
         let categoryChart = null;
         function createCategoryChart() {
             const transactions = getTransactions();
-            const currentMonth = new Date().toISOString().slice(0, 7);
-            const expenses = transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth));
+            const expenses = transactions.filter(t => t.type === 'expense' && t.date.startsWith(selectedMonth));
 
             const categoryData = {};
             expenses.forEach(t => {
@@ -994,6 +1035,32 @@
 
             const ctx = document.getElementById('categoryChart');
             if (categoryChart) categoryChart.destroy();
+
+            // Se não houver despesas, mostrar gráfico vazio
+            if (Object.keys(categoryData).length === 0) {
+                categoryChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Sem despesas'],
+                        datasets: [{
+                            data: [1],
+                            backgroundColor: ['rgba(100, 116, 139, 0.3)'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#94a3b8' }
+                            }
+                        }
+                    }
+                });
+                return;
+            }
 
             categoryChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -1007,6 +1074,8 @@
                             'rgba(236, 72, 153, 0.8)',
                             'rgba(16, 185, 129, 0.8)',
                             'rgba(245, 158, 11, 0.8)',
+                            'rgba(236, 153, 75, 0.8)',
+                            'rgba(52, 211, 153, 0.8)',
                         ],
                         borderWidth: 0
                     }]
