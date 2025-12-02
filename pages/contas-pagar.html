@@ -412,6 +412,7 @@
                     <option value="2025-10">Outubro 2025</option>
                     <option value="2025-11">Novembro 2025</option>
                     <option value="2025-12" selected>Dezembro 2025</option>
+                    <option value="2026-01">Janeiro 2026</option>
                 </select>
             </div>
 
@@ -489,12 +490,19 @@
         // Mapear categorias
         function getCategoryName(categoria) {
             const map = {
-                'comercial': 'Comercial',
-                'estrutura': 'Estrutura',
+                'pessoal': 'Pessoal',
+                'locacao_aluguel': 'Locação',
+                'adiantamentos': 'Adiantamentos',
+                'alpha_franquia': 'Alpha',
+                'outros': 'Outros',
                 'ferramentas': 'Ferramentas',
-                'pessoal': 'Pessoal'
+                'alimentacao': 'Alimentação',
+                'operacionais': 'Operacional',
+                'combustivel': 'Combustível',
+                'comercial': 'Comercial',
+                'estrutura': 'Estrutura'
             };
-            return map[categoria] || categoria;
+            return map[categoria] || categoria.charAt(0).toUpperCase() + categoria.slice(1);
         }
 
         // Carregar dados do mês selecionado
