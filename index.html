@@ -431,9 +431,27 @@
 
         .clients-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             animation: fadeIn 0.5s ease;
+        }
+
+        @media (max-width: 1200px) {
+            .clients-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .clients-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .clients-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @keyframes fadeIn {
@@ -445,10 +463,15 @@
             background: linear-gradient(135deg, var(--bg-gray) 0%, var(--white) 100%);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 24px;
+            padding: 20px 16px;
             text-align: center;
             transition: all 0.3s ease;
             cursor: pointer;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .client-card:hover {
@@ -457,32 +480,112 @@
             border-color: var(--primary-green);
         }
 
+        .client-card.new-client {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #4CAF50;
+            position: relative;
+        }
+
+        .client-card.new-client::before {
+            content: '✨ NOVO';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #4CAF50;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        .client-card.projecao-client {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border: 2px solid #FFC107;
+            position: relative;
+        }
+
+        .client-card.projecao-client::before {
+            content: '📊 PROJEÇÃO';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #FFC107;
+            color: #333;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        /* Card aguardando renovação */
+        .client-card.aguardando-client {
+            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+            border: 2px solid #bdbdbd;
+            opacity: 0.85;
+        }
+
+        .client-card.aguardando-client .client-value {
+            color: #757575;
+            background: rgba(0,0,0,0.05);
+        }
+
+        /* Card renovação MRR */
+        .client-card.renovacao-client {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #4CAF50;
+            position: relative;
+        }
+
+        .client-card.renovacao-client::before {
+            content: '🔄 RENOVAÇÃO';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #4CAF50;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        .client-card.renovacao-client .client-value {
+            color: #2e7d32;
+            background: rgba(46, 125, 50, 0.1);
+        }
+
         .client-logo {
-            font-size: 48px;
-            margin-bottom: 12px;
+            font-size: 36px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
         }
 
         .client-name {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-dark);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+            line-height: 1.2;
         }
 
         .client-category {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-light);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+            flex-grow: 0;
         }
 
         .client-value {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--primary-green);
-            padding: 8px 12px;
+            padding: 6px 10px;
             background: rgba(74, 107, 84, 0.1);
             border-radius: 8px;
             display: inline-block;
+            flex-shrink: 0;
         }
 
         /* Utility Classes */
@@ -760,6 +863,36 @@
             padding: 4px 10px;
             border-radius: 12px;
             font-size: 11px;
+        }
+
+        .badge-growth {
+            background-color: #e67e22;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-projecao {
+            font-size: 12px;
+        }
+
+        .badge-projecao-status {
+            background-color: #FFC107;
+            color: #333;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-renovacao {
+            background-color: #4CAF50;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
             font-weight: 600;
         }
     </style>
@@ -813,16 +946,14 @@
             <div class="page-header">
                 <div class="page-header-content">
                     <h1 class="page-title">Dashboard Financeiro</h1>
-                    <p class="page-subtitle" id="page-subtitle">Visão geral do desempenho financeiro - <span id="periodo-atual">Novembro 2025</span></p>
+                    <p class="page-subtitle" id="page-subtitle">Visão geral do desempenho financeiro - <span id="periodo-atual">Carregando...</span></p>
                 </div>
                 <div style="display: flex; align-items: center; gap: 20px;">
-                    <!-- Month Selector -->
+                    <!-- Month Selector - será preenchido dinamicamente -->
                     <div class="month-selector-container">
                         <span class="month-selector-label">📅 Período:</span>
-                        <select class="month-select" onchange="changeMes(this.value)">
-                            <option value="2025-10">Outubro 2025</option>
-                            <option value="2025-11" selected>Novembro 2025 (Atual)</option>
-                            <option value="2025-12">Dezembro 2025 (Projeção)</option>
+                        <select class="month-select" id="monthSelector" onchange="changeMes(this.value)">
+                            <!-- Opções serão geradas dinamicamente -->
                         </select>
                     </div>
 
@@ -849,8 +980,8 @@
                         <div class="kpi-title">Clientes Ativos</div>
                         <div class="kpi-icon bg-primary">👥</div>
                     </div>
-                    <div class="kpi-value" id="kpi-clientes">24</div>
-                    <div class="kpi-change" id="kpi-clientes-change">14 Starken + 10 Alpha
+                    <div class="kpi-value" id="kpi-clientes">30</div>
+                    <div class="kpi-change" id="kpi-clientes-change">14 Starken + 16 Alpha
                     </div>
                 </div>
 
@@ -900,7 +1031,7 @@
             <div class="clients-section">
                 <div class="section-header-clients">
                     <h2 class="section-title-clients">Clientes Ativos</h2>
-                    <p class="section-subtitle-clients">Portfólio atual de 24 clientes da Starken e Alpha</p>
+                    <p class="section-subtitle-clients">Portfólio atual de 30 clientes da Starken e Alpha</p>
                 </div>
 
                 <div class="clients-tabs">
@@ -910,23 +1041,23 @@
                     </button>
                     <button class="client-tab" onclick="showClientTab('alpha')">
                         <span class="tab-icon">⭐</span>
-                        <span class="tab-label">Alpha (10)</span>
+                        <span class="tab-label">Alpha (16)</span>
                     </button>
                 </div>
 
-                <!-- Starken Clients -->
+                <!-- Starken Clients (13) -->
                 <div id="starken-clients" class="clients-grid">
                     <div class="client-card">
                         <div class="client-logo">🍕</div>
                         <h3 class="client-name">Mortadella Blumenau</h3>
-                        <p class="client-category">Pizzaria</p>
+                        <p class="client-category">Gastronomia</p>
                         <div class="client-value">R$ 2.000/mês</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🍕</div>
                         <h3 class="client-name">Mortadella Tabajara</h3>
-                        <p class="client-category">Pizzaria</p>
-                        <div class="client-value">Bônus Mortadella</div>
+                        <p class="client-category">Gastronomia</p>
+                        <div class="client-value">Bônus</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🍔</div>
@@ -935,22 +1066,22 @@
                         <div class="client-value">R$ 2.000/mês</div>
                     </div>
                     <div class="client-card">
-                        <div class="client-logo">💪</div>
-                        <h3 class="client-name">Academia São Pedro</h3>
-                        <p class="client-category">Academia</p>
-                        <div class="client-value">R$ 1.080/mês</div>
+                        <div class="client-logo">🌮</div>
+                        <h3 class="client-name">Rosa Mexicano Blumenau</h3>
+                        <p class="client-category">Mexicano</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🌮</div>
+                        <h3 class="client-name">Rosa Mexicano Brusque</h3>
+                        <p class="client-category">Mexicano</p>
+                        <div class="client-value">R$ 2.000/mês</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🪑</div>
                         <h3 class="client-name">JPR Móveis Rústicos</h3>
                         <p class="client-category">Móveis</p>
                         <div class="client-value">R$ 2.000/mês</div>
-                    </div>
-                    <div class="client-card">
-                        <div class="client-logo">🍖</div>
-                        <h3 class="client-name">Brazza BNU</h3>
-                        <p class="client-category">Churrascaria</p>
-                        <div class="client-value">R$ 3.000/mês</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🪑</div>
@@ -973,20 +1104,26 @@
                     <div class="client-card">
                         <div class="client-logo">👗</div>
                         <h3 class="client-name">Estilo Tulipa</h3>
-                        <p class="client-category">Moda</p>
+                        <p class="client-category">Decoração</p>
                         <div class="client-value">R$ 659/mês</div>
                     </div>
                     <div class="client-card">
-                        <div class="client-logo">🌮</div>
-                        <h3 class="client-name">Rosa Mexicano Blumenau</h3>
-                        <p class="client-category">Mexicano</p>
-                        <div class="client-value">R$ 2.000/mês</div>
+                        <div class="client-logo">💪</div>
+                        <h3 class="client-name">Academia São Pedro</h3>
+                        <p class="client-category">Academia</p>
+                        <div class="client-value">R$ 1.080/mês</div>
                     </div>
                     <div class="client-card">
-                        <div class="client-logo">🌮</div>
-                        <h3 class="client-name">Rosa Mexicano Brusque</h3>
-                        <p class="client-category">Mexicano</p>
-                        <div class="client-value">R$ 2.000/mês</div>
+                        <div class="client-logo">🍽️</div>
+                        <h3 class="client-name">Divino Tempero</h3>
+                        <p class="client-category">Restaurante</p>
+                        <div class="client-value">R$ 1.000/mês</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🏠</div>
+                        <h3 class="client-name">Dommus Smart Home</h3>
+                        <p class="client-category">Automação Residencial</p>
+                        <div class="client-value">R$ 297/mês + 15%</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🍔</div>
@@ -994,15 +1131,9 @@
                         <p class="client-category">Hamburgueria</p>
                         <div class="client-value">R$ 2.000/mês</div>
                     </div>
-                    <div class="client-card">
-                        <div class="client-logo">🏠</div>
-                        <h3 class="client-name">Dommus Smart Home</h3>
-                        <p class="client-category">Automação Residencial</p>
-                        <div class="client-value">R$ 297/mês + 15% vendas</div>
-                    </div>
                 </div>
 
-                <!-- Alpha Clients -->
+                <!-- Alpha Clients (16) -->
                 <div id="alpha-clients" class="clients-grid" style="display: none;">
                     <div class="client-card">
                         <div class="client-logo">🍽️</div>
@@ -1032,39 +1163,77 @@
                         <div class="client-logo">🍕</div>
                         <h3 class="client-name">Pizzaria Don Chevico</h3>
                         <p class="client-category">Envio Matriz - TCV</p>
-                        <div class="client-value">Ticket Médio</div>
+                        <div class="client-value">TCV</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🍔</div>
                         <h3 class="client-name">World Burger</h3>
                         <p class="client-category">Envio Matriz - TCV</p>
-                        <div class="client-value">Ticket Médio</div>
+                        <div class="client-value">TCV</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🍝</div>
                         <h3 class="client-name">Oficina da Massa</h3>
                         <p class="client-category">Envio Matriz - TCV</p>
-                        <div class="client-value">Ticket Médio</div>
+                        <div class="client-value">TCV</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🍔</div>
                         <h3 class="client-name">Bigu's Burger</h3>
                         <p class="client-category">Envio Matriz - TCV</p>
-                        <div class="client-value">Ticket Médio</div>
+                        <div class="client-value">TCV</div>
                     </div>
                     <div class="client-card">
                         <div class="client-logo">🍕</div>
                         <h3 class="client-name">Pizzaria Madrid</h3>
                         <p class="client-category">Envio Matriz - TCV</p>
-                        <div class="client-value">Ticket Médio</div>
+                        <div class="client-value">TCV</div>
                     </div>
                     <div class="client-card">
-                        <div class="client-logo">🥟</div>
-                        <h3 class="client-name">Esfiha Rio</h3>
-                        <p class="client-category">Em transição para matriz</p>
-                        <div class="client-value">-</div>
+                        <div class="client-logo">🍕</div>
+                        <h3 class="client-name">Cazza Pizzaria</h3>
+                        <p class="client-category">Envio Matriz - TCV</p>
+                        <div class="client-value">TCV</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍣</div>
+                        <h3 class="client-name">Maki Toro Sushi</h3>
+                        <p class="client-category">Growth Hub - TCV</p>
+                        <div class="client-value">TCV</div>
+                    </div>
+                    <div class="client-card">
+                        <div class="client-logo">🍔</div>
+                        <h3 class="client-name">Brazza Hamburgueria</h3>
+                        <p class="client-category">Blumenau - Hamburgueria</p>
+                        <div class="client-value">R$ 3.000/mês</div>
+                    </div>
+                    <div class="client-card new-client">
+                        <div class="client-logo">🍽️</div>
+                        <h3 class="client-name">Fabinhus Restaurante</h3>
+                        <p class="client-category">Growth Hub - Início 15/12</p>
+                        <div class="client-value">R$ 1.000/mês</div>
+                    </div>
+                    <div class="client-card new-client">
+                        <div class="client-logo">🍖</div>
+                        <h3 class="client-name">Tempero Manero Grill</h3>
+                        <p class="client-category">Growth Hub - Início 15/12</p>
+                        <div class="client-value">R$ 1.000/mês</div>
+                    </div>
+                    <div class="client-card new-client">
+                        <div class="client-logo">🍔</div>
+                        <h3 class="client-name">Super Dupe Hamburgueria</h3>
+                        <p class="client-category">NOVO BC - Início 20/12</p>
+                        <div class="client-value">R$ 2.000/mês</div>
+                    </div>
+                    <div class="client-card new-client">
+                        <div class="client-logo">🍣</div>
+                        <h3 class="client-name">Majo Sushi</h3>
+                        <p class="client-category">NOVO - Início Jan/2026</p>
+                        <div class="client-value">R$ 2.000/mês</div>
                     </div>
                 </div>
+                <!-- CONTAINER DINÂMICO PARA CLIENTES MATRIZ -->
+                <div id="matriz-clients-container" class="clients-grid" style="margin-top: 20px;"></div>
             </div>
 
             
@@ -1072,21 +1241,21 @@
             <!-- Two Column Client Tables -->
             <div class="client-tables-container">
                 <div class="client-table-header">
-                    <h2 class="section-title">Carteira de Clientes (24 Ativos)</h2>
+                    <h2 class="section-title" id="carteira-clientes-titulo">Carteira de Clientes (34 Ativos)</h2>
                     <p class="section-subtitle">Distribuição entre Starken (Matriz) e Alpha (Projeto)</p>
                 </div>
 
                 <div class="tables-grid">
-                    <!-- STARKEN TABLE -->
+                    <!-- STARKEN TABLE - Dinâmica por mês -->
                     <div class="company-table-card starken-card">
                         <div class="company-table-header">
                             <div class="company-icon">🚀</div>
                             <div class="company-info">
                                 <h3 class="company-name">Starken</h3>
-                                <p class="company-label">Empresa Matriz · 14 Clientes</p>
+                                <p class="company-label" id="starken-clientes-label">Empresa Matriz · 14 Clientes</p>
                             </div>
                             <div class="company-stats">
-                                <div class="stat-value">R$ 23.036</div>
+                                <div class="stat-value" id="starken-mrr-total">R$ 19.833</div>
                                 <div class="stat-label">MRR Total</div>
                             </div>
                         </div>
@@ -1101,107 +1270,36 @@
                                         <th>Status</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Mortadella Blumenau</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 2.000</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Mortadella Tabajara</strong></td>
-                                        <td>Blumenau</td>
-                                        <td><span class="badge-bonus">Bônus</span></td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Brazza BNU</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 3.000</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Realizzati Móveis</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 2.500</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>JPR Móveis Rústicos</strong></td>
-                                        <td>Luiz Alves</td>
-                                        <td>R$ 2.000</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Hamburgueria Feio</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 2.000</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Academia São Pedro</strong></td>
-                                        <td>Brusque</td>
-                                        <td>R$ 1.080</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Suprema Pizza</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 2.000</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Shield Car Blumenau</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 297 + 15% vendas</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Dommus Smart Home</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 297 + 15% vendas</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Estilo Tulipa</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 659</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Rosa Mexicano Blumenau</strong></td>
-                                        <td>Blumenau</td>
-                                        <td>R$ 2.000</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Rosa Mexicano Brusque</strong></td>
-                                        <td>Brusque</td>
-                                        <td>R$ 2.000</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Alexandria Burger</strong></td>
-                                        <td>Indaial</td>
-                                        <td>R$ 2.000</td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
+                                <tbody id="starken-table-body">
+                                    <!-- Conteúdo gerado dinamicamente -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- ALPHA TABLE -->
+                    <!-- ALPHA TABLE - Dinâmica por mês -->
                     <div class="company-table-card alpha-card">
                         <div class="company-table-header">
                             <div class="company-icon alpha-icon">⭐</div>
                             <div class="company-info">
                                 <h3 class="company-name">Alpha</h3>
-                                <p class="company-label">Projeto Nichado · 10 Clientes</p>
+                                <p class="company-label" id="alpha-clientes-label">Projeto Nichado · 16 Clientes</p>
                             </div>
-                            <div class="company-stats">
-                                <div class="stat-value">R$ 8.000</div>
-                                <div class="stat-label">MRR Recorrente</div>
+                            <div class="company-stats" style="text-align: right;">
+                                <div style="display: flex; gap: 20px;">
+                                    <div>
+                                        <div class="stat-value" style="color: #4A6B54;" id="alpha-mrr-total">R$ 15.000</div>
+                                        <div class="stat-label">MRR</div>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value" style="color: #FFC107;" id="alpha-tcv-total">R$ 0</div>
+                                        <div class="stat-label">TCV</div>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value" style="color: #2c3e50;" id="alpha-total-mes">R$ 15.000</div>
+                                        <div class="stat-label">TOTAL MÊS</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -1210,72 +1308,14 @@
                                 <thead>
                                     <tr>
                                         <th>Cliente</th>
-                                        <th>Cidade</th>
                                         <th>Modelo</th>
+                                        <th>MRR</th>
+                                        <th>TCV</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Oca Restaurante</strong></td>
-                                        <td>Blumenau</td>
-                                        <td><span class="badge-outbound">Outbound</span></td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Madrugão Lanches</strong></td>
-                                        <td>Blumenau</td>
-                                        <td><span class="badge-outbound">Outbound</span></td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Fratellis Pizzaria</strong></td>
-                                        <td>Blumenau</td>
-                                        <td><span class="badge-outbound">Outbound</span></td>
-                                        <td><span class="badge-new">Novo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Saporitto Pizzaria</strong></td>
-                                        <td>Blumenau</td>
-                                        <td><span class="badge-outbound">Outbound</span></td>
-                                        <td><span class="badge-new">Novo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Pizzaria Don Chevico</strong></td>
-                                        <td>-</td>
-                                        <td><span class="badge-envio">Envio Matriz</span></td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>World Burger</strong></td>
-                                        <td>-</td>
-                                        <td><span class="badge-envio">Envio Matriz</span></td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Oficina da Massa</strong></td>
-                                        <td>-</td>
-                                        <td><span class="badge-envio">Envio Matriz</span></td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Bigu's Burger</strong></td>
-                                        <td>-</td>
-                                        <td><span class="badge-envio">Envio Matriz</span></td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Pizzaria Madrid</strong></td>
-                                        <td>-</td>
-                                        <td><span class="badge-envio">Envio Matriz</span></td>
-                                        <td><span class="badge-active">Ativo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Esfiha Rio</strong></td>
-                                        <td>-</td>
-                                        <td><span class="badge-transition">Transição Matriz</span></td>
-                                        <td><span class="badge-pending">Em transição</span></td>
-                                    </tr>
+                                <tbody id="alpha-table-body">
+                                    <!-- Conteúdo gerado dinamicamente -->
                                 </tbody>
                             </table>
                         </div>
@@ -1299,24 +1339,62 @@
         // SISTEMA DE GESTÃO DE MESES - DASHBOARD
         // ==========================================
 
+        // Função para obter o mês atual em tempo real
+        function getMesAtualReal() {
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            return `${ano}-${mes}`;
+        }
+
+        // Função para formatar nome do mês
+        function getNomeMes(mesChave) {
+            const meses = {
+                '01': 'Janeiro', '02': 'Fevereiro', '03': 'Março',
+                '04': 'Abril', '05': 'Maio', '06': 'Junho',
+                '07': 'Julho', '08': 'Agosto', '09': 'Setembro',
+                '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'
+            };
+            const [ano, mes] = mesChave.split('-');
+            return `${meses[mes]} ${ano}`;
+        }
+
+        // Verificar se o mês existe nos dados, senão usar o mais recente disponível
+        function getMesDisponivel(mesDesejado) {
+            if (dadosMensais[mesDesejado]) {
+                return mesDesejado;
+            }
+            // Se não existe, pegar o mês mais recente disponível
+            const mesesDisponiveis = Object.keys(dadosMensais).sort().reverse();
+            return mesesDisponiveis[0] || '2025-11';
+        }
+
         // Estado global do dashboard - DECLARADO ANTES DOS CHARTS
+        const mesRealAtual = getMesAtualReal();
+        const mesInicial = getMesDisponivel(mesRealAtual);
+
         const DashboardState = {
-            mesAtual: '2025-11', // Mês atual padrão: Novembro
+            mesAtual: mesInicial, // Mês atual baseado na data real
+            mesReal: mesRealAtual, // Data real do sistema
             charts: {
                 mrr: null,
                 despesas: null
             }
         };
 
+        console.log('📅 Data atual do sistema:', new Date().toLocaleDateString('pt-BR'));
+        console.log('📅 Mês real:', mesRealAtual);
+        console.log('📅 Mês carregado:', mesInicial);
+
         // Revenue Chart
         const revenueCtx = document.getElementById('revenueChart').getContext('2d');
         DashboardState.charts.mrr = new Chart(revenueCtx, {
             type: 'line',
             data: {
-                labels: ['Novembro'],
+                labels: ['Outubro', 'Novembro', 'Dezembro', 'Janeiro/26'],
                 datasets: [{
                     label: 'MRR',
-                    data: [35768],
+                    data: [46365, 34768, 29530, 32536],
                     borderColor: '#4A6B54',
                     backgroundColor: 'rgba(74, 107, 84, 0.1)',
                     borderWidth: 3,
@@ -1448,6 +1526,12 @@
             document.getElementById('starken-clients').style.display = 'none';
             document.getElementById('alpha-clients').style.display = 'none';
 
+            // Mostrar/ocultar container Matriz baseado na tab
+            const matrizContainer = document.getElementById('matriz-clients-container');
+            if (matrizContainer) {
+                matrizContainer.style.display = tabName === 'alpha' ? 'flex' : 'none';
+            }
+
             // Show selected grid
             document.getElementById(tabName + '-clients').style.display = 'grid';
 
@@ -1455,6 +1539,139 @@
             const tabs = document.querySelectorAll('.client-tab');
             tabs.forEach(tab => tab.classList.remove('active'));
             event.target.closest('.client-tab').classList.add('active');
+        }
+
+        // Função para renderizar cards Alpha dinamicamente
+        function renderAlphaCards(mesChave) {
+            console.log('🎴 renderAlphaCards chamado para:', mesChave);
+            const container = document.getElementById('alpha-clients');
+            if (!container) {
+                console.error('❌ Container alpha-clients não encontrado!');
+                return;
+            }
+            console.log('✅ Container alpha-clients encontrado');
+
+            const clientesPorMes = {
+                '2025-11': 16,
+                '2025-12': 20,
+                '2026-01': 23,
+                '2026-02': 26,
+                '2026-03': 29,
+                '2026-04': 32,
+                '2026-05': 35,
+                '2026-06': 38,
+                '2026-07': 41,
+                '2026-08': 44,
+                '2026-09': 47,
+                '2026-10': 50,
+                '2026-11': 53,
+                '2026-12': 56
+            };
+
+            // Atualizar label do tab
+            const alphaTab = document.querySelector('.client-tab:nth-child(2) .tab-label');
+            if (alphaTab) {
+                const qtdClientes = clientesPorMes[mesChave] || 20;
+                alphaTab.textContent = `Alpha (${qtdClientes})`;
+            }
+
+            // Cards base (sempre aparecem)
+            let html = `
+                <div class="client-card">
+                    <div class="client-logo">🍽️</div>
+                    <h3 class="client-name">Oca Restaurante</h3>
+                    <p class="client-category">Outbound - Restaurante</p>
+                    <div class="client-value">R$ 2.000/mês</div>
+                </div>
+                <div class="client-card">
+                    <div class="client-logo">🌮</div>
+                    <h3 class="client-name">Madrugão Lanches</h3>
+                    <p class="client-category">Outbound - Lanchonete</p>
+                    <div class="client-value">R$ 2.000/mês</div>
+                </div>
+                <div class="client-card">
+                    <div class="client-logo">🍕</div>
+                    <h3 class="client-name">Fratellis Pizzaria</h3>
+                    <p class="client-category">Outbound - Pizzaria</p>
+                    <div class="client-value">R$ 2.500/mês</div>
+                </div>
+                <div class="client-card">
+                    <div class="client-logo">🍕</div>
+                    <h3 class="client-name">Saporitto Pizzaria</h3>
+                    <p class="client-category">Outbound - Pizzaria</p>
+                    <div class="client-value">R$ 1.500/mês</div>
+                </div>`;
+
+            // Clientes TCV (aparecem em todos os meses, mas status muda)
+            if (mesChave === '2025-11') {
+                // Novembro - todos TCV
+                html += `
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Pizzaria Don Chevico</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">World Burger</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍝</div><h3 class="client-name">Oficina da Massa</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Bigu's Burger</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Pizzaria Madrid</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Cazza Pizzaria</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍣</div><h3 class="client-name">Maki Toro Sushi</h3><p class="client-category">Growth Hub - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Brazza Hamburgueria</h3><p class="client-category">Blumenau - Hamburgueria</p><div class="client-value">R$ 3.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍽️</div><h3 class="client-name">Fabinhus Restaurante</h3><p class="client-category">Growth Hub - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍖</div><h3 class="client-name">Tempero Manero Grill</h3><p class="client-category">Growth Hub - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Super Dupe Hamburgueria</h3><p class="client-category">MRR - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍣</div><h3 class="client-name">Majo Sushi</h3><p class="client-category">MRR - TCV</p><div class="client-value">TCV</div></div>`;
+            } else if (mesChave === '2025-12') {
+                // Dezembro - TCV antigos + novos MRR + Matriz 1-4 TCV
+                html += `
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Pizzaria Don Chevico</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">World Burger</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍝</div><h3 class="client-name">Oficina da Massa</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Bigu's Burger</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Pizzaria Madrid</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Cazza Pizzaria</h3><p class="client-category">Envio Matriz - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍣</div><h3 class="client-name">Maki Toro Sushi</h3><p class="client-category">Growth Hub - TCV</p><div class="client-value">TCV</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Brazza Hamburgueria</h3><p class="client-category">Blumenau - Hamburgueria</p><div class="client-value">R$ 3.000/mês</div></div>
+                <div class="client-card new-client"><div class="client-logo">🍽️</div><h3 class="client-name">Fabinhus Restaurante</h3><p class="client-category">Growth Hub - Início 15/12</p><div class="client-value">R$ 1.000/mês</div></div>
+                <div class="client-card new-client"><div class="client-logo">🍖</div><h3 class="client-name">Tempero Manero Grill</h3><p class="client-category">Growth Hub - Início 15/12</p><div class="client-value">R$ 1.000/mês</div></div>
+                <div class="client-card new-client"><div class="client-logo">🍔</div><h3 class="client-name">Super Dupe Hamburgueria</h3><p class="client-category">NOVO BC - Início 20/12</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card" style="border: 2px solid #ccc; opacity: 0.7;"><div class="client-logo">🍣</div><h3 class="client-name">Majo Sushi</h3><p class="client-category">MRR - Início Jan</p><div class="client-value" style="color: #999;">Aguard. Jan</div></div>`;
+            } else if (mesChave === '2026-01') {
+                // Janeiro - Renovações + TCV aguardando + novos Matriz 5-7
+                html += `
+                <div class="client-card" style="border: 2px solid #4CAF50; background: #e8f5e9;"><div class="client-logo">🍔</div><h3 class="client-name">World Burger</h3><p class="client-category">Envio Matriz 🔄</p><div class="client-value" style="color: #4CAF50;">R$ 2.000/mês</div></div>
+                <div class="client-card" style="border: 2px solid #4CAF50; background: #e8f5e9;"><div class="client-logo">🍝</div><h3 class="client-name">Oficina da Massa</h3><p class="client-category">Envio Matriz 🔄</p><div class="client-value" style="color: #4CAF50;">R$ 2.000/mês</div></div>
+                <div class="client-card" style="border: 2px solid #4CAF50; background: #e8f5e9;"><div class="client-logo">🍔</div><h3 class="client-name">Bigu's Burger</h3><p class="client-category">Envio Matriz 🔄</p><div class="client-value" style="color: #4CAF50;">R$ 2.000/mês</div></div>
+                <div class="client-card" style="border: 2px solid #4CAF50; background: #e8f5e9;"><div class="client-logo">🍕</div><h3 class="client-name">Pizzaria Madrid</h3><p class="client-category">Envio Matriz 🔄</p><div class="client-value" style="color: #4CAF50;">R$ 2.000/mês</div></div>
+                <div class="client-card" style="border: 2px solid #ccc; opacity: 0.7;"><div class="client-logo">🍕</div><h3 class="client-name">Pizzaria Don Chevico</h3><p class="client-category">Envio Matriz</p><div class="client-value" style="color: #999;">Aguard. Fev</div></div>
+                <div class="client-card" style="border: 2px solid #ccc; opacity: 0.7;"><div class="client-logo">🍕</div><h3 class="client-name">Cazza Pizzaria</h3><p class="client-category">Envio Matriz</p><div class="client-value" style="color: #999;">Aguard. Fev</div></div>
+                <div class="client-card" style="border: 2px solid #ccc; opacity: 0.7;"><div class="client-logo">🍣</div><h3 class="client-name">Maki Toro Sushi</h3><p class="client-category">Growth Hub</p><div class="client-value" style="color: #999;">Aguard. Mar</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Brazza Hamburgueria</h3><p class="client-category">Blumenau - Hamburgueria</p><div class="client-value">R$ 3.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍽️</div><h3 class="client-name">Fabinhus Restaurante</h3><p class="client-category">Growth Hub</p><div class="client-value">R$ 1.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍖</div><h3 class="client-name">Tempero Manero Grill</h3><p class="client-category">Growth Hub</p><div class="client-value">R$ 1.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Super Dupe Hamburgueria</h3><p class="client-category">MRR</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍣</div><h3 class="client-name">Majo Sushi</h3><p class="client-category">MRR</p><div class="client-value">R$ 2.000/mês</div></div>`;
+            } else {
+                // Fevereiro e Março - usar mesma estrutura de Janeiro como base
+                html += `
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">World Burger</h3><p class="client-category">Envio Matriz</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍝</div><h3 class="client-name">Oficina da Massa</h3><p class="client-category">Envio Matriz</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Bigu's Burger</h3><p class="client-category">Envio Matriz</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Pizzaria Madrid</h3><p class="client-category">Envio Matriz</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Pizzaria Don Chevico</h3><p class="client-category">Envio Matriz</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍕</div><h3 class="client-name">Cazza Pizzaria</h3><p class="client-category">Envio Matriz</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍣</div><h3 class="client-name">Maki Toro Sushi</h3><p class="client-category">Growth Hub</p><div class="client-value">R$ 1.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Brazza Hamburgueria</h3><p class="client-category">Blumenau - Hamburgueria</p><div class="client-value">R$ 3.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍽️</div><h3 class="client-name">Fabinhus Restaurante</h3><p class="client-category">Growth Hub</p><div class="client-value">R$ 1.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍖</div><h3 class="client-name">Tempero Manero Grill</h3><p class="client-category">Growth Hub</p><div class="client-value">R$ 1.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍔</div><h3 class="client-name">Super Dupe Hamburgueria</h3><p class="client-category">MRR</p><div class="client-value">R$ 2.000/mês</div></div>
+                <div class="client-card"><div class="client-logo">🍣</div><h3 class="client-name">Majo Sushi</h3><p class="client-category">MRR</p><div class="client-value">R$ 2.000/mês</div></div>`;
+            }
+
+            container.innerHTML = html;
+            console.log('🎴 Cards Alpha renderizados para:', mesChave, '| HTML length:', html.length);
+
+            // Forçar exibição se estava escondido
+            if (document.querySelector('.client-tab:nth-child(2)').classList.contains('active')) {
+                container.style.display = 'grid';
+            }
         }
 
         // Utilitários
@@ -1480,6 +1697,25 @@
                 resultado: null,
                 resultadoMargem: null,
                 periodoAtual: null
+            },
+
+            // Configuração de clientes por mês
+            clientesPorMes: {
+                '2025-10': { starken: 14, alpha: 12, total: 26 },
+                '2025-11': { starken: 14, alpha: 16, total: 30 },
+                '2025-12': { starken: 14, alpha: 20, total: 34 },
+                '2026-01': { starken: 14, alpha: 23, total: 37 },
+                '2026-02': { starken: 14, alpha: 26, total: 40 },
+                '2026-03': { starken: 14, alpha: 29, total: 43 },
+                '2026-04': { starken: 14, alpha: 32, total: 46 },
+                '2026-05': { starken: 14, alpha: 35, total: 49 },
+                '2026-06': { starken: 14, alpha: 38, total: 52 },
+                '2026-07': { starken: 14, alpha: 41, total: 55 },
+                '2026-08': { starken: 14, alpha: 44, total: 58 },
+                '2026-09': { starken: 14, alpha: 47, total: 61 },
+                '2026-10': { starken: 14, alpha: 50, total: 64 },
+                '2026-11': { starken: 14, alpha: 53, total: 67 },
+                '2026-12': { starken: 14, alpha: 56, total: 70 }
             },
 
             init: function() {
@@ -1513,30 +1749,39 @@
                 this.elementos.mrr.textContent = Utils.formatarReais(dados.receitas.total);
                 this.elementos.periodoAtual.textContent = dados.periodo;
 
-                // Lógica de comparação entre meses
-                if (mesChave === '2025-12') {
-                    const novembro = dadosMensais['2025-11'];
+                // Obter dados de clientes para o mês atual
+                const clientesInfo = this.clientesPorMes[mesChave] || { starken: 14, alpha: 20, total: 34 };
+
+                // Atualizar KPI de clientes
+                if (this.elementos.clientes) {
+                    this.elementos.clientes.textContent = clientesInfo.total;
+                }
+                this.elementos.clientesChange.textContent = `${clientesInfo.starken} Starken + ${clientesInfo.alpha} Alpha`;
+
+                // Obter mês anterior para comparação
+                const mesesOrdenados = Object.keys(dadosMensais).sort();
+                const indexAtual = mesesOrdenados.indexOf(mesChave);
+                const mesAnterior = indexAtual > 0 ? mesesOrdenados[indexAtual - 1] : null;
+
+                if (mesAnterior && dadosMensais[mesAnterior]) {
+                    const dadosAnterior = dadosMensais[mesAnterior];
+                    const nomeMesAnterior = dadosAnterior.periodo.split(' ')[0].toLowerCase();
 
                     // MRR comparação
-                    const variacaoMRR = Utils.calcularVariacao(dados.receitas.total, novembro.receitas.total);
-                    this.elementos.mrrChange.textContent = `↑ ${variacaoMRR}% vs novembro`;
-                    this.elementos.mrrChange.className = 'kpi-change positive';
-
-                    // Clientes
-                    this.elementos.clientesChange.textContent = '+10 novos clientes em dezembro';
+                    const variacaoMRR = Utils.calcularVariacao(dados.receitas.total, dadosAnterior.receitas.total);
+                    const simbolo = variacaoMRR >= 0 ? '↑' : '↓';
+                    this.elementos.mrrChange.textContent = `${simbolo} ${Math.abs(variacaoMRR)}% vs ${nomeMesAnterior}`;
+                    this.elementos.mrrChange.className = variacaoMRR >= 0 ? 'kpi-change positive' : 'kpi-change negative';
 
                     // Despesas comparação
-                    const despesasNovSemAlpha = novembro.despesas.total - 7500;
-                    const variacaoDespesas = Utils.calcularVariacao(despesasSemAlpha, despesasNovSemAlpha);
-                    this.elementos.despesasChange.textContent = `↑ ${variacaoDespesas}% vs novembro`;
-                    this.elementos.despesasChange.className = 'kpi-change negative';
+                    const despesasAntSemAlpha = dadosAnterior.despesas.total - 7500;
+                    const variacaoDespesas = Utils.calcularVariacao(despesasSemAlpha, despesasAntSemAlpha);
+                    const simboloDespesas = variacaoDespesas >= 0 ? '↑' : '↓';
+                    this.elementos.despesasChange.textContent = `${simboloDespesas} ${Math.abs(variacaoDespesas)}% vs ${nomeMesAnterior}`;
+                    this.elementos.despesasChange.className = variacaoDespesas >= 0 ? 'kpi-change negative' : 'kpi-change positive';
                 } else {
-                    // Novembro (mês atual)
-                    this.elementos.mrrChange.textContent = 'Mês atual';
+                    this.elementos.mrrChange.textContent = 'Mês base';
                     this.elementos.mrrChange.className = 'kpi-change';
-
-                    this.elementos.clientesChange.textContent = '13 Starken + 8 Alpha';
-
                     this.elementos.despesasChange.textContent = 'Operacional sem Alpha';
                     this.elementos.despesasChange.className = 'kpi-change';
                 }
@@ -1545,6 +1790,8 @@
                 this.elementos.despesas.textContent = Utils.formatarReais(despesasSemAlpha);
                 this.elementos.resultado.textContent = Utils.formatarReais(resultado);
                 this.elementos.resultadoMargem.textContent = `${margem}% de margem`;
+
+                console.log('KPIs atualizados para:', mesChave, '- Clientes:', clientesInfo);
             }
         };
 
@@ -1553,21 +1800,14 @@
             atualizarMRR: function(mesChave) {
                 if (!DashboardState.charts.mrr) return;
 
-                const dados = dadosMensais[mesChave];
-                let labels, values;
-
-                if (mesChave === '2025-12') {
-                    // Dezembro: mostrar evolução de Nov -> Dez
-                    labels = ['Novembro', 'Dezembro'];
-                    values = [
-                        dadosMensais['2025-11'].receitas.total,
-                        dados.receitas.total
-                    ];
-                } else {
-                    // Novembro: mostrar apenas o mês atual
-                    labels = ['Novembro'];
-                    values = [dados.receitas.total];
-                }
+                // Sempre mostrar evolução completa: Out -> Nov -> Dez -> Jan
+                const labels = ['Outubro', 'Novembro', 'Dezembro', 'Janeiro/26'];
+                const values = [
+                    dadosMensais['2025-10'] ? dadosMensais['2025-10'].receitas.total : 46365,
+                    dadosMensais['2025-11'] ? dadosMensais['2025-11'].receitas.total : 34768,
+                    dadosMensais['2025-12'] ? dadosMensais['2025-12'].receitas.total : 29530,
+                    dadosMensais['2026-01'] ? dadosMensais['2026-01'].receitas.total : 32536
+                ];
 
                 DashboardState.charts.mrr.data.labels = labels;
                 DashboardState.charts.mrr.data.datasets[0].data = values;
@@ -1578,18 +1818,26 @@
                 if (!DashboardState.charts.despesas) return;
 
                 const dados = dadosMensais[mesChave];
+                if (!dados || !dados.despesas || !dados.despesas.categorias) {
+                    // Para meses sem categorias detalhadas, usar valores padrão
+                    const valoresPadrao = [14100, 7500, 7500, 4009, 2760];
+                    DashboardState.charts.despesas.data.datasets[0].data = valoresPadrao;
+                    DashboardState.charts.despesas.update('none');
+                    return;
+                }
+
                 const cat = dados.despesas.categorias;
 
                 const valores = [
-                    cat.pessoal.total,
+                    cat.pessoal ? cat.pessoal.total : 14100,
                     7500, // Repasse Alpha (fixo)
-                    cat.comercial.total,
-                    cat.estrutura.total - 7500, // Estrutura sem Alpha
-                    cat.ferramentas.total
+                    cat.comercial ? cat.comercial.total : 7500,
+                    cat.estrutura ? cat.estrutura.total - 7500 : 4009,
+                    cat.ferramentas ? cat.ferramentas.total : 2760
                 ];
 
                 DashboardState.charts.despesas.data.datasets[0].data = valores;
-                DashboardState.charts.despesas.update('none'); // Update sem animação
+                DashboardState.charts.despesas.update('none');
             },
 
             atualizarTodos: function(mesChave) {
@@ -1609,10 +1857,65 @@
             DashboardState.mesAtual = mesChave;
 
             // Atualizar todos os componentes
+            console.log('📊 Atualizando KPIs...');
             KPIManager.atualizar(mesChave);
+
+            console.log('📈 Atualizando gráficos...');
             ChartManager.atualizarTodos(mesChave);
 
-            console.log('✅ Atualização concluída!');
+            console.log('📅 Atualizando período...');
+            atualizarPeriodoExibido(mesChave);
+
+            // Atualizar tabelas dinamicamente
+            console.log('📋 Atualizando tabela Starken...');
+            if (typeof StarkenTableManager !== 'undefined') {
+                StarkenTableManager.renderTabela(mesChave);
+            }
+
+            console.log('📋 Atualizando tabela Alpha e cards...');
+            if (typeof AlphaTableManager !== 'undefined') {
+                // Forçar limpeza e re-renderização
+                const matrizContainer = document.getElementById('matriz-clients-container');
+                if (matrizContainer) {
+                    matrizContainer.innerHTML = ''; // Limpar primeiro
+                }
+
+                AlphaTableManager.renderTabela(mesChave);
+                AlphaTableManager.renderMatrizCards(mesChave);
+            }
+
+            // Atualizar cards visuais Alpha
+            console.log('🎴 Atualizando cards visuais Alpha...');
+            renderAlphaCards(mesChave);
+
+            console.log('📊 Mês selecionado:', mesChave);
+
+            // Atualizar título da carteira de clientes
+            const tituloCarteira = document.getElementById('carteira-clientes-titulo');
+            if (tituloCarteira) {
+                const clientesPorMes = {
+                    '2025-10': 26,
+                    '2025-11': 30,
+                    '2025-12': 34,
+                    '2026-01': 37,
+                    '2026-02': 40,
+                    '2026-03': 43,
+                    '2026-04': 46,
+                    '2026-05': 49,
+                    '2026-06': 52,
+                    '2026-07': 55,
+                    '2026-08': 58,
+                    '2026-09': 61,
+                    '2026-10': 64,
+                    '2026-11': 67,
+                    '2026-12': 70
+                };
+                const totalClientes = clientesPorMes[mesChave] || 34;
+                tituloCarteira.textContent = `Carteira de Clientes (${totalClientes} Ativos)`;
+                console.log('👥 Título atualizado:', totalClientes, 'clientes');
+            }
+
+            console.log('✅ Atualização concluída para:', mesChave);
             console.log('');
         }
 
@@ -1626,20 +1929,623 @@
             }
         }
 
+        // Função para inicializar o seletor de meses dinamicamente
+        function initMonthSelector() {
+            const selector = document.getElementById('monthSelector');
+            const mesReal = getMesAtualReal();
+
+            // Limpar opções existentes
+            selector.innerHTML = '';
+
+            // Obter todos os meses disponíveis nos dados
+            const mesesDisponiveis = Object.keys(dadosMensais).sort();
+
+            // Adicionar cada mês como opção
+            mesesDisponiveis.forEach(mesChave => {
+                const option = document.createElement('option');
+                option.value = mesChave;
+
+                const nomeMes = getNomeMes(mesChave);
+
+                // Marcar se é o mês atual real
+                if (mesChave === mesReal) {
+                    option.textContent = `${nomeMes} (Atual)`;
+                    option.selected = true;
+                } else if (mesChave > mesReal) {
+                    option.textContent = `${nomeMes} (Projeção)`;
+                } else {
+                    option.textContent = nomeMes;
+                }
+
+                selector.appendChild(option);
+            });
+
+            // Se o mês real não existe nos dados, selecionar o mais recente
+            if (!dadosMensais[mesReal]) {
+                const ultimoMes = mesesDisponiveis[mesesDisponiveis.length - 1];
+                selector.value = ultimoMes;
+                DashboardState.mesAtual = ultimoMes;
+            }
+
+            console.log('📅 Seletor de meses inicializado');
+        }
+
+        // Função para atualizar o período exibido
+        function atualizarPeriodoExibido(mesChave) {
+            const periodoElement = document.getElementById('periodo-atual');
+            if (periodoElement) {
+                periodoElement.textContent = getNomeMes(mesChave);
+            }
+        }
+
+        // ==========================================
+        // TABELA STARKEN DINÂMICA POR MÊS
+        // ==========================================
+
+        const StarkenTableManager = {
+            // Dados dos clientes Starken (14 clientes fixos)
+            getClientesStarken: function(mesChave) {
+                const clientes = [
+                    {nome: "Mortadella Blumenau", cidade: "Blumenau", mrr: 2000, status: "active"},
+                    {nome: "Mortadella Tabajara", cidade: "Blumenau", mrr: 0, status: "bonus"},
+                    {nome: "Hamburgueria Feio", cidade: "Blumenau", mrr: 2000, status: "active"},
+                    {nome: "Academia São Pedro", cidade: "Brusque", mrr: 1080, status: "active"},
+                    {nome: "Estilo Tulipa", cidade: "Blumenau", mrr: 659, status: "active"},
+                    {nome: "JPR Móveis Rústicos", cidade: "Luiz Alves", mrr: 2000, status: "active"},
+                    {nome: "Realizzati Móveis", cidade: "Blumenau", mrr: 2500, status: "active"},
+                    {nome: "Suprema Pizza", cidade: "Blumenau", mrr: 2000, status: "active"},
+                    {nome: "Shield Car Blumenau", cidade: "Blumenau", mrr: 297, mrrExtra: "+ 15% vendas", status: "active"},
+                    {nome: "Dommus Smart Home", cidade: "Blumenau", mrr: 297, mrrExtra: "+ 15% vendas", status: "active"},
+                    {nome: "Rosa Mexicano Blumenau", cidade: "Blumenau", mrr: 2000, status: "active"},
+                    {nome: "Rosa Mexicano Brusque", cidade: "Brusque", mrr: 2000, status: "active"},
+                    {nome: "Alexandria Burger", cidade: "Indaial", mrr: 2000, status: "active"},
+                    {nome: "Divino Tempero", cidade: "Blumenau", mrr: 1000, status: "active"},
+                ];
+
+                const totalMRR = clientes.reduce((sum, c) => sum + (c.mrr || 0), 0);
+                return { clientes, totalMRR, totalClientes: clientes.length };
+            },
+
+            renderTabela: function(mesChave) {
+                const { clientes, totalMRR, totalClientes } = this.getClientesStarken(mesChave);
+                const tbody = document.getElementById('starken-table-body');
+
+                if (!tbody) return;
+
+                let html = '';
+
+                clientes.forEach(cliente => {
+                    html += '<tr>';
+                    html += `<td><strong>${cliente.nome}</strong></td>`;
+                    html += `<td>${cliente.cidade}</td>`;
+
+                    if (cliente.status === 'bonus') {
+                        html += '<td><span class="badge-bonus">Bônus</span></td>';
+                    } else if (cliente.mrrExtra) {
+                        html += `<td>R$ ${cliente.mrr.toLocaleString('pt-BR')} ${cliente.mrrExtra}</td>`;
+                    } else {
+                        html += `<td>R$ ${cliente.mrr.toLocaleString('pt-BR')}</td>`;
+                    }
+
+                    html += '<td><span class="badge-active">Ativo</span></td>';
+                    html += '</tr>';
+                });
+
+                // Linha de totais
+                html += `<tr style="background: #f0f4f1; font-weight: 700;">`;
+                html += `<td colspan="2" style="text-align: right;">TOTAL MRR:</td>`;
+                html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR')}</td>`;
+                html += `<td></td>`;
+                html += '</tr>';
+
+                tbody.innerHTML = html;
+
+                // Atualizar header
+                document.getElementById('starken-clientes-label').textContent = `Empresa Matriz · ${totalClientes} Clientes`;
+                document.getElementById('starken-mrr-total').textContent = 'R$ ' + totalMRR.toLocaleString('pt-BR');
+            }
+        };
+
+        // ==========================================
+        // TABELA ALPHA DINÂMICA POR MÊS
+        // ==========================================
+
+        const AlphaTableManager = {
+            // Dados base dos clientes Alpha por mês
+            getClientesAlpha: function(mesChave) {
+                let clientes = [];
+
+                // Clientes MRR fixos (sempre aparecem)
+                const clientesMRRBase = [
+                    {nome: "Oca Restaurante", modelo: "Outbound", mrr: 2000, tcv: 0, status: "active"},
+                    {nome: "Madrugão Lanches", modelo: "Outbound", mrr: 2000, tcv: 0, status: "active"},
+                    {nome: "Fratellis Pizzaria", modelo: "Outbound", mrr: 2500, tcv: 0, status: "active"},
+                    {nome: "Saporitto Pizzaria", modelo: "Outbound", mrr: 1500, tcv: 0, status: "active"},
+                    {nome: "Brazza Hamburgueria", modelo: "MRR", mrr: 3000, tcv: 0, status: "active"},
+                ];
+
+                // Clientes TCV antigos (já pagaram TCV em Out/Nov)
+                const clientesTCVAntigos = [
+                    {nome: "Pizzaria Don Chevico", modelo: "Envio Matriz", renovacaoMes: "2026-02"},
+                    {nome: "World Burger", modelo: "Envio Matriz", renovacaoMes: "2026-01"},
+                    {nome: "Oficina da Massa", modelo: "Envio Matriz", renovacaoMes: "2026-01"},
+                    {nome: "Bigu's Burger", modelo: "Envio Matriz", renovacaoMes: "2026-01"},
+                    {nome: "Pizzaria Madrid", modelo: "Envio Matriz", renovacaoMes: "2026-01"},
+                    {nome: "Cazza Pizzaria", modelo: "Envio Matriz", renovacaoMes: "2026-02"},
+                    {nome: "Maki Toro Sushi", modelo: "Growth Hub", renovacaoMes: "2026-03"},
+                ];
+
+                // ============ NOVEMBRO 2025 ============
+                // 16 clientes Alpha
+                if (mesChave === '2025-11') {
+                    clientes = [...clientesMRRBase];
+                    // Clientes Alpha TCV (já pagaram)
+                    clientes.push({nome: "Pizzaria Don Chevico", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "World Burger", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Oficina da Massa", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Bigu's Burger", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Pizzaria Madrid", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Cazza Pizzaria", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Maki Toro Sushi", modelo: "Growth Hub", mrr: 0, tcv: 0, status: "tcv"});
+                    // Clientes MRR adicionais Novembro
+                    clientes.push({nome: "Fabinhus Restaurante", modelo: "Growth Hub", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Tempero Manero Grill", modelo: "Growth Hub", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Super Dupe Hamburgueria", modelo: "MRR", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Majo Sushi", modelo: "MRR", mrr: 0, tcv: 0, status: "tcv"});
+                    return this.calcularTotais(clientes);
+                }
+
+                // ============ DEZEMBRO 2025 ============
+                // 20 clientes Alpha (16 base + 4 Matriz novos)
+                // MRR: 16.000 | TCV: 12.000 | Total: 28.000
+                if (mesChave === '2025-12') {
+                    clientes = [...clientesMRRBase];
+                    // Novos MRR Dezembro (Growth Hub)
+                    clientes.push({nome: "Fabinhus Restaurante", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "novo", dataInicio: "15/12"});
+                    clientes.push({nome: "Tempero Manero Grill", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "novo", dataInicio: "15/12"});
+                    // Novos MRR Dezembro (Outbound)
+                    clientes.push({nome: "Super Dupe Hamburgueria", modelo: "MRR", mrr: 2000, tcv: 0, status: "novo", dataInicio: "20/12"});
+                    // Majo Sushi (entra em Dez, primeiro pagamento em Jan)
+                    clientes.push({nome: "Majo Sushi", modelo: "MRR", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Jan"});
+                    // TCV antigos (já pagaram, sem valor mensal até renovação)
+                    clientes.push({nome: "Pizzaria Don Chevico", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "World Burger", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Oficina da Massa", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Bigu's Burger", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Pizzaria Madrid", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    clientes.push({nome: "Cazza Pizzaria", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "tcv"});
+                    // Matriz 1-4 TCV DEZEMBRO (3k cada = 12k) - Renovam em Março
+                    clientes.push({nome: "Cliente Matriz 1", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-03"});
+                    clientes.push({nome: "Cliente Matriz 2", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-03"});
+                    clientes.push({nome: "Cliente Matriz 3", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-03"});
+                    clientes.push({nome: "Cliente Matriz 4", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-03"});
+                    return this.calcularTotais(clientes);
+                }
+
+                // ============ JANEIRO 2026 ============
+                // 23 clientes Alpha (20 de Dez + 3 Matriz novos)
+                if (mesChave === '2026-01') {
+                    clientes = [...clientesMRRBase];
+                    // MRR de Dezembro (agora ativos)
+                    clientes.push({nome: "Fabinhus Restaurante", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Tempero Manero Grill", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Super Dupe Hamburgueria", modelo: "MRR", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Majo Sushi", modelo: "MRR", mrr: 2000, tcv: 0, status: "active"});
+                    // Maki Toro Sushi - TCV aguardando renovação em Março
+                    clientes.push({nome: "Maki Toro Sushi", modelo: "Growth Hub", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    // RENOVAÇÕES JANEIRO: Bigu's, Oficina, Madrid, World Burger (2k cada)
+                    clientes.push({nome: "Bigu's Burger", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Jan"});
+                    clientes.push({nome: "Oficina da Massa", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Jan"});
+                    clientes.push({nome: "Pizzaria Madrid", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Jan"});
+                    clientes.push({nome: "World Burger", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Jan"});
+                    // TCV antigos aguardando renovação
+                    clientes.push({nome: "Pizzaria Don Chevico", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Fev"});
+                    clientes.push({nome: "Cazza Pizzaria", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Fev"});
+                    // Matriz 1-4 de Dezembro (TCV pago em Dez, aguardando renovação em Março - SEM VALOR)
+                    clientes.push({nome: "Cliente Matriz 1", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    clientes.push({nome: "Cliente Matriz 2", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    clientes.push({nome: "Cliente Matriz 3", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    clientes.push({nome: "Cliente Matriz 4", modelo: "Envio Matriz", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    // Matriz 5-7 TCV JANEIRO (3k cada = 9k) - renovação em Abril
+                    clientes.push({nome: "Cliente Matriz 5", modelo: "Envio Matriz", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-04"});
+                    clientes.push({nome: "Cliente Matriz 6", modelo: "Envio Matriz", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-04"});
+                    clientes.push({nome: "Cliente Matriz 7", modelo: "Envio Matriz", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-04"});
+                    return this.calcularTotais(clientes);
+                }
+
+                // ============ FEVEREIRO 2026 ============
+                if (mesChave === '2026-02') {
+                    clientes = [...clientesMRRBase];
+                    // MRR ativos
+                    clientes.push({nome: "Fabinhus Restaurante", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Tempero Manero Grill", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Super Dupe Hamburgueria", modelo: "MRR", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Majo Sushi", modelo: "MRR", mrr: 2000, tcv: 0, status: "active"});
+                    // Renovações Janeiro (agora MRR ativo)
+                    clientes.push({nome: "Bigu's Burger", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Oficina da Massa", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Pizzaria Madrid", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "World Burger", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    // RENOVAÇÕES FEVEREIRO: Don Chevico, Cazza (2k cada)
+                    clientes.push({nome: "Pizzaria Don Chevico", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Fev"});
+                    clientes.push({nome: "Cazza Pizzaria", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Fev"});
+                    // Aguardando renovação
+                    clientes.push({nome: "Maki Toro Sushi", modelo: "Growth Hub", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    clientes.push({nome: "Cliente Matriz 1", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    clientes.push({nome: "Cliente Matriz 2", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    clientes.push({nome: "Cliente Matriz 3", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    clientes.push({nome: "Cliente Matriz 4", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mar"});
+                    clientes.push({nome: "Cliente Matriz 5", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Abr"});
+                    clientes.push({nome: "Cliente Matriz 6", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Abr"});
+                    clientes.push({nome: "Cliente Matriz 7", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Abr"});
+                    // Matriz 8-10 TCV FEVEREIRO (3k cada = 9k)
+                    clientes.push({nome: "Cliente Matriz 8", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-05"});
+                    clientes.push({nome: "Cliente Matriz 9", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-05"});
+                    clientes.push({nome: "Cliente Matriz 10", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-05"});
+                    return this.calcularTotais(clientes);
+                }
+
+                // ============ MARÇO 2026 ============
+                if (mesChave === '2026-03') {
+                    clientes = [...clientesMRRBase];
+                    // MRR ativos
+                    clientes.push({nome: "Fabinhus Restaurante", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Tempero Manero Grill", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    // RENOVAÇÃO MARÇO: Maki Toro Sushi (contrato 27/11, renova 27/02 = Março)
+                    clientes.push({nome: "Maki Toro Sushi", modelo: "Growth Hub", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Mar"});
+                    clientes.push({nome: "Super Dupe Hamburgueria", modelo: "MRR", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Majo Sushi", modelo: "MRR", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Bigu's Burger", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Oficina da Massa", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Pizzaria Madrid", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "World Burger", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Pizzaria Don Chevico", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Cazza Pizzaria", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    // RENOVAÇÕES MARÇO: Matriz 1-4 (2k cada = 8k)
+                    clientes.push({nome: "Cliente Matriz 1", modelo: "Matriz TCV", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Mar"});
+                    clientes.push({nome: "Cliente Matriz 2", modelo: "Matriz TCV", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Mar"});
+                    clientes.push({nome: "Cliente Matriz 3", modelo: "Matriz TCV", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Mar"});
+                    clientes.push({nome: "Cliente Matriz 4", modelo: "Matriz TCV", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação Mar"});
+                    // Aguardando renovação
+                    clientes.push({nome: "Cliente Matriz 5", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Abr"});
+                    clientes.push({nome: "Cliente Matriz 6", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Abr"});
+                    clientes.push({nome: "Cliente Matriz 7", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Abr"});
+                    clientes.push({nome: "Cliente Matriz 8", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mai"});
+                    clientes.push({nome: "Cliente Matriz 9", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mai"});
+                    clientes.push({nome: "Cliente Matriz 10", modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: "Mai"});
+                    // Matriz 11-13 TCV MARÇO (3k cada = 9k)
+                    clientes.push({nome: "Cliente Matriz 11", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-06"});
+                    clientes.push({nome: "Cliente Matriz 12", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-06"});
+                    clientes.push({nome: "Cliente Matriz 13", modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao", renovacaoMes: "2026-06"});
+                    return this.calcularTotais(clientes);
+                }
+
+                // ============ ABRIL 2026 em diante ============
+                // Usar geração dinâmica baseada no mês
+                const mesesConfig = {
+                    '2026-04': { novosTCV: [14, 15, 16], renovacoes: [5, 6, 7], aguardandoMai: [8, 9, 10], aguardandoJun: [11, 12, 13] },
+                    '2026-05': { novosTCV: [17, 18, 19], renovacoes: [8, 9, 10], aguardandoJun: [11, 12, 13], aguardandoJul: [14, 15, 16] },
+                    '2026-06': { novosTCV: [20, 21, 22], renovacoes: [11, 12, 13], aguardandoJul: [14, 15, 16], aguardandoAgo: [17, 18, 19] },
+                    '2026-07': { novosTCV: [23, 24, 25], renovacoes: [14, 15, 16], aguardandoAgo: [17, 18, 19], aguardandoSet: [20, 21, 22] },
+                    '2026-08': { novosTCV: [26, 27, 28], renovacoes: [17, 18, 19], aguardandoSet: [20, 21, 22], aguardandoOut: [23, 24, 25] },
+                    '2026-09': { novosTCV: [29, 30, 31], renovacoes: [20, 21, 22], aguardandoOut: [23, 24, 25], aguardandoNov: [26, 27, 28] },
+                    '2026-10': { novosTCV: [32, 33, 34], renovacoes: [23, 24, 25], aguardandoNov: [26, 27, 28], aguardandoDez: [29, 30, 31] },
+                    '2026-11': { novosTCV: [35, 36, 37], renovacoes: [26, 27, 28], aguardandoDez: [29, 30, 31], aguardandoJan27: [32, 33, 34] },
+                    '2026-12': { novosTCV: [38, 39, 40], renovacoes: [29, 30, 31], aguardandoJan27: [32, 33, 34], aguardandoFev27: [35, 36, 37] }
+                };
+
+                if (mesesConfig[mesChave]) {
+                    clientes = [...clientesMRRBase];
+
+                    // Clientes MRR base que sempre aparecem
+                    clientes.push({nome: "Fabinhus Restaurante", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Tempero Manero Grill", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Maki Toro Sushi", modelo: "Growth Hub", mrr: 1000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Super Dupe Hamburgueria", modelo: "MRR", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Majo Sushi", modelo: "MRR", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Bigu's Burger", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Oficina da Massa", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Pizzaria Madrid", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "World Burger", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Pizzaria Don Chevico", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+                    clientes.push({nome: "Cazza Pizzaria", modelo: "Envio Matriz", mrr: 2000, tcv: 0, status: "active"});
+
+                    // Determinar quantos Matriz já são MRR
+                    const mesIndex = Object.keys(mesesConfig).indexOf(mesChave);
+                    const matrizMRRAtivos = 4 + (mesIndex * 3); // Começa com 4 em Abril, +3 por mês
+
+                    // Matriz que já são MRR ativos
+                    for (let i = 1; i <= Math.min(matrizMRRAtivos, 40); i++) {
+                        const config = mesesConfig[mesChave];
+                        const isRenovacao = config.renovacoes && config.renovacoes.includes(i);
+
+                        if (isRenovacao) {
+                            clientes.push({nome: `Cliente Matriz ${i}`, modelo: "Matriz TCV", mrr: 2000, tcv: 0, status: "renovacao", statusLabel: "Renovação"});
+                        } else if (i <= matrizMRRAtivos - 3) {
+                            clientes.push({nome: `Cliente Matriz ${i}`, modelo: "Matriz TCV", mrr: 2000, tcv: 0, status: "active"});
+                        }
+                    }
+
+                    // Aguardando renovação
+                    const config = mesesConfig[mesChave];
+                    const aguardandoKeys = Object.keys(config).filter(k => k.startsWith('aguardando'));
+                    aguardandoKeys.forEach(key => {
+                        const mesAguard = key.replace('aguardando', '');
+                        config[key].forEach(num => {
+                            clientes.push({nome: `Cliente Matriz ${num}`, modelo: "Matriz TCV", mrr: 0, tcv: 0, status: "aguardando", aguardando: mesAguard});
+                        });
+                    });
+
+                    // Novos TCV do mês
+                    if (config.novosTCV) {
+                        config.novosTCV.forEach(num => {
+                            clientes.push({nome: `Cliente Matriz ${num}`, modelo: "Matriz TCV", mrr: 0, tcv: 3000, status: "projecao"});
+                        });
+                    }
+
+                    return this.calcularTotais(clientes);
+                }
+
+                // Fallback
+                return this.calcularTotais(clientes);
+            },
+
+            calcularTotais: function(clientes) {
+                const totalMRR = clientes.reduce((sum, c) => sum + (c.mrr || 0), 0);
+                const totalTCV = clientes.reduce((sum, c) => sum + (c.tcv || 0), 0);
+                const totalClientes = clientes.length;
+                return { clientes, totalMRR, totalTCV, totalClientes };
+            },
+
+            renderBadge: function(modelo) {
+                const badges = {
+                    'Outbound': '<span class="badge-outbound">Outbound</span>',
+                    'MRR': '<span class="badge-outbound">MRR</span>',
+                    'Envio Matriz': '<span class="badge-envio">Envio Matriz</span>',
+                    'Matriz TCV': '<span class="badge-envio">Matriz TCV</span>',
+                    'Growth Hub': '<span class="badge-growth">Growth Hub</span>',
+                };
+                return badges[modelo] || `<span class="badge-active">${modelo}</span>`;
+            },
+
+            renderStatus: function(cliente) {
+                if (cliente.status === 'active') {
+                    return '<span class="badge-active">Ativo</span>';
+                }
+                if (cliente.status === 'tcv') {
+                    return '<span class="badge-tcv">TCV Pago</span>';
+                }
+                if (cliente.status === 'novo') {
+                    return `<span class="badge-new">Novo ${cliente.dataInicio || ''}</span>`;
+                }
+                if (cliente.status === 'projecao') {
+                    return '<span class="badge-projecao-status">Projeção</span>';
+                }
+                if (cliente.status === 'renovacao') {
+                    return `<span class="badge-renovacao">${cliente.statusLabel || 'Renovação'}</span>`;
+                }
+                if (cliente.status === 'aguardando') {
+                    return `<span class="badge-pending">Aguard. ${cliente.aguardando}</span>`;
+                }
+                return '<span class="badge-active">Ativo</span>';
+            },
+
+            // Renderizar cards de clientes Matriz
+            renderMatrizCards: function(mesChave) {
+                console.log('🎴 renderMatrizCards chamado para:', mesChave);
+                const container = document.getElementById('matriz-clients-container');
+                if (!container) {
+                    console.error('❌ Container matriz-clients-container não encontrado!');
+                    return;
+                }
+
+                let html = '';
+
+                // Helper para criar card
+                const criarCard = (num, tipo, valor, info) => {
+                    let classe = 'client-card';
+                    let valorHtml = '';
+
+                    if (tipo === 'projecao') {
+                        classe += ' projecao-client';
+                        valorHtml = `<div class="client-value">R$ ${valor.toLocaleString('pt-BR')} TCV</div>`;
+                    } else if (tipo === 'aguardando') {
+                        classe += ' aguardando-client';
+                        valorHtml = `<div class="client-value">${info}</div>`;
+                    } else if (tipo === 'renovacao') {
+                        classe += ' renovacao-client';
+                        valorHtml = `<div class="client-value">R$ ${valor.toLocaleString('pt-BR')}/mês</div>`;
+                    } else if (tipo === 'mrr') {
+                        valorHtml = `<div class="client-value">R$ ${valor.toLocaleString('pt-BR')}/mês</div>`;
+                    }
+
+                    return `
+                        <div class="${classe}">
+                            <div class="client-logo">🏢</div>
+                            <h3 class="client-name">Cliente Matriz ${num}</h3>
+                            <p class="client-category">Envio Matriz${info && tipo !== 'aguardando' ? ' - ' + info : ''}</p>
+                            ${valorHtml}
+                        </div>`;
+                };
+
+                // Novembro - sem cards Matriz
+                if (mesChave === '2025-11') {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                // Dezembro - Matriz 1-4 com valor TCV
+                if (mesChave === '2025-12') {
+                    for (let i = 1; i <= 4; i++) {
+                        html += criarCard(i, 'projecao', 3000, 'TCV');
+                    }
+                }
+
+                // Janeiro - Matriz 1-4 aguardando + Matriz 5-7 TCV
+                if (mesChave === '2026-01') {
+                    for (let i = 1; i <= 4; i++) {
+                        html += criarCard(i, 'aguardando', 0, 'Aguard. Mar');
+                    }
+                    for (let i = 5; i <= 7; i++) {
+                        html += criarCard(i, 'projecao', 3000, 'TCV');
+                    }
+                }
+
+                // Fevereiro - Matriz 1-4 aguardando Mar + Matriz 5-7 aguardando Abr + Matriz 8-10 TCV
+                if (mesChave === '2026-02') {
+                    for (let i = 1; i <= 4; i++) {
+                        html += criarCard(i, 'aguardando', 0, 'Aguard. Mar');
+                    }
+                    for (let i = 5; i <= 7; i++) {
+                        html += criarCard(i, 'aguardando', 0, 'Aguard. Abr');
+                    }
+                    for (let i = 8; i <= 10; i++) {
+                        html += criarCard(i, 'projecao', 3000, 'TCV');
+                    }
+                }
+
+                // Março - Matriz 1-4 renovam + Matriz 5-7 aguardando + Matriz 8-10 aguardando + Matriz 11-13 TCV
+                if (mesChave === '2026-03') {
+                    for (let i = 1; i <= 4; i++) {
+                        html += criarCard(i, 'renovacao', 2000, '');
+                    }
+                    for (let i = 5; i <= 7; i++) {
+                        html += criarCard(i, 'aguardando', 0, 'Aguard. Abr');
+                    }
+                    for (let i = 8; i <= 10; i++) {
+                        html += criarCard(i, 'aguardando', 0, 'Aguard. Mai');
+                    }
+                    for (let i = 11; i <= 13; i++) {
+                        html += criarCard(i, 'projecao', 3000, 'TCV');
+                    }
+                }
+
+                // Abril - Matriz 1-4 MRR + Matriz 5-7 renovam + Matriz 8-10 aguardando + Matriz 11-13 aguardando + Matriz 14-16 TCV
+                if (mesChave === '2026-04') {
+                    for (let i = 1; i <= 4; i++) {
+                        html += criarCard(i, 'mrr', 2000, 'MRR');
+                    }
+                    for (let i = 5; i <= 7; i++) {
+                        html += criarCard(i, 'renovacao', 2000, '');
+                    }
+                    for (let i = 8; i <= 10; i++) {
+                        html += criarCard(i, 'aguardando', 0, 'Aguard. Mai');
+                    }
+                    for (let i = 11; i <= 13; i++) {
+                        html += criarCard(i, 'aguardando', 0, 'Aguard. Jun');
+                    }
+                    for (let i = 14; i <= 16; i++) {
+                        html += criarCard(i, 'projecao', 3000, 'TCV');
+                    }
+                }
+
+                // Maio em diante - padrão dinâmico
+                const mesesFuturos = ['2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10', '2026-11', '2026-12'];
+                if (mesesFuturos.includes(mesChave)) {
+                    // Todos MRR acumulados
+                    const mesIndex = mesesFuturos.indexOf(mesChave);
+                    const totalMatrizMRR = 4 + (mesIndex + 2) * 3; // Cresce 3 por mês a partir de Abril
+
+                    for (let i = 1; i <= Math.min(totalMatrizMRR, 20); i++) {
+                        html += criarCard(i, 'mrr', 2000, 'MRR');
+                    }
+                    // Novos TCV do mês
+                    for (let i = totalMatrizMRR + 1; i <= totalMatrizMRR + 3; i++) {
+                        html += criarCard(i, 'projecao', 3000, 'TCV');
+                    }
+                }
+
+                container.innerHTML = html;
+                console.log('🎴 Cards Matriz atualizados. HTML length:', html.length, 'para mês:', mesChave);
+            },
+
+            renderTabela: function(mesChave) {
+                console.log('📋 AlphaTableManager.renderTabela chamado para:', mesChave);
+                const { clientes, totalMRR, totalTCV, totalClientes } = this.getClientesAlpha(mesChave);
+                console.log('📋 Clientes Alpha:', totalClientes, '| MRR:', totalMRR, '| TCV:', totalTCV);
+
+                const tbody = document.getElementById('alpha-table-body');
+
+                if (!tbody) {
+                    console.error('❌ alpha-table-body não encontrado!');
+                    return;
+                }
+
+                // Também renderizar os cards Matriz
+                this.renderMatrizCards(mesChave);
+
+                let html = '';
+
+                clientes.forEach(cliente => {
+                    const isProjecao = cliente.status === 'projecao';
+                    const isRenovacao = cliente.status === 'renovacao';
+                    const rowStyle = isProjecao ? 'background: #fffde7;' : (isRenovacao ? 'background: #e8f5e9;' : '');
+
+                    html += `<tr style="${rowStyle}">`;
+                    html += `<td><strong>${cliente.nome}</strong>${isProjecao ? ' <span class="badge-projecao">📊</span>' : ''}${isRenovacao ? ' <span style="color:#4CAF50">🔄</span>' : ''}</td>`;
+                    html += `<td>${this.renderBadge(cliente.modelo)}</td>`;
+                    html += `<td>${cliente.mrr > 0 ? 'R$ ' + cliente.mrr.toLocaleString('pt-BR') : '-'}</td>`;
+                    html += `<td style="${cliente.tcv > 0 ? 'color: #FFC107; font-weight: 700;' : ''}">${cliente.tcv > 0 ? 'R$ ' + cliente.tcv.toLocaleString('pt-BR') : '-'}</td>`;
+                    html += `<td>${this.renderStatus(cliente)}</td>`;
+                    html += '</tr>';
+                });
+
+                // Linha de totais
+                const totalGeral = totalMRR + totalTCV;
+                html += `<tr style="background: #f0f4f1; font-weight: 700;">`;
+                html += `<td colspan="2" style="text-align: right;">TOTAIS:</td>`;
+                html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR')}</td>`;
+                html += `<td style="color: #FFC107;">R$ ${totalTCV.toLocaleString('pt-BR')}</td>`;
+                html += `<td style="color: #2c3e50;">R$ ${totalGeral.toLocaleString('pt-BR')}</td>`;
+                html += '</tr>';
+
+                tbody.innerHTML = html;
+                console.log('📋 Tabela Alpha atualizada com', clientes.length, 'linhas');
+
+                // Atualizar header
+                const labelEl = document.getElementById('alpha-clientes-label');
+                const mrrEl = document.getElementById('alpha-mrr-total');
+                const tcvEl = document.getElementById('alpha-tcv-total');
+                const totalEl = document.getElementById('alpha-total-mes');
+
+                if (labelEl) labelEl.textContent = `Projeto Nichado · ${totalClientes} Clientes`;
+                if (mrrEl) mrrEl.textContent = 'R$ ' + totalMRR.toLocaleString('pt-BR');
+                if (tcvEl) tcvEl.textContent = 'R$ ' + totalTCV.toLocaleString('pt-BR');
+                if (totalEl) totalEl.textContent = 'R$ ' + totalGeral.toLocaleString('pt-BR');
+
+                console.log('✅ Header Alpha atualizado: ', totalClientes, 'clientes, MRR:', totalMRR, ', TCV:', totalTCV);
+            }
+        };
+
         // Inicialização do dashboard
         window.addEventListener('load', function() {
             console.log('Inicializando Dashboard Financeiro...');
+            console.log('📅 Data atual:', new Date().toLocaleDateString('pt-BR'));
+
+            // Inicializar seletor de meses
+            initMonthSelector();
 
             // Inicializar gerenciadores
             KPIManager.init();
 
-            // Carregar dados do mês atual (Novembro)
+            // Carregar dados do mês atual (baseado na data real)
             KPIManager.atualizar(DashboardState.mesAtual);
+            ChartManager.atualizarTodos(DashboardState.mesAtual);
+            atualizarPeriodoExibido(DashboardState.mesAtual);
+
+            // Renderizar tabelas
+            StarkenTableManager.renderTabela(DashboardState.mesAtual);
+            AlphaTableManager.renderTabela(DashboardState.mesAtual);
+            AlphaTableManager.renderMatrizCards(DashboardState.mesAtual);
+
+            // Renderizar cards visuais Alpha
+            renderAlphaCards(DashboardState.mesAtual);
 
             // Mostrar menu Gestão para CEO
             showGestaoMenuForCEO();
 
-            console.log('Dashboard inicializado com sucesso!');
+            console.log('✅ Dashboard inicializado com sucesso!');
+            console.log('📅 Mês carregado:', DashboardState.mesAtual);
         });
     </script>
 </body>

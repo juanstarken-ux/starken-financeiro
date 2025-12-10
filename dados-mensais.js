@@ -39,22 +39,37 @@ const dadosMensais = {
       pendente: 0.00,
       categorias: {
         pessoal: {
-          total: 16018.70,
+          total: 11155.00,
           itens: [
-            {nome: "Folha de Pagamento - Outubro", valor: 16018.70, status: "Feito", tipo: "Salário"}
+            {nome: "Igor", valor: 2300.00, status: "Feito", tipo: "Salário"},
+            {nome: "Eloize", valor: 3255.00, status: "Feito", tipo: "Salário"},
+            {nome: "Ederson", valor: 3000.00, status: "Feito", tipo: "Salário"},
+            {nome: "Victor", valor: 2600.00, status: "Feito", tipo: "Salário"}
+          ]
+        },
+        comercial: {
+          total: 3170.00,
+          itens: [
+            {nome: "Dante - Closer", valor: 3170.00, status: "Feito", tipo: "Salário"}
+          ]
+        },
+        servicos: {
+          total: 475.00,
+          itens: [
+            {nome: "Natali", valor: 475.00, status: "Feito", tipo: "Serviço"}
           ]
         },
         locacao_aluguel: {
           total: 11200.00,
           itens: [
-            {nome: "Aluguel - Sala", valor: 2800.00, status: "Feito", categoria: "Locação"},
-            {nome: "Outros aluguéis", valor: 8400.00, status: "Feito", categoria: "Locação"}
+            {nome: "Monica - Sala nova (Caução)", valor: 8400.00, status: "Feito", categoria: "Locação"},
+            {nome: "Monica - Aluguel Novembro", valor: 2800.00, status: "Feito", categoria: "Locação"}
           ]
         },
         adiantamentos: {
           total: 3573.49,
           itens: [
-            {nome: "Adiantamentos - Outubro", valor: 3573.49, status: "Feito", tipo: "Adiantamento"}
+            {nome: "Juan Fernando (sócio)", valor: 3573.49, status: "Feito", tipo: "Adiantamento"}
           ]
         },
         alpha_franquia: {
@@ -92,6 +107,12 @@ const dadosMensais = {
           itens: [
             {nome: "Combustível e Transporte", valor: 709.57, status: "Feito", categoria: "Combustível"}
           ]
+        },
+        equipamentos: {
+          total: 1118.70,
+          itens: [
+            {nome: "Investimento Equipamento", valor: 1118.70, status: "Feito", categoria: "Equipamentos"}
+          ]
         }
       }
     }
@@ -101,14 +122,14 @@ const dadosMensais = {
   "2025-11": {
     periodo: "Novembro 2025",
     receitas: {
-      total: 34768.18,
-      recebido: 12924.18,
-      pendente: 21844.00,
-      taxa_recebimento: 37.2,
+      total: 35768.18,
+      recebido: 10924.18,
+      pendente: 24844.00,
+      taxa_recebimento: 30.5,
       clientes: [
         {nome: "Mortadella Blumenau 1/2", valor: 3000.00, status: "Feito", empresa: "Starken"},
         {nome: "Mortadella Blumenau 2/2", valor: 3000.00, status: "A Pagar", empresa: "Starken"},
-        {nome: "Hamburgueria Feio", valor: 2000.00, status: "Feito", empresa: "Starken"},
+        {nome: "Hamburgueria Feio", valor: 2000.00, status: "A Pagar", empresa: "Starken"},
         {nome: "Academia São Pedro", valor: 1080.00, status: "Feito", empresa: "Starken"},
         {nome: "Estilo Tulipa", valor: 500.00, status: "Feito", empresa: "Starken"},
         {nome: "JPR Móveis Rústicos", valor: 2000.00, status: "Feito", empresa: "Starken"},
@@ -122,18 +143,24 @@ const dadosMensais = {
         {nome: "Pizzaria Don Chevico (Alpha)", valor: 2844.18, status: "Feito", origem: "TCV", dataContrato: "04/11", empresa: "Alpha"},
         {nome: "Cazza Pizzaria (Alpha)", valor: 2547.00, status: "Feito", origem: "TCV", dataContrato: "12/11", empresa: "Alpha"},
         {nome: "Renomaq", valor: 800.00, status: "A Pagar", empresa: "Starken"},
-        {nome: "Alexandria Burger", valor: 2000.00, status: "A Pagar", empresa: "Starken"}
+        {nome: "Alexandria Burger 1/2", valor: 1000.00, status: "A Pagar", empresa: "Starken"},
+        {nome: "Divino Tempero", valor: 1000.00, status: "A Pagar", empresa: "Starken"},
+        {nome: "Matriz 1 (Alpha)", valor: 3373.50, status: "A Pagar", empresa: "Alpha"},
+        {nome: "Matriz 2 (Alpha)", valor: 3373.50, status: "A Pagar", empresa: "Alpha"}
       ]
     },
     despesas: {
-      total: 28869.90,
-      pago: 15360.90,
-      pendente: 12509.00,
+      total: 21360.90,
+      pago: 10300.00,
+      pendente: 11060.90,
       categorias: {
         pessoal: {
-          total: 11300.00,
+          total: 11100.00,
           itens: [
-            {nome: "Folha de Pagamento - Novembro", valor: 11300.00, status: "A Pagar", tipo: "Salário"}
+            {nome: "Igor", valor: 2300.00, status: "Feito", tipo: "Salário"},
+            {nome: "Eloize", valor: 3000.00, status: "Feito", tipo: "Salário"},
+            {nome: "Ederson", valor: 3000.00, status: "Feito", tipo: "Salário"},
+            {nome: "Victor", valor: 2800.00, status: "Feito", tipo: "Salário"}
           ]
         },
         comercial: {
@@ -144,22 +171,34 @@ const dadosMensais = {
             {nome: "João - SDR", valor: 750.00, status: "A Pagar", tipo: "Comissão"},
             {nome: "Nathan", valor: 750.00, status: "Feito", tipo: "Comissão"},
             {nome: "João", valor: 750.00, status: "Feito", tipo: "Comissão"},
-            {nome: "Dante", valor: 500.00, status: "A Pagar", tipo: "Bonificação"}
+            {nome: "Dante - Bonificação", valor: 500.00, status: "A Pagar", tipo: "Bonificação"}
           ]
         },
         estrutura: {
-          total: 11509.00,
+          total: 3009.00,
           itens: [
             {nome: "Aluguel - Sala", valor: 2800.00, status: "Feito", categoria: "Locação"},
             {nome: "Celesc - Energia", valor: 100.00, status: "A Pagar", categoria: "Utilidades"},
-            {nome: "Internet - Claro", valor: 109.00, status: "A Pagar", categoria: "Comunicação"},
+            {nome: "Internet - Claro", valor: 109.00, status: "A Pagar", categoria: "Comunicação"}
+          ]
+        },
+        alpha_franquia: {
+          total: 7500.00,
+          itens: [
             {nome: "Pagamento - Alpha", valor: 7500.00, status: "A Pagar", categoria: "Franquia"}
           ]
         },
         ferramentas: {
-          total: 2560.90,
+          total: 1251.90,
           itens: [
-            {nome: "Softwares e Ferramentas", valor: 2560.90, status: "A Pagar", categoria: "Ferramentas"}
+            {nome: "ClickUp", valor: 350.00, status: "A Pagar", categoria: "Gestão"},
+            {nome: "Claude Code", valor: 500.00, status: "A Pagar", categoria: "IA/Desenvolvimento"},
+            {nome: "Lovable", valor: 130.00, status: "A Pagar", categoria: "Desenvolvimento"},
+            {nome: "Adobe", valor: 110.00, status: "A Pagar", categoria: "Design"},
+            {nome: "CapCut", valor: 65.90, status: "A Pagar", categoria: "Vídeo"},
+            {nome: "Canva Pro", valor: 35.00, status: "A Pagar", categoria: "Design"},
+            {nome: "Railway Backend", valor: 35.00, status: "A Pagar", categoria: "Infraestrutura"},
+            {nome: "Netlify", valor: 26.00, status: "A Pagar", categoria: "Hospedagem"}
           ]
         }
       }
@@ -170,9 +209,9 @@ const dadosMensais = {
   "2025-12": {
     periodo: "Dezembro 2025",
     receitas: {
-      total: 41530.00,
+      total: 38030.00,
       recebido: 0.00,
-      pendente: 41530.00,
+      pendente: 38030.00,
       taxa_recebimento: 0.0,
       clientes: [
         // STARKEN TECNOLOGIA (14 clientes)
@@ -216,35 +255,56 @@ const dadosMensais = {
       ]
     },
     despesas: {
-      total: 32869.90,
+      total: 21360.90,
       pago: 0.00,
-      pendente: 32869.90,
+      pendente: 21360.90,
       categorias: {
         pessoal: {
-          total: 14100.00,
+          total: 11100.00,
           itens: [
-            {nome: "Folha de Pagamento - Dezembro", valor: 14100.00, status: "A Pagar", tipo: "Salário"}
+            {nome: "Ederson", valor: 3200.00, status: "A Pagar", tipo: "Salário", funcao: "Desenvolvedor"},
+            {nome: "Victor", valor: 3000.00, status: "A Pagar", tipo: "Salário", funcao: "Desenvolvedor"},
+            {nome: "Igor", valor: 2300.00, status: "A Pagar", tipo: "Salário", funcao: "Desenvolvedor"},
+            {nome: "Kim", valor: 1300.00, status: "A Pagar", tipo: "Salário", funcao: "Design"},
+            {nome: "Erick", valor: 1300.00, status: "A Pagar", tipo: "Salário", funcao: "Desenvolvedor"}
           ]
         },
         comercial: {
           total: 7500.00,
           itens: [
-            {nome: "Comissões Comerciais - Dezembro", valor: 7500.00, status: "A Pagar", tipo: "Comissão"}
+            {nome: "Dante - Closer", valor: 3500.00, status: "A Pagar", tipo: "Salário"},
+            {nome: "Nathan - SDR", valor: 2000.00, status: "A Pagar", tipo: "Comissão"},
+            {nome: "João - SDR", valor: 2000.00, status: "A Pagar", tipo: "Comissão"}
           ]
         },
         estrutura: {
-          total: 11509.00,
+          total: 3009.00,
           itens: [
             {nome: "Aluguel - Sala", valor: 2800.00, status: "A Pagar", categoria: "Locação"},
             {nome: "Celesc - Energia", valor: 100.00, status: "A Pagar", categoria: "Utilidades"},
-            {nome: "Internet - Claro", valor: 109.00, status: "A Pagar", categoria: "Comunicação"},
+            {nome: "Internet - Claro", valor: 109.00, status: "A Pagar", categoria: "Comunicação"}
+          ]
+        },
+        alpha_franquia: {
+          total: 7500.00,
+          itens: [
             {nome: "Pagamento - Alpha", valor: 7500.00, status: "A Pagar", categoria: "Franquia"}
           ]
         },
         ferramentas: {
           total: 2760.90,
           itens: [
-            {nome: "Softwares e Ferramentas - Dezembro", valor: 2760.90, status: "A Pagar", categoria: "Ferramentas"}
+            {nome: "Mac Ederson", valor: 1200.00, status: "A Pagar", categoria: "Equipamento"},
+            {nome: "Claude Code", valor: 500.00, status: "A Pagar", categoria: "IA/Desenvolvimento"},
+            {nome: "ClickUp", valor: 350.00, status: "A Pagar", categoria: "Gestão"},
+            {nome: "VPS Hostinger", valor: 200.00, status: "A Pagar", categoria: "Infraestrutura"},
+            {nome: "Lovable", valor: 130.00, status: "A Pagar", categoria: "Desenvolvimento"},
+            {nome: "Adobe", valor: 110.00, status: "A Pagar", categoria: "Design"},
+            {nome: "Criativivo", valor: 100.00, status: "A Pagar", categoria: "Design"},
+            {nome: "CapCut", valor: 65.90, status: "A Pagar", categoria: "Vídeo"},
+            {nome: "Canva Pro", valor: 35.00, status: "A Pagar", categoria: "Design"},
+            {nome: "Railway Backend", valor: 35.00, status: "A Pagar", categoria: "Infraestrutura"},
+            {nome: "Netlify", valor: 35.00, status: "A Pagar", categoria: "Hospedagem"}
           ]
         }
       }
@@ -306,7 +366,60 @@ const dadosMensais = {
         {nome: "Cliente Matriz 7 (Alpha)", valor: 3000.00, status: "A Pagar", origem: "Matriz TCV", empresa: "Alpha", novo: true}
       ]
     },
-    despesas: { total: 35869.90, pago: 0.00, pendente: 35869.90, categorias: {} }
+    despesas: {
+      total: 31869.90,
+      pago: 0.00,
+      pendente: 31869.90,
+      categorias: {
+        pessoal: {
+          total: 11100.00,
+          itens: [
+            {nome: "Ederson", valor: 3200.00, status: "A Pagar", tipo: "Salário", funcao: "Desenvolvedor"},
+            {nome: "Victor", valor: 3000.00, status: "A Pagar", tipo: "Salário", funcao: "Desenvolvedor"},
+            {nome: "Igor", valor: 2300.00, status: "A Pagar", tipo: "Salário", funcao: "Desenvolvedor"},
+            {nome: "Kim", valor: 1300.00, status: "A Pagar", tipo: "Salário", funcao: "Design"},
+            {nome: "Erick", valor: 1300.00, status: "A Pagar", tipo: "Salário", funcao: "Desenvolvedor"}
+          ]
+        },
+        comercial: {
+          total: 7500.00,
+          itens: [
+            {nome: "Dante - Closer", valor: 3500.00, status: "A Pagar", tipo: "Salário"},
+            {nome: "Nathan - SDR", valor: 2000.00, status: "A Pagar", tipo: "Comissão"},
+            {nome: "João - SDR", valor: 2000.00, status: "A Pagar", tipo: "Comissão"}
+          ]
+        },
+        estrutura: {
+          total: 3009.00,
+          itens: [
+            {nome: "Aluguel - Sala", valor: 2800.00, status: "A Pagar", categoria: "Locação"},
+            {nome: "Celesc - Energia", valor: 100.00, status: "A Pagar", categoria: "Utilidades"},
+            {nome: "Internet - Claro", valor: 109.00, status: "A Pagar", categoria: "Comunicação"}
+          ]
+        },
+        alpha_franquia: {
+          total: 7500.00,
+          itens: [
+            {nome: "Pagamento - Alpha", valor: 7500.00, status: "A Pagar", categoria: "Franquia"}
+          ]
+        },
+        ferramentas: {
+          total: 2760.90,
+          itens: [
+            {nome: "Claude Code", valor: 500.00, status: "A Pagar", categoria: "IA/Desenvolvimento"},
+            {nome: "ClickUp", valor: 350.00, status: "A Pagar", categoria: "Gestão"},
+            {nome: "VPS Hostinger", valor: 200.00, status: "A Pagar", categoria: "Infraestrutura"},
+            {nome: "Lovable", valor: 130.00, status: "A Pagar", categoria: "Desenvolvimento"},
+            {nome: "Adobe", valor: 110.00, status: "A Pagar", categoria: "Design"},
+            {nome: "Criativivo", valor: 100.00, status: "A Pagar", categoria: "Design"},
+            {nome: "CapCut", valor: 65.90, status: "A Pagar", categoria: "Vídeo"},
+            {nome: "Canva Pro", valor: 35.00, status: "A Pagar", categoria: "Design"},
+            {nome: "Railway Backend", valor: 35.00, status: "A Pagar", categoria: "Infraestrutura"},
+            {nome: "Netlify", valor: 35.00, status: "A Pagar", categoria: "Hospedagem"}
+          ]
+        }
+      }
+    }
   },
 
   // FEVEREIRO 2026

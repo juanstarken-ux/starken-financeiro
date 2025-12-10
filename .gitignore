@@ -113,3 +113,6 @@ ENV/
 # Custom ignore (add project-specific files)
 # /data/real_financial_data.json
 # /config/client_secrets.json
+
+# Local Netlify folder
+.netlify
