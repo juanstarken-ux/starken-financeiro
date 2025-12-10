@@ -136,7 +136,7 @@
             font-size: 14px;
         }
 
-        /* Month Selector */
+        /* Controls Bar */
         .controls-bar {
             background: var(--white);
             padding: 20px;
@@ -185,6 +185,7 @@
         .action-buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -207,6 +208,16 @@
 
         .btn-primary:hover {
             background-color: var(--secondary-green);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #219a52;
         }
 
         .btn-secondary {
@@ -217,6 +228,15 @@
 
         .btn-secondary:hover {
             background-color: var(--border-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
         }
 
         /* Summary Cards */
@@ -271,62 +291,41 @@
             color: var(--text-dark);
         }
 
-        .summary-value.danger { color: var(--danger); }
         .summary-value.success { color: var(--success); }
         .summary-value.warning { color: var(--warning); }
 
         .summary-change {
             font-size: 12px;
             margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
 
         .summary-change.positive { color: var(--success); }
-        .summary-change.negative { color: var(--danger); }
 
-        /* Alpha Repasse Card */
-        .alpha-card {
-            background: linear-gradient(135deg, #fff9f0 0%, #fff5e6 100%);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 2px solid #f39c12;
-            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.15);
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 15px;
         }
 
-        .alpha-header {
+        .progress-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--light-green));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .alpha-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #f39c12;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .alpha-subtitle {
+            margin-top: 8px;
             font-size: 12px;
             color: var(--text-light);
-        }
-
-        .alpha-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: #e67e22;
-        }
-
-        .alpha-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
         }
 
         /* Data Table */
@@ -346,6 +345,8 @@
             justify-content: space-between;
             align-items: center;
             background: linear-gradient(135deg, var(--bg-gray) 0%, var(--white) 100%);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .table-title {
@@ -361,6 +362,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .filter-btn {
@@ -410,7 +412,7 @@
         th.text-center { text-align: center; }
 
         td {
-            padding: 18px 20px;
+            padding: 16px 20px;
             border-top: 1px solid var(--border-color);
             font-size: 14px;
             vertical-align: middle;
@@ -431,6 +433,10 @@
             background-color: rgba(39, 174, 96, 0.05);
         }
 
+        tr.row-custom {
+            border-left: 3px solid var(--info);
+        }
+
         .item-name {
             font-weight: 500;
             color: var(--text-dark);
@@ -440,6 +446,17 @@
             font-size: 12px;
             color: var(--text-light);
             margin-top: 4px;
+        }
+
+        .custom-badge {
+            display: inline-block;
+            background: var(--info);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
         }
 
         .category-badge {
@@ -472,13 +489,12 @@
 
         .toggle-switch {
             position: relative;
-            width: 56px;
-            height: 28px;
+            width: 50px;
+            height: 26px;
             background: #e74c3c;
-            border-radius: 14px;
+            border-radius: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .toggle-switch.active {
@@ -490,8 +506,8 @@
             position: absolute;
             top: 3px;
             left: 3px;
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             background: white;
             border-radius: 50%;
             transition: all 0.3s ease;
@@ -499,13 +515,13 @@
         }
 
         .toggle-switch.active::before {
-            transform: translateX(28px);
+            transform: translateX(24px);
         }
 
         .toggle-label {
             font-size: 12px;
             font-weight: 600;
-            min-width: 70px;
+            min-width: 60px;
         }
 
         .toggle-label.pendente { color: #e74c3c; }
@@ -517,92 +533,176 @@
             margin-top: 4px;
         }
 
-        /* Bulk Actions */
-        .bulk-actions {
-            background: var(--primary-green);
-            color: white;
-            padding: 15px 25px;
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            animation: slideDown 0.3s ease;
-        }
-
-        .bulk-actions.show {
+        /* Action Buttons in Table */
+        .row-actions {
             display: flex;
+            gap: 8px;
+            justify-content: flex-end;
         }
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .bulk-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .bulk-count {
-            font-weight: 600;
-        }
-
-        .bulk-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .bulk-btn {
-            padding: 8px 16px;
+        .action-btn {
+            width: 32px;
+            height: 32px;
             border: none;
             border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .bulk-btn.success {
-            background: white;
-            color: var(--success);
-        }
-
-        .bulk-btn.cancel {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        /* Checkbox styling */
-        .checkbox-cell {
-            width: 40px;
-        }
-
-        .custom-checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
+            font-size: 14px;
         }
 
-        .custom-checkbox:hover {
-            border-color: var(--primary-green);
+        .action-btn.edit {
+            background: #e3f2fd;
+            color: #1565c0;
         }
 
-        .custom-checkbox.checked {
-            background: var(--primary-green);
-            border-color: var(--primary-green);
-        }
-
-        .custom-checkbox.checked::after {
-            content: '✓';
+        .action-btn.edit:hover {
+            background: #1565c0;
             color: white;
-            font-size: 12px;
-            font-weight: bold;
+        }
+
+        .action-btn.delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .action-btn.delete:hover {
+            background: #c62828;
+            color: white;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalIn 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-gray);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-light);
+            line-height: 1;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: var(--danger);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(74, 107, 84, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--danger);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 20px 30px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-gray);
         }
 
         /* Toast Notification */
@@ -633,119 +733,25 @@
         .toast.warning { background: var(--warning); }
         .toast.error { background: var(--danger); }
 
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+        /* Confirm Dialog */
+        .confirm-dialog {
+            text-align: center;
+            padding: 20px 0;
         }
 
-        .modal-overlay.show {
-            display: flex;
+        .confirm-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
-        .modal {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            animation: modalIn 0.3s ease;
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-
-        .modal-body {
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
+        .confirm-message {
+            font-size: 16px;
             color: var(--text-dark);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+        .confirm-details {
             font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-green);
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            margin-top: 15px;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--success), var(--light-green));
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 12px;
             color: var(--text-light);
         }
 
@@ -753,6 +759,9 @@
         @media (max-width: 1024px) {
             .summary-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            .form-row {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -781,6 +790,15 @@
                 grid-template-columns: 1fr;
             }
 
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .table-actions {
+                justify-content: flex-start;
+            }
+
             table {
                 font-size: 12px;
             }
@@ -789,18 +807,9 @@
                 padding: 12px 10px;
             }
 
-            .toggle-switch {
-                width: 44px;
-                height: 24px;
-            }
-
-            .toggle-switch::before {
-                width: 18px;
-                height: 18px;
-            }
-
-            .toggle-switch.active::before {
-                transform: translateX(20px);
+            .row-actions {
+                flex-direction: column;
+                gap: 4px;
             }
         }
     </style>
@@ -867,8 +876,8 @@
                     </select>
                 </div>
                 <div class="action-buttons">
-                    <button class="btn btn-secondary" onclick="marcarTodosPagos()">
-                        ✓ Marcar Todos Pagos
+                    <button class="btn btn-success" onclick="openAddModal()">
+                        ➕ Nova Despesa
                     </button>
                     <button class="btn btn-secondary" onclick="exportarDados()">
                         📥 Exportar
@@ -912,43 +921,8 @@
                 </div>
             </div>
 
-            <!-- Alpha Repasse Card -->
-            <div class="alpha-card" id="alphaCard">
-                <div class="alpha-header">
-                    <div>
-                        <div class="alpha-title">
-                            💼 Repasse Alpha - Franquia
-                        </div>
-                        <div class="alpha-subtitle">Este valor não entra no cálculo de despesas operacionais</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div class="alpha-value" id="alphaValue">R$ 0,00</div>
-                    </div>
-                </div>
-                <div class="alpha-actions">
-                    <div class="status-toggle" id="alphaToggle">
-                        <div class="toggle-switch" id="alphaSwitch" onclick="toggleAlphaStatus()"></div>
-                        <div>
-                            <div class="toggle-label pendente" id="alphaStatusLabel">A Pagar</div>
-                            <div class="payment-date" id="alphaPaymentDate"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Data Table -->
             <div class="data-table-container">
-                <div class="bulk-actions" id="bulkActions">
-                    <div class="bulk-info">
-                        <span class="bulk-count" id="selectedCount">0 selecionados</span>
-                        <span>|</span>
-                        <span id="selectedTotal">R$ 0,00</span>
-                    </div>
-                    <div class="bulk-buttons">
-                        <button class="bulk-btn success" onclick="marcarSelecionadosPagos()">✓ Marcar como Pago</button>
-                        <button class="bulk-btn cancel" onclick="limparSelecao()">Cancelar</button>
-                    </div>
-                </div>
                 <div class="table-header">
                     <div class="table-title">
                         📋 Despesas do Mês
@@ -963,13 +937,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="checkbox-cell">
-                                <div class="custom-checkbox" id="selectAll" onclick="toggleSelectAll()"></div>
-                            </th>
                             <th>Descrição</th>
                             <th>Categoria</th>
                             <th class="text-right">Valor</th>
                             <th class="text-center">Status</th>
+                            <th class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -980,34 +952,116 @@
         </main>
     </div>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
-        <span id="toastIcon">✓</span>
-        <span id="toastMessage">Operação realizada com sucesso!</span>
-    </div>
-
-    <!-- Modal de Confirmação -->
-    <div class="modal-overlay" id="modalOverlay">
+    <!-- Modal: Adicionar/Editar Despesa -->
+    <div class="modal-overlay" id="despesaModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Confirmar Pagamento</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <h3 class="modal-title" id="modalTitle">Nova Despesa</h3>
+                <button class="modal-close" onclick="closeModal('despesaModal')">&times;</button>
             </div>
-            <div class="modal-body" id="modalBody">
+            <div class="modal-body">
+                <form id="despesaForm">
+                    <input type="hidden" id="editMode" value="add">
+                    <input type="hidden" id="originalName" value="">
+                    <input type="hidden" id="isCustomItem" value="false">
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Descrição <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="despesaNome" placeholder="Ex: Aluguel do escritório" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Valor <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="despesaValor" placeholder="R$ 0,00" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Categoria</label>
+                            <select class="form-select" id="despesaCategoria">
+                                <option value="pessoal">Pessoal / Salários</option>
+                                <option value="comercial">Comercial</option>
+                                <option value="estrutura">Estrutura / Aluguel</option>
+                                <option value="ferramentas">Ferramentas / Software</option>
+                                <option value="alpha_franquia">Alpha Franquia</option>
+                                <option value="alimentacao">Alimentação</option>
+                                <option value="operacionais">Operacionais</option>
+                                <option value="outros" selected>Outros</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tipo/Detalhe</label>
+                            <input type="text" class="form-input" id="despesaTipo" placeholder="Ex: Salário, Serviço, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="despesaStatus">
+                                <option value="A Pagar">A Pagar</option>
+                                <option value="Pago">Pago</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width" id="dataPagamentoGroup" style="display: none;">
+                        <label class="form-label">Data do Pagamento</label>
+                        <input type="date" class="form-input" id="despesaDataPagamento">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('despesaModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveDespesa()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirmar Exclusão -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+                <button class="modal-close" onclick="closeModal('deleteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-dialog">
+                    <div class="confirm-icon">⚠️</div>
+                    <div class="confirm-message">Tem certeza que deseja excluir esta despesa?</div>
+                    <div class="confirm-details" id="deleteDetails"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancelar</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirmar Pagamento -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="paymentModalTitle">Confirmar Pagamento</h3>
+                <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">Data do Pagamento</label>
                     <input type="date" class="form-input" id="paymentDate">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Observação (opcional)</label>
-                    <input type="text" class="form-input" id="paymentNote" placeholder="Ex: Pago via PIX">
-                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-                <button class="btn btn-primary" id="confirmBtn" onclick="confirmPayment()">Confirmar Pagamento</button>
+                <button class="btn btn-secondary" onclick="closeModal('paymentModal')">Cancelar</button>
+                <button class="btn btn-success" onclick="confirmPayment()">Confirmar</button>
             </div>
         </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toastIcon">✓</span>
+        <span id="toastMessage">Operação realizada com sucesso!</span>
     </div>
 
     <!-- Scripts -->
@@ -1017,7 +1071,7 @@
         // Estado global
         let currentMonth = '2025-12';
         let currentFilter = 'todos';
-        let selectedItems = new Set();
+        let pendingDelete = null;
         let pendingPayment = null;
 
         // Formatar valor em BRL
@@ -1028,11 +1082,26 @@
             }).format(value);
         }
 
+        // Parse valor BRL para número
+        function parseMoney(value) {
+            if (!value) return 0;
+            return parseFloat(value.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+        }
+
+        // Máscara de valor
+        function maskMoney(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = (parseInt(value) / 100).toFixed(2);
+            value = value.replace('.', ',');
+            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+            input.value = 'R$ ' + value;
+        }
+
         // Mapear categorias
         function getCategoryName(categoria) {
             const map = {
                 'pessoal': 'Pessoal',
-                'locacao_aluguel': 'Locação',
+                'locacao_aluguel': 'Estrutura',
                 'adiantamentos': 'Adiantamentos',
                 'alpha_franquia': 'Alpha',
                 'outros': 'Outros',
@@ -1062,6 +1131,13 @@
             return map[categoria] || 'category-outros';
         }
 
+        // Formatar data
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('pt-BR');
+        }
+
         // Carregar dados do mês
         function loadMonthData(mes) {
             currentMonth = mes;
@@ -1069,6 +1145,7 @@
 
             if (!dados) {
                 console.error('Dados não encontrados para o mês:', mes);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#999;">Nenhum dado encontrado para este mês</td></tr>';
                 return;
             }
 
@@ -1076,102 +1153,63 @@
             document.getElementById('pageSubtitle').textContent =
                 `Gestão completa de despesas e pagamentos - ${dados.periodo}`;
 
-            // Calcular totais SEM Alpha
-            let totalSemAlpha = 0;
-            let pagoSemAlpha = 0;
-            let pendenteSemAlpha = 0;
+            // Processar despesas
+            let totalDespesas = 0;
+            let totalPago = 0;
+            let totalPendente = 0;
             let qtdPagas = 0;
             let qtdPendentes = 0;
-            let alphaValor = 0;
-            let alphaStatus = 'A Pagar';
-            let alphaDataPagamento = null;
 
-            const categorias = dados.despesas.categorias;
             const itensParaTabela = [];
+            const categorias = dados.despesas.categorias;
 
-            // Processar despesas
             for (const [categoriaKey, categoriaData] of Object.entries(categorias)) {
                 if (categoriaData.itens && Array.isArray(categoriaData.itens)) {
                     categoriaData.itens.forEach(item => {
-                        // Se for Alpha, separar
-                        if (item.nome && (item.nome.toLowerCase().includes('alpha') || item.nome.toLowerCase().includes('pagamento - alpha'))) {
-                            alphaValor = item.valor;
-                            alphaStatus = item.status || 'A Pagar';
-                            alphaDataPagamento = item.dataPagamento;
+                        totalDespesas += item.valor;
+
+                        const isPago = item.status === 'Pago' || item.status === 'Feito';
+                        if (isPago) {
+                            totalPago += item.valor;
+                            qtdPagas++;
                         } else {
-                            totalSemAlpha += item.valor;
-
-                            const isPago = item.status === 'Pago' || item.status === 'Feito';
-                            if (isPago) {
-                                pagoSemAlpha += item.valor;
-                                qtdPagas++;
-                            } else {
-                                pendenteSemAlpha += item.valor;
-                                qtdPendentes++;
-                            }
-
-                            itensParaTabela.push({
-                                ...item,
-                                categoria: categoriaKey,
-                                isPago: isPago
-                            });
+                            totalPendente += item.valor;
+                            qtdPendentes++;
                         }
+
+                        itensParaTabela.push({
+                            ...item,
+                            categoria: categoriaKey,
+                            isPago: isPago
+                        });
                     });
                 }
             }
 
-            // Atualizar cards de resumo
-            document.getElementById('totalDespesas').textContent = formatMoney(totalSemAlpha);
-            document.getElementById('totalPago').textContent = formatMoney(pagoSemAlpha);
-            document.getElementById('totalPendente').textContent = formatMoney(pendenteSemAlpha);
+            // Atualizar cards
+            document.getElementById('totalDespesas').textContent = formatMoney(totalDespesas);
+            document.getElementById('totalPago').textContent = formatMoney(totalPago);
+            document.getElementById('totalPendente').textContent = formatMoney(totalPendente);
             document.getElementById('qtdPagas').textContent = `${qtdPagas} despesas pagas`;
             document.getElementById('qtdPendentes').textContent = `${qtdPendentes} despesas pendentes`;
 
-            const taxa = totalSemAlpha > 0 ? ((pagoSemAlpha / totalSemAlpha) * 100) : 0;
+            const taxa = totalDespesas > 0 ? ((totalPago / totalDespesas) * 100) : 0;
             document.getElementById('taxaPagamento').textContent = taxa.toFixed(1) + '%';
             document.getElementById('progressFill').style.width = taxa + '%';
-            document.getElementById('progressPago').textContent = formatMoney(pagoSemAlpha) + ' pago';
-            document.getElementById('progressPendente').textContent = formatMoney(pendenteSemAlpha) + ' pendente';
+            document.getElementById('progressPago').textContent = formatMoney(totalPago) + ' pago';
+            document.getElementById('progressPendente').textContent = formatMoney(totalPendente) + ' pendente';
 
-            // Status da meta
             const metaStatus = document.getElementById('metaStatus');
             if (taxa >= 100) {
-                metaStatus.textContent = '🎉 Meta atingida!';
+                metaStatus.textContent = '🎉 Tudo pago!';
                 metaStatus.className = 'summary-change positive';
             } else {
-                metaStatus.textContent = `Faltam ${(100 - taxa).toFixed(1)}% para meta`;
+                metaStatus.textContent = `Faltam ${(100 - taxa).toFixed(1)}%`;
                 metaStatus.className = 'summary-change';
-            }
-
-            // Atualizar card Alpha
-            document.getElementById('alphaValue').textContent = formatMoney(alphaValor);
-            const alphaSwitch = document.getElementById('alphaSwitch');
-            const alphaStatusLabel = document.getElementById('alphaStatusLabel');
-            const alphaPaymentDate = document.getElementById('alphaPaymentDate');
-
-            if (alphaStatus === 'Pago' || alphaStatus === 'Feito') {
-                alphaSwitch.classList.add('active');
-                alphaStatusLabel.textContent = 'Pago';
-                alphaStatusLabel.className = 'toggle-label pago';
-                if (alphaDataPagamento) {
-                    alphaPaymentDate.textContent = `Pago em ${formatDate(alphaDataPagamento)}`;
-                }
-            } else {
-                alphaSwitch.classList.remove('active');
-                alphaStatusLabel.textContent = 'A Pagar';
-                alphaStatusLabel.className = 'toggle-label pendente';
-                alphaPaymentDate.textContent = '';
             }
 
             // Renderizar tabela
             renderTable(itensParaTabela);
-        }
-
-        // Formatar data
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const date = new Date(dateStr + 'T00:00:00');
-            return date.toLocaleDateString('pt-BR');
         }
 
         // Renderizar tabela
@@ -1187,26 +1225,33 @@
                 itensFiltrados = itens.filter(i => i.isPago);
             }
 
-            // Ordenar: pendentes primeiro
+            // Ordenar: pendentes primeiro, depois por valor
             itensFiltrados.sort((a, b) => {
-                if (a.isPago === b.isPago) return 0;
-                return a.isPago ? 1 : -1;
+                if (a.isPago !== b.isPago) return a.isPago ? 1 : -1;
+                return b.valor - a.valor;
             });
 
-            itensFiltrados.forEach((item, index) => {
+            if (itensFiltrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#999;">Nenhuma despesa encontrada</td></tr>';
+                document.getElementById('tableCount').textContent = '0 registros';
+                return;
+            }
+
+            itensFiltrados.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = item.isPago ? 'row-pago' : '';
-                tr.dataset.nome = item.nome;
+                if (item.isCustom) tr.className += ' row-custom';
 
-                const isSelected = selectedItems.has(item.nome);
+                const switchClass = item.isPago ? 'active' : '';
+                const labelClass = item.isPago ? 'pago' : 'pendente';
+                const labelText = item.isPago ? 'Pago' : 'A Pagar';
 
                 tr.innerHTML = `
-                    <td class="checkbox-cell">
-                        <div class="custom-checkbox ${isSelected ? 'checked' : ''}"
-                             onclick="toggleItemSelection('${item.nome}', this)"></div>
-                    </td>
                     <td>
-                        <div class="item-name">${item.nome}</div>
+                        <div class="item-name">
+                            ${item.nome}
+                            ${item.isCustom ? '<span class="custom-badge">Manual</span>' : ''}
+                        </div>
                         ${item.tipo ? `<div class="item-info">${item.tipo}</div>` : ''}
                         ${item.funcao ? `<div class="item-info">${item.funcao}</div>` : ''}
                     </td>
@@ -1220,14 +1265,21 @@
                     </td>
                     <td class="text-center">
                         <div class="status-toggle">
-                            <div class="toggle-switch ${item.isPago ? 'active' : ''}"
-                                 onclick="toggleItemStatus('${item.nome}', ${item.valor})"></div>
+                            <div class="toggle-switch ${switchClass}" onclick="toggleStatus('${item.nome.replace(/'/g, "\\'")}', ${item.isCustom || false})"></div>
                             <div>
-                                <div class="toggle-label ${item.isPago ? 'pago' : 'pendente'}">
-                                    ${item.isPago ? 'Pago' : 'A Pagar'}
-                                </div>
-                                ${item.dataPagamento ? `<div class="payment-date">Pago em ${formatDate(item.dataPagamento)}</div>` : ''}
+                                <div class="toggle-label ${labelClass}">${labelText}</div>
+                                ${item.dataPagamento ? `<div class="payment-date">${formatDate(item.dataPagamento)}</div>` : ''}
                             </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div class="row-actions">
+                            <button class="action-btn edit" onclick="openEditModal('${item.nome.replace(/'/g, "\\'")}', '${item.categoria}', ${item.valor}, '${item.tipo || ''}', '${item.status}', ${item.isCustom || false})" title="Editar">
+                                ✏️
+                            </button>
+                            <button class="action-btn delete" onclick="openDeleteModal('${item.nome.replace(/'/g, "\\'")}', ${item.valor}, ${item.isCustom || false})" title="Excluir">
+                                🗑️
+                            </button>
                         </div>
                     </td>
                 `;
@@ -1235,205 +1287,181 @@
                 tbody.appendChild(tr);
             });
 
-            // Atualizar contador
             document.getElementById('tableCount').textContent = `${itensFiltrados.length} de ${itens.length} registros`;
         }
 
-        // Toggle status de um item
-        function toggleItemStatus(nome, valor) {
+        // Filtrar despesas
+        function filtrarDespesas(filtro) {
+            currentFilter = filtro;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filtro);
+            });
+            loadMonthData(currentMonth);
+        }
+
+        // Toggle status
+        function toggleStatus(nome, isCustom) {
             const currentStatus = GestaoFinanceira.getStatus(currentMonth, 'despesa', nome);
             const isPago = currentStatus && (currentStatus.status === 'Pago' || currentStatus.status === 'Feito');
 
             if (isPago) {
-                // Desmarcar como pago
                 GestaoFinanceira.updateStatus(currentMonth, 'despesa', nome, 'A Pagar', null);
                 showToast('Despesa marcada como pendente', 'warning');
+                loadMonthData(currentMonth);
             } else {
-                // Abrir modal para confirmar pagamento
-                pendingPayment = { nome, valor, tipo: 'despesa' };
+                pendingPayment = { nome, isCustom };
                 document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('paymentNote').value = '';
-                document.getElementById('modalTitle').textContent = `Confirmar Pagamento - ${nome}`;
-                document.getElementById('modalOverlay').classList.add('show');
+                document.getElementById('paymentModalTitle').textContent = `Confirmar Pagamento - ${nome}`;
+                openModal('paymentModal');
             }
-
-            loadMonthData(currentMonth);
-        }
-
-        // Toggle status Alpha
-        function toggleAlphaStatus() {
-            const currentStatus = GestaoFinanceira.getStatus(currentMonth, 'despesa', 'Pagamento - Alpha');
-            const isPago = currentStatus && (currentStatus.status === 'Pago' || currentStatus.status === 'Feito');
-
-            if (isPago) {
-                GestaoFinanceira.updateStatus(currentMonth, 'despesa', 'Pagamento - Alpha', 'A Pagar', null);
-                showToast('Alpha marcado como pendente', 'warning');
-            } else {
-                pendingPayment = { nome: 'Pagamento - Alpha', valor: 7500, tipo: 'despesa' };
-                document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('paymentNote').value = '';
-                document.getElementById('modalTitle').textContent = 'Confirmar Pagamento - Alpha';
-                document.getElementById('modalOverlay').classList.add('show');
-            }
-
-            loadMonthData(currentMonth);
         }
 
         // Confirmar pagamento
         function confirmPayment() {
             if (pendingPayment) {
                 const date = document.getElementById('paymentDate').value;
-                GestaoFinanceira.updateStatus(
-                    currentMonth,
-                    pendingPayment.tipo,
-                    pendingPayment.nome,
-                    'Pago',
-                    date
-                );
-                showToast(`${pendingPayment.nome} marcado como pago!`, 'success');
+                GestaoFinanceira.updateStatus(currentMonth, 'despesa', pendingPayment.nome, 'Pago', date);
+                showToast('Pagamento confirmado!', 'success');
                 pendingPayment = null;
+                closeModal('paymentModal');
+                loadMonthData(currentMonth);
             }
-            closeModal();
+        }
+
+        // Abrir modal de adicionar
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Nova Despesa';
+            document.getElementById('editMode').value = 'add';
+            document.getElementById('originalName').value = '';
+            document.getElementById('isCustomItem').value = 'false';
+            document.getElementById('despesaForm').reset();
+            document.getElementById('despesaValor').value = '';
+            document.getElementById('dataPagamentoGroup').style.display = 'none';
+            openModal('despesaModal');
+        }
+
+        // Abrir modal de editar
+        function openEditModal(nome, categoria, valor, tipo, status, isCustom) {
+            document.getElementById('modalTitle').textContent = 'Editar Despesa';
+            document.getElementById('editMode').value = 'edit';
+            document.getElementById('originalName').value = nome;
+            document.getElementById('isCustomItem').value = isCustom.toString();
+
+            document.getElementById('despesaNome').value = nome;
+            document.getElementById('despesaValor').value = formatMoney(valor);
+            document.getElementById('despesaCategoria').value = categoria;
+            document.getElementById('despesaTipo').value = tipo;
+            document.getElementById('despesaStatus').value = status === 'Feito' ? 'Pago' : status;
+
+            document.getElementById('dataPagamentoGroup').style.display =
+                (status === 'Pago' || status === 'Feito') ? 'block' : 'none';
+
+            openModal('despesaModal');
+        }
+
+        // Salvar despesa
+        function saveDespesa() {
+            const nome = document.getElementById('despesaNome').value.trim();
+            const valor = parseMoney(document.getElementById('despesaValor').value);
+            const categoria = document.getElementById('despesaCategoria').value;
+            const tipo = document.getElementById('despesaTipo').value.trim();
+            const status = document.getElementById('despesaStatus').value;
+            const dataPagamento = document.getElementById('despesaDataPagamento').value;
+
+            if (!nome) {
+                showToast('Informe a descrição da despesa', 'error');
+                document.getElementById('despesaNome').classList.add('error');
+                return;
+            }
+
+            if (valor <= 0) {
+                showToast('Informe um valor válido', 'error');
+                document.getElementById('despesaValor').classList.add('error');
+                return;
+            }
+
+            const editMode = document.getElementById('editMode').value;
+            const originalName = document.getElementById('originalName').value;
+            const isCustom = document.getElementById('isCustomItem').value === 'true';
+
+            if (editMode === 'add') {
+                // Adicionar nova despesa
+                GestaoFinanceira.addDespesa(currentMonth, {
+                    nome,
+                    valor,
+                    categoria,
+                    tipo,
+                    status
+                });
+
+                if (status === 'Pago') {
+                    GestaoFinanceira.updateStatus(currentMonth, 'despesa', nome, 'Pago', dataPagamento || new Date().toISOString().split('T')[0]);
+                }
+
+                showToast('Despesa adicionada com sucesso!', 'success');
+            } else {
+                // Editar despesa existente
+                if (isCustom) {
+                    // Se for customizado, deletar e recriar
+                    GestaoFinanceira.deleteDespesa(currentMonth, originalName, true);
+                    GestaoFinanceira.addDespesa(currentMonth, {
+                        nome,
+                        valor,
+                        categoria,
+                        tipo,
+                        status
+                    });
+                } else {
+                    // Editar item original
+                    GestaoFinanceira.editDespesa(currentMonth, originalName, {
+                        nome,
+                        valor,
+                        categoria,
+                        tipo
+                    });
+                }
+
+                // Atualizar status
+                GestaoFinanceira.updateStatus(currentMonth, 'despesa', nome, status, status === 'Pago' ? (dataPagamento || new Date().toISOString().split('T')[0]) : null);
+
+                showToast('Despesa atualizada com sucesso!', 'success');
+            }
+
+            closeModal('despesaModal');
             loadMonthData(currentMonth);
+        }
+
+        // Abrir modal de exclusão
+        function openDeleteModal(nome, valor, isCustom) {
+            pendingDelete = { nome, valor, isCustom };
+            document.getElementById('deleteDetails').innerHTML = `
+                <strong>${nome}</strong><br>
+                Valor: ${formatMoney(valor)}
+            `;
+            openModal('deleteModal');
+        }
+
+        // Confirmar exclusão
+        function confirmDelete() {
+            if (pendingDelete) {
+                GestaoFinanceira.deleteDespesa(currentMonth, pendingDelete.nome, pendingDelete.isCustom);
+                showToast('Despesa excluída com sucesso!', 'success');
+                pendingDelete = null;
+                closeModal('deleteModal');
+                loadMonthData(currentMonth);
+            }
+        }
+
+        // Abrir modal
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
         }
 
         // Fechar modal
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('show');
-            pendingPayment = null;
-        }
-
-        // Toggle seleção de item
-        function toggleItemSelection(nome, checkbox) {
-            if (selectedItems.has(nome)) {
-                selectedItems.delete(nome);
-                checkbox.classList.remove('checked');
-            } else {
-                selectedItems.add(nome);
-                checkbox.classList.add('checked');
-            }
-            updateBulkActions();
-        }
-
-        // Toggle selecionar todos
-        function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('#tableBody .custom-checkbox');
-
-            if (selectAll.classList.contains('checked')) {
-                selectAll.classList.remove('checked');
-                selectedItems.clear();
-                checkboxes.forEach(cb => cb.classList.remove('checked'));
-            } else {
-                selectAll.classList.add('checked');
-                checkboxes.forEach(cb => {
-                    const nome = cb.closest('tr').dataset.nome;
-                    selectedItems.add(nome);
-                    cb.classList.add('checked');
-                });
-            }
-            updateBulkActions();
-        }
-
-        // Atualizar ações em massa
-        function updateBulkActions() {
-            const bulkActions = document.getElementById('bulkActions');
-            const selectedCount = document.getElementById('selectedCount');
-            const selectedTotal = document.getElementById('selectedTotal');
-
-            if (selectedItems.size > 0) {
-                bulkActions.classList.add('show');
-                selectedCount.textContent = `${selectedItems.size} selecionados`;
-
-                // Calcular total selecionado
-                let total = 0;
-                const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
-                for (const [catKey, catData] of Object.entries(dados.despesas.categorias)) {
-                    if (catData.itens) {
-                        catData.itens.forEach(item => {
-                            if (selectedItems.has(item.nome)) {
-                                total += item.valor;
-                            }
-                        });
-                    }
-                }
-                selectedTotal.textContent = formatMoney(total);
-            } else {
-                bulkActions.classList.remove('show');
-            }
-        }
-
-        // Marcar selecionados como pagos
-        function marcarSelecionadosPagos() {
-            const date = new Date().toISOString().split('T')[0];
-            selectedItems.forEach(nome => {
-                GestaoFinanceira.updateStatus(currentMonth, 'despesa', nome, 'Pago', date);
-            });
-            showToast(`${selectedItems.size} despesas marcadas como pagas!`, 'success');
-            limparSelecao();
-            loadMonthData(currentMonth);
-        }
-
-        // Limpar seleção
-        function limparSelecao() {
-            selectedItems.clear();
-            document.querySelectorAll('.custom-checkbox').forEach(cb => cb.classList.remove('checked'));
-            updateBulkActions();
-        }
-
-        // Marcar todos como pagos
-        function marcarTodosPagos() {
-            if (!confirm('Deseja marcar TODAS as despesas como pagas?')) return;
-
-            const date = new Date().toISOString().split('T')[0];
-            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
-
-            for (const [catKey, catData] of Object.entries(dados.despesas.categorias)) {
-                if (catData.itens) {
-                    catData.itens.forEach(item => {
-                        GestaoFinanceira.updateStatus(currentMonth, 'despesa', item.nome, 'Pago', date);
-                    });
-                }
-            }
-
-            showToast('Todas as despesas marcadas como pagas!', 'success');
-            loadMonthData(currentMonth);
-        }
-
-        // Filtrar despesas
-        function filtrarDespesas(filtro) {
-            currentFilter = filtro;
-
-            // Atualizar botões
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.filter === filtro);
-            });
-
-            loadMonthData(currentMonth);
-        }
-
-        // Exportar dados
-        function exportarDados() {
-            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
-            const resumo = GestaoFinanceira.getResumoMes(currentMonth);
-
-            let csv = 'Descrição,Categoria,Valor,Status,Data Pagamento\n';
-
-            for (const [catKey, catData] of Object.entries(dados.despesas.categorias)) {
-                if (catData.itens) {
-                    catData.itens.forEach(item => {
-                        csv += `"${item.nome}","${getCategoryName(catKey)}","${item.valor}","${item.status}","${item.dataPagamento || ''}"\n`;
-                    });
-                }
-            }
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `contas-pagar-${currentMonth}.csv`;
-            link.click();
-
-            showToast('Dados exportados com sucesso!', 'success');
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            // Limpar erros
+            document.querySelectorAll('.form-input.error').forEach(el => el.classList.remove('error'));
         }
 
         // Mostrar toast
@@ -1450,22 +1478,64 @@
             else if (type === 'error') toastIcon.textContent = '✕';
 
             toast.classList.add('show');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
         // Mudar mês
         function changeMonth() {
             const selectedMonth = document.getElementById('monthSelect').value;
-            limparSelecao();
             loadMonthData(selectedMonth);
         }
 
-        // Ouvir atualizações do sistema financeiro
-        window.addEventListener('financeiroUpdated', () => {
-            // Atualizar dados quando houver mudanças
+        // Exportar dados
+        function exportarDados() {
+            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
+
+            let csv = 'Descrição,Categoria,Valor,Status,Data Pagamento,Tipo\n';
+
+            for (const [catKey, catData] of Object.entries(dados.despesas.categorias)) {
+                if (catData.itens) {
+                    catData.itens.forEach(item => {
+                        csv += `"${item.nome}","${getCategoryName(catKey)}","${item.valor}","${item.status}","${item.dataPagamento || ''}","${item.tipo || ''}"\n`;
+                    });
+                }
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `contas-pagar-${currentMonth}.csv`;
+            link.click();
+
+            showToast('Dados exportados com sucesso!', 'success');
+        }
+
+        // Event listeners
+        document.getElementById('despesaValor').addEventListener('input', function() {
+            maskMoney(this);
+        });
+
+        document.getElementById('despesaStatus').addEventListener('change', function() {
+            document.getElementById('dataPagamentoGroup').style.display =
+                this.value === 'Pago' ? 'block' : 'none';
+        });
+
+        // Fechar modais ao clicar fora
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+
+        // Tecla ESC fecha modais
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
         });
 
         // Inicializar
@@ -1473,13 +1543,6 @@
             GestaoFinanceira.init();
             const defaultMonth = document.getElementById('monthSelect').value;
             loadMonthData(defaultMonth);
-        });
-
-        // Fechar modal ao clicar fora
-        document.getElementById('modalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
         });
     </script>
 </body>
