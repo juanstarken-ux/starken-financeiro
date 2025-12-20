@@ -75,6 +75,7 @@ const GestaoFinanceira = {
             status: despesa.status || 'A Pagar',
             tipo: despesa.tipo || '',
             funcao: despesa.funcao || '',
+            vencimento: despesa.vencimento || '',
             dataCriacao: new Date().toISOString(),
             isCustom: true
         };
@@ -110,18 +111,52 @@ const GestaoFinanceira = {
 
     // Excluir despesa
     deleteDespesa(mes, nome, isCustom = false) {
-        if (isCustom) {
-            // Remover de customItems
-            if (this.customItems[mes] && this.customItems[mes].despesas) {
-                this.customItems[mes].despesas = this.customItems[mes].despesas.filter(d => d.nome !== nome);
+        console.log('deleteDespesa chamado:', { mes, nome, isCustom });
+
+        let deleted = false;
+
+        // 1. Tentar remover de customItems primeiro
+        if (this.customItems[mes] && this.customItems[mes].despesas) {
+            const antes = this.customItems[mes].despesas.length;
+            this.customItems[mes].despesas = this.customItems[mes].despesas.filter(d => {
+                const match = d.nome === nome || d.nome.trim() === nome.trim();
+                if (match) console.log('Removendo de customItems:', d.nome);
+                return !match;
+            });
+            if (this.customItems[mes].despesas.length < antes) {
+                deleted = true;
+                console.log('Item removido de customItems');
             }
-        } else {
-            // Marcar como deletado
+        }
+
+        // 2. Tentar remover de editedItems (itens originais que foram editados)
+        if (this.editedItems[mes] && this.editedItems[mes].despesas) {
+            // Procurar por nome original que foi editado para este nome
+            for (const [nomeOriginal, dados] of Object.entries(this.editedItems[mes].despesas)) {
+                if (dados.nome === nome || nomeOriginal === nome) {
+                    delete this.editedItems[mes].despesas[nomeOriginal];
+                    // Também marcar o original como deletado
+                    if (!this.deletedItems[mes]) {
+                        this.deletedItems[mes] = { despesas: [], receitas: [] };
+                    }
+                    if (!this.deletedItems[mes].despesas.includes(nomeOriginal)) {
+                        this.deletedItems[mes].despesas.push(nomeOriginal);
+                    }
+                    deleted = true;
+                    console.log('Item removido de editedItems:', nomeOriginal);
+                    break;
+                }
+            }
+        }
+
+        // 3. Se não foi deletado de nenhum lugar, marcar como deletado (item original)
+        if (!deleted && !isCustom) {
             if (!this.deletedItems[mes]) {
                 this.deletedItems[mes] = { despesas: [], receitas: [] };
             }
             if (!this.deletedItems[mes].despesas.includes(nome)) {
                 this.deletedItems[mes].despesas.push(nome);
+                console.log('Item marcado como deletado:', nome);
             }
         }
 

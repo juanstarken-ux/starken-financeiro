@@ -437,6 +437,33 @@
             border-left: 3px solid var(--info);
         }
 
+        tr.row-vencido {
+            background-color: rgba(231, 76, 60, 0.08);
+        }
+
+        .vencimento-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .vencimento-badge.vencido {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .vencimento-badge.hoje {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .vencimento-badge.proximo {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+
         .item-name {
             font-weight: 500;
             color: var(--text-dark);
@@ -939,6 +966,7 @@
                         <tr>
                             <th>Descrição</th>
                             <th>Categoria</th>
+                            <th class="text-center">Vencimento</th>
                             <th class="text-right">Valor</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Ações</th>
@@ -996,18 +1024,25 @@
                             <input type="text" class="form-input" id="despesaTipo" placeholder="Ex: Salário, Serviço, etc.">
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Data de Vencimento</label>
+                            <input type="date" class="form-input" id="despesaVencimento">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
                             <label class="form-label">Status</label>
                             <select class="form-select" id="despesaStatus">
                                 <option value="A Pagar">A Pagar</option>
                                 <option value="Pago">Pago</option>
                             </select>
                         </div>
+                        <div class="form-group" id="dataPagamentoGroup" style="display: none;">
+                            <label class="form-label">Data do Pagamento</label>
+                            <input type="date" class="form-input" id="despesaDataPagamento">
+                        </div>
                     </div>
 
-                    <div class="form-group full-width" id="dataPagamentoGroup" style="display: none;">
-                        <label class="form-label">Data do Pagamento</label>
-                        <input type="date" class="form-input" id="despesaDataPagamento">
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -1040,20 +1075,52 @@
 
     <!-- Modal: Confirmar Pagamento -->
     <div class="modal-overlay" id="paymentModal">
-        <div class="modal" style="max-width: 400px;">
+        <div class="modal" style="max-width: 450px;">
             <div class="modal-header">
                 <h3 class="modal-title" id="paymentModalTitle">Confirmar Pagamento</h3>
                 <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
             </div>
             <div class="modal-body">
+                <div class="payment-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="font-size: 13px; color: #7f8c8d;">Valor Total</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #2c3e50;" id="paymentTotalValue">R$ 0,00</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo de Pagamento</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #e1e8ed; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="paymentType" value="full" checked onchange="togglePartialPayment()">
+                            <span style="font-weight: 500;">Pagamento Total</span>
+                        </label>
+                        <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #e1e8ed; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="paymentType" value="partial" onchange="togglePartialPayment()">
+                            <span style="font-weight: 500;">Pagamento Parcial</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="partialValueGroup" style="display: none;">
+                    <label class="form-label">Valor a Pagar Agora <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="partialValue" placeholder="R$ 0,00" oninput="maskMoney(this); updateRemainingValue()">
+                    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px;">
+                        <span style="color: #7f8c8d;">Valor restante:</span>
+                        <span style="color: #e74c3c; font-weight: 600;" id="remainingValue">R$ 0,00</span>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Data do Pagamento</label>
                     <input type="date" class="form-input" id="paymentDate">
                 </div>
+
+                <div id="partialNote" style="display: none; background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 8px; font-size: 13px; color: #856404;">
+                    <strong>Nota:</strong> Será criada uma nova despesa com o valor restante automaticamente.
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('paymentModal')">Cancelar</button>
-                <button class="btn btn-success" onclick="confirmPayment()">Confirmar</button>
+                <button class="btn btn-success" onclick="confirmPayment()">Confirmar Pagamento</button>
             </div>
         </div>
     </div>
@@ -1085,16 +1152,29 @@
         // Parse valor BRL para número
         function parseMoney(value) {
             if (!value) return 0;
-            return parseFloat(value.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+            // Remove R$, espaços e pontos de milhar, troca vírgula por ponto
+            let cleaned = value
+                .replace(/R\$\s*/g, '')  // Remove R$
+                .replace(/\./g, '')       // Remove pontos (separador de milhar)
+                .replace(',', '.')        // Troca vírgula por ponto (decimal)
+                .trim();
+            return parseFloat(cleaned) || 0;
         }
 
         // Máscara de valor
         function maskMoney(input) {
             let value = input.value.replace(/\D/g, '');
-            value = (parseInt(value) / 100).toFixed(2);
-            value = value.replace('.', ',');
-            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-            input.value = 'R$ ' + value;
+            if (!value) {
+                input.value = 'R$ 0,00';
+                return;
+            }
+            // Converter para número e formatar
+            let numValue = parseInt(value) / 100;
+            // Usar toLocaleString para formatação brasileira correta
+            input.value = 'R$ ' + numValue.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
         // Mapear categorias
@@ -1232,10 +1312,13 @@
             });
 
             if (itensFiltrados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#999;">Nenhuma despesa encontrada</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">Nenhuma despesa encontrada</td></tr>';
                 document.getElementById('tableCount').textContent = '0 registros';
                 return;
             }
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
 
             itensFiltrados.forEach(item => {
                 const tr = document.createElement('tr');
@@ -1245,6 +1328,34 @@
                 const switchClass = item.isPago ? 'active' : '';
                 const labelClass = item.isPago ? 'pago' : 'pendente';
                 const labelText = item.isPago ? 'Pago' : 'A Pagar';
+
+                // Verificar vencimento
+                let vencimentoHtml = '<span style="color: #999;">-</span>';
+                let isVencido = false;
+                let isHoje = false;
+                let isProximo = false;
+
+                if (item.vencimento && !item.isPago) {
+                    const dataVenc = new Date(item.vencimento + 'T00:00:00');
+                    const diffDays = Math.ceil((dataVenc - hoje) / (1000 * 60 * 60 * 24));
+
+                    if (diffDays < 0) {
+                        isVencido = true;
+                        vencimentoHtml = `<span class="vencimento-badge vencido">⚠️ ${formatDate(item.vencimento)}</span>`;
+                    } else if (diffDays === 0) {
+                        isHoje = true;
+                        vencimentoHtml = `<span class="vencimento-badge hoje">📅 Hoje</span>`;
+                    } else if (diffDays <= 3) {
+                        isProximo = true;
+                        vencimentoHtml = `<span class="vencimento-badge proximo">⏰ ${formatDate(item.vencimento)}</span>`;
+                    } else {
+                        vencimentoHtml = `<span style="color: #666;">${formatDate(item.vencimento)}</span>`;
+                    }
+                } else if (item.vencimento) {
+                    vencimentoHtml = `<span style="color: #999; text-decoration: line-through;">${formatDate(item.vencimento)}</span>`;
+                }
+
+                if (isVencido) tr.className += ' row-vencido';
 
                 tr.innerHTML = `
                     <td>
@@ -1260,12 +1371,15 @@
                             ${getCategoryName(item.categoria)}
                         </span>
                     </td>
+                    <td class="text-center">
+                        ${vencimentoHtml}
+                    </td>
                     <td class="text-right">
                         <span class="amount">${formatMoney(item.valor)}</span>
                     </td>
                     <td class="text-center">
                         <div class="status-toggle">
-                            <div class="toggle-switch ${switchClass}" onclick="toggleStatus('${item.nome.replace(/'/g, "\\'")}', ${item.isCustom || false})"></div>
+                            <div class="toggle-switch ${switchClass} js-toggle-status"></div>
                             <div>
                                 <div class="toggle-label ${labelClass}">${labelText}</div>
                                 ${item.dataPagamento ? `<div class="payment-date">${formatDate(item.dataPagamento)}</div>` : ''}
@@ -1274,15 +1388,31 @@
                     </td>
                     <td class="text-center">
                         <div class="row-actions">
-                            <button class="action-btn edit" onclick="openEditModal('${item.nome.replace(/'/g, "\\'")}', '${item.categoria}', ${item.valor}, '${item.tipo || ''}', '${item.status}', ${item.isCustom || false})" title="Editar">
+                            <button class="action-btn edit js-edit-btn" title="Editar">
                                 ✏️
                             </button>
-                            <button class="action-btn delete" onclick="openDeleteModal('${item.nome.replace(/'/g, "\\'")}', ${item.valor}, ${item.isCustom || false})" title="Excluir">
+                            <button class="action-btn delete js-delete-btn" title="Excluir">
                                 🗑️
                             </button>
                         </div>
                     </td>
                 `;
+
+                // Adicionar event listeners (evita problemas com caracteres especiais)
+                const toggleBtn = tr.querySelector('.js-toggle-status');
+                toggleBtn.addEventListener('click', () => {
+                    toggleStatus(item.nome, item.isCustom || false, item.valor, item.categoria, item.tipo || '', item.vencimento || '');
+                });
+
+                const editBtn = tr.querySelector('.js-edit-btn');
+                editBtn.addEventListener('click', () => {
+                    openEditModal(item.nome, item.categoria, item.valor, item.tipo || '', item.status, item.isCustom || false, item.vencimento || '');
+                });
+
+                const deleteBtn = tr.querySelector('.js-delete-btn');
+                deleteBtn.addEventListener('click', () => {
+                    openDeleteModal(item.nome, item.valor, item.isCustom || false);
+                });
 
                 tbody.appendChild(tr);
             });
@@ -1300,7 +1430,7 @@
         }
 
         // Toggle status
-        function toggleStatus(nome, isCustom) {
+        function toggleStatus(nome, isCustom, valor, categoria, tipo, vencimento) {
             const currentStatus = GestaoFinanceira.getStatus(currentMonth, 'despesa', nome);
             const isPago = currentStatus && (currentStatus.status === 'Pago' || currentStatus.status === 'Feito');
 
@@ -1309,23 +1439,111 @@
                 showToast('Despesa marcada como pendente', 'warning');
                 loadMonthData(currentMonth);
             } else {
-                pendingPayment = { nome, isCustom };
+                pendingPayment = { nome, isCustom, valor, categoria, tipo, vencimento };
                 document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('paymentModalTitle').textContent = `Confirmar Pagamento - ${nome}`;
+                document.getElementById('paymentTotalValue').textContent = formatMoney(valor);
+
+                // Reset pagamento parcial
+                document.querySelector('input[name="paymentType"][value="full"]').checked = true;
+                document.getElementById('partialValueGroup').style.display = 'none';
+                document.getElementById('partialNote').style.display = 'none';
+                document.getElementById('partialValue').value = '';
+                document.getElementById('remainingValue').textContent = 'R$ 0,00';
+
                 openModal('paymentModal');
+            }
+        }
+
+        // Toggle pagamento parcial
+        function togglePartialPayment() {
+            const isPartial = document.querySelector('input[name="paymentType"]:checked').value === 'partial';
+            document.getElementById('partialValueGroup').style.display = isPartial ? 'block' : 'none';
+            document.getElementById('partialNote').style.display = isPartial ? 'block' : 'none';
+
+            if (isPartial) {
+                document.getElementById('partialValue').focus();
+            }
+        }
+
+        // Atualizar valor restante
+        function updateRemainingValue() {
+            if (!pendingPayment) return;
+
+            const totalValor = pendingPayment.valor;
+            const partialValor = parseMoney(document.getElementById('partialValue').value);
+            const remaining = totalValor - partialValor;
+
+            document.getElementById('remainingValue').textContent = formatMoney(Math.max(0, remaining));
+
+            // Mudar cor se valor parcial for maior que total
+            const remainingEl = document.getElementById('remainingValue');
+            if (partialValor > totalValor) {
+                remainingEl.style.color = '#c0392b';
+            } else if (partialValor > 0) {
+                remainingEl.style.color = '#e74c3c';
+            } else {
+                remainingEl.style.color = '#e74c3c';
             }
         }
 
         // Confirmar pagamento
         function confirmPayment() {
-            if (pendingPayment) {
-                const date = document.getElementById('paymentDate').value;
+            if (!pendingPayment) return;
+
+            const isPartial = document.querySelector('input[name="paymentType"]:checked').value === 'partial';
+            const date = document.getElementById('paymentDate').value;
+
+            if (isPartial) {
+                const partialValor = parseMoney(document.getElementById('partialValue').value);
+                const totalValor = pendingPayment.valor;
+
+                // Validações
+                if (partialValor <= 0) {
+                    showToast('Informe o valor do pagamento parcial', 'error');
+                    return;
+                }
+
+                if (partialValor >= totalValor) {
+                    showToast('Para pagamento total, selecione a opção "Pagamento Total"', 'error');
+                    return;
+                }
+
+                const remainingValor = totalValor - partialValor;
+                const nomeBase = pendingPayment.nome.replace(/ \(Restante\)$/, '').replace(/ \(Parcial\)$/, '');
+
+                // 1. Deletar o item original
+                GestaoFinanceira.deleteDespesa(currentMonth, pendingPayment.nome, pendingPayment.isCustom);
+
+                // 2. Criar item PAGO com o valor parcial
+                GestaoFinanceira.addDespesa(currentMonth, {
+                    nome: nomeBase + ' (Pago ' + formatDate(date) + ')',
+                    valor: partialValor,
+                    categoria: pendingPayment.categoria || 'outros',
+                    tipo: pendingPayment.tipo || '',
+                    status: 'Pago'
+                });
+                GestaoFinanceira.updateStatus(currentMonth, 'despesa', nomeBase + ' (Pago ' + formatDate(date) + ')', 'Pago', date);
+
+                // 3. Criar item PENDENTE com o valor restante
+                GestaoFinanceira.addDespesa(currentMonth, {
+                    nome: nomeBase + ' (Restante)',
+                    valor: remainingValor,
+                    categoria: pendingPayment.categoria || 'outros',
+                    tipo: pendingPayment.tipo || '',
+                    status: 'A Pagar'
+                });
+
+                showToast(`Pago ${formatMoney(partialValor)}. Restam ${formatMoney(remainingValor)} a pagar.`, 'success');
+            } else {
+                // Pagamento total
                 GestaoFinanceira.updateStatus(currentMonth, 'despesa', pendingPayment.nome, 'Pago', date);
                 showToast('Pagamento confirmado!', 'success');
-                pendingPayment = null;
-                closeModal('paymentModal');
-                loadMonthData(currentMonth);
             }
+
+            pendingPayment = null;
+            closeModal('paymentModal');
+            loadMonthData(currentMonth);
         }
 
         // Abrir modal de adicionar
@@ -1341,7 +1559,7 @@
         }
 
         // Abrir modal de editar
-        function openEditModal(nome, categoria, valor, tipo, status, isCustom) {
+        function openEditModal(nome, categoria, valor, tipo, status, isCustom, vencimento) {
             document.getElementById('modalTitle').textContent = 'Editar Despesa';
             document.getElementById('editMode').value = 'edit';
             document.getElementById('originalName').value = nome;
@@ -1351,6 +1569,7 @@
             document.getElementById('despesaValor').value = formatMoney(valor);
             document.getElementById('despesaCategoria').value = categoria;
             document.getElementById('despesaTipo').value = tipo;
+            document.getElementById('despesaVencimento').value = vencimento || '';
             document.getElementById('despesaStatus').value = status === 'Feito' ? 'Pago' : status;
 
             document.getElementById('dataPagamentoGroup').style.display =
@@ -1365,6 +1584,7 @@
             const valor = parseMoney(document.getElementById('despesaValor').value);
             const categoria = document.getElementById('despesaCategoria').value;
             const tipo = document.getElementById('despesaTipo').value.trim();
+            const vencimento = document.getElementById('despesaVencimento').value;
             const status = document.getElementById('despesaStatus').value;
             const dataPagamento = document.getElementById('despesaDataPagamento').value;
 
@@ -1391,6 +1611,7 @@
                     valor,
                     categoria,
                     tipo,
+                    vencimento,
                     status
                 });
 
@@ -1409,6 +1630,7 @@
                         valor,
                         categoria,
                         tipo,
+                        vencimento,
                         status
                     });
                 } else {
@@ -1417,7 +1639,8 @@
                         nome,
                         valor,
                         categoria,
-                        tipo
+                        tipo,
+                        vencimento
                     });
                 }
 
@@ -1444,11 +1667,19 @@
         // Confirmar exclusão
         function confirmDelete() {
             if (pendingDelete) {
-                GestaoFinanceira.deleteDespesa(currentMonth, pendingDelete.nome, pendingDelete.isCustom);
-                showToast('Despesa excluída com sucesso!', 'success');
-                pendingDelete = null;
-                closeModal('deleteModal');
-                loadMonthData(currentMonth);
+                try {
+                    console.log('Deletando:', pendingDelete);
+                    GestaoFinanceira.deleteDespesa(currentMonth, pendingDelete.nome, pendingDelete.isCustom);
+                    closeModal('deleteModal');
+                    showToast('Despesa excluída com sucesso!', 'success');
+                    loadMonthData(currentMonth);
+                } catch (error) {
+                    console.error('Erro ao excluir:', error);
+                    showToast('Erro ao excluir despesa', 'error');
+                    closeModal('deleteModal');
+                } finally {
+                    pendingDelete = null;
+                }
             }
         }
 
@@ -1459,7 +1690,15 @@
 
         // Fechar modal
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+                // Forçar reflow
+                setTimeout(() => {
+                    modal.style.display = '';
+                }, 10);
+            }
             // Limpar erros
             document.querySelectorAll('.form-input.error').forEach(el => el.classList.remove('error'));
         }
