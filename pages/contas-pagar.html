@@ -782,6 +782,75 @@
             color: var(--text-light);
         }
 
+        /* Filter Indicator */
+        .filter-indicator {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .filter-indicator-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-indicator-icon {
+            font-size: 24px;
+        }
+
+        .filter-indicator-text {
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .filter-indicator-text strong {
+            color: #5d4507;
+            font-weight: 700;
+        }
+
+        .filter-indicator-stats {
+            background: rgba(255,255,255,0.7);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #5d4507;
+            font-weight: 600;
+        }
+
+        .filter-indicator-stats span {
+            font-weight: 700;
+            color: #d97706;
+        }
+
+        .filter-indicator-clear {
+            margin-left: auto;
+            background: #fff;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-indicator-clear:hover {
+            background: #c62828;
+            color: #fff;
+            border-color: #c62828;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .summary-grid {
@@ -902,6 +971,20 @@
                         <option value="2026-01">Janeiro 2026</option>
                     </select>
                 </div>
+                <div class="month-selector">
+                    <span class="month-selector-label">🏷️ Categoria:</span>
+                    <select class="month-select" id="categorySelect" onchange="changeCategory()" style="min-width: 180px;">
+                        <option value="todas">Todas as Categorias</option>
+                        <option value="pessoal">Pessoal / Salários</option>
+                        <option value="comercial">Comercial</option>
+                        <option value="estrutura">Estrutura / Aluguel</option>
+                        <option value="ferramentas">Ferramentas / Software</option>
+                        <option value="alpha_franquia">Alpha Franquia</option>
+                        <option value="alimentacao">Alimentação</option>
+                        <option value="operacionais">Operacionais</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="openAddModal()">
                         ➕ Nova Despesa
@@ -909,6 +992,19 @@
                     <button class="btn btn-secondary" onclick="exportarDados()">
                         📥 Exportar
                     </button>
+                </div>
+            </div>
+
+            <!-- Indicador de Filtro Ativo -->
+            <div class="filter-indicator" id="filterIndicator" style="display: none;">
+                <div class="filter-indicator-content">
+                    <span class="filter-indicator-icon">🔍</span>
+                    <span class="filter-indicator-text">Filtrando por: <strong id="filterCategoryName">-</strong></span>
+                    <span class="filter-indicator-stats">
+                        <span id="filterTotal">R$ 0</span> em
+                        <span id="filterCount">0</span> despesas
+                    </span>
+                    <button class="filter-indicator-clear" onclick="clearCategoryFilter()">✕ Limpar filtro</button>
                 </div>
             </div>
 
@@ -1138,8 +1234,10 @@
         // Estado global
         let currentMonth = '2025-12';
         let currentFilter = 'todos';
+        let currentCategory = 'todas';
         let pendingDelete = null;
         let pendingPayment = null;
+        let allItems = []; // Armazena todos os itens para filtrar
 
         // Formatar valor em BRL
         function formatMoney(value) {
@@ -1234,29 +1332,13 @@
                 `Gestão completa de despesas e pagamentos - ${dados.periodo}`;
 
             // Processar despesas
-            let totalDespesas = 0;
-            let totalPago = 0;
-            let totalPendente = 0;
-            let qtdPagas = 0;
-            let qtdPendentes = 0;
-
             const itensParaTabela = [];
             const categorias = dados.despesas.categorias;
 
             for (const [categoriaKey, categoriaData] of Object.entries(categorias)) {
                 if (categoriaData.itens && Array.isArray(categoriaData.itens)) {
                     categoriaData.itens.forEach(item => {
-                        totalDespesas += item.valor;
-
                         const isPago = item.status === 'Pago' || item.status === 'Feito';
-                        if (isPago) {
-                            totalPago += item.valor;
-                            qtdPagas++;
-                        } else {
-                            totalPendente += item.valor;
-                            qtdPendentes++;
-                        }
-
                         itensParaTabela.push({
                             ...item,
                             categoria: categoriaKey,
@@ -1266,7 +1348,53 @@
                 }
             }
 
-            // Atualizar cards
+            // Armazenar todos os itens
+            allItems = itensParaTabela;
+
+            // Aplicar filtro de categoria e atualizar UI
+            applyFiltersAndRender();
+        }
+
+        // Aplicar filtros e renderizar
+        function applyFiltersAndRender() {
+            // Filtrar por categoria
+            let itensFiltrados = allItems;
+            if (currentCategory !== 'todas') {
+                // Mapear categorias similares
+                const categoryMap = {
+                    'estrutura': ['estrutura', 'locacao_aluguel'],
+                    'pessoal': ['pessoal'],
+                    'comercial': ['comercial'],
+                    'ferramentas': ['ferramentas', 'equipamentos'],
+                    'alpha_franquia': ['alpha_franquia'],
+                    'alimentacao': ['alimentacao'],
+                    'operacionais': ['operacionais', 'combustivel'],
+                    'outros': ['outros', 'servicos', 'adiantamentos']
+                };
+
+                const categoriasValidas = categoryMap[currentCategory] || [currentCategory];
+                itensFiltrados = allItems.filter(item => categoriasValidas.includes(item.categoria));
+            }
+
+            // Calcular totais baseado nos itens filtrados
+            let totalDespesas = 0;
+            let totalPago = 0;
+            let totalPendente = 0;
+            let qtdPagas = 0;
+            let qtdPendentes = 0;
+
+            itensFiltrados.forEach(item => {
+                totalDespesas += item.valor;
+                if (item.isPago) {
+                    totalPago += item.valor;
+                    qtdPagas++;
+                } else {
+                    totalPendente += item.valor;
+                    qtdPendentes++;
+                }
+            });
+
+            // Atualizar cards com valores filtrados
             document.getElementById('totalDespesas').textContent = formatMoney(totalDespesas);
             document.getElementById('totalPago').textContent = formatMoney(totalPago);
             document.getElementById('totalPendente').textContent = formatMoney(totalPendente);
@@ -1288,8 +1416,32 @@
                 metaStatus.className = 'summary-change';
             }
 
+            // Mostrar/ocultar indicador de filtro
+            const filterIndicator = document.getElementById('filterIndicator');
+            if (currentCategory !== 'todas') {
+                filterIndicator.style.display = 'block';
+                document.getElementById('filterCategoryName').textContent = getCategoryName(currentCategory);
+                document.getElementById('filterTotal').textContent = formatMoney(totalDespesas);
+                document.getElementById('filterCount').textContent = itensFiltrados.length;
+            } else {
+                filterIndicator.style.display = 'none';
+            }
+
             // Renderizar tabela
-            renderTable(itensParaTabela);
+            renderTable(itensFiltrados);
+        }
+
+        // Mudar categoria
+        function changeCategory() {
+            currentCategory = document.getElementById('categorySelect').value;
+            applyFiltersAndRender();
+        }
+
+        // Limpar filtro de categoria
+        function clearCategoryFilter() {
+            currentCategory = 'todas';
+            document.getElementById('categorySelect').value = 'todas';
+            applyFiltersAndRender();
         }
 
         // Renderizar tabela
@@ -1420,13 +1572,13 @@
             document.getElementById('tableCount').textContent = `${itensFiltrados.length} de ${itens.length} registros`;
         }
 
-        // Filtrar despesas
+        // Filtrar despesas (por status: todos, pendente, pago)
         function filtrarDespesas(filtro) {
             currentFilter = filtro;
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.filter === filtro);
             });
-            loadMonthData(currentMonth);
+            applyFiltersAndRender();
         }
 
         // Toggle status
