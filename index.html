@@ -1160,21 +1160,35 @@
                     <span class="nav-icon">💼</span>
                     Dashboard Comercial
                 </a>
-                <a href="pages/contas-pagar.html" class="nav-item">
-                    <span class="nav-icon">💳</span>
-                    Contas a Pagar
-                </a>
-                <a href="pages/contas-receber.html" class="nav-item">
+
+                <div class="nav-separator"></div>
+
+                <!-- Menu Gestão Financeira Expansível -->
+                <div class="nav-item nav-item-expandable" data-menu="submenu-gestao" onclick="ThemeManager.toggleSubMenu('submenu-gestao')">
                     <span class="nav-icon">💰</span>
-                    Contas a Receber
-                </a>
-                <a href="pages/dre.html" class="nav-item">
-                    <span class="nav-icon">📈</span>
-                    DRE
-                </a>
-                <a href="pages/gestao.html" class="nav-item" id="menu-gestao-financeira" style="display: none;">
-                    <span class="nav-icon">💳</span>
                     Gestão Financeira
+                    <span class="menu-arrow">▶</span>
+                </div>
+                <div id="submenu-gestao" class="submenu">
+                    <a href="pages/contas-pagar.html" class="nav-item">
+                        <span class="nav-icon">💳</span>
+                        Contas a Pagar
+                    </a>
+                    <a href="pages/contas-receber.html" class="nav-item">
+                        <span class="nav-icon">🤑</span>
+                        Contas a Receber
+                    </a>
+                    <a href="pages/fluxo-caixa.html" class="nav-item">
+                        <span class="nav-icon">📈</span>
+                        Fluxo de Caixa
+                    </a>
+                </div>
+
+                <div class="nav-separator"></div>
+
+                <a href="pages/dre.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    DRE
                 </a>
                 <a href="pages/analiticos.html" class="nav-item">
                     <span class="nav-icon">🔍</span>
