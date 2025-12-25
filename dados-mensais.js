@@ -248,8 +248,9 @@ const dadosMensais = {
         {nome: "Fabinhus Restaurante (Alpha)", valor: 1000.00, status: "A Pagar", origem: "Growth Hub", empresa: "Alpha", novo: true},
         {nome: "Tempero Manero Grill (Alpha)", valor: 1000.00, status: "A Pagar", origem: "Growth Hub", empresa: "Alpha", novo: true},
         {nome: "Super Dupe Hamburgueria BC (Alpha)", valor: 2000.00, status: "A Pagar", empresa: "Alpha", novo: true, mrr: true},
-        // NOVOS DEZEMBRO - TCV Matriz (3k cada - renovação Março)
-        {nome: "Cliente Matriz 1 (Alpha)", valor: 3000.00, status: "A Pagar", origem: "Matriz TCV", empresa: "Alpha", novo: true},
+        // NOVOS DEZEMBRO - TCV Matriz (renovação Março)
+        // Matriz 1 = Churrascaria Paiaguas (TCV 7.5k trimestral, repasse líquido 3.149,75) - PAGO
+        {nome: "Churrascaria Paiaguas (Alpha)", valor: 3149.75, status: "Feito", origem: "Matriz TCV", empresa: "Alpha", novo: true, tcv: 7500},
         {nome: "Cliente Matriz 2 (Alpha)", valor: 3000.00, status: "A Pagar", origem: "Matriz TCV", empresa: "Alpha", novo: true},
         {nome: "Cliente Matriz 3 (Alpha)", valor: 3000.00, status: "A Pagar", origem: "Matriz TCV", empresa: "Alpha", novo: true},
         {nome: "Cliente Matriz 4 (Alpha)", valor: 3000.00, status: "A Pagar", origem: "Matriz TCV", empresa: "Alpha", novo: true}
@@ -319,14 +320,15 @@ const dadosMensais = {
   "2026-01": {
     periodo: "Janeiro 2026",
     receitas: {
-      total: 72333.00,
+      total: 70333.00,
       recebido: 0.00,
-      pendente: 72333.00,
+      pendente: 70333.00,
       taxa_recebimento: 0.0,
       clientes: [
-        // STARKEN (16 clientes) - Base: 19.833 + Bengers + The Garrison
+        // STARKEN (17 clientes) - Base: 19.833 + Bengers + The Garrison + Arena Gourmet
         {nome: "Bengers - App Festival 2/3", valor: 10000.00, status: "A Pagar", empresa: "Starken", projeto: true, parcela: "Janeiro", descricao: "Desenvolvimento App Web Festival"},
         {nome: "The Garrison", valor: 1500.00, status: "A Pagar", empresa: "Starken", novo: true, mrr: true},
+        {nome: "Arena Gourmet", valor: 1000.00, status: "A Pagar", empresa: "Starken", novo: true, mrr: true},
         {nome: "Mortadella Blumenau", valor: 2000.00, status: "A Pagar", empresa: "Starken"},
         {nome: "Mortadella Tabajara", valor: 0.00, status: "Bônus", empresa: "Starken"},
         {nome: "Hamburgueria Feio", valor: 2000.00, status: "A Pagar", empresa: "Starken"},
@@ -346,7 +348,6 @@ const dadosMensais = {
         {nome: "Madrugão Lanches (Alpha)", valor: 2000.00, status: "A Pagar", origem: "Outbound", empresa: "Alpha"},
         {nome: "Saporitto Pizzaria (Alpha)", valor: 1500.00, status: "A Pagar", origem: "Outbound", empresa: "Alpha"},
         {nome: "Fratellis Pizzaria (Alpha)", valor: 2500.00, status: "A Pagar", origem: "Outbound", empresa: "Alpha"},
-        {nome: "Brazza Hamburgueria (Alpha)", valor: 3000.00, status: "A Pagar", empresa: "Alpha"},
         {nome: "Fabinhus Restaurante (Alpha)", valor: 1000.00, status: "A Pagar", origem: "Growth Hub", empresa: "Alpha"},
         {nome: "Tempero Manero Grill (Alpha)", valor: 1000.00, status: "A Pagar", origem: "Growth Hub", empresa: "Alpha"},
         {nome: "Super Dupe Hamburgueria BC (Alpha)", valor: 2000.00, status: "A Pagar", empresa: "Alpha", mrr: true},
@@ -435,14 +436,15 @@ const dadosMensais = {
   "2026-02": {
     periodo: "Fevereiro 2026",
     receitas: {
-      total: 74333.00,
+      total: 72333.00,
       recebido: 0.00,
-      pendente: 74333.00,
+      pendente: 72333.00,
       taxa_recebimento: 0.0,
       clientes: [
-        // STARKEN (16) - 19.833 + Bengers 3/3 + The Garrison
+        // STARKEN (17) - 19.833 + Bengers 3/3 + The Garrison + Arena Gourmet
         {nome: "Bengers - App Festival 3/3", valor: 10000.00, status: "A Pagar", empresa: "Starken", projeto: true, parcela: "Fevereiro", descricao: "Desenvolvimento App Web Festival"},
         {nome: "The Garrison", valor: 1500.00, status: "A Pagar", empresa: "Starken", mrr: true},
+        {nome: "Arena Gourmet", valor: 1000.00, status: "A Pagar", empresa: "Starken", mrr: true},
         {nome: "Mortadella Blumenau", valor: 2000.00, status: "A Pagar", empresa: "Starken"},
         {nome: "Mortadella Tabajara", valor: 0.00, status: "Bônus", empresa: "Starken"},
         {nome: "Hamburgueria Feio", valor: 2000.00, status: "A Pagar", empresa: "Starken"},
@@ -462,7 +464,6 @@ const dadosMensais = {
         {nome: "Madrugão Lanches (Alpha)", valor: 2000.00, status: "A Pagar", empresa: "Alpha"},
         {nome: "Saporitto Pizzaria (Alpha)", valor: 1500.00, status: "A Pagar", empresa: "Alpha"},
         {nome: "Fratellis Pizzaria (Alpha)", valor: 2500.00, status: "A Pagar", empresa: "Alpha"},
-        {nome: "Brazza Hamburgueria (Alpha)", valor: 3000.00, status: "A Pagar", empresa: "Alpha"},
         {nome: "Fabinhus Restaurante (Alpha)", valor: 1000.00, status: "A Pagar", empresa: "Alpha"},
         {nome: "Tempero Manero Grill (Alpha)", valor: 1000.00, status: "A Pagar", empresa: "Alpha"},
         {nome: "Super Dupe Hamburgueria BC (Alpha)", valor: 2000.00, status: "A Pagar", empresa: "Alpha", mrr: true},
@@ -496,16 +497,17 @@ const dadosMensais = {
   "2026-03": {
     periodo: "Março 2026",
     receitas: {
-      total: 81833.00,
+      total: 79833.00,
       recebido: 0.00,
-      pendente: 81833.00,
+      pendente: 79833.00,
       taxa_recebimento: 0.0,
       clientes: [
-        // STARKEN (15) - 19.833 + The Garrison
+        // STARKEN (16) - 19.833 + The Garrison + Arena Gourmet
         {nome: "Starken Base (14 clientes)", valor: 19833.00, status: "A Pagar", empresa: "Starken"},
         {nome: "The Garrison", valor: 1500.00, status: "A Pagar", empresa: "Starken", mrr: true},
-        // ALPHA MRR Acumulado
-        {nome: "Alpha MRR Base (13 clientes)", valor: 25000.00, status: "A Pagar", empresa: "Alpha"},
+        {nome: "Arena Gourmet", valor: 1000.00, status: "A Pagar", empresa: "Starken", mrr: true},
+        // ALPHA MRR Acumulado (sem Brazza)
+        {nome: "Alpha MRR Base (12 clientes)", valor: 22000.00, status: "A Pagar", empresa: "Alpha"},
         {nome: "Alpha Renovações Jan (4)", valor: 8000.00, status: "A Pagar", empresa: "Alpha"},
         {nome: "Alpha Renovações Fev (2)", valor: 4000.00, status: "A Pagar", empresa: "Alpha"},
         // RENOVAÇÕES MARÇO (Maki Toro + Matriz 1-4)
@@ -532,15 +534,16 @@ const dadosMensais = {
   "2026-04": {
     periodo: "Abril 2026",
     receitas: {
-      total: 89833.00,
+      total: 87833.00,
       recebido: 0.00,
-      pendente: 89833.00,
+      pendente: 87833.00,
       taxa_recebimento: 0.0,
       clientes: [
         {nome: "Starken Base (14 clientes)", valor: 19833.00, status: "A Pagar", empresa: "Starken"},
         {nome: "The Garrison", valor: 1500.00, status: "A Pagar", empresa: "Starken", mrr: true},
+        {nome: "Arena Gourmet", valor: 1000.00, status: "A Pagar", empresa: "Starken", mrr: true},
         {nome: "Bengers - App Festival", valor: 2000.00, status: "A Pagar", empresa: "Starken", mrr: true, descricao: "Manutenção App Web Festival"},
-        {nome: "Alpha MRR Acumulado", valor: 53000.00, status: "A Pagar", empresa: "Alpha"},
+        {nome: "Alpha MRR Acumulado (sem Brazza)", valor: 50000.00, status: "A Pagar", empresa: "Alpha"},
         // RENOVAÇÕES ABRIL (Matriz 5-7)
         {nome: "Cliente Matriz 5 (Alpha)", valor: 2000.00, status: "A Pagar", origem: "Renovação MRR", empresa: "Alpha", renovacao: true},
         {nome: "Cliente Matriz 6 (Alpha)", valor: 2000.00, status: "A Pagar", origem: "Renovação MRR", empresa: "Alpha", renovacao: true},
@@ -556,15 +559,16 @@ const dadosMensais = {
   "2026-05": {
     periodo: "Maio 2026",
     receitas: {
-      total: 95833.00,
+      total: 93833.00,
       recebido: 0.00,
-      pendente: 95833.00,
+      pendente: 93833.00,
       taxa_recebimento: 0.0,
       clientes: [
         {nome: "Starken Base (14 clientes)", valor: 19833.00, status: "A Pagar", empresa: "Starken"},
         {nome: "The Garrison", valor: 1500.00, status: "A Pagar", empresa: "Starken", mrr: true},
+        {nome: "Arena Gourmet", valor: 1000.00, status: "A Pagar", empresa: "Starken", mrr: true},
         {nome: "Bengers - App Festival", valor: 2000.00, status: "A Pagar", empresa: "Starken", mrr: true, descricao: "Manutenção App Web Festival"},
-        {nome: "Alpha MRR Acumulado", valor: 59000.00, status: "A Pagar", empresa: "Alpha"},
+        {nome: "Alpha MRR Acumulado (sem Brazza)", valor: 56000.00, status: "A Pagar", empresa: "Alpha"},
         // RENOVAÇÕES MAIO (Matriz 8-10)
         {nome: "Cliente Matriz 8 (Alpha)", valor: 2000.00, status: "A Pagar", origem: "Renovação MRR", empresa: "Alpha", renovacao: true},
         {nome: "Cliente Matriz 9 (Alpha)", valor: 2000.00, status: "A Pagar", origem: "Renovação MRR", empresa: "Alpha", renovacao: true},
@@ -580,15 +584,16 @@ const dadosMensais = {
   "2026-06": {
     periodo: "Junho 2026",
     receitas: {
-      total: 101833.00,
+      total: 99833.00,
       recebido: 0.00,
-      pendente: 101833.00,
+      pendente: 99833.00,
       taxa_recebimento: 0.0,
       clientes: [
         {nome: "Starken Base (14 clientes)", valor: 19833.00, status: "A Pagar", empresa: "Starken"},
         {nome: "The Garrison", valor: 1500.00, status: "A Pagar", empresa: "Starken", mrr: true},
+        {nome: "Arena Gourmet", valor: 1000.00, status: "A Pagar", empresa: "Starken", mrr: true},
         {nome: "Bengers - App Festival", valor: 2000.00, status: "A Pagar", empresa: "Starken", mrr: true, descricao: "Manutenção App Web Festival"},
-        {nome: "Alpha MRR Acumulado", valor: 65000.00, status: "A Pagar", empresa: "Alpha"},
+        {nome: "Alpha MRR Acumulado (sem Brazza)", valor: 62000.00, status: "A Pagar", empresa: "Alpha"},
         // RENOVAÇÕES JUNHO (Matriz 11-13)
         {nome: "Cliente Matriz 11 (Alpha)", valor: 2000.00, status: "A Pagar", origem: "Renovação MRR", empresa: "Alpha", renovacao: true},
         {nome: "Cliente Matriz 12 (Alpha)", valor: 2000.00, status: "A Pagar", origem: "Renovação MRR", empresa: "Alpha", renovacao: true},
@@ -598,36 +603,36 @@ const dadosMensais = {
     despesas: { total: 35869.90, pago: 0.00, pendente: 35869.90, categorias: {} }
   },
 
-  // JULHO - DEZEMBRO 2026 (MRR estabilizado)
-  // MRR Base inclui: Super Dupe, Aseyori, Temakeria + The Garrison + Bengers (Starken)
+  // JULHO - DEZEMBRO 2026 (MRR estabilizado - sem Brazza)
+  // MRR Base inclui: Super Dupe, Aseyori, Temakeria + The Garrison + Bengers + Arena Gourmet (Starken)
   "2026-07": {
     periodo: "Julho 2026",
-    receitas: { total: 101833.00, recebido: 0.00, pendente: 101833.00, taxa_recebimento: 0.0, clientes: [] },
+    receitas: { total: 99833.00, recebido: 0.00, pendente: 99833.00, taxa_recebimento: 0.0, clientes: [] },
     despesas: { total: 35869.90, pago: 0.00, pendente: 35869.90, categorias: {} }
   },
   "2026-08": {
     periodo: "Agosto 2026",
-    receitas: { total: 101833.00, recebido: 0.00, pendente: 101833.00, taxa_recebimento: 0.0, clientes: [] },
+    receitas: { total: 99833.00, recebido: 0.00, pendente: 99833.00, taxa_recebimento: 0.0, clientes: [] },
     despesas: { total: 35869.90, pago: 0.00, pendente: 35869.90, categorias: {} }
   },
   "2026-09": {
     periodo: "Setembro 2026",
-    receitas: { total: 101833.00, recebido: 0.00, pendente: 101833.00, taxa_recebimento: 0.0, clientes: [] },
+    receitas: { total: 99833.00, recebido: 0.00, pendente: 99833.00, taxa_recebimento: 0.0, clientes: [] },
     despesas: { total: 35869.90, pago: 0.00, pendente: 35869.90, categorias: {} }
   },
   "2026-10": {
     periodo: "Outubro 2026",
-    receitas: { total: 101833.00, recebido: 0.00, pendente: 101833.00, taxa_recebimento: 0.0, clientes: [] },
+    receitas: { total: 99833.00, recebido: 0.00, pendente: 99833.00, taxa_recebimento: 0.0, clientes: [] },
     despesas: { total: 35869.90, pago: 0.00, pendente: 35869.90, categorias: {} }
   },
   "2026-11": {
     periodo: "Novembro 2026",
-    receitas: { total: 101833.00, recebido: 0.00, pendente: 101833.00, taxa_recebimento: 0.0, clientes: [] },
+    receitas: { total: 99833.00, recebido: 0.00, pendente: 99833.00, taxa_recebimento: 0.0, clientes: [] },
     despesas: { total: 35869.90, pago: 0.00, pendente: 35869.90, categorias: {} }
   },
   "2026-12": {
     periodo: "Dezembro 2026",
-    receitas: { total: 101833.00, recebido: 0.00, pendente: 101833.00, taxa_recebimento: 0.0, clientes: [] },
+    receitas: { total: 99833.00, recebido: 0.00, pendente: 99833.00, taxa_recebimento: 0.0, clientes: [] },
     despesas: { total: 35869.90, pago: 0.00, pendente: 35869.90, categorias: {} }
   }
 };

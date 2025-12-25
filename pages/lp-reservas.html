@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas + Voucher Antecipado | Starken Tecnologia</title>
+    <meta name="description" content="Transforme reservas em previsibilidade e caixa antecipado. ROI de 800% a 1.500% ao mês. Setup R$ 297 + R$ 97/mês.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Identidade Visual Starken + Gastronomia */
+            --primary-green: #4A6B54;
+            --secondary-green: #7A9B84;
+            --light-green: #B8D4BE;
+            --accent: #f39c12;
+            --accent-dark: #e67e22;
+            --accent-light: #f5b041;
+            /* Cores Gastronômicas */
+            --wine: #722F37;
+            --wine-light: #8B4049;
+            --burgundy: #800020;
+            --cream: #FFFDD0;
+            --warm-gold: #D4AF37;
+            --text-dark: #2c3e50;
+            --text-medium: #4a5568;
+            --text-light: #7f8c8d;
+            --bg-light: #f5f7fa;
+            --bg-green-light: #e8f5e9;
+            --bg-warm: #faf8f5;
+            --white: #ffffff;
+            --border: #e1e8ed;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            background: var(--white);
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            background: var(--white);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            height: 45px;
+            width: auto;
+        }
+
+        .header-cta {
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .header-cta:hover {
+            background: var(--secondary-green);
+            transform: translateY(-2px);
+        }
+
+        /* ============ HERO ============ */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            padding: 140px 20px 80px;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            /* Padrão de talheres e elementos gastronômicos */
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3C!-- Garfo --%3E%3Cpath d='M15 10v15c0 2-1 3-2 3s-2-1-2-3V10h-2v15c0 2-1 3-2 3s-2-1-2-3V10H3v15c0 3 2 5 4 6v19h4V31c2-1 4-3 4-6V10h-2z'/%3E%3C!-- Faca --%3E%3Cpath d='M75 10c-3 0-5 8-5 15 0 5 2 6 4 7v18h2V32c2-1 4-2 4-7 0-7-2-15-5-15z'/%3E%3C!-- Prato --%3E%3Ccircle cx='50' cy='75' r='15' fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='2'/%3E%3Ccircle cx='50' cy='75' r='10' fill='none' stroke='%23ffffff' stroke-opacity='0.03' stroke-width='1'/%3E%3C!-- Taça --%3E%3Cpath d='M85 60c0 5-3 9-7 10v8h-2v-8c-4-1-7-5-7-10 0-6 4-10 8-10s8 4 8 10z' fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.5'/%3E%3Cline x1='78' y1='78' x2='78' y2='85' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.5'/%3E%3Cline x1='74' y1='85' x2='82' y2='85' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1.5'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--light-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .hero h1 {
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 span {
+            color: var(--accent);
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .hero-stat {
+            text-align: left;
+        }
+
+        .hero-stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .hero-stat-label {
+            font-size: 13px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--white);
+            padding: 18px 36px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            padding: 18px 36px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Hero Card */
+        .hero-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+            color: var(--text-dark);
+        }
+
+        .hero-card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .hero-card-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary-green);
+        }
+
+        .hero-card-header p {
+            color: var(--text-medium);
+            font-size: 14px;
+        }
+
+        .hero-card-price {
+            text-align: center;
+            padding: 24px;
+            background: var(--bg-green-light);
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .price-setup {
+            font-size: 14px;
+            color: var(--text-medium);
+            margin-bottom: 8px;
+        }
+
+        .price-main {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-green);
+        }
+
+        .price-main span {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-medium);
+        }
+
+        .price-period {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .hero-card-features {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .hero-card-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+
+        .hero-card-features li:last-child {
+            border-bottom: none;
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .hero-card-cta {
+            display: block;
+            width: 100%;
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .hero-card-cta:hover {
+            background: var(--secondary-green);
+            transform: translateY(-2px);
+        }
+
+        /* ============ RESTAURANT ICONS STRIP ============ */
+        .restaurant-strip {
+            background: var(--bg-warm);
+            padding: 20px 0;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(114, 47, 55, 0.1);
+        }
+
+        .restaurant-icons {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .restaurant-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .restaurant-icon-item:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .restaurant-icon-item .icon {
+            font-size: 32px;
+        }
+
+        .restaurant-icon-item span {
+            font-size: 11px;
+            color: var(--wine);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* ============ TRUST BAR ============ */
+        .trust-bar {
+            background: var(--bg-light);
+            padding: 30px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .trust-bar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-medium);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .trust-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--white);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* ============ PROBLEMA ============ */
+        .problema {
+            padding: 80px 20px;
+            background: var(--white);
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-green-light);
+            color: var(--primary-green);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-badge.wine {
+            background: linear-gradient(135deg, #fdf2f4, #fce8eb);
+            color: var(--wine);
+            border: 1px solid rgba(114, 47, 55, 0.15);
+        }
+
+        .section-badge::before {
+            content: '🍴';
+            font-size: 14px;
+        }
+
+        .section-badge.success::before {
+            content: '✨';
+        }
+
+        .section-badge.case::before {
+            content: '🏆';
+        }
+
+        .section-badge.calc::before {
+            content: '📊';
+        }
+
+        .section-badge.price::before {
+            content: '💰';
+        }
+
+        .section-badge.target::before {
+            content: '🎯';
+        }
+
+        .section-title {
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--primary-green);
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-medium);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .problema-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .problema-card {
+            background: var(--bg-light);
+            border-radius: 16px;
+            padding: 32px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .problema-card:hover {
+            border-color: var(--danger);
+            transform: translateY(-4px);
+        }
+
+        .problema-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .problema-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .problema-card p {
+            font-size: 15px;
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+
+        .problema-value {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--border);
+            font-size: 14px;
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        /* ============ BENEFICIOS ============ */
+        .benefícios {
+            padding: 80px 20px;
+            background: var(--bg-green-light);
+        }
+
+        .benefícios-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .benefício-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 36px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .benefício-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .benefício-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 20px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .benefício-content h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .benefício-content p {
+            font-size: 15px;
+            color: var(--text-medium);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .benefício-value {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-green-light);
+            color: var(--success);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* ============ ROI CALCULATOR ============ */
+        .roi-section {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--white);
+        }
+
+        .roi-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .roi-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .roi-header h2 {
+            font-size: 40px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .roi-header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .roi-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 50px;
+            color: var(--text-dark);
+        }
+
+        .roi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .roi-item {
+            text-align: center;
+            padding: 24px;
+            background: var(--bg-light);
+            border-radius: 12px;
+        }
+
+        .roi-item-label {
+            font-size: 13px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .roi-item-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary-green);
+        }
+
+        .roi-item-value.positive {
+            color: var(--success);
+        }
+
+        .roi-item-value.highlight {
+            color: var(--accent);
+        }
+
+        .roi-summary {
+            background: linear-gradient(135deg, var(--bg-green-light), var(--light-green));
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .roi-summary h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .roi-summary .big-number {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--primary-green);
+        }
+
+        .roi-summary p {
+            font-size: 14px;
+            color: var(--text-medium);
+            margin-top: 8px;
+        }
+
+        /* ============ CASE DE SUCESSO ============ */
+        .case-section {
+            padding: 80px 20px;
+            background: var(--white);
+            overflow: hidden;
+        }
+
+        .case-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .case-content {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        @media (max-width: 1024px) {
+            .case-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        .case-text h2 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary-green);
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .case-text h2 span {
+            color: var(--accent);
+        }
+
+        .case-text > p {
+            font-size: 16px;
+            color: var(--text-medium);
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+
+        .case-client {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+
+        .case-client-logo {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #C2185B, #BA68C8);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .case-client-info h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .case-client-info p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .case-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .case-metric {
+            background: linear-gradient(135deg, var(--bg-green-light), #d1fae5);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--light-green);
+        }
+
+        .case-metric-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary-green);
+            margin-bottom: 4px;
+        }
+
+        .case-metric-label {
+            font-size: 12px;
+            color: var(--text-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .case-features {
+            list-style: none;
+        }
+
+        .case-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 14px;
+            color: var(--text-medium);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .case-features li:last-child {
+            border-bottom: none;
+        }
+
+        .case-features .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--primary-green);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Mockup de celular */
+        .case-visual {
+            position: relative;
+        }
+
+        .phone-mockup {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .phone-frame {
+            background: #1a1a1a;
+            border-radius: 36px;
+            padding: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            position: relative;
+        }
+
+        .phone-frame.main {
+            transform: scale(1);
+            z-index: 2;
+        }
+
+        .phone-frame.secondary {
+            transform: scale(0.85);
+            opacity: 0.9;
+            z-index: 1;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 24px;
+            background: #1a1a1a;
+            border-radius: 0 0 14px 14px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 220px;
+            height: 440px;
+            border-radius: 28px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #C2185B 0%, #BA68C8 100%);
+        }
+
+        .phone-screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top;
+        }
+
+        .phone-content {
+            padding: 40px 16px 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .phone-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .phone-logo {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .phone-title {
+            font-size: 11px;
+            color: white;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .phone-voucher {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .voucher-badge {
+            display: inline-block;
+            background: #ff4444;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .voucher-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .voucher-price {
+            font-size: 22px;
+            font-weight: 800;
+            color: #FFD700;
+        }
+
+        .voucher-desc {
+            font-size: 10px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 6px;
+        }
+
+        .case-badge-live {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+            z-index: 10;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .phone-mockup {
+                flex-direction: column;
+                align-items: center;
+            }
+            .phone-frame.secondary {
+                display: none;
+            }
+            .phone-screen {
+                width: 200px;
+                height: 400px;
+            }
+        }
+
+        /* ============ PRECOS ============ */
+        .precos {
+            padding: 80px 20px;
+            background: var(--white);
+        }
+
+        /* ============ CARDS DE PLANOS MODERNOS ============ */
+        .precos-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            align-items: stretch;
+        }
+
+        @media (max-width: 1024px) {
+            .precos-grid {
+                grid-template-columns: 1fr;
+                max-width: 380px;
+            }
+        }
+
+        .preco-card {
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(74, 107, 84, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(74, 107, 84, 0.1);
+        }
+
+        .preco-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(74, 107, 84, 0.15);
+        }
+
+        .preco-card.destaque {
+            border: 2px solid var(--primary-green);
+            transform: scale(1.03);
+            z-index: 2;
+        }
+
+        .preco-card.destaque:hover {
+            transform: scale(1.03) translateY(-8px);
+        }
+
+        .preco-card.anual {
+            background: linear-gradient(180deg, #fffbeb 0%, var(--white) 30%);
+            border: 2px solid var(--accent);
+        }
+
+        /* Header do Card */
+        .preco-header {
+            padding: 28px 24px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .preco-card.destaque .preco-header {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--white);
+            padding: 32px 24px 24px;
+        }
+
+        .preco-card.anual .preco-header {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: var(--white);
+            padding: 32px 24px 24px;
+        }
+
+        .preco-badge {
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 6px 20px;
+            border-radius: 0 0 12px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preco-badge.gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .preco-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .preco-card.destaque h3,
+        .preco-card.anual h3 {
+            color: var(--white);
+        }
+
+        .preco-economia {
+            background: rgba(255,255,255,0.25);
+            color: var(--white);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .preco-card:not(.destaque):not(.anual) .preco-economia {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .preco-desc {
+            font-size: 13px;
+            opacity: 0.85;
+            margin: 0;
+        }
+
+        .preco-card.destaque .preco-desc,
+        .preco-card.anual .preco-desc {
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Corpo do Card */
+        .preco-body {
+            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setup-tag {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .setup-gratis {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #15803d;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid #86efac;
+        }
+
+        .setup-pago {
+            display: inline-block;
+            color: var(--text-light);
+            font-size: 13px;
+            padding: 8px 0;
+        }
+
+        /* Preço */
+        .preco-valor {
+            text-align: center;
+            padding: 16px 0;
+            margin-bottom: 20px;
+            background: var(--bg-light);
+            border-radius: 16px;
+        }
+
+        .preco-original {
+            text-decoration: line-through;
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .preco-principal {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .preco-valor .moeda {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-top: 8px;
+        }
+
+        .preco-valor .numero {
+            font-size: 52px;
+            font-weight: 800;
+            color: var(--primary-green);
+            line-height: 1;
+        }
+
+        .preco-periodo {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        /* Features */
+        .preco-features {
+            list-style: none;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .preco-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            font-size: 14px;
+            color: var(--text-medium);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .preco-features li:last-child {
+            border-bottom: none;
+        }
+
+        .preco-features .check-icon {
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+        }
+
+        /* Bonus Card */
+        .preco-bonus {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #fbbf24;
+            color: #92400e;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .preco-bonus-icon {
+            font-size: 18px;
+        }
+
+        /* Footer do Card */
+        .preco-footer {
+            padding: 0 24px 24px;
+        }
+
+        .preco-cta {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .preco-cta.outline {
+            background: transparent;
+            color: var(--primary-green);
+            border: 2px solid var(--primary-green);
+        }
+
+        .preco-cta.outline:hover {
+            background: var(--primary-green);
+            color: var(--white);
+        }
+
+        .preco-cta.primary {
+            background: var(--primary-green);
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(74, 107, 84, 0.3);
+        }
+
+        .preco-cta.primary:hover {
+            background: var(--secondary-green);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 107, 84, 0.4);
+        }
+
+        .preco-cta.gold {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(243, 156, 18, 0.3);
+        }
+
+        .preco-cta.gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .preco-garantia {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* ============ ICP ============ */
+        .icp {
+            padding: 80px 20px;
+            background: var(--bg-light);
+        }
+
+        .icp-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .icp-text h2 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary-green);
+            margin-bottom: 20px;
+        }
+
+        .icp-text p {
+            font-size: 16px;
+            color: var(--text-medium);
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+
+        .icp-checklist {
+            list-style: none;
+        }
+
+        .icp-checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--light-green);
+        }
+
+        .icp-checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .icp-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .icp-checklist h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .icp-checklist p {
+            font-size: 14px;
+            color: var(--text-medium);
+            margin: 0;
+        }
+
+        .icp-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .icp-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .icp-signals {
+            list-style: none;
+        }
+
+        .icp-signals li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-green-light);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--text-dark);
+            font-style: italic;
+            transition: all 0.3s ease;
+        }
+
+        .icp-signals li:hover {
+            background: var(--light-green);
+            transform: translateX(4px);
+        }
+
+        .icp-signals li:last-child {
+            margin-bottom: 0;
+        }
+
+        .signal-icon {
+            font-size: 20px;
+        }
+
+        /* ============ CTA FINAL ============ */
+        .cta-final {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: var(--white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-final::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .cta-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-final h2 {
+            font-size: 44px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .cta-final p {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .cta-final .btn-primary {
+            font-size: 18px;
+            padding: 20px 48px;
+        }
+
+        .cta-garantia {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .garantia-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .garantia-icon {
+            font-size: 20px;
+        }
+
+        /* ============ RESTAURANT DIVIDER ============ */
+        .restaurant-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px 20px;
+            background: var(--bg-warm);
+        }
+
+        .restaurant-divider .line {
+            flex: 1;
+            max-width: 150px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--wine), transparent);
+        }
+
+        .restaurant-divider .icons {
+            display: flex;
+            gap: 15px;
+            font-size: 24px;
+            opacity: 0.5;
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: linear-gradient(180deg, #1a1a1a 0%, var(--text-dark) 100%);
+            color: var(--white);
+            padding: 60px 20px 30px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-green), var(--wine), var(--accent));
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-main {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer-brand h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--light-green);
+        }
+
+        .footer-brand p {
+            font-size: 14px;
+            opacity: 0.7;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: var(--light-green);
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col li {
+            margin-bottom: 12px;
+        }
+
+        .footer-col a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-col a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            opacity: 0.6;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1024px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 40px;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .hero-cta-group {
+                justify-content: center;
+            }
+
+            .hero-card {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+
+            .problema-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .benefícios-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .roi-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .precos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .icp-content {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-main {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .hero {
+                padding: 120px 20px 60px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .hero-cta-group {
+                flex-direction: column;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .trust-bar-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .roi-card {
+                padding: 30px;
+            }
+
+            .cta-final h2 {
+                font-size: 28px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="../logo-starken.png" alt="Starken Tecnologia" class="logo-img">
+            </div>
+            <a href="#contato" class="header-cta">Falar com Consultor</a>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span class="hero-badge-dot"></span>
+                    Solução para Restaurantes
+                </div>
+                <h1>Transforme Reservas em <span>Caixa Antecipado</span></h1>
+                <p class="hero-subtitle">Sistema completo de reservas com voucher antecipado. Elimine no-shows, aumente ocupação em 30% e receba antes mesmo do cliente chegar.</p>
+                
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">800%</div>
+                        <div class="hero-stat-label">ROI Médio</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">-80%</div>
+                        <div class="hero-stat-label">No-Shows</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">+30%</div>
+                        <div class="hero-stat-label">Ocupação</div>
+                    </div>
+                </div>
+
+                <div class="hero-cta-group">
+                    <a href="#precos" class="btn-primary">
+                        Começar Agora
+                        <span>-></span>
+                    </a>
+                    <a href="#benefícios" class="btn-secondary">Ver Benefícios</a>
+                </div>
+            </div>
+
+            <div class="hero-card">
+                <div class="hero-card-header">
+                    <h3>Sistema de Reservas</h3>
+                    <p>+ Voucher Antecipado</p>
+                </div>
+                <div class="hero-card-price">
+                    <p class="price-setup">Setup único: R$ 297</p>
+                    <p class="price-main">R$ 97<span>/mês</span></p>
+                    <p class="price-period">Sem taxa por transação</p>
+                </div>
+                <ul class="hero-card-features">
+                    <li>
+                        <span class="check-icon">&#10003;</span>
+                        Reservas 24/7 online automáticas
+                    </li>
+                    <li>
+                        <span class="check-icon">&#10003;</span>
+                        Pagamento antecipado integrado
+                    </li>
+                    <li>
+                        <span class="check-icon">&#10003;</span>
+                        Redução de 80% em no-shows
+                    </li>
+                    <li>
+                        <span class="check-icon">&#10003;</span>
+                        Dashboard completo de gestão
+                    </li>
+                    <li>
+                        <span class="check-icon">&#10003;</span>
+                        Suporte dedicado incluso
+                    </li>
+                </ul>
+                <a href="#contato" class="hero-card-cta">Quero Começar</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Restaurant Icons Strip -->
+    <section class="restaurant-strip">
+        <div class="restaurant-icons">
+            <div class="restaurant-icon-item">
+                <span class="icon">🍽️</span>
+                <span>Fine Dining</span>
+            </div>
+            <div class="restaurant-icon-item">
+                <span class="icon">🍕</span>
+                <span>Pizzarias</span>
+            </div>
+            <div class="restaurant-icon-item">
+                <span class="icon">🍣</span>
+                <span>Japonês</span>
+            </div>
+            <div class="restaurant-icon-item">
+                <span class="icon">🥩</span>
+                <span>Churrascarias</span>
+            </div>
+            <div class="restaurant-icon-item">
+                <span class="icon">🍷</span>
+                <span>Wine Bars</span>
+            </div>
+            <div class="restaurant-icon-item">
+                <span class="icon">☕</span>
+                <span>Bistrôs</span>
+            </div>
+            <div class="restaurant-icon-item">
+                <span class="icon">🌮</span>
+                <span>Mexicano</span>
+            </div>
+            <div class="restaurant-icon-item">
+                <span class="icon">🍝</span>
+                <span>Italiano</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Bar -->
+    <section class="trust-bar">
+        <div class="trust-bar-container">
+            <div class="trust-item">
+                <div class="trust-icon">&#127860;</div>
+                <span>Target: 30-150 lugares</span>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">&#128176;</div>
+                <span>Faturamento: R$ 50-300k/mês</span>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">&#128197;</div>
+                <span>Min. 20-30 reservas/semana</span>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">&#9201;</div>
+                <span>Setup em 24h</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problema -->
+    <section class="problema">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge wine">O Problema</span>
+                <h2 class="section-title">Você Está Perdendo Dinheiro<br>Sem Perceber</h2>
+                <p class="section-subtitle">Esses problemas parecem familiares? Veja quanto eles custam por mês.</p>
+            </div>
+
+            <div class="problema-grid">
+                <div class="problema-card">
+                    <div class="problema-icon">&#128683;</div>
+                    <h3>No-Shows Constantes</h3>
+                    <p>Clientes reservam e não aparecem. Você comprou insumos, preparou equipe, e a mesa ficou vazia.</p>
+                    <div class="problema-value">Prejuízo: R$ 1.600 a R$ 4.000/mês</div>
+                </div>
+                <div class="problema-card">
+                    <div class="problema-icon">&#128222;</div>
+                    <h3>Equipe Sobrecarregada</h3>
+                    <p>Funcionários gastam horas atendendo telefone e WhatsApp para reservas em vez de atender clientes.</p>
+                    <div class="problema-value">Custo oculto: R$ 800 a R$ 1.500/mês</div>
+                </div>
+                <div class="problema-card">
+                    <div class="problema-icon">&#128564;</div>
+                    <h3>Reservas Perdidas</h3>
+                    <p>Clientes ligam fora do horário, não conseguem contato e vão para a concorrência.</p>
+                    <div class="problema-value">Receita perdida: R$ 3.000 a R$ 8.000/mês</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefícios -->
+    <section class="benefícios" id="benefícios">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge success">A Solução</span>
+                <h2 class="section-title">Resultados Reais em<br>Menos de 30 Dias</h2>
+                <p class="section-subtitle">Transformamos features técnicas em resultados financeiros que você sente no caixa.</p>
+            </div>
+
+            <div class="benefícios-grid">
+                <div class="benefício-card">
+                    <div class="benefício-number">1</div>
+                    <div class="benefício-content">
+                        <h3>Aumento de Ocupação até 30%</h3>
+                        <p>Capture clientes que desistem quando não conseguem reservar rapidamente. Reservas 24/7, sem depender de ninguém.</p>
+                        <div class="benefício-value">
+                            <span>+</span> R$ 3.000 a R$ 8.000/mês
+                        </div>
+                    </div>
+                </div>
+                <div class="benefício-card">
+                    <div class="benefício-number">2</div>
+                    <div class="benefício-content">
+                        <h3>Economia de 60 Horas/Mês</h3>
+                        <p>Elimine ligações e mensagens de reserva. Redirecione sua equipe para atender quem já está gastando no salão.</p>
+                        <div class="benefício-value">
+                            <span>+</span> R$ 800 a R$ 1.500/mês
+                        </div>
+                    </div>
+                </div>
+                <div class="benefício-card">
+                    <div class="benefício-number">3</div>
+                    <div class="benefício-content">
+                        <h3>Antecipação de R$ 15-50k/Mês</h3>
+                        <p>Melhore fluxo de caixa recebendo vouchers antecipadamente. Pague fornecedores à vista com desconto.</p>
+                        <div class="benefício-value">
+                            <span>+</span> Capital de Giro Instantâneo
+                        </div>
+                    </div>
+                </div>
+                <div class="benefício-card">
+                    <div class="benefício-number">4</div>
+                    <div class="benefício-content">
+                        <h3>Redução de No-Show em 80%</h3>
+                        <p>Com voucher, quem reserva TEM PELE NO JOGO. Planeje com segurança e pare de jogar comida e dinheiro fora.</p>
+                        <div class="benefício-value">
+                            <span>+</span> R$ 1.600 a R$ 4.000/mês
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case de Sucesso -->
+    <section class="case-section" id="case">
+        <div class="case-container">
+            <div class="section-header">
+                <span class="section-badge case">Case de Sucesso</span>
+                <h2 class="section-title">Sistema Completo<br>em Produção</h2>
+                <p class="section-subtitle">Reservas + Vouchers integrados funcionando 24/7 em restaurante real.</p>
+            </div>
+
+            <div class="case-content">
+                <div class="case-text">
+                    <div class="case-client">
+                        <div class="case-client-logo">&#127860;</div>
+                        <div class="case-client-info">
+                            <h4>Restaurante Premium</h4>
+                            <p>80 lugares - Gastronomia Temática - SC</p>
+                        </div>
+                    </div>
+
+                    <div class="case-metrics">
+                        <div class="case-metric">
+                            <div class="case-metric-value">+200</div>
+                            <div class="case-metric-label">Reservas/mês</div>
+                        </div>
+                        <div class="case-metric">
+                            <div class="case-metric-value">R$ 15k</div>
+                            <div class="case-metric-label">Antecipado/mês</div>
+                        </div>
+                        <div class="case-metric">
+                            <div class="case-metric-value">-85%</div>
+                            <div class="case-metric-label">No-Shows</div>
+                        </div>
+                        <div class="case-metric">
+                            <div class="case-metric-value">60h</div>
+                            <div class="case-metric-label">Economizadas</div>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 14px; color: var(--primary-green); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Sistema de Reservas</h4>
+                    <ul class="case-features" style="margin-bottom: 24px;">
+                        <li>
+                            <span class="feature-icon">&#128197;</span>
+                            Reservas online 24/7 com seleção de data e horário
+                        </li>
+                        <li>
+                            <span class="feature-icon">&#128176;</span>
+                            Pagamento antecipado PIX/Cartão (Asaas)
+                        </li>
+                        <li>
+                            <span class="feature-icon">&#128241;</span>
+                            Confirmação automática por WhatsApp + Email
+                        </li>
+                    </ul>
+
+                    <h4 style="font-size: 14px; color: var(--primary-green); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Sistema de Vouchers</h4>
+                    <ul class="case-features">
+                        <li>
+                            <span class="feature-icon">&#127915;</span>
+                            7 tipos de vouchers (promoções + clássicos)
+                        </li>
+                        <li>
+                            <span class="feature-icon">&#128196;</span>
+                            PDF com QR Code gerado automáticamente
+                        </li>
+                        <li>
+                            <span class="feature-icon">&#9989;</span>
+                            Validação pelo admin no restaurante
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="case-visual">
+                    <div class="case-badge-live">
+                        <span class="live-dot"></span>
+                        Sistema Ativo
+                    </div>
+                    <div class="phone-mockup">
+                        <div class="phone-frame main">
+                            <div class="phone-notch"></div>
+                            <div class="phone-screen" style="background: linear-gradient(180deg, var(--primary-green) 0%, var(--secondary-green) 100%);">
+                                <div class="phone-content">
+                                    <div class="phone-header">
+                                        <div class="phone-logo">&#128197;</div>
+                                        <div class="phone-title">Reservas Online</div>
+                                    </div>
+                                    <div class="phone-voucher" style="background: rgba(255,255,255,0.15);">
+                                        <div style="font-size: 11px; color: rgba(255,255,255,0.8); margin-bottom: 8px;">SELECIONE A DATA</div>
+                                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                            <div style="background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 8px; font-size: 12px; color: white;">Sex 20</div>
+                                            <div style="background: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; color: var(--primary-green); font-weight: 700;">Sáb 21</div>
+                                            <div style="background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 8px; font-size: 12px; color: white;">Dom 22</div>
+                                        </div>
+                                        <div style="font-size: 11px; color: rgba(255,255,255,0.8); margin-bottom: 8px;">HORÁRIO</div>
+                                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                            <div style="background: rgba(255,255,255,0.2); padding: 6px 10px; border-radius: 6px; font-size: 11px; color: white;">19:00</div>
+                                            <div style="background: white; padding: 6px 10px; border-radius: 6px; font-size: 11px; color: var(--primary-green); font-weight: 700;">20:00</div>
+                                            <div style="background: rgba(255,255,255,0.2); padding: 6px 10px; border-radius: 6px; font-size: 11px; color: white;">21:00</div>
+                                        </div>
+                                    </div>
+                                    <div class="phone-voucher" style="background: rgba(255,255,255,0.15);">
+                                        <div style="font-size: 11px; color: rgba(255,255,255,0.8); margin-bottom: 6px;">PESSOAS</div>
+                                        <div style="display: flex; align-items: center; justify-content: center; gap: 16px;">
+                                            <div style="width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">-</div>
+                                            <div style="font-size: 24px; font-weight: 800; color: white;">4</div>
+                                            <div style="width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">+</div>
+                                        </div>
+                                    </div>
+                                    <div style="background: white; padding: 12px; border-radius: 10px; text-align: center; margin-top: auto;">
+                                        <div style="font-size: 11px; color: var(--text-light);">VALOR DA RESERVA</div>
+                                        <div style="font-size: 20px; font-weight: 800; color: var(--primary-green);">R$ 50,00</div>
+                                        <div style="font-size: 10px; color: var(--text-light);">Retorna 100% em consumação</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="phone-frame secondary">
+                            <div class="phone-notch"></div>
+                            <div class="phone-screen" style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);">
+                                <div class="phone-content">
+                                    <div class="phone-header">
+                                        <div class="phone-logo">&#127915;</div>
+                                        <div class="phone-title">Vouchers</div>
+                                    </div>
+                                    <div class="phone-voucher" style="background: linear-gradient(135deg, #ff6b00, #ff9500); border: 2px solid #FFD700;">
+                                        <div class="voucher-badge">BLACK NOVEMBER</div>
+                                        <div class="voucher-name">Combo em Dobro</div>
+                                        <div class="voucher-price">R$ 45,00</div>
+                                        <div class="voucher-desc">Pague 1, leve 2!</div>
+                                    </div>
+                                    <div class="phone-voucher" style="background: linear-gradient(135deg, #C2185B, #9C27B0);">
+                                        <div class="voucher-badge" style="background: #FFD700; color: #1a1a1a;">OFERTA</div>
+                                        <div class="voucher-name">Crédito Dobrado</div>
+                                        <div class="voucher-price">R$ 100 &#8594; R$ 200</div>
+                                        <div class="voucher-desc">Dobre seu dinheiro!</div>
+                                    </div>
+                                    <div style="text-align: center; margin-top: 12px;">
+                                        <div style="background: #FFD700; color: #1a1a1a; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 12px;">
+                                            &#128293; COMPRAR AGORA
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI Calculator -->
+    <section class="roi-section">
+        <div class="roi-container">
+            <div class="roi-header">
+                <h2>Faça as Contas</h2>
+                <p>Investimento vs. Retorno - Matemática simples</p>
+            </div>
+
+            <div class="roi-card">
+                <div class="roi-grid">
+                    <div class="roi-item">
+                        <div class="roi-item-label">Seu Investimento</div>
+                        <div class="roi-item-value">R$ 97</div>
+                        <small style="color: var(--text-light);">/mês</small>
+                    </div>
+                    <div class="roi-item">
+                        <div class="roi-item-label">Economia Mínima</div>
+                        <div class="roi-item-value positive">R$ 800</div>
+                        <small style="color: var(--text-light);">/mês</small>
+                    </div>
+                    <div class="roi-item">
+                        <div class="roi-item-label">Economia Máxima</div>
+                        <div class="roi-item-value highlight">R$ 1.500</div>
+                        <small style="color: var(--text-light);">/mês</small>
+                    </div>
+                </div>
+
+                <div class="roi-summary">
+                    <h4>Retorno Sobre Investimento</h4>
+                    <div class="big-number">800% a 1.500%</div>
+                    <p>Por R$ 97/mês você elimina um custo que está escondido na folha</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Preços -->
+    <section class="precos" id="precos">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge price">Investimento</span>
+                <h2 class="section-title">Preço Justo,<br>Resultado Garantido</h2>
+                <p class="section-subtitle">Sem surpresas, sem taxas escondidas. Valor fixo que cabe no orçamento.</p>
+            </div>
+
+            <div class="precos-grid">
+                <!-- Plano Mensal -->
+                <div class="preco-card">
+                    <div class="preco-header">
+                        <h3>Mensal</h3>
+                        <p class="preco-desc">Flexibilidade para testar</p>
+                    </div>
+                    <div class="preco-body">
+                        <div class="setup-tag">
+                            <span class="setup-pago">+ R$ 297 implementação</span>
+                        </div>
+                        <div class="preco-valor">
+                            <div class="preco-principal">
+                                <span class="moeda">R$</span>
+                                <span class="numero">97</span>
+                            </div>
+                            <p class="preco-periodo">/mês</p>
+                        </div>
+                        <ul class="preco-features">
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Reservas ilimitadas 24/7
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Dashboard de gestão
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Suporte por email
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Sem taxa por transação
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="preco-footer">
+                        <a href="#contato" class="preco-cta outline">Começar Agora</a>
+                        <p class="preco-garantia">&#128274; Cancele quando quiser</p>
+                    </div>
+                </div>
+
+                <!-- Plano Semestral -->
+                <div class="preco-card destaque">
+                    <span class="preco-badge">Mais Popular</span>
+                    <div class="preco-header">
+                        <h3>Semestral <span class="preco-economia">-18%</span></h3>
+                        <p class="preco-desc">Melhor custo-benefício</p>
+                    </div>
+                    <div class="preco-body">
+                        <div class="setup-tag">
+                            <span class="setup-gratis">&#10003; Setup GRATIS</span>
+                        </div>
+                        <div class="preco-valor">
+                            <p class="preco-original">De R$ 879</p>
+                            <div class="preco-principal">
+                                <span class="moeda">R$</span>
+                                <span class="numero">477</span>
+                            </div>
+                            <p class="preco-periodo">à vista ou 6x R$ 79,50</p>
+                        </div>
+                        <ul class="preco-features">
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Tudo do plano Mensal
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Implementação inclusa
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Suporte prioritário
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Treinamento da equipe
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="preco-footer">
+                        <a href="#contato" class="preco-cta primary">Quero Economizar</a>
+                        <p class="preco-garantia">&#127775; Economize R$ 402</p>
+                    </div>
+                </div>
+
+                <!-- Plano Anual -->
+                <div class="preco-card anual">
+                    <span class="preco-badge gold">Melhor Oferta</span>
+                    <div class="preco-header">
+                        <h3>Anual <span class="preco-economia">-31%</span></h3>
+                        <p class="preco-desc">Máximo de economia</p>
+                    </div>
+                    <div class="preco-body">
+                        <div class="setup-tag">
+                            <span class="setup-gratis">&#10003; Setup GRATIS</span>
+                        </div>
+                        <div class="preco-valor">
+                            <p class="preco-original">De R$ 1.461</p>
+                            <div class="preco-principal">
+                                <span class="moeda">R$</span>
+                                <span class="numero">797</span>
+                            </div>
+                            <p class="preco-periodo">à vista ou 12x R$ 66,42</p>
+                        </div>
+                        <ul class="preco-features">
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Tudo do Semestral
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Suporte VIP WhatsApp
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Consultoria mensal
+                            </li>
+                            <li>
+                                <span class="check-icon">&#10003;</span>
+                                Relatórios avançados
+                            </li>
+                        </ul>
+                        <div class="preco-bonus">
+                            <span class="preco-bonus-icon">&#127873;</span>
+                            2 meses grátis (pague 10, use 12)
+                        </div>
+                    </div>
+                    <div class="preco-footer">
+                        <a href="#contato" class="preco-cta gold">Aproveitar Oferta</a>
+                        <p class="preco-garantia">&#128640; Economize R$ 664</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ICP -->
+    <section class="icp">
+        <div class="section-container">
+            <div class="section-header" style="margin-bottom: 40px;">
+                <span class="section-badge target">Perfil Ideal</span>
+            </div>
+            <div class="icp-content">
+                <div class="icp-text">
+                    <h2>Para Quem é<br>Esse Sistema?</h2>
+                    <p>Nosso sistema foi desenhado para restaurantes que já têm demanda e precisam de previsibilidade. Se você se encaixa no perfil abaixo, temos um match perfeito.</p>
+                    
+                    <ul class="icp-checklist">
+                        <li>
+                            <div class="icp-icon">&#127860;</div>
+                            <div>
+                                <h4>30 a 150 lugares</h4>
+                                <p>Restaurantes de porte médio com operação estruturada</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="icp-icon">&#128176;</div>
+                            <div>
+                                <h4>R$ 50k a R$ 300k/mês</h4>
+                                <p>Faturamento consistente que justifica automação</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="icp-icon">&#128197;</div>
+                            <div>
+                                <h4>20-30 reservas/semana</h4>
+                                <p>Volume mínimo para ROI expressivo</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="icp-icon">&#127775;</div>
+                            <div>
+                                <h4>Segmento Premium</h4>
+                                <p>Alta gastronomia, temáticos, casual premium, bistros</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="icp-card">
+                    <h3>Sinais de Cliente Perfeito</h3>
+                    <ul class="icp-signals">
+                        <li>
+                            <span class="signal-icon">&#128172;</span>
+                            "Sempre tem fila nos finais de semana"
+                        </li>
+                        <li>
+                            <span class="signal-icon">&#128172;</span>
+                            "Perdemos clientes que não conseguem ligar"
+                        </li>
+                        <li>
+                            <span class="signal-icon">&#128172;</span>
+                            "O no-show está me matando"
+                        </li>
+                        <li>
+                            <span class="signal-icon">&#128172;</span>
+                            "WhatsApp fica lotado de reserva"
+                        </li>
+                        <li>
+                            <span class="signal-icon">&#128172;</span>
+                            "Não sei quantas pessoas vão aparecer"
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section class="cta-final" id="contato">
+        <div class="cta-container">
+            <h2>Pronto para Transformar<br>Seu Restaurante?</h2>
+            <p>Nosso sistema transforma reservas em máquina de previsibilidade e caixa antecipado. Você economiza até R$ 1.500/mês em custo operacional.</p>
+            
+            <a href="https://wa.me/5547992752697?text=Olá! Tenho interesse no Sistema de Reservas + Voucher" target="_blank" class="btn-primary">
+                Falar com Consultor no WhatsApp
+                <span>-></span>
+            </a>
+
+            <div class="cta-garantia">
+                <div class="garantia-item">
+                    <span class="garantia-icon">&#128274;</span>
+                    <span>Pagamento Seguro</span>
+                </div>
+                <div class="garantia-item">
+                    <span class="garantia-icon">&#9989;</span>
+                    <span>Setup em 24h</span>
+                </div>
+                <div class="garantia-item">
+                    <span class="garantia-icon">&#128222;</span>
+                    <span>Suporte Dedicado</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Restaurant Divider -->
+    <div class="restaurant-divider">
+        <span class="line"></span>
+        <div class="icons">
+            <span>🍴</span>
+            <span>🍷</span>
+            <span>🍽️</span>
+        </div>
+        <span class="line"></span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <h3>🍴 Starken Tecnologia Ltda</h3>
+                    <p>Especialistas em tecnologia para restaurantes. Sistema de reservas, vouchers e automação que transformam a gestão gastronômica com resultados reais.</p>
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <span style="font-size: 24px;">🍽️</span>
+                        <span style="font-size: 24px;">🍷</span>
+                        <span style="font-size: 24px;">🥂</span>
+                        <span style="font-size: 24px;">👨‍🍳</span>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Sistema</h4>
+                    <ul>
+                        <li><a href="#benefícios">Benefícios</a></li>
+                        <li><a href="#precos">Preços</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li><a href="mailto:contato@starkentecnologia.com.br">contato@starkentecnologia.com.br</a></li>
+                        <li><a href="tel:+5547992752697">(47) 99275-2697</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2025 Starken Tecnologia. Todos os direitos reservados.</span>
+                <span>CNPJ: 62.839.769/0001-55</span>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

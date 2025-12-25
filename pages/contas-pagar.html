@@ -441,6 +441,43 @@
             background-color: rgba(231, 76, 60, 0.08);
         }
 
+        /* Drag and Drop Styles */
+        tr[draggable="true"] {
+            cursor: grab;
+        }
+
+        tr[draggable="true"]:active {
+            cursor: grabbing;
+        }
+
+        tr.dragging {
+            opacity: 0.5;
+            background: #e3f2fd !important;
+        }
+
+        tr.drag-over {
+            border-top: 3px solid var(--primary-green);
+        }
+
+        tr.drag-over-bottom {
+            border-bottom: 3px solid var(--primary-green);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: #ccc;
+            padding-right: 10px;
+            user-select: none;
+        }
+
+        .drag-handle:hover {
+            color: var(--primary-green);
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
         .vencimento-badge {
             padding: 4px 10px;
             border-radius: 12px;
@@ -558,6 +595,78 @@
             font-size: 11px;
             color: var(--text-light);
             margin-top: 4px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .status-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .status-badge-pago {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        .status-badge-pendente {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            color: #856404;
+            border-color: #ffc107;
+        }
+
+        .status-badge-vencido {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border-color: #dc3545;
+            animation: pulse-warning 2s infinite;
+        }
+
+        @keyframes pulse-warning {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+        }
+
+        .status-icon {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .status-text {
+            white-space: nowrap;
+        }
+
+        /* Date Badges */
+        .date-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .date-badge-pago {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .date-badge-empty {
+            background: #f5f5f5;
+            color: #999;
         }
 
         /* Action Buttons in Table */
@@ -908,6 +1017,529 @@
                 gap: 4px;
             }
         }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            background: var(--bg-gray);
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .view-toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-light);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-toggle-btn:hover {
+            color: var(--text-dark);
+        }
+
+        .view-toggle-btn.active {
+            background: var(--white);
+            color: var(--primary-green);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Kanban Board */
+        .kanban-container {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .kanban-container.active {
+            display: block;
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            min-height: 500px;
+        }
+
+        @media (max-width: 1024px) {
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .kanban-column {
+            background: var(--bg-gray);
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 400px;
+        }
+
+        .kanban-column.pendente {
+            border-top: 4px solid var(--danger);
+        }
+
+        .kanban-column.parcial {
+            border-top: 4px solid var(--warning);
+        }
+
+        .kanban-column.pago {
+            border-top: 4px solid var(--success);
+        }
+
+        .kanban-column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .kanban-column-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kanban-column-count {
+            background: var(--white);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .kanban-column-total {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .kanban-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 300px;
+        }
+
+        .kanban-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            cursor: grab;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .kanban-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .kanban-card:active {
+            cursor: grabbing;
+        }
+
+        .kanban-card.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg);
+        }
+
+        .kanban-card.custom {
+            border-left-color: var(--info);
+        }
+
+        .kanban-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .kanban-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .kanban-card-amount {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-green);
+            white-space: nowrap;
+        }
+
+        .kanban-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .kanban-card-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .kanban-card-badge.category {
+            background: var(--bg-gray);
+            color: var(--text-light);
+        }
+
+        .kanban-card-badge.vencido {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .kanban-card-badge.hoje {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .kanban-card-badge.proximo {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .kanban-card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .kanban-action-btn {
+            flex: 1;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .kanban-action-btn.pay {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .kanban-action-btn.pay:hover {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .kanban-action-btn.unpay {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .kanban-action-btn.unpay:hover {
+            background: #e65100;
+            color: white;
+        }
+
+        .kanban-column.drag-over {
+            background: rgba(74, 107, 84, 0.1);
+        }
+
+        .kanban-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .kanban-empty-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        /* Kanban Card Enhanced */
+        .kanban-card {
+            position: relative;
+        }
+
+        .kanban-card:hover {
+            cursor: pointer;
+        }
+
+        .kanban-card .card-edit-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: var(--bg-gray);
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .kanban-card:hover .card-edit-btn {
+            opacity: 1;
+        }
+
+        .kanban-card .card-edit-btn:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        /* Modal de Pagamento Kanban */
+        .kanban-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .kanban-modal-overlay.active {
+            display: flex;
+        }
+
+        .kanban-modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: kanbanModalSlideIn 0.3s ease;
+        }
+
+        @keyframes kanbanModalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .kanban-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, #f8faf9 0%, #ffffff 100%);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .kanban-modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .kanban-modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--bg-gray);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-light);
+            transition: all 0.2s ease;
+        }
+
+        .kanban-modal-close:hover {
+            background: #ffebee;
+            color: #e74c3c;
+        }
+
+        .kanban-modal-body {
+            padding: 24px;
+        }
+
+        .kanban-modal-item-info {
+            background: var(--bg-gray);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .kanban-modal-item-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .kanban-modal-item-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary-green);
+        }
+
+        .kanban-modal-item-category {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+
+        .kanban-form-group {
+            margin-bottom: 16px;
+        }
+
+        .kanban-form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .kanban-form-group input,
+        .kanban-form-group select,
+        .kanban-form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .kanban-form-group input:focus,
+        .kanban-form-group select:focus,
+        .kanban-form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 4px rgba(74, 107, 84, 0.1);
+        }
+
+        .kanban-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .kanban-status-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .kanban-status-option {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .kanban-status-option:hover {
+            border-color: var(--text-light);
+        }
+
+        .kanban-status-option.selected {
+            border-color: var(--primary-green);
+            background: rgba(74, 107, 84, 0.1);
+        }
+
+        .kanban-status-option .status-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .kanban-status-option .status-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .kanban-modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            background: var(--bg-gray);
+            border-radius: 0 0 16px 16px;
+        }
+
+        .kanban-modal-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .kanban-modal-btn.cancel {
+            border: 2px solid var(--border-color);
+            background: white;
+            color: var(--text-dark);
+        }
+
+        .kanban-modal-btn.cancel:hover {
+            background: var(--bg-gray);
+        }
+
+        .kanban-modal-btn.save {
+            border: none;
+            background: linear-gradient(135deg, var(--primary-green) 0%, #5d8a6b 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(74, 107, 84, 0.3);
+        }
+
+        .kanban-modal-btn.save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(74, 107, 84, 0.4);
+        }
+
+        .kanban-modal-btn.delete {
+            border: 2px solid #e74c3c;
+            background: white;
+            color: #e74c3c;
+        }
+
+        .kanban-modal-btn.delete:hover {
+            background: #e74c3c;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -989,9 +1621,13 @@
                     <button class="btn btn-success" onclick="openAddModal()">
                         ➕ Nova Despesa
                     </button>
-                    <button class="btn btn-secondary" onclick="exportarDados()">
-                        📥 Exportar
+                    <button class="btn btn-primary" onclick="exportarBackup()" title="Salvar backup dos dados">
+                        💾 Backup
                     </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" title="Restaurar dados de backup">
+                        📂 Restaurar
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarBackup(this)">
                 </div>
             </div>
 
@@ -1044,11 +1680,19 @@
                 </div>
             </div>
 
-            <!-- Data Table -->
-            <div class="data-table-container">
-                <div class="table-header">
-                    <div class="table-title">
-                        📋 Despesas do Mês
+            <!-- View Toggle -->
+            <div class="controls-bar" style="padding: 15px 20px;">
+                <div class="table-title" style="font-size: 16px;">
+                    📋 Despesas do Mês
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <div class="view-toggle">
+                        <button class="view-toggle-btn active" onclick="setView('table')" id="viewTableBtn">
+                            📋 Tabela
+                        </button>
+                        <button class="view-toggle-btn" onclick="setView('kanban')" id="viewKanbanBtn">
+                            📊 Kanban
+                        </button>
                     </div>
                     <div class="table-actions">
                         <button class="filter-btn active" data-filter="todos" onclick="filtrarDespesas('todos')">Todos</button>
@@ -1057,20 +1701,96 @@
                         <span class="table-count" id="tableCount">0 registros</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Kanban View -->
+            <div class="kanban-container" id="kanbanContainer">
+                <div class="kanban-board">
+                    <div class="kanban-column pendente" data-status="pendente"
+                         ondragover="handleKanbanDragOver(event)"
+                         ondragleave="handleKanbanDragLeave(event)"
+                         ondrop="handleKanbanDrop(event, 'pendente')">
+                        <div class="kanban-column-header">
+                            <div class="kanban-column-title">
+                                🔴 Pendente
+                                <span class="kanban-column-count" id="kanbanPendenteCount">0</span>
+                            </div>
+                            <div class="kanban-column-total" id="kanbanPendenteTotal">R$ 0</div>
+                        </div>
+                        <div class="kanban-cards" id="kanbanPendente">
+                            <!-- Cards dinâmicos -->
+                        </div>
+                    </div>
+
+                    <div class="kanban-column parcial" data-status="parcial"
+                         ondragover="handleKanbanDragOver(event)"
+                         ondragleave="handleKanbanDragLeave(event)"
+                         ondrop="handleKanbanDrop(event, 'parcial')">
+                        <div class="kanban-column-header">
+                            <div class="kanban-column-title">
+                                🟡 Vencendo
+                                <span class="kanban-column-count" id="kanbanParcialCount">0</span>
+                            </div>
+                            <div class="kanban-column-total" id="kanbanParcialTotal">R$ 0</div>
+                        </div>
+                        <div class="kanban-cards" id="kanbanParcial">
+                            <!-- Cards dinâmicos -->
+                        </div>
+                    </div>
+
+                    <div class="kanban-column pago" data-status="pago"
+                         ondragover="handleKanbanDragOver(event)"
+                         ondragleave="handleKanbanDragLeave(event)"
+                         ondrop="handleKanbanDrop(event, 'pago')">
+                        <div class="kanban-column-header">
+                            <div class="kanban-column-title">
+                                🟢 Pago
+                                <span class="kanban-column-count" id="kanbanPagoCount">0</span>
+                            </div>
+                            <div class="kanban-column-total" id="kanbanPagoTotal">R$ 0</div>
+                        </div>
+                        <div class="kanban-cards" id="kanbanPago">
+                            <!-- Cards dinâmicos -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="data-table-container" id="tableContainer">
+                <div class="table-header" style="display: none;">
+                    <div class="table-title">
+                        📋 Despesas do Mês
+                    </div>
+                    <div class="table-actions">
+                        <button class="filter-btn active" data-filter="todos" onclick="filtrarDespesas('todos')">Todos</button>
+                        <button class="filter-btn" data-filter="pendente" onclick="filtrarDespesas('pendente')">Pendentes</button>
+                        <button class="filter-btn" data-filter="pago" onclick="filtrarDespesas('pago')">Pagos</button>
+                        <span class="table-count" id="tableCount2">0 registros</span>
+                    </div>
+                </div>
                 <table>
                     <thead>
                         <tr>
-                            <th>Descrição</th>
-                            <th>Categoria</th>
-                            <th class="text-center">Vencimento</th>
-                            <th class="text-right">Valor</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Ações</th>
+                            <th style="width: 25%;">Descrição</th>
+                            <th style="width: 12%;">Categoria</th>
+                            <th class="text-center" style="width: 12%;">Vencimento</th>
+                            <th class="text-center" style="width: 12%;">Pagamento</th>
+                            <th class="text-right" style="width: 12%;">Valor</th>
+                            <th class="text-center" style="width: 12%;">Status</th>
+                            <th class="text-center" style="width: 15%;">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <!-- Dados carregados dinamicamente -->
                     </tbody>
+                    <tfoot id="tableFooter">
+                        <tr style="background: linear-gradient(135deg, #4A6B54 0%, #5d8a6b 100%); color: white; font-weight: 600;">
+                            <td colspan="4" style="padding: 15px 20px; font-size: 16px;">TOTAL FILTRADO</td>
+                            <td class="text-right" style="padding: 15px 20px; font-size: 18px;" id="totalFiltrado">R$ 0,00</td>
+                            <td colspan="2" style="padding: 15px 20px; text-align: center;" id="totalInfo">0 despesas</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </main>
@@ -1323,7 +2043,7 @@
 
             if (!dados) {
                 console.error('Dados não encontrados para o mês:', mes);
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#999;">Nenhum dado encontrado para este mês</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#999;">Nenhum dado encontrado para este mês</td></tr>';
                 return;
             }
 
@@ -1429,6 +2149,11 @@
 
             // Renderizar tabela
             renderTable(itensFiltrados);
+
+            // Atualizar Kanban se estiver ativo
+            if (typeof currentView !== 'undefined' && currentView === 'kanban') {
+                renderKanban();
+            }
         }
 
         // Mudar categoria
@@ -1457,14 +2182,20 @@
                 itensFiltrados = itens.filter(i => i.isPago);
             }
 
-            // Ordenar: pendentes primeiro, depois por valor
-            itensFiltrados.sort((a, b) => {
-                if (a.isPago !== b.isPago) return a.isPago ? 1 : -1;
-                return b.valor - a.valor;
-            });
+            // Aplicar ordem customizada se existir, senão ordenar por padrão
+            const customOrder = getCustomOrder();
+            if (customOrder && customOrder.length > 0) {
+                itensFiltrados = applyCustomOrder(itensFiltrados);
+            } else {
+                // Ordenar: pendentes primeiro, depois por valor
+                itensFiltrados.sort((a, b) => {
+                    if (a.isPago !== b.isPago) return a.isPago ? 1 : -1;
+                    return b.valor - a.valor;
+                });
+            }
 
             if (itensFiltrados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">Nenhuma despesa encontrada</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#999;">Nenhuma despesa encontrada</td></tr>';
                 document.getElementById('tableCount').textContent = '0 registros';
                 return;
             }
@@ -1472,10 +2203,15 @@
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
 
-            itensFiltrados.forEach(item => {
+            itensFiltrados.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.className = item.isPago ? 'row-pago' : '';
                 if (item.isCustom) tr.className += ' row-custom';
+
+                // Drag and drop attributes
+                tr.draggable = true;
+                tr.dataset.index = index;
+                tr.dataset.nome = item.nome;
 
                 const switchClass = item.isPago ? 'active' : '';
                 const labelClass = item.isPago ? 'pago' : 'pendente';
@@ -1509,14 +2245,28 @@
 
                 if (isVencido) tr.className += ' row-vencido';
 
+                // Status badge HTML
+                const statusBadgeClass = item.isPago ? 'status-badge-pago' : (isVencido ? 'status-badge-vencido' : 'status-badge-pendente');
+                const statusIcon = item.isPago ? '✓' : (isVencido ? '!' : '○');
+
+                // Data pagamento HTML
+                const dataPagamentoHtml = item.dataPagamento
+                    ? `<span class="date-badge date-badge-pago">${formatDate(item.dataPagamento)}</span>`
+                    : '<span class="date-badge date-badge-empty">-</span>';
+
                 tr.innerHTML = `
                     <td>
-                        <div class="item-name">
-                            ${item.nome}
-                            ${item.isCustom ? '<span class="custom-badge">Manual</span>' : ''}
+                        <div style="display: flex; align-items: center;">
+                            <span class="drag-handle" title="Arraste para reordenar">⋮⋮</span>
+                            <div>
+                                <div class="item-name">
+                                    ${item.nome}
+                                    ${item.isCustom ? '<span class="custom-badge">Manual</span>' : ''}
+                                </div>
+                                ${item.tipo ? `<div class="item-info">${item.tipo}</div>` : ''}
+                                ${item.funcao ? `<div class="item-info">${item.funcao}</div>` : ''}
+                            </div>
                         </div>
-                        ${item.tipo ? `<div class="item-info">${item.tipo}</div>` : ''}
-                        ${item.funcao ? `<div class="item-info">${item.funcao}</div>` : ''}
                     </td>
                     <td>
                         <span class="category-badge ${getCategoryClass(item.categoria)}">
@@ -1526,17 +2276,17 @@
                     <td class="text-center">
                         ${vencimentoHtml}
                     </td>
+                    <td class="text-center">
+                        ${dataPagamentoHtml}
+                    </td>
                     <td class="text-right">
                         <span class="amount">${formatMoney(item.valor)}</span>
                     </td>
                     <td class="text-center">
-                        <div class="status-toggle">
-                            <div class="toggle-switch ${switchClass} js-toggle-status"></div>
-                            <div>
-                                <div class="toggle-label ${labelClass}">${labelText}</div>
-                                ${item.dataPagamento ? `<div class="payment-date">${formatDate(item.dataPagamento)}</div>` : ''}
-                            </div>
-                        </div>
+                        <span class="status-badge ${statusBadgeClass} js-toggle-status" title="Clique para alterar status">
+                            <span class="status-icon">${statusIcon}</span>
+                            <span class="status-text">${labelText}</span>
+                        </span>
                     </td>
                     <td class="text-center">
                         <div class="row-actions">
@@ -1566,10 +2316,112 @@
                     openDeleteModal(item.nome, item.valor, item.isCustom || false);
                 });
 
+                // Drag and drop event listeners
+                tr.addEventListener('dragstart', handleDragStart);
+                tr.addEventListener('dragend', handleDragEnd);
+                tr.addEventListener('dragover', handleDragOver);
+                tr.addEventListener('dragenter', handleDragEnter);
+                tr.addEventListener('dragleave', handleDragLeave);
+                tr.addEventListener('drop', handleDrop);
+
                 tbody.appendChild(tr);
             });
 
             document.getElementById('tableCount').textContent = `${itensFiltrados.length} de ${itens.length} registros`;
+
+            // Calcular e exibir total filtrado
+            const totalValor = itensFiltrados.reduce((sum, item) => sum + item.valor, 0);
+            const totalPago = itensFiltrados.filter(i => i.isPago).reduce((sum, item) => sum + item.valor, 0);
+            const totalPendente = totalValor - totalPago;
+
+            document.getElementById('totalFiltrado').textContent = formatMoney(totalValor);
+            document.getElementById('totalInfo').innerHTML = `${itensFiltrados.length} despesas | <span style="color: #90EE90;">Pago: ${formatMoney(totalPago)}</span> | <span style="color: #FFB6C1;">Pend: ${formatMoney(totalPendente)}</span>`;
+        }
+
+        // ========== DRAG AND DROP FUNCTIONS ==========
+        let draggedRow = null;
+
+        function handleDragStart(e) {
+            draggedRow = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.index);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('tr.drag-over, tr.drag-over-bottom').forEach(row => {
+                row.classList.remove('drag-over', 'drag-over-bottom');
+            });
+            draggedRow = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            if (this !== draggedRow) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over', 'drag-over-bottom');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (draggedRow && this !== draggedRow) {
+                const tbody = document.getElementById('tableBody');
+                const allRows = Array.from(tbody.querySelectorAll('tr[draggable="true"]'));
+                const draggedIndex = allRows.indexOf(draggedRow);
+                const targetIndex = allRows.indexOf(this);
+
+                if (draggedIndex < targetIndex) {
+                    this.parentNode.insertBefore(draggedRow, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedRow, this);
+                }
+
+                // Salvar nova ordem
+                saveCustomOrder();
+                showToast('Ordem das despesas atualizada', 'success');
+            }
+
+            this.classList.remove('drag-over', 'drag-over-bottom');
+        }
+
+        function saveCustomOrder() {
+            const tbody = document.getElementById('tableBody');
+            const rows = tbody.querySelectorAll('tr[draggable="true"]');
+            const order = Array.from(rows).map(row => row.dataset.nome);
+
+            const orderKey = `despesas_order_${currentMonth}`;
+            localStorage.setItem(orderKey, JSON.stringify(order));
+        }
+
+        function getCustomOrder() {
+            const orderKey = `despesas_order_${currentMonth}`;
+            const saved = localStorage.getItem(orderKey);
+            return saved ? JSON.parse(saved) : null;
+        }
+
+        function applyCustomOrder(itens) {
+            const customOrder = getCustomOrder();
+            if (!customOrder || customOrder.length === 0) return itens;
+
+            const orderMap = new Map(customOrder.map((nome, index) => [nome, index]));
+
+            return [...itens].sort((a, b) => {
+                const indexA = orderMap.has(a.nome) ? orderMap.get(a.nome) : 999;
+                const indexB = orderMap.has(b.nome) ? orderMap.get(b.nome) : 999;
+                return indexA - indexB;
+            });
         }
 
         // Filtrar despesas (por status: todos, pendente, pago)
@@ -1878,6 +2730,45 @@
             loadMonthData(selectedMonth);
         }
 
+        // ========================================
+        // BACKUP E RESTAURAÇÃO
+        // ========================================
+
+        // Exportar backup dos dados
+        function exportarBackup() {
+            try {
+                GestaoFinanceira.exportData();
+                showToast('Backup salvo com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao exportar:', error);
+                showToast('Erro ao salvar backup', 'error');
+            }
+        }
+
+        // Importar backup dos dados
+        function importarBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (!confirm('Isso vai substituir todos os dados atuais. Deseja continuar?')) {
+                input.value = '';
+                return;
+            }
+
+            GestaoFinanceira.importData(file)
+                .then(result => {
+                    showToast('Dados restaurados com sucesso!', 'success');
+                    // Recarregar a página para aplicar os dados
+                    setTimeout(() => location.reload(), 1000);
+                })
+                .catch(error => {
+                    showToast('Erro ao restaurar: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    input.value = '';
+                });
+        }
+
         // Exportar dados
         function exportarDados() {
             const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
@@ -1929,12 +2820,453 @@
             }
         });
 
+        // ========================================
+        // KANBAN VIEW
+        // ========================================
+
+        let currentView = 'table';
+        let kanbanDraggedCard = null;
+
+        // Alternar entre views
+        function setView(view) {
+            currentView = view;
+            const tableContainer = document.getElementById('tableContainer');
+            const kanbanContainer = document.getElementById('kanbanContainer');
+            const tableBtn = document.getElementById('viewTableBtn');
+            const kanbanBtn = document.getElementById('viewKanbanBtn');
+
+            if (view === 'table') {
+                tableContainer.style.display = 'block';
+                kanbanContainer.classList.remove('active');
+                tableBtn.classList.add('active');
+                kanbanBtn.classList.remove('active');
+            } else {
+                tableContainer.style.display = 'none';
+                kanbanContainer.classList.add('active');
+                tableBtn.classList.remove('active');
+                kanbanBtn.classList.add('active');
+                renderKanban();
+            }
+
+            localStorage.setItem('contas_pagar_view', view);
+        }
+
+        // Renderizar Kanban
+        function renderKanban() {
+            // Limpar mapa de itens
+            kanbanItemsMap = {};
+
+            // Buscar dados diretamente
+            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
+            if (!dados) {
+                console.log('Kanban: dados não encontrados');
+                return;
+            }
+
+            // Processar despesas igual ao loadMonthData
+            const itensProcessados = [];
+            const categorias = dados.despesas.categorias;
+
+            for (const [categoriaKey, categoriaData] of Object.entries(categorias)) {
+                if (categoriaData.itens && Array.isArray(categoriaData.itens)) {
+                    categoriaData.itens.forEach(item => {
+                        const isPago = item.status === 'Pago' || item.status === 'Feito';
+                        itensProcessados.push({
+                            ...item,
+                            categoria: categoriaKey,
+                            isPago: isPago
+                        });
+                    });
+                }
+            }
+
+            // Incluir itens customizados do localStorage
+            const customData = GestaoFinanceira.customItems[currentMonth];
+            if (customData && customData.despesas) {
+                customData.despesas.forEach(item => {
+                    const isPago = item.status === 'Pago' || item.status === 'Feito';
+                    itensProcessados.push({
+                        ...item,
+                        isPago: isPago,
+                        isCustom: true
+                    });
+                });
+            }
+
+            const todosItens = itensProcessados;
+            console.log('Kanban: total de itens =', todosItens.length);
+            console.log('Kanban: primeiro item =', todosItens[0]);
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            const pendentes = [];
+            const vencendo = [];
+            const pagos = [];
+
+            todosItens.forEach(item => {
+                const isPago = item.isPago || item.status === 'Pago' || item.status === 'Feito';
+                const isCustom = item.isCustom;
+                const vencimento = item.vencimento ? new Date(item.vencimento + 'T00:00:00') : null;
+
+                const cardData = {
+                    ...item,
+                    isCustom,
+                    isPago,
+                    vencimento
+                };
+
+                if (isPago) {
+                    pagos.push(cardData);
+                } else {
+                    // Todos os não pagos vão para pendentes ou vencendo
+                    if (vencimento) {
+                        const diffDays = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
+                        if (diffDays <= 7) {
+                            cardData.vencimentoStatus = diffDays <= 0 ? 'vencido' : 'proximo';
+                            vencendo.push(cardData);
+                        } else {
+                            pendentes.push(cardData);
+                        }
+                    } else {
+                        pendentes.push(cardData);
+                    }
+                }
+            });
+
+            console.log('Kanban: pendentes =', pendentes.length, 'vencendo =', vencendo.length, 'pagos =', pagos.length);
+
+            // Renderizar colunas
+            renderKanbanColumn('kanbanPendente', pendentes, 'Pendente');
+            renderKanbanColumn('kanbanParcial', vencendo, 'Vencendo');
+            renderKanbanColumn('kanbanPago', pagos, 'Pago');
+
+            // Atualizar contadores e totais
+            document.getElementById('kanbanPendenteCount').textContent = pendentes.length;
+            document.getElementById('kanbanParcialCount').textContent = vencendo.length;
+            document.getElementById('kanbanPagoCount').textContent = pagos.length;
+
+            const totalPendente = pendentes.reduce((sum, i) => sum + (i.valor || 0), 0);
+            const totalVencendo = vencendo.reduce((sum, i) => sum + (i.valor || 0), 0);
+            const totalPago = pagos.reduce((sum, i) => sum + (i.valor || 0), 0);
+
+            document.getElementById('kanbanPendenteTotal').textContent = formatMoney(totalPendente);
+            document.getElementById('kanbanParcialTotal').textContent = formatMoney(totalVencendo);
+            document.getElementById('kanbanPagoTotal').textContent = formatMoney(totalPago);
+        }
+
+        // Renderizar coluna do Kanban
+        function renderKanbanColumn(containerId, items, status) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="kanban-empty">
+                        <div class="kanban-empty-icon">${status === 'Pago' ? '✅' : '📭'}</div>
+                        <div>Nenhum item</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar por valor (maior primeiro)
+            items.sort((a, b) => (b.valor || 0) - (a.valor || 0));
+
+            container.innerHTML = items.map(item => createKanbanCard(item)).join('');
+
+            // Adicionar eventos de drag
+            container.querySelectorAll('.kanban-card').forEach(card => {
+                card.addEventListener('dragstart', handleKanbanCardDragStart);
+                card.addEventListener('dragend', handleKanbanCardDragEnd);
+            });
+        }
+
+        // Criar card do Kanban
+        // Armazenar itens do Kanban para acesso rápido
+        let kanbanItemsMap = {};
+
+        function createKanbanCard(item) {
+            // Armazenar item para acesso posterior
+            kanbanItemsMap[item.nome] = item;
+
+            const categoryLabels = {
+                'pessoal': 'Pessoal',
+                'comercial': 'Comercial',
+                'estrutura': 'Estrutura',
+                'ferramentas': 'Ferramentas',
+                'alpha_franquia': 'Alpha',
+                'alimentacao': 'Alimentação',
+                'operacionais': 'Operacional',
+                'outros': 'Outros'
+            };
+
+            const categoria = categoryLabels[item.categoria] || item.categoria || 'Outros';
+
+            let vencimentoBadge = '';
+            if (item.vencimentoStatus === 'vencido') {
+                vencimentoBadge = '<span class="kanban-card-badge vencido">⚠️ Vencido</span>';
+            } else if (item.vencimentoStatus === 'proximo') {
+                vencimentoBadge = '<span class="kanban-card-badge proximo">📅 Próximo</span>';
+            }
+
+            // Botões de ação
+            const actionBtns = item.isPago ?
+                `<button class="kanban-action-btn unpay" onclick="event.stopPropagation(); openKanbanPaymentModal(kanbanItemsMap['${item.nome.replace(/'/g, "\\'")}'], 'pendente')">↩ Desfazer</button>` :
+                `<button class="kanban-action-btn pay" onclick="event.stopPropagation(); openKanbanPaymentModal(kanbanItemsMap['${item.nome.replace(/'/g, "\\'")}'], 'pago')">✓ Pagar</button>`;
+
+            return `
+                <div class="kanban-card ${item.isCustom ? 'custom' : ''}"
+                     draggable="true"
+                     data-nome="${item.nome}"
+                     data-valor="${item.valor || 0}"
+                     onclick="openKanbanPaymentModal(kanbanItemsMap['${item.nome.replace(/'/g, "\\'")}'])">
+                    <button class="card-edit-btn" onclick="event.stopPropagation(); openKanbanPaymentModal(kanbanItemsMap['${item.nome.replace(/'/g, "\\'")}'])" title="Editar">✏️</button>
+                    <div class="kanban-card-header">
+                        <div class="kanban-card-title">${item.nome}</div>
+                        <div class="kanban-card-amount">${formatMoney(item.valor || 0)}</div>
+                    </div>
+                    <div class="kanban-card-meta">
+                        <span class="kanban-card-badge category">${categoria}</span>
+                        ${vencimentoBadge}
+                        ${item.isCustom ? '<span class="kanban-card-badge" style="background: #e3f2fd; color: #1565c0;">✏️ Manual</span>' : ''}
+                    </div>
+                    <div class="kanban-card-actions">
+                        ${actionBtns}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Toggle status via Kanban (legacy - agora usa modal)
+        function toggleKanbanStatus(nome, pagar) {
+            const item = kanbanItemsMap[nome];
+            if (item) {
+                openKanbanPaymentModal(item, pagar ? 'pago' : 'pendente');
+                return;
+            }
+            const newStatus = pagar ? 'Pago' : 'A Pagar';
+            const date = pagar ? new Date().toISOString().split('T')[0] : null;
+
+            GestaoFinanceira.updateStatus(currentMonth, 'despesa', nome, newStatus, date);
+            showToast(pagar ? 'Despesa marcada como paga!' : 'Despesa marcada como pendente', pagar ? 'success' : 'warning');
+            loadMonthData(currentMonth);
+        }
+
+        // Drag and Drop Kanban
+        function handleKanbanCardDragStart(e) {
+            kanbanDraggedCard = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.dataset.nome);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleKanbanCardDragEnd(e) {
+            this.classList.remove('dragging');
+            kanbanDraggedCard = null;
+            document.querySelectorAll('.kanban-column').forEach(col => {
+                col.classList.remove('drag-over');
+            });
+        }
+
+        function handleKanbanDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        }
+
+        function handleKanbanDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleKanbanDrop(e, targetStatus) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            const nome = e.dataTransfer.getData('text/plain');
+            if (!nome) return;
+
+            // Buscar item no mapa
+            const item = kanbanItemsMap[nome];
+            if (item) {
+                // Abrir modal com o status alvo pré-selecionado
+                const statusMap = {
+                    'pago': 'pago',
+                    'pendente': 'pendente',
+                    'parcial': 'parcial'
+                };
+                openKanbanPaymentModal(item, statusMap[targetStatus] || 'pendente');
+            }
+        }
+
         // Inicializar
         window.addEventListener('DOMContentLoaded', function() {
             GestaoFinanceira.init();
             const defaultMonth = document.getElementById('monthSelect').value;
             loadMonthData(defaultMonth);
+
+            // Restaurar view salva
+            const savedView = localStorage.getItem('contas_pagar_view');
+            if (savedView) {
+                setView(savedView);
+            }
+        });
+
+        // ========================================
+        // MODAL DE PAGAMENTO KANBAN
+        // ========================================
+
+        let kanbanSelectedItem = null;
+        let kanbanTargetStatus = null;
+
+        // Abrir modal de pagamento
+        function openKanbanPaymentModal(item, targetStatus = null) {
+            kanbanSelectedItem = item;
+            kanbanTargetStatus = targetStatus;
+
+            // Preencher informações do item
+            document.getElementById('kanbanItemName').textContent = item.nome;
+            document.getElementById('kanbanItemValue').textContent = formatMoney(item.valor || 0);
+            document.getElementById('kanbanItemCategory').textContent = getCategoryLabel(item.categoria);
+
+            // Definir status selecionado
+            const currentStatus = item.isPago ? 'pago' : 'pendente';
+            const statusToSelect = targetStatus || currentStatus;
+            selectKanbanStatus(statusToSelect);
+
+            // Preencher data
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('kanbanPaymentDate').value = item.dataPagamento || today;
+
+            // Preencher observações
+            document.getElementById('kanbanObservations').value = item.observacoes || '';
+
+            // Mostrar modal
+            document.getElementById('kanbanPaymentModal').classList.add('active');
+        }
+
+        // Fechar modal
+        function closeKanbanPaymentModal() {
+            document.getElementById('kanbanPaymentModal').classList.remove('active');
+            kanbanSelectedItem = null;
+            kanbanTargetStatus = null;
+        }
+
+        // Selecionar status
+        function selectKanbanStatus(status) {
+            document.querySelectorAll('.kanban-status-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`.kanban-status-option[data-status="${status}"]`).classList.add('selected');
+        }
+
+        // Obter status selecionado
+        function getSelectedKanbanStatus() {
+            const selected = document.querySelector('.kanban-status-option.selected');
+            return selected ? selected.dataset.status : 'pendente';
+        }
+
+        // Salvar alterações do modal
+        function saveKanbanPayment() {
+            if (!kanbanSelectedItem) return;
+
+            const status = getSelectedKanbanStatus();
+            const date = document.getElementById('kanbanPaymentDate').value;
+            const observations = document.getElementById('kanbanObservations').value;
+
+            let newStatus;
+            if (status === 'pago') {
+                newStatus = 'Pago';
+            } else if (status === 'parcial') {
+                newStatus = 'Parcial';
+            } else {
+                newStatus = 'A Pagar';
+            }
+
+            // Atualizar no sistema
+            GestaoFinanceira.updateStatus(currentMonth, 'despesa', kanbanSelectedItem.nome, newStatus, date);
+
+            // Fechar modal e recarregar
+            closeKanbanPaymentModal();
+            showToast(status === 'pago' ? 'Pagamento registrado!' : 'Status atualizado!', 'success');
+            loadMonthData(currentMonth);
+        }
+
+        // Obter label da categoria
+        function getCategoryLabel(categoria) {
+            const labels = {
+                'pessoal': 'Pessoal',
+                'comercial': 'Comercial',
+                'estrutura': 'Estrutura',
+                'ferramentas': 'Ferramentas',
+                'alpha_franquia': 'Alpha Franquia',
+                'alimentacao': 'Alimentação',
+                'operacionais': 'Operacionais',
+                'outros': 'Outros'
+            };
+            return labels[categoria] || categoria || 'Outros';
+        }
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeKanbanPaymentModal();
+            }
+        });
+
+        // Fechar modal clicando fora
+        document.getElementById('kanbanPaymentModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeKanbanPaymentModal();
+            }
         });
     </script>
+
+    <!-- Modal de Pagamento Kanban -->
+    <div id="kanbanPaymentModal" class="kanban-modal-overlay">
+        <div class="kanban-modal">
+            <div class="kanban-modal-header">
+                <h3>💳 Registrar Pagamento</h3>
+                <button class="kanban-modal-close" onclick="closeKanbanPaymentModal()">✕</button>
+            </div>
+            <div class="kanban-modal-body">
+                <div class="kanban-modal-item-info">
+                    <div class="kanban-modal-item-name" id="kanbanItemName">-</div>
+                    <div class="kanban-modal-item-value" id="kanbanItemValue">R$ 0,00</div>
+                    <div class="kanban-modal-item-category" id="kanbanItemCategory">-</div>
+                </div>
+
+                <label style="font-size: 13px; font-weight: 600; margin-bottom: 12px; display: block;">Status do Pagamento</label>
+                <div class="kanban-status-options">
+                    <div class="kanban-status-option" data-status="pendente" onclick="selectKanbanStatus('pendente')">
+                        <div class="status-icon">🔴</div>
+                        <div class="status-label">Pendente</div>
+                    </div>
+                    <div class="kanban-status-option" data-status="parcial" onclick="selectKanbanStatus('parcial')">
+                        <div class="status-icon">🟡</div>
+                        <div class="status-label">Parcial</div>
+                    </div>
+                    <div class="kanban-status-option" data-status="pago" onclick="selectKanbanStatus('pago')">
+                        <div class="status-icon">🟢</div>
+                        <div class="status-label">Pago</div>
+                    </div>
+                </div>
+
+                <div class="kanban-form-group">
+                    <label for="kanbanPaymentDate">Data do Pagamento</label>
+                    <input type="date" id="kanbanPaymentDate">
+                </div>
+
+                <div class="kanban-form-group">
+                    <label for="kanbanObservations">Observações</label>
+                    <textarea id="kanbanObservations" rows="3" placeholder="Adicione notas sobre este pagamento..."></textarea>
+                </div>
+            </div>
+            <div class="kanban-modal-footer">
+                <button class="kanban-modal-btn cancel" onclick="closeKanbanPaymentModal()">Cancelar</button>
+                <button class="kanban-modal-btn save" onclick="saveKanbanPayment()">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

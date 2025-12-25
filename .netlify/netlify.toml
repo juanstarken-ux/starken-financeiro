@@ -1,16 +1,15 @@
+functionsDirectory = "/Users/juanminni/starken-financeiro/netlify/functions"
+functionsDirectoryOrigin = "config-v1"
 redirectsOrigin = "config"
 plugins = []
 headers = []
-
-[functions]
-
-[functions."*"]
 
 [build]
 publish = "/Users/juanminni/starken-financeiro"
 publishOrigin = "config"
 commandOrigin = "config"
-command = "echo 'No build required'"
+command = "npm install && npx prisma generate"
+functions = "/Users/juanminni/starken-financeiro/netlify/functions"
 
 [build.environment]
 
@@ -25,6 +24,24 @@ command = "echo 'No build required'"
 [build.processing.js]
 
 [build.services]
+
+[functions]
+
+[functions."*"]
+external_node_modules = ["@prisma/client"]
+node_bundler = "esbuild"
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/sync-data/:splat"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
 
 [[redirects]]
 from = "/*"

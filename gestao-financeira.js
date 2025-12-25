@@ -11,10 +11,101 @@ const GestaoFinanceira = {
     DELETED_ITEMS_KEY: 'starken_financeiro_deleted_items',
     EDITED_ITEMS_KEY: 'starken_financeiro_edited_items',
 
+    // URL da API
+    API_URL: '/.netlify/functions/sync-data',
+
+    // Flag para controlar sincronização
+    syncEnabled: true,
+    syncInProgress: false,
+
     // Inicializar sistema
-    init() {
+    async init() {
         this.loadFromStorage();
         console.log('💰 Sistema de Gestão Financeira inicializado');
+
+        // Tentar carregar dados do servidor
+        await this.loadFromServer();
+    },
+
+    // Carregar dados do servidor
+    async loadFromServer() {
+        if (!this.syncEnabled) return;
+
+        try {
+            const response = await fetch(this.API_URL);
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data) {
+                    // Mesclar dados do servidor com localStorage
+                    this.mergeServerData(result.data);
+                    console.log('☁️ Dados carregados do servidor');
+                }
+            }
+        } catch (error) {
+            console.log('⚠️ Servidor não disponível, usando localStorage');
+        }
+    },
+
+    // Mesclar dados do servidor com localStorage
+    mergeServerData(serverData) {
+        // Se servidor tem dados, usar como base
+        if (serverData.statusData && Object.keys(serverData.statusData).length > 0) {
+            this.statusData = { ...this.statusData, ...serverData.statusData };
+        }
+        if (serverData.customItems && Object.keys(serverData.customItems).length > 0) {
+            this.customItems = { ...this.customItems, ...serverData.customItems };
+        }
+        if (serverData.deletedItems && Object.keys(serverData.deletedItems).length > 0) {
+            this.deletedItems = { ...this.deletedItems, ...serverData.deletedItems };
+        }
+        if (serverData.editedItems && Object.keys(serverData.editedItems).length > 0) {
+            this.editedItems = { ...this.editedItems, ...serverData.editedItems };
+        }
+
+        // Salvar no localStorage
+        this.saveToStorage();
+    },
+
+    // Sincronizar com servidor
+    async syncToServer() {
+        if (!this.syncEnabled || this.syncInProgress) return;
+
+        this.syncInProgress = true;
+        try {
+            const response = await fetch(this.API_URL + '/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    statusData: this.statusData,
+                    customItems: this.customItems,
+                    deletedItems: this.deletedItems,
+                    editedItems: this.editedItems
+                })
+            });
+
+            if (response.ok) {
+                console.log('☁️ Dados sincronizados com servidor');
+            }
+        } catch (error) {
+            console.log('⚠️ Erro ao sincronizar:', error.message);
+        } finally {
+            this.syncInProgress = false;
+        }
+    },
+
+    // Salvar status no servidor
+    async saveStatusToServer(mes, tipo, itemNome, status, dataPagamento) {
+        if (!this.syncEnabled) return;
+
+        try {
+            await fetch(this.API_URL + '/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mes, tipo, itemNome, status, dataPagamento })
+            });
+        } catch (error) {
+            console.log('⚠️ Erro ao salvar no servidor');
+        }
     },
 
     // Carregar dados do localStorage
@@ -249,12 +340,17 @@ const GestaoFinanceira = {
     // Atualizar status de um item
     updateStatus(mes, tipo, nome, status, dataPagamento = null) {
         const id = this.generateId(mes, tipo, nome);
+        const finalDate = dataPagamento || (status === 'Pago' || status === 'Recebido' ? new Date().toISOString().split('T')[0] : null);
+
         this.statusData[id] = {
             status: status,
-            dataPagamento: dataPagamento || (status === 'Pago' || status === 'Recebido' ? new Date().toISOString().split('T')[0] : null),
+            dataPagamento: finalDate,
             updatedAt: new Date().toISOString()
         };
         this.saveToStorage();
+
+        // Sincronizar com servidor
+        this.saveStatusToServer(mes, tipo, nome, status, finalDate);
 
         this.dispatchEvent('financeiroUpdated', { mes, tipo, nome, status });
         return this.statusData[id];
@@ -501,6 +597,89 @@ const GestaoFinanceira = {
         this.deletedItems = {};
         this.editedItems = {};
         this.saveToStorage();
+    },
+
+    // ========== BACKUP E RESTAURAÇÃO ==========
+
+    // Exportar todos os dados para JSON
+    exportData() {
+        const data = {
+            version: '1.0',
+            exportDate: new Date().toISOString(),
+            statusData: this.statusData,
+            customItems: this.customItems,
+            deletedItems: this.deletedItems,
+            editedItems: this.editedItems
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `starken-financeiro-backup-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        console.log('📦 Dados exportados com sucesso!');
+        return true;
+    },
+
+    // Importar dados de arquivo JSON
+    importData(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Validar estrutura do arquivo
+                    if (!data.version || !data.statusData) {
+                        throw new Error('Arquivo de backup inválido');
+                    }
+
+                    // Restaurar dados
+                    this.statusData = data.statusData || {};
+                    this.customItems = data.customItems || {};
+                    this.deletedItems = data.deletedItems || {};
+                    this.editedItems = data.editedItems || {};
+
+                    // Salvar no localStorage
+                    this.saveToStorage();
+
+                    console.log('✅ Dados importados com sucesso!');
+                    console.log('📅 Data do backup:', data.exportDate);
+
+                    resolve({
+                        success: true,
+                        date: data.exportDate,
+                        message: 'Dados restaurados com sucesso!'
+                    });
+                } catch (error) {
+                    console.error('❌ Erro ao importar:', error);
+                    reject(error);
+                }
+            };
+
+            reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
+            reader.readAsText(file);
+        });
+    },
+
+    // Obter estatísticas dos dados salvos
+    getStats() {
+        const statusCount = Object.keys(this.statusData).length;
+        const customCount = Object.values(this.customItems).reduce((acc, month) => {
+            return acc + (month.despesas?.length || 0) + (month.receitas?.length || 0);
+        }, 0);
+
+        return {
+            statusRecords: statusCount,
+            customItems: customCount,
+            hasData: statusCount > 0 || customCount > 0
+        };
     }
 };
 
