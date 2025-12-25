@@ -1270,6 +1270,130 @@
             opacity: 1;
         }
 
+        .kanban-card .card-edit-btn:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        /* Kanban Card Delete Button */
+        .kanban-card .card-delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 42px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: #ffebee;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c62828;
+        }
+
+        .kanban-card:hover .card-delete-btn {
+            opacity: 1;
+        }
+
+        .kanban-card .card-delete-btn:hover {
+            background: #c62828;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Kanban Card Status Styles */
+        .kanban-card.status-recebido {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+        }
+
+        .kanban-card.status-recebido .kanban-card-amount {
+            color: #27ae60;
+        }
+
+        .kanban-card.status-pendente {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+        }
+
+        /* Card info extra */
+        .kanban-card-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+
+        .kanban-card-date {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .kanban-card-date.recebido {
+            color: #27ae60;
+        }
+
+        /* Drag over feedback */
+        .kanban-column.drag-over .kanban-column-content {
+            background: rgba(74, 107, 84, 0.1);
+            border: 2px dashed var(--primary-green);
+            border-radius: 8px;
+        }
+
+        /* Delete confirmation in card */
+        .kanban-delete-confirm {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        .kanban-delete-confirm p {
+            font-size: 13px;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .kanban-delete-confirm-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .kanban-delete-confirm-btns button {
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .kanban-delete-confirm-btns .confirm-yes {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .kanban-delete-confirm-btns .confirm-no {
+            background: var(--bg-gray);
+            color: var(--text-dark);
+        }
+
         /* Modal de Recebimento Kanban */
         .kanban-modal-overlay {
             position: fixed;
@@ -2605,6 +2729,10 @@
             const empresa = (item.empresa || 'Starken').toLowerCase();
             const empresaLabel = item.empresa || 'Starken';
 
+            // Determinar status visual
+            let statusClass = item.isRecebido ? 'status-recebido' : 'status-pendente';
+            let statusIcon = item.isRecebido ? '✅' : '⏳';
+
             let badges = `<span class="kanban-card-badge empresa-${empresa}">${empresaLabel}</span>`;
             if (item.novo) {
                 badges += '<span class="kanban-card-badge novo">✨ Novo</span>';
@@ -2612,30 +2740,92 @@
             if (item.renovacao) {
                 badges += '<span class="kanban-card-badge" style="background: #e3f2fd; color: #1565c0;">🔄 Renovação</span>';
             }
+            if (item.isCustom) {
+                badges += '<span class="kanban-card-badge" style="background: #e3f2fd; color: #1565c0;">✏️ Manual</span>';
+            }
+
+            // Data info
+            let dateInfo = '';
+            if (item.isRecebido && item.dataPagamento) {
+                dateInfo = `<span class="kanban-card-date recebido">✓ Recebido em ${formatDate(item.dataPagamento)}</span>`;
+            }
 
             const actionBtn = item.isRecebido ?
                 `<button class="kanban-action-btn unreceive" onclick="event.stopPropagation(); openKanbanReceiveModal(kanbanItemsMap['${item.nome.replace(/'/g, "\\'")}'], 'pendente')">↩ Desfazer</button>` :
                 `<button class="kanban-action-btn receive" onclick="event.stopPropagation(); openKanbanReceiveModal(kanbanItemsMap['${item.nome.replace(/'/g, "\\'")}'], 'recebido')">✓ Receber</button>`;
 
+            // Escapar nome para uso em atributos e funções
+            const nomeEscaped = item.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const nomeAttr = item.nome.replace(/"/g, '&quot;');
+
             return `
-                <div class="kanban-card ${empresa}"
+                <div class="kanban-card ${empresa} ${statusClass}"
                      draggable="true"
-                     data-nome="${item.nome}"
+                     data-nome="${nomeAttr}"
                      data-valor="${item.valor || 0}"
-                     onclick="openKanbanReceiveModal(kanbanItemsMap['${item.nome.replace(/'/g, "\\'")}'])">
-                    <button class="card-edit-btn" onclick="event.stopPropagation(); openKanbanReceiveModal(kanbanItemsMap['${item.nome.replace(/'/g, "\\'")}'])" title="Editar">✏️</button>
+                     data-is-custom="${item.isCustom || false}"
+                     onclick="openKanbanReceiveModal(kanbanItemsMap['${nomeEscaped}'])">
+                    <button class="card-delete-btn" onclick="event.stopPropagation(); showKanbanDeleteConfirm(this, '${nomeEscaped}', ${item.isCustom || false})" title="Excluir">🗑️</button>
+                    <button class="card-edit-btn" onclick="event.stopPropagation(); openKanbanReceiveModal(kanbanItemsMap['${nomeEscaped}'])" title="Editar">✏️</button>
                     <div class="kanban-card-header">
-                        <div class="kanban-card-title">${item.nome}</div>
+                        <div class="kanban-card-title">${statusIcon} ${item.nome}</div>
                         <div class="kanban-card-amount">${formatMoney(item.valor || 0)}</div>
                     </div>
                     <div class="kanban-card-meta">
                         ${badges}
                     </div>
+                    ${dateInfo ? `<div class="kanban-card-info">${dateInfo}</div>` : ''}
                     <div class="kanban-card-actions">
                         ${actionBtn}
                     </div>
                 </div>
             `;
+        }
+
+        // Mostrar confirmação de exclusão no card
+        function showKanbanDeleteConfirm(btn, nome, isCustom) {
+            const card = btn.closest('.kanban-card');
+
+            // Remover confirmações anteriores
+            document.querySelectorAll('.kanban-delete-confirm').forEach(el => el.remove());
+
+            const confirmDiv = document.createElement('div');
+            confirmDiv.className = 'kanban-delete-confirm';
+            confirmDiv.innerHTML = `
+                <p>Excluir "${nome}"?</p>
+                <div class="kanban-delete-confirm-btns">
+                    <button class="confirm-yes" onclick="confirmKanbanDelete('${nome}', ${isCustom})">Excluir</button>
+                    <button class="confirm-no" onclick="this.closest('.kanban-delete-confirm').remove()">Cancelar</button>
+                </div>
+            `;
+
+            card.appendChild(confirmDiv);
+        }
+
+        // Confirmar exclusão do Kanban
+        function confirmKanbanDelete(nome, isCustom) {
+            if (isCustom) {
+                // Deletar item customizado
+                const customData = GestaoFinanceira.customItems[currentMonth];
+                if (customData && customData.receitas) {
+                    const index = customData.receitas.findIndex(i => i.nome === nome);
+                    if (index !== -1) {
+                        customData.receitas.splice(index, 1);
+                        GestaoFinanceira.saveToStorage();
+                        showToast('Item excluído com sucesso!', 'success');
+                    }
+                }
+            } else {
+                // Marcar item como deletado
+                if (!GestaoFinanceira.deletedItems[currentMonth]) {
+                    GestaoFinanceira.deletedItems[currentMonth] = { despesas: [], receitas: [] };
+                }
+                GestaoFinanceira.deletedItems[currentMonth].receitas.push(nome);
+                GestaoFinanceira.saveToStorage();
+                showToast('Item removido da lista!', 'success');
+            }
+
+            loadMonthData(currentMonth);
         }
 
         // Toggle status via Kanban
@@ -2681,11 +2871,28 @@
             const nome = e.dataTransfer.getData('text/plain');
             if (!nome) return;
 
-            // Buscar item no mapa e abrir modal
+            // Buscar item no mapa
             const item = kanbanItemsMap[nome];
-            if (item) {
-                openKanbanReceiveModal(item, targetStatus === 'recebido' ? 'recebido' : 'pendente');
+            if (!item) return;
+
+            // Determinar novo status baseado na coluna de destino
+            let newStatus, newDate;
+
+            if (targetStatus === 'recebido') {
+                newStatus = 'Recebido';
+                newDate = new Date().toISOString().split('T')[0];
+                showToast(`"${nome}" marcado como recebido!`, 'success');
+            } else if (targetStatus === 'pendente') {
+                newStatus = 'A Receber';
+                newDate = null;
+                showToast(`"${nome}" movido para pendentes`, 'warning');
             }
+
+            // Atualizar status diretamente
+            GestaoFinanceira.updateStatus(currentMonth, 'receita', nome, newStatus, newDate);
+
+            // Recarregar dados
+            loadMonthData(currentMonth);
         }
 
         // Inicializar
