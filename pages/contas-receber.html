@@ -3258,6 +3258,9 @@
         function openNovaReceitaModal() {
             document.getElementById('novaReceitaModal').classList.add('active');
             document.getElementById('receitaForm').reset();
+            // Resetar tipo de contrato para TCV
+            tipoContratoSelecionado = 'tcv';
+            setTipoContrato('tcv');
             toggleAlphaFields();
         }
 
@@ -3284,27 +3287,77 @@
             }
         }
 
+        // Tipo de contrato selecionado (tcv ou mrr)
+        let tipoContratoSelecionado = 'tcv';
+
+        function setTipoContrato(tipo) {
+            tipoContratoSelecionado = tipo;
+
+            const camposTCV = document.getElementById('camposTCV');
+            const camposMRR = document.getElementById('camposMRR');
+            const labelTCV = document.getElementById('labelTCV');
+            const labelMRR = document.getElementById('labelMRR');
+            const labelValorBruto = document.getElementById('labelValorBruto');
+            const labelValorLiquido = document.getElementById('labelValorLiquido');
+            const rowTaxaCartao = document.getElementById('rowTaxaCartao');
+
+            if (tipo === 'tcv') {
+                camposTCV.style.display = 'block';
+                camposMRR.style.display = 'none';
+                labelTCV.style.borderColor = 'var(--primary-green)';
+                labelTCV.style.background = 'rgba(74, 107, 84, 0.05)';
+                labelMRR.style.borderColor = 'var(--border-color)';
+                labelMRR.style.background = 'transparent';
+                labelValorBruto.textContent = 'TCV Total:';
+                labelValorLiquido.textContent = 'Valor Líquido a Receber';
+                rowTaxaCartao.style.display = 'flex';
+            } else {
+                camposTCV.style.display = 'none';
+                camposMRR.style.display = 'block';
+                labelMRR.style.borderColor = 'var(--primary-green)';
+                labelMRR.style.background = 'rgba(74, 107, 84, 0.05)';
+                labelTCV.style.borderColor = 'var(--border-color)';
+                labelTCV.style.background = 'transparent';
+                labelValorBruto.textContent = 'MRR Bruto (Mensal):';
+                labelValorLiquido.textContent = 'Valor Líquido Mensal';
+                rowTaxaCartao.style.display = 'none';
+            }
+
+            // Recalcular com o novo tipo
+            calcularRepasseAlpha();
+        }
+
         function calcularRepasseAlpha() {
-            const tcv = parseFloat(document.getElementById('receitaTCV').value) || 0;
-            const royaltiesPct = parseFloat(document.getElementById('receitaRoyalties').value) || 15;
-            const taxaCartaoPct = parseFloat(document.getElementById('receitaTaxaCartao').value) || 0;
+            let valorBruto = 0;
+            let royaltiesPct = 15;
+            let taxaCartaoPct = 0;
+
+            if (tipoContratoSelecionado === 'tcv') {
+                valorBruto = parseFloat(document.getElementById('receitaTCV').value) || 0;
+                royaltiesPct = parseFloat(document.getElementById('receitaRoyaltiesTCV').value) || 15;
+                taxaCartaoPct = parseFloat(document.getElementById('receitaTaxaCartao').value) || 0;
+            } else {
+                valorBruto = parseFloat(document.getElementById('receitaMRR').value) || 0;
+                royaltiesPct = parseFloat(document.getElementById('receitaRoyaltiesMRR').value) || 15;
+                taxaCartaoPct = 0; // MRR não tem taxa de cartão
+            }
 
             // Calcular valores
-            const royaltiesValor = tcv * (royaltiesPct / 100);
-            const taxaCartaoValor = tcv * (taxaCartaoPct / 100);
-            const valorLiquido = tcv - royaltiesValor - taxaCartaoValor;
+            const royaltiesValor = valorBruto * (royaltiesPct / 100);
+            const taxaCartaoValor = valorBruto * (taxaCartaoPct / 100);
+            const valorLiquido = valorBruto - royaltiesValor - taxaCartaoValor;
 
             // Atualizar resumo
-            document.getElementById('summaryTCV').textContent = formatMoney(tcv);
+            document.getElementById('summaryTCV').textContent = formatMoney(valorBruto);
             document.getElementById('summaryRoyaltiesPct').textContent = royaltiesPct;
             document.getElementById('summaryRoyalties').textContent = '- ' + formatMoney(royaltiesValor);
             document.getElementById('summaryTaxaPct').textContent = taxaCartaoPct;
             document.getElementById('summaryTaxa').textContent = '- ' + formatMoney(taxaCartaoValor);
             document.getElementById('summaryLiquido').textContent = formatMoney(valorLiquido);
 
-            // Mostrar resumo se TCV > 0
+            // Mostrar resumo se valor > 0
             const repasseSummary = document.getElementById('repasseSummary');
-            if (tcv > 0) {
+            if (valorBruto > 0) {
                 repasseSummary.classList.add('visible');
             }
         }
@@ -3320,30 +3373,49 @@
             const isRenovacao = document.getElementById('receitaRenovacao').checked;
 
             let valor = 0;
-            let tcvInfo = null;
+            let contratoInfo = null;
 
             if (empresa === 'Alpha') {
-                const tcv = parseFloat(document.getElementById('receitaTCV').value) || 0;
-                const royaltiesPct = parseFloat(document.getElementById('receitaRoyalties').value) || 15;
-                const taxaCartaoPct = parseFloat(document.getElementById('receitaTaxaCartao').value) || 0;
-                const meses = parseInt(document.getElementById('receitaMeses').value) || 1;
-                const parcelas = parseInt(document.getElementById('receitaParcelas').value) || 1;
+                if (tipoContratoSelecionado === 'tcv') {
+                    // Contrato TCV (Projeto único)
+                    const tcv = parseFloat(document.getElementById('receitaTCV').value) || 0;
+                    const royaltiesPct = parseFloat(document.getElementById('receitaRoyaltiesTCV').value) || 15;
+                    const taxaCartaoPct = parseFloat(document.getElementById('receitaTaxaCartao').value) || 0;
+                    const meses = parseInt(document.getElementById('receitaMeses').value) || 1;
+                    const parcelas = parseInt(document.getElementById('receitaParcelas').value) || 1;
 
-                const royaltiesValor = tcv * (royaltiesPct / 100);
-                const taxaCartaoValor = tcv * (taxaCartaoPct / 100);
-                valor = tcv - royaltiesValor - taxaCartaoValor;
+                    const royaltiesValor = tcv * (royaltiesPct / 100);
+                    const taxaCartaoValor = tcv * (taxaCartaoPct / 100);
+                    valor = tcv - royaltiesValor - taxaCartaoValor;
 
-                // Guardar informações do TCV para referência
-                tcvInfo = {
-                    tcv: tcv,
-                    royaltiesPct: royaltiesPct,
-                    royaltiesValor: royaltiesValor,
-                    taxaCartaoPct: taxaCartaoPct,
-                    taxaCartaoValor: taxaCartaoValor,
-                    meses: meses,
-                    parcelas: parcelas,
-                    valorLiquido: valor
-                };
+                    contratoInfo = {
+                        tipo: 'TCV',
+                        valorBruto: tcv,
+                        royaltiesPct: royaltiesPct,
+                        royaltiesValor: royaltiesValor,
+                        taxaCartaoPct: taxaCartaoPct,
+                        taxaCartaoValor: taxaCartaoValor,
+                        meses: meses,
+                        parcelas: parcelas,
+                        valorLiquido: valor
+                    };
+                } else {
+                    // Contrato MRR (Mensalidade recorrente)
+                    const mrr = parseFloat(document.getElementById('receitaMRR').value) || 0;
+                    const royaltiesPct = parseFloat(document.getElementById('receitaRoyaltiesMRR').value) || 15;
+
+                    const royaltiesValor = mrr * (royaltiesPct / 100);
+                    valor = mrr - royaltiesValor;
+
+                    contratoInfo = {
+                        tipo: 'MRR',
+                        valorBruto: mrr,
+                        royaltiesPct: royaltiesPct,
+                        royaltiesValor: royaltiesValor,
+                        valorLiquido: valor,
+                        recorrente: true
+                    };
+                }
             } else {
                 valor = parseFloat(document.getElementById('receitaValorSimples').value) || 0;
             }
@@ -3364,7 +3436,7 @@
                 renovacao: isRenovacao,
                 status: 'A Receber',
                 isCustom: true,
-                tcvInfo: tcvInfo // Guardar info do TCV se for Alpha
+                contratoInfo: contratoInfo // Guardar info do contrato se for Alpha
             };
 
             // Adicionar ao GestaoFinanceira
@@ -3381,8 +3453,9 @@
             closeNovaReceitaModal();
 
             // Mensagem de sucesso com detalhes
-            if (empresa === 'Alpha' && tcvInfo) {
-                showToast(`Receita Alpha adicionada: ${formatMoney(valor)} (TCV: ${formatMoney(tcvInfo.tcv)})`, 'success');
+            if (empresa === 'Alpha' && contratoInfo) {
+                const tipoLabel = contratoInfo.tipo === 'MRR' ? 'MRR' : 'TCV';
+                showToast(`Receita Alpha (${tipoLabel}) adicionada: ${formatMoney(valor)} (Bruto: ${formatMoney(contratoInfo.valorBruto)})`, 'success');
             } else {
                 showToast(`Receita adicionada: ${formatMoney(valor)}`, 'success');
             }
@@ -3483,63 +3556,101 @@
                             ⭐ Cálculo do Repasse Alpha
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">TCV Total (Valor Bruto) *</label>
-                                <input type="number" class="form-input" id="receitaTCV" placeholder="7500" min="0" step="0.01" oninput="calcularRepasseAlpha()">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Meses de Trabalho</label>
-                                <select class="form-select" id="receitaMeses" onchange="calcularRepasseAlpha()">
-                                    <option value="1">1 (Mensal)</option>
-                                    <option value="3">3 (Trimestral)</option>
-                                    <option value="6">6 (Semestral)</option>
-                                    <option value="12">12 (Anual)</option>
-                                </select>
+                        <!-- Tipo de Contrato -->
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Contrato *</label>
+                            <div style="display: flex; gap: 10px;">
+                                <label style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;" id="labelTCV" onclick="setTipoContrato('tcv')">
+                                    <input type="radio" name="tipoContrato" value="tcv" checked style="width: 18px; height: 18px;">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 14px;">📋 TCV</div>
+                                        <div style="font-size: 11px; color: var(--text-light);">Projeto/Contrato único</div>
+                                    </div>
+                                </label>
+                                <label style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;" id="labelMRR" onclick="setTipoContrato('mrr')">
+                                    <input type="radio" name="tipoContrato" value="mrr" style="width: 18px; height: 18px;">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 14px;">🔄 MRR</div>
+                                        <div style="font-size: 11px; color: var(--text-light);">Mensalidade recorrente</div>
+                                    </div>
+                                </label>
                             </div>
                         </div>
 
-                        <div class="form-row-3">
-                            <div class="form-group">
-                                <label class="form-label">Parcelas</label>
-                                <select class="form-select" id="receitaParcelas" onchange="calcularRepasseAlpha()">
-                                    <option value="1">1x</option>
-                                    <option value="2">2x</option>
-                                    <option value="3">3x</option>
-                                    <option value="4">4x</option>
-                                    <option value="5">5x</option>
-                                    <option value="6">6x</option>
-                                    <option value="10">10x</option>
-                                    <option value="12">12x</option>
-                                </select>
+                        <!-- Campos TCV -->
+                        <div id="camposTCV">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">TCV Total (Valor Bruto) *</label>
+                                    <input type="number" class="form-input" id="receitaTCV" placeholder="7500" min="0" step="0.01" oninput="calcularRepasseAlpha()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Meses de Trabalho</label>
+                                    <select class="form-select" id="receitaMeses" onchange="calcularRepasseAlpha()">
+                                        <option value="1">1 (Mensal)</option>
+                                        <option value="3">3 (Trimestral)</option>
+                                        <option value="6">6 (Semestral)</option>
+                                        <option value="12">12 (Anual)</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">% Royalties</label>
-                                <input type="number" class="form-input" id="receitaRoyalties" value="15" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label class="form-label">Parcelas</label>
+                                    <select class="form-select" id="receitaParcelas" onchange="calcularRepasseAlpha()">
+                                        <option value="1">1x</option>
+                                        <option value="2">2x</option>
+                                        <option value="3">3x</option>
+                                        <option value="4">4x</option>
+                                        <option value="5">5x</option>
+                                        <option value="6">6x</option>
+                                        <option value="10">10x</option>
+                                        <option value="12">12x</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">% Royalties</label>
+                                    <input type="number" class="form-input" id="receitaRoyaltiesTCV" value="15" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">% Taxa Cartão</label>
+                                    <input type="number" class="form-input" id="receitaTaxaCartao" value="0" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">% Taxa Cartão</label>
-                                <input type="number" class="form-input" id="receitaTaxaCartao" value="0" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                        </div>
+
+                        <!-- Campos MRR -->
+                        <div id="camposMRR" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Valor Mensal (MRR Bruto) *</label>
+                                    <input type="number" class="form-input" id="receitaMRR" placeholder="2000" min="0" step="0.01" oninput="calcularRepasseAlpha()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">% Royalties</label>
+                                    <input type="number" class="form-input" id="receitaRoyaltiesMRR" value="15" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                                </div>
                             </div>
                         </div>
 
                         <!-- Resumo do Repasse -->
                         <div id="repasseSummary" class="repasse-summary">
                             <div class="repasse-summary-title">📊 Resumo do Repasse</div>
-                            <div class="repasse-row">
-                                <span class="label">TCV Total:</span>
+                            <div class="repasse-row" id="rowValorBruto">
+                                <span class="label" id="labelValorBruto">TCV Total:</span>
                                 <span class="value" id="summaryTCV">R$ 0,00</span>
                             </div>
                             <div class="repasse-row">
                                 <span class="label">Royalties (<span id="summaryRoyaltiesPct">15</span>%):</span>
                                 <span class="value negative" id="summaryRoyalties">- R$ 0,00</span>
                             </div>
-                            <div class="repasse-row">
+                            <div class="repasse-row" id="rowTaxaCartao">
                                 <span class="label">Taxa Cartão (<span id="summaryTaxaPct">0</span>%):</span>
                                 <span class="value negative" id="summaryTaxa">- R$ 0,00</span>
                             </div>
                             <div class="repasse-row total">
-                                <span class="label">💰 Valor Líquido a Receber:</span>
+                                <span class="label">💰 <span id="labelValorLiquido">Valor Líquido a Receber</span>:</span>
                                 <span class="value positive" id="summaryLiquido">R$ 0,00</span>
                             </div>
                         </div>
