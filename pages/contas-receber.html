@@ -1416,8 +1416,8 @@
         .receita-modal {
             background: white;
             border-radius: 16px;
-            width: 90%;
-            max-width: 600px;
+            width: 95%;
+            max-width: 850px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -1498,6 +1498,14 @@
             gap: 15px;
         }
 
+        /* Layout de 2 colunas para Alpha */
+        .alpha-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
         /* Alpha Calculation Fields */
         .alpha-fields {
             display: none;
@@ -1505,12 +1513,24 @@
             border: 2px dashed var(--border-color);
             border-radius: 12px;
             padding: 20px;
-            margin-top: 20px;
         }
 
         .alpha-fields.visible {
             display: block;
             animation: fadeIn 0.3s ease;
+        }
+
+        .alpha-content-grid {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .alpha-inputs-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         @keyframes fadeIn {
@@ -1533,8 +1553,8 @@
             background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             border-radius: 12px;
             padding: 20px;
-            margin-top: 20px;
             display: none;
+            align-self: start;
         }
 
         .repasse-summary.visible {
@@ -3272,18 +3292,15 @@
             const empresa = document.getElementById('receitaEmpresa').value;
             const alphaFields = document.getElementById('alphaFields');
             const starkenFields = document.getElementById('starkenFields');
-            const repasseSummary = document.getElementById('repasseSummary');
 
             if (empresa === 'Alpha') {
                 alphaFields.classList.add('visible');
                 starkenFields.style.display = 'none';
-                repasseSummary.classList.add('visible');
                 // Recalcular ao trocar para Alpha
                 calcularRepasseAlpha();
             } else {
                 alphaFields.classList.remove('visible');
                 starkenFields.style.display = 'block';
-                repasseSummary.classList.remove('visible');
             }
         }
 
@@ -3354,12 +3371,6 @@
             document.getElementById('summaryTaxaPct').textContent = taxaCartaoPct;
             document.getElementById('summaryTaxa').textContent = '- ' + formatMoney(taxaCartaoValor);
             document.getElementById('summaryLiquido').textContent = formatMoney(valorLiquido);
-
-            // Mostrar resumo se valor > 0
-            const repasseSummary = document.getElementById('repasseSummary');
-            if (valorBruto > 0) {
-                repasseSummary.classList.add('visible');
-            }
         }
 
         function saveNovaReceita(event) {
@@ -3557,101 +3568,106 @@
                         </div>
 
                         <!-- Tipo de Contrato -->
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 0;">
                             <label class="form-label">Tipo de Contrato *</label>
                             <div style="display: flex; gap: 10px;">
-                                <label style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;" id="labelTCV" onclick="setTipoContrato('tcv')">
-                                    <input type="radio" name="tipoContrato" value="tcv" checked style="width: 18px; height: 18px;">
+                                <label style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white;" id="labelTCV" onclick="setTipoContrato('tcv')">
+                                    <input type="radio" name="tipoContrato" value="tcv" checked style="width: 16px; height: 16px;">
                                     <div>
-                                        <div style="font-weight: 600; font-size: 14px;">📋 TCV</div>
-                                        <div style="font-size: 11px; color: var(--text-light);">Projeto/Contrato único</div>
+                                        <div style="font-weight: 600; font-size: 13px;">📋 TCV</div>
+                                        <div style="font-size: 10px; color: var(--text-light);">Projeto único</div>
                                     </div>
                                 </label>
-                                <label style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;" id="labelMRR" onclick="setTipoContrato('mrr')">
-                                    <input type="radio" name="tipoContrato" value="mrr" style="width: 18px; height: 18px;">
+                                <label style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white;" id="labelMRR" onclick="setTipoContrato('mrr')">
+                                    <input type="radio" name="tipoContrato" value="mrr" style="width: 16px; height: 16px;">
                                     <div>
-                                        <div style="font-weight: 600; font-size: 14px;">🔄 MRR</div>
-                                        <div style="font-size: 11px; color: var(--text-light);">Mensalidade recorrente</div>
+                                        <div style="font-weight: 600; font-size: 13px;">🔄 MRR</div>
+                                        <div style="font-size: 10px; color: var(--text-light);">Recorrente</div>
                                     </div>
                                 </label>
                             </div>
                         </div>
 
-                        <!-- Campos TCV -->
-                        <div id="camposTCV">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">TCV Total (Valor Bruto) *</label>
-                                    <input type="number" class="form-input" id="receitaTCV" placeholder="7500" min="0" step="0.01" oninput="calcularRepasseAlpha()">
+                        <!-- Grid: Campos à esquerda, Resumo à direita -->
+                        <div class="alpha-content-grid">
+                            <div class="alpha-inputs-section">
+                                <!-- Campos TCV -->
+                                <div id="camposTCV">
+                                    <div class="form-row">
+                                        <div class="form-group" style="margin-bottom: 10px;">
+                                            <label class="form-label">TCV Total (Valor Bruto) *</label>
+                                            <input type="number" class="form-input" id="receitaTCV" placeholder="7500" min="0" step="0.01" oninput="calcularRepasseAlpha()">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 10px;">
+                                            <label class="form-label">Meses de Trabalho</label>
+                                            <select class="form-select" id="receitaMeses" onchange="calcularRepasseAlpha()">
+                                                <option value="1">1 (Mensal)</option>
+                                                <option value="3">3 (Trimestral)</option>
+                                                <option value="6">6 (Semestral)</option>
+                                                <option value="12">12 (Anual)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row-3">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">Parcelas</label>
+                                            <select class="form-select" id="receitaParcelas" onchange="calcularRepasseAlpha()">
+                                                <option value="1">1x</option>
+                                                <option value="2">2x</option>
+                                                <option value="3">3x</option>
+                                                <option value="4">4x</option>
+                                                <option value="5">5x</option>
+                                                <option value="6">6x</option>
+                                                <option value="10">10x</option>
+                                                <option value="12">12x</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">% Royalties</label>
+                                            <input type="number" class="form-input" id="receitaRoyaltiesTCV" value="15" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">% Taxa Cartão</label>
+                                            <input type="number" class="form-input" id="receitaTaxaCartao" value="0" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">Meses de Trabalho</label>
-                                    <select class="form-select" id="receitaMeses" onchange="calcularRepasseAlpha()">
-                                        <option value="1">1 (Mensal)</option>
-                                        <option value="3">3 (Trimestral)</option>
-                                        <option value="6">6 (Semestral)</option>
-                                        <option value="12">12 (Anual)</option>
-                                    </select>
+
+                                <!-- Campos MRR -->
+                                <div id="camposMRR" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">Valor Mensal (MRR Bruto) *</label>
+                                            <input type="number" class="form-input" id="receitaMRR" placeholder="2000" min="0" step="0.01" oninput="calcularRepasseAlpha()">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">% Royalties</label>
+                                            <input type="number" class="form-input" id="receitaRoyaltiesMRR" value="15" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-row-3">
-                                <div class="form-group">
-                                    <label class="form-label">Parcelas</label>
-                                    <select class="form-select" id="receitaParcelas" onchange="calcularRepasseAlpha()">
-                                        <option value="1">1x</option>
-                                        <option value="2">2x</option>
-                                        <option value="3">3x</option>
-                                        <option value="4">4x</option>
-                                        <option value="5">5x</option>
-                                        <option value="6">6x</option>
-                                        <option value="10">10x</option>
-                                        <option value="12">12x</option>
-                                    </select>
+                            <!-- Resumo do Repasse -->
+                            <div id="repasseSummary" class="repasse-summary" style="display: block; margin-top: 0;">
+                                <div class="repasse-summary-title">📊 Resumo do Repasse</div>
+                                <div class="repasse-row" id="rowValorBruto">
+                                    <span class="label" id="labelValorBruto">TCV Total:</span>
+                                    <span class="value" id="summaryTCV">R$ 0,00</span>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">% Royalties</label>
-                                    <input type="number" class="form-input" id="receitaRoyaltiesTCV" value="15" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                                <div class="repasse-row">
+                                    <span class="label">Royalties (<span id="summaryRoyaltiesPct">15</span>%):</span>
+                                    <span class="value negative" id="summaryRoyalties">- R$ 0,00</span>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">% Taxa Cartão</label>
-                                    <input type="number" class="form-input" id="receitaTaxaCartao" value="0" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
+                                <div class="repasse-row" id="rowTaxaCartao">
+                                    <span class="label">Taxa Cartão (<span id="summaryTaxaPct">0</span>%):</span>
+                                    <span class="value negative" id="summaryTaxa">- R$ 0,00</span>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Campos MRR -->
-                        <div id="camposMRR" style="display: none;">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Valor Mensal (MRR Bruto) *</label>
-                                    <input type="number" class="form-input" id="receitaMRR" placeholder="2000" min="0" step="0.01" oninput="calcularRepasseAlpha()">
+                                <div class="repasse-row total">
+                                    <span class="label">💰 <span id="labelValorLiquido">Valor Líquido</span>:</span>
+                                    <span class="value positive" id="summaryLiquido">R$ 0,00</span>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">% Royalties</label>
-                                    <input type="number" class="form-input" id="receitaRoyaltiesMRR" value="15" min="0" max="100" step="0.01" oninput="calcularRepasseAlpha()">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Resumo do Repasse -->
-                        <div id="repasseSummary" class="repasse-summary">
-                            <div class="repasse-summary-title">📊 Resumo do Repasse</div>
-                            <div class="repasse-row" id="rowValorBruto">
-                                <span class="label" id="labelValorBruto">TCV Total:</span>
-                                <span class="value" id="summaryTCV">R$ 0,00</span>
-                            </div>
-                            <div class="repasse-row">
-                                <span class="label">Royalties (<span id="summaryRoyaltiesPct">15</span>%):</span>
-                                <span class="value negative" id="summaryRoyalties">- R$ 0,00</span>
-                            </div>
-                            <div class="repasse-row" id="rowTaxaCartao">
-                                <span class="label">Taxa Cartão (<span id="summaryTaxaPct">0</span>%):</span>
-                                <span class="value negative" id="summaryTaxa">- R$ 0,00</span>
-                            </div>
-                            <div class="repasse-row total">
-                                <span class="label">💰 <span id="labelValorLiquido">Valor Líquido a Receber</span>:</span>
-                                <span class="value positive" id="summaryLiquido">R$ 0,00</span>
                             </div>
                         </div>
                     </div>
