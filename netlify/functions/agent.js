@@ -366,6 +366,105 @@ const tools = [
         prioridade: { type: 'string', enum: ['alta', 'media', 'todas'], description: 'Filtrar por prioridade' }
       }
     }
+  },
+  // ============================================
+  // TOOLS DE GESTÃO (CRUD)
+  // ============================================
+  {
+    name: 'adicionar_conta_pagar',
+    description: 'Adiciona uma nova conta a pagar (despesa). Use quando o usuário pedir para criar/adicionar uma despesa.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        nome: { type: 'string', description: 'Nome da despesa (ex: "Aluguel", "Dante - Closer")' },
+        valor: { type: 'number', description: 'Valor em reais (ex: 2800)' },
+        categoria: { type: 'string', enum: ['pessoal', 'comercial', 'estrutura', 'ferramentas', 'alpha', 'outros'], description: 'Categoria da despesa' },
+        vencimento: { type: 'string', description: 'Data de vencimento no formato YYYY-MM-DD (ex: 2025-12-10)' },
+        mes: { type: 'string', description: 'Mês de referência YYYY-MM (ex: 2025-12). Se não informado, usa mês atual.' }
+      },
+      required: ['nome', 'valor', 'categoria']
+    }
+  },
+  {
+    name: 'adicionar_conta_receber',
+    description: 'Adiciona uma nova conta a receber (receita). Use quando o usuário pedir para criar/adicionar uma receita ou cliente.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        nome: { type: 'string', description: 'Nome do cliente ou receita (ex: "Mortadella Blumenau")' },
+        valor: { type: 'number', description: 'Valor em reais (ex: 2000)' },
+        empresa: { type: 'string', enum: ['starken', 'alpha'], description: 'Starken ou Alpha' },
+        tipo: { type: 'string', enum: ['mrr', 'tcv', 'projeto'], description: 'Tipo: MRR (mensal), TCV (trimestral) ou Projeto' },
+        vencimento: { type: 'string', description: 'Data de vencimento no formato YYYY-MM-DD' },
+        mes: { type: 'string', description: 'Mês de referência YYYY-MM' }
+      },
+      required: ['nome', 'valor', 'empresa']
+    }
+  },
+  {
+    name: 'marcar_como_pago',
+    description: 'Marca uma conta a pagar como PAGO. Use quando o usuário disser que pagou algo.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        nome: { type: 'string', description: 'Nome da despesa a marcar como paga' },
+        mes: { type: 'string', description: 'Mês de referência YYYY-MM' },
+        data_pagamento: { type: 'string', description: 'Data do pagamento YYYY-MM-DD. Se não informado, usa hoje.' }
+      },
+      required: ['nome']
+    }
+  },
+  {
+    name: 'marcar_como_recebido',
+    description: 'Marca uma conta a receber como RECEBIDO. Use quando o usuário disser que recebeu de um cliente.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        nome: { type: 'string', description: 'Nome do cliente/receita a marcar como recebido' },
+        mes: { type: 'string', description: 'Mês de referência YYYY-MM' },
+        data_recebimento: { type: 'string', description: 'Data do recebimento YYYY-MM-DD. Se não informado, usa hoje.' }
+      },
+      required: ['nome']
+    }
+  },
+  {
+    name: 'editar_item',
+    description: 'Edita o nome ou valor de uma conta (despesa ou receita).',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tipo: { type: 'string', enum: ['despesa', 'receita'], description: 'Tipo do item' },
+        nome_atual: { type: 'string', description: 'Nome atual do item a editar' },
+        novo_nome: { type: 'string', description: 'Novo nome (opcional)' },
+        novo_valor: { type: 'number', description: 'Novo valor (opcional)' },
+        mes: { type: 'string', description: 'Mês de referência YYYY-MM' }
+      },
+      required: ['tipo', 'nome_atual']
+    }
+  },
+  {
+    name: 'remover_item',
+    description: 'Remove uma conta (despesa ou receita) do sistema.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tipo: { type: 'string', enum: ['despesa', 'receita'], description: 'Tipo do item' },
+        nome: { type: 'string', description: 'Nome do item a remover' },
+        mes: { type: 'string', description: 'Mês de referência YYYY-MM' }
+      },
+      required: ['tipo', 'nome']
+    }
+  },
+  {
+    name: 'listar_contas_pendentes',
+    description: 'Lista todas as contas pendentes (a pagar ou a receber) de um mês.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tipo: { type: 'string', enum: ['pagar', 'receber', 'todas'], description: 'Filtrar por tipo' },
+        mes: { type: 'string', description: 'Mês de referência YYYY-MM' }
+      }
+    }
   }
 ];
 
@@ -637,6 +736,392 @@ async function getAlertas({ prioridade = 'todas' }) {
   };
 }
 
+// ============================================
+// IMPLEMENTAÇÃO DAS TOOLS DE GESTÃO (CRUD)
+// ============================================
+
+// Obter mês atual no formato YYYY-MM
+function getMesAtual() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+// Adicionar conta a pagar
+async function adicionarContaPagar({ nome, valor, categoria, vencimento, mes }) {
+  const mesRef = mes || getMesAtual();
+
+  try {
+    const item = await prisma.customItem.create({
+      data: {
+        mes: mesRef,
+        tipo: 'despesa',
+        nome,
+        valor,
+        categoria: categoria || 'outros',
+        status: 'A Pagar',
+        vencimento: vencimento || null,
+        createdAt: new Date()
+      }
+    });
+
+    return {
+      sucesso: true,
+      mensagem: `Conta a pagar criada com sucesso!`,
+      item: {
+        id: item.id,
+        nome,
+        valor: `R$ ${valor.toLocaleString('pt-BR')}`,
+        categoria,
+        vencimento: vencimento || 'Não informado',
+        status: 'A Pagar',
+        mes: mesRef
+      }
+    };
+  } catch (error) {
+    return {
+      sucesso: false,
+      erro: `Erro ao criar conta a pagar: ${error.message}`
+    };
+  }
+}
+
+// Adicionar conta a receber
+async function adicionarContaReceber({ nome, valor, empresa, tipo, vencimento, mes }) {
+  const mesRef = mes || getMesAtual();
+
+  try {
+    const item = await prisma.customItem.create({
+      data: {
+        mes: mesRef,
+        tipo: 'receita',
+        nome,
+        valor,
+        categoria: empresa || 'starken',
+        status: 'A Receber',
+        vencimento: vencimento || null,
+        createdAt: new Date()
+      }
+    });
+
+    return {
+      sucesso: true,
+      mensagem: `Conta a receber criada com sucesso!`,
+      item: {
+        id: item.id,
+        nome,
+        valor: `R$ ${valor.toLocaleString('pt-BR')}`,
+        empresa: empresa || 'starken',
+        tipo: tipo || 'mrr',
+        vencimento: vencimento || 'Não informado',
+        status: 'A Receber',
+        mes: mesRef
+      }
+    };
+  } catch (error) {
+    return {
+      sucesso: false,
+      erro: `Erro ao criar conta a receber: ${error.message}`
+    };
+  }
+}
+
+// Marcar como pago
+async function marcarComoPago({ nome, mes, data_pagamento }) {
+  const mesRef = mes || getMesAtual();
+  const dataPag = data_pagamento || new Date().toISOString().split('T')[0];
+
+  try {
+    // Primeiro tentar atualizar em CustomItem
+    const customItem = await prisma.customItem.findFirst({
+      where: { mes: mesRef, tipo: 'despesa', nome: { contains: nome, mode: 'insensitive' } }
+    });
+
+    if (customItem) {
+      await prisma.customItem.update({
+        where: { id: customItem.id },
+        data: { status: 'Pago' }
+      });
+      return {
+        sucesso: true,
+        mensagem: `"${nome}" marcado como PAGO!`,
+        item: { nome, status: 'Pago', data_pagamento: dataPag, mes: mesRef }
+      };
+    }
+
+    // Se não encontrou em CustomItem, criar/atualizar em PaymentStatus
+    const existing = await prisma.paymentStatus.findFirst({
+      where: { mes: mesRef, tipo: 'despesa', itemNome: { contains: nome, mode: 'insensitive' } }
+    });
+
+    if (existing) {
+      await prisma.paymentStatus.update({
+        where: { id: existing.id },
+        data: { status: 'Pago', dataPagamento: new Date(dataPag) }
+      });
+    } else {
+      await prisma.paymentStatus.create({
+        data: {
+          mes: mesRef,
+          tipo: 'despesa',
+          itemNome: nome,
+          status: 'Pago',
+          dataPagamento: new Date(dataPag)
+        }
+      });
+    }
+
+    return {
+      sucesso: true,
+      mensagem: `"${nome}" marcado como PAGO!`,
+      item: { nome, status: 'Pago', data_pagamento: dataPag, mes: mesRef }
+    };
+  } catch (error) {
+    return {
+      sucesso: false,
+      erro: `Erro ao marcar como pago: ${error.message}`
+    };
+  }
+}
+
+// Marcar como recebido
+async function marcarComoRecebido({ nome, mes, data_recebimento }) {
+  const mesRef = mes || getMesAtual();
+  const dataRec = data_recebimento || new Date().toISOString().split('T')[0];
+
+  try {
+    // Primeiro tentar atualizar em CustomItem
+    const customItem = await prisma.customItem.findFirst({
+      where: { mes: mesRef, tipo: 'receita', nome: { contains: nome, mode: 'insensitive' } }
+    });
+
+    if (customItem) {
+      await prisma.customItem.update({
+        where: { id: customItem.id },
+        data: { status: 'Recebido' }
+      });
+      return {
+        sucesso: true,
+        mensagem: `"${nome}" marcado como RECEBIDO!`,
+        item: { nome, status: 'Recebido', data_recebimento: dataRec, mes: mesRef }
+      };
+    }
+
+    // Se não encontrou em CustomItem, criar/atualizar em PaymentStatus
+    const existing = await prisma.paymentStatus.findFirst({
+      where: { mes: mesRef, tipo: 'receita', itemNome: { contains: nome, mode: 'insensitive' } }
+    });
+
+    if (existing) {
+      await prisma.paymentStatus.update({
+        where: { id: existing.id },
+        data: { status: 'Recebido', dataPagamento: new Date(dataRec) }
+      });
+    } else {
+      await prisma.paymentStatus.create({
+        data: {
+          mes: mesRef,
+          tipo: 'receita',
+          itemNome: nome,
+          status: 'Recebido',
+          dataPagamento: new Date(dataRec)
+        }
+      });
+    }
+
+    return {
+      sucesso: true,
+      mensagem: `"${nome}" marcado como RECEBIDO!`,
+      item: { nome, status: 'Recebido', data_recebimento: dataRec, mes: mesRef }
+    };
+  } catch (error) {
+    return {
+      sucesso: false,
+      erro: `Erro ao marcar como recebido: ${error.message}`
+    };
+  }
+}
+
+// Editar item
+async function editarItem({ tipo, nome_atual, novo_nome, novo_valor, mes }) {
+  const mesRef = mes || getMesAtual();
+  const tipoDb = tipo === 'despesa' ? 'despesa' : 'receita';
+
+  try {
+    // Tentar encontrar em CustomItem primeiro
+    const customItem = await prisma.customItem.findFirst({
+      where: { mes: mesRef, tipo: tipoDb, nome: { contains: nome_atual, mode: 'insensitive' } }
+    });
+
+    if (customItem) {
+      const updateData = {};
+      if (novo_nome) updateData.nome = novo_nome;
+      if (novo_valor) updateData.valor = novo_valor;
+
+      await prisma.customItem.update({
+        where: { id: customItem.id },
+        data: updateData
+      });
+
+      return {
+        sucesso: true,
+        mensagem: `"${nome_atual}" atualizado com sucesso!`,
+        alteracoes: {
+          nome: novo_nome || nome_atual,
+          valor: novo_valor ? `R$ ${novo_valor.toLocaleString('pt-BR')}` : 'Não alterado',
+          mes: mesRef
+        }
+      };
+    }
+
+    // Se não encontrou em CustomItem, criar registro em EditedItem
+    await prisma.editedItem.create({
+      data: {
+        mes: mesRef,
+        tipo: tipoDb,
+        itemNome: nome_atual,
+        novoNome: novo_nome || null,
+        novoValor: novo_valor || null
+      }
+    });
+
+    return {
+      sucesso: true,
+      mensagem: `"${nome_atual}" atualizado com sucesso!`,
+      alteracoes: {
+        nome: novo_nome || nome_atual,
+        valor: novo_valor ? `R$ ${novo_valor.toLocaleString('pt-BR')}` : 'Não alterado',
+        mes: mesRef
+      }
+    };
+  } catch (error) {
+    return {
+      sucesso: false,
+      erro: `Erro ao editar item: ${error.message}`
+    };
+  }
+}
+
+// Remover item
+async function removerItem({ tipo, nome, mes }) {
+  const mesRef = mes || getMesAtual();
+  const tipoDb = tipo === 'despesa' ? 'despesa' : 'receita';
+
+  try {
+    // Tentar deletar de CustomItem primeiro
+    const customItem = await prisma.customItem.findFirst({
+      where: { mes: mesRef, tipo: tipoDb, nome: { contains: nome, mode: 'insensitive' } }
+    });
+
+    if (customItem) {
+      await prisma.customItem.delete({ where: { id: customItem.id } });
+      return {
+        sucesso: true,
+        mensagem: `"${nome}" removido com sucesso!`,
+        item: { nome, tipo, mes: mesRef }
+      };
+    }
+
+    // Se não encontrou em CustomItem, criar registro em DeletedItem
+    await prisma.deletedItem.create({
+      data: {
+        mes: mesRef,
+        tipo: tipoDb,
+        itemNome: nome
+      }
+    });
+
+    return {
+      sucesso: true,
+      mensagem: `"${nome}" removido com sucesso!`,
+      item: { nome, tipo, mes: mesRef }
+    };
+  } catch (error) {
+    return {
+      sucesso: false,
+      erro: `Erro ao remover item: ${error.message}`
+    };
+  }
+}
+
+// Listar contas pendentes
+async function listarContasPendentes({ tipo = 'todas', mes }) {
+  const mesRef = mes || getMesAtual();
+
+  try {
+    const dados = dadosFinanceiros[mesRef] || dadosFinanceiros['2025-12'];
+    const customItems = await prisma.customItem.findMany({ where: { mes: mesRef } });
+    const statusUpdates = await prisma.paymentStatus.findMany({ where: { mes: mesRef } });
+    const deletedItems = await prisma.deletedItem.findMany({ where: { mes: mesRef } });
+
+    // Criar mapa de status e deletados
+    const statusMap = {};
+    statusUpdates.forEach(s => { statusMap[s.itemNome.toLowerCase()] = s.status; });
+    const deletedSet = new Set(deletedItems.map(d => d.itemNome.toLowerCase()));
+
+    const pendentes = { pagar: [], receber: [] };
+
+    // Processar despesas
+    if (tipo === 'pagar' || tipo === 'todas') {
+      // Do dados originais
+      if (dados.despesas?.categorias) {
+        Object.values(dados.despesas.categorias).forEach(cat => {
+          if (cat.itens) {
+            cat.itens.forEach(item => {
+              const nomeL = item.nome.toLowerCase();
+              if (!deletedSet.has(nomeL) && statusMap[nomeL] !== 'Pago') {
+                pendentes.pagar.push({ nome: item.nome, valor: item.valor, status: 'A Pagar' });
+              }
+            });
+          }
+        });
+      }
+      // Custom items
+      customItems.filter(i => i.tipo === 'despesa' && i.status === 'A Pagar').forEach(item => {
+        pendentes.pagar.push({ nome: item.nome, valor: item.valor, status: 'A Pagar', custom: true });
+      });
+    }
+
+    // Processar receitas
+    if (tipo === 'receber' || tipo === 'todas') {
+      // Do dados originais
+      const clientes = [
+        ...(dados.receitas?.clientes_starken || []),
+        ...(dados.receitas?.clientes_alpha_mrr || []),
+        ...(dados.receitas?.clientes_alpha_tcv || [])
+      ];
+      clientes.forEach(cliente => {
+        const nomeL = cliente.nome.toLowerCase();
+        if (!deletedSet.has(nomeL) && statusMap[nomeL] !== 'Recebido' && cliente.status !== 'Recebido') {
+          pendentes.receber.push({ nome: cliente.nome, valor: cliente.valor, status: 'A Receber' });
+        }
+      });
+      // Custom items
+      customItems.filter(i => i.tipo === 'receita' && i.status === 'A Receber').forEach(item => {
+        pendentes.receber.push({ nome: item.nome, valor: item.valor, status: 'A Receber', custom: true });
+      });
+    }
+
+    const totalPagar = pendentes.pagar.reduce((s, i) => s + i.valor, 0);
+    const totalReceber = pendentes.receber.reduce((s, i) => s + i.valor, 0);
+
+    return {
+      mes: mesRef,
+      contas_a_pagar: pendentes.pagar,
+      contas_a_receber: pendentes.receber,
+      resumo: {
+        total_a_pagar: `R$ ${totalPagar.toLocaleString('pt-BR')}`,
+        total_a_receber: `R$ ${totalReceber.toLocaleString('pt-BR')}`,
+        saldo_previsto: `R$ ${(totalReceber - totalPagar).toLocaleString('pt-BR')}`
+      }
+    };
+  } catch (error) {
+    return {
+      sucesso: false,
+      erro: `Erro ao listar contas pendentes: ${error.message}`
+    };
+  }
+}
+
 // Executar tool
 async function executeTool(name, input) {
   switch (name) {
@@ -647,6 +1132,14 @@ async function executeTool(name, input) {
     case 'get_clientes_status': return await getClientesStatus(input);
     case 'get_projecao': return await getProjecao(input);
     case 'get_alertas': return await getAlertas(input);
+    // Tools de gestão (CRUD)
+    case 'adicionar_conta_pagar': return await adicionarContaPagar(input);
+    case 'adicionar_conta_receber': return await adicionarContaReceber(input);
+    case 'marcar_como_pago': return await marcarComoPago(input);
+    case 'marcar_como_recebido': return await marcarComoRecebido(input);
+    case 'editar_item': return await editarItem(input);
+    case 'remover_item': return await removerItem(input);
+    case 'listar_contas_pendentes': return await listarContasPendentes(input);
     default: throw new Error(`Tool não reconhecida: ${name}`);
   }
 }
