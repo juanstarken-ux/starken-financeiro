@@ -3047,11 +3047,75 @@
             document.getElementById('clientModal').classList.add('active');
             document.getElementById('clientForm').reset();
             document.getElementById('clientMesInicio').value = DashboardState.mesAtual;
+            document.getElementById('clientMesInicioTCV').value = DashboardState.mesAtual;
+            toggleTCVFields();
+            atualizarPreviewContrato();
         }
 
         // Fechar modal
         function closeClientModal() {
             document.getElementById('clientModal').classList.remove('active');
+        }
+
+        // Toggle campos MRR/TCV
+        function toggleTCVFields() {
+            const tipo = document.getElementById('clientTipoValor').value;
+            const camposMRR = document.getElementById('camposMRR');
+            const camposTCV = document.getElementById('camposTCV');
+            const valorInput = document.getElementById('clientValor');
+
+            if (tipo === 'tcv') {
+                camposMRR.style.display = 'none';
+                camposTCV.style.display = 'block';
+                valorInput.removeAttribute('required');
+            } else {
+                camposMRR.style.display = 'block';
+                camposTCV.style.display = 'none';
+                valorInput.setAttribute('required', 'required');
+            }
+        }
+
+        // Atualizar preview do contrato
+        function atualizarPreviewContrato() {
+            const tipo = document.getElementById('clientTipoValor').value;
+            const empresa = document.getElementById('clientEmpresa').value;
+            const royaltyRow = document.getElementById('previewRoyaltyRow');
+
+            let valorBruto = 0;
+            let valorParcela = 0;
+
+            if (tipo === 'mrr') {
+                valorBruto = parseFloat(document.getElementById('clientValor').value) || 0;
+                valorParcela = valorBruto;
+            } else {
+                const tcvTotal = parseFloat(document.getElementById('clientTCVTotal').value) || 0;
+                const parcelas = parseInt(document.getElementById('clientTCVParcelas').value) || 1;
+                valorParcela = tcvTotal / parcelas;
+                valorBruto = valorParcela;
+            }
+
+            // Calcular royalty para Alpha (15%)
+            let royalty = 0;
+            let liquido = valorBruto;
+
+            if (empresa === 'alpha') {
+                royalty = valorBruto * 0.15;
+                liquido = valorBruto - royalty;
+                royaltyRow.style.display = 'block';
+                document.getElementById('previewRoyalty').textContent = '- ' + formatarMoeda(royalty);
+            } else {
+                royaltyRow.style.display = 'none';
+            }
+
+            // Atualizar preview
+            document.getElementById('previewTipo').textContent = tipo.toUpperCase();
+            document.getElementById('previewEmpresa').textContent = empresa === 'alpha' ? 'Alpha' : 'Starken';
+            document.getElementById('previewBruto').textContent = formatarMoeda(valorBruto) + (tipo === 'mrr' ? '/mês' : '/parcela');
+            document.getElementById('previewLiquido').textContent = formatarMoeda(liquido) + (tipo === 'mrr' ? '/mês' : '/parcela');
+        }
+
+        function formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor || 0);
         }
 
         // Fechar ao clicar fora
@@ -3070,35 +3134,113 @@
         });
 
         // Salvar novo cliente
-        function saveClient(event) {
+        async function saveClient(event) {
             event.preventDefault();
 
             const nome = document.getElementById('clientNome').value.trim();
             const empresa = document.getElementById('clientEmpresa').value;
-            const valor = parseFloat(document.getElementById('clientValor').value);
             const categoria = document.getElementById('clientCategoria').value.trim();
-            const mesInicio = document.getElementById('clientMesInicio').value;
             const tipoValor = document.getElementById('clientTipoValor').value;
 
-            if (!nome || !valor || !categoria || !mesInicio) {
+            let valor = 0;
+            let mesInicio = '';
+            let tcvTotal = 0;
+            let parcelas = 1;
+            let valorLiquido = 0;
+
+            if (tipoValor === 'mrr') {
+                valor = parseFloat(document.getElementById('clientValor').value) || 0;
+                mesInicio = document.getElementById('clientMesInicio').value;
+
+                if (!valor) {
+                    alert('Por favor, informe o valor mensal.');
+                    return;
+                }
+            } else {
+                tcvTotal = parseFloat(document.getElementById('clientTCVTotal').value) || 0;
+                parcelas = parseInt(document.getElementById('clientTCVParcelas').value) || 1;
+                mesInicio = document.getElementById('clientMesInicioTCV').value;
+                valor = tcvTotal / parcelas;
+
+                if (!tcvTotal) {
+                    alert('Por favor, informe o valor total do contrato.');
+                    return;
+                }
+            }
+
+            if (!nome || !categoria || !mesInicio) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
+
+            // Calcular líquido (15% royalty para Alpha)
+            valorLiquido = empresa === 'alpha' ? valor * 0.85 : valor;
 
             const novoCliente = {
                 id: Date.now(),
                 nome,
                 empresa,
                 valor,
+                valorLiquido,
                 categoria,
                 mesInicio,
                 tipoValor,
+                tcvTotal: tipoValor === 'tcv' ? tcvTotal : null,
+                parcelas: tipoValor === 'tcv' ? parcelas : null,
                 criadoEm: new Date().toISOString()
             };
 
+            // Salvar localmente
             const clientes = getManualClients();
             clientes.push(novoCliente);
             saveManualClients(clientes);
+
+            // Salvar no banco via API (para integrar com Contas a Receber)
+            try {
+                if (tipoValor === 'mrr') {
+                    // MRR: adiciona uma única receita mensal
+                    await fetch('/.netlify/functions/sync-data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            acao: 'adicionar-receita',
+                            dados: {
+                                nome: nome,
+                                valor: valor,
+                                categoria: empresa,
+                                tipo: 'MRR',
+                                empresa: empresa,
+                                mes: mesInicio,
+                                status: 'A Receber'
+                            }
+                        })
+                    });
+                } else {
+                    // TCV: adiciona parcelas em meses consecutivos
+                    const mesesParcelas = gerarMesesConsecutivos(mesInicio, parcelas);
+                    for (let i = 0; i < parcelas; i++) {
+                        await fetch('/.netlify/functions/sync-data', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                acao: 'adicionar-receita',
+                                dados: {
+                                    nome: `${nome} (${i + 1}/${parcelas})`,
+                                    valor: valor,
+                                    categoria: empresa,
+                                    tipo: 'TCV',
+                                    empresa: empresa,
+                                    mes: mesesParcelas[i],
+                                    status: 'A Receber'
+                                }
+                            })
+                        });
+                    }
+                }
+                console.log('✅ Cliente salvo no banco');
+            } catch (error) {
+                console.error('Erro ao salvar no banco:', error);
+            }
 
             closeClientModal();
             renderManualClients();
@@ -3112,7 +3254,37 @@
             }
             atualizarContadoresClientes(mesAtual);
 
+            // Sincronizar dados
+            if (window.stark) {
+                window.stark.sincronizar(true);
+            }
+
+            // Toast de sucesso
+            if (window.starkRealTime) {
+                window.starkRealTime.toast(`Cliente ${nome} adicionado com sucesso!`, {
+                    tipo: 'success',
+                    titulo: 'Novo Cliente',
+                    icone: '🎉',
+                    duracao: 4000
+                });
+            }
+
             console.log('✅ Cliente manual adicionado:', novoCliente);
+        }
+
+        // Gerar array de meses consecutivos
+        function gerarMesesConsecutivos(mesInicio, quantidade) {
+            const meses = [];
+            const [ano, mes] = mesInicio.split('-').map(Number);
+
+            for (let i = 0; i < quantidade; i++) {
+                const novoMes = mes + i;
+                const novoAno = ano + Math.floor((novoMes - 1) / 12);
+                const mesAjustado = ((novoMes - 1) % 12) + 1;
+                meses.push(`${novoAno}-${String(mesAjustado).padStart(2, '0')}`);
+            }
+
+            return meses;
         }
 
         // Excluir cliente manual
@@ -3214,7 +3386,7 @@
 
     <!-- Modal Novo Cliente -->
     <div id="clientModal" class="client-modal-overlay">
-        <div class="client-modal">
+        <div class="client-modal" style="max-width: 550px;">
             <div class="modal-header">
                 <h3>➕ Adicionar Novo Cliente</h3>
                 <button class="modal-close" onclick="closeClientModal()">✕</button>
@@ -3229,48 +3401,102 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="clientEmpresa">Empresa</label>
-                            <select id="clientEmpresa">
+                            <select id="clientEmpresa" onchange="atualizarPreviewContrato()">
                                 <option value="starken">🚀 Starken</option>
                                 <option value="alpha">⭐ Alpha</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="clientTipoValor">Tipo de Valor</label>
-                            <select id="clientTipoValor">
-                                <option value="mrr">MRR (Mensal)</option>
+                            <label for="clientTipoValor">Tipo de Contrato</label>
+                            <select id="clientTipoValor" onchange="toggleTCVFields(); atualizarPreviewContrato()">
+                                <option value="mrr">MRR (Recorrente)</option>
                                 <option value="tcv">TCV (Projeto)</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="clientValor">Valor (R$) *</label>
-                            <input type="number" id="clientValor" placeholder="2000" min="0" step="0.01" required>
+                    <!-- Campos MRR -->
+                    <div id="camposMRR">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="clientValor">Valor Mensal (R$) *</label>
+                                <input type="number" id="clientValor" placeholder="2000" min="0" step="0.01" required oninput="atualizarPreviewContrato()">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientMesInicio">Mês de Início *</label>
+                                <select id="clientMesInicio">
+                                    <option value="2025-12">Dezembro 2025</option>
+                                    <option value="2026-01">Janeiro 2026</option>
+                                    <option value="2026-02">Fevereiro 2026</option>
+                                    <option value="2026-03">Março 2026</option>
+                                    <option value="2026-04">Abril 2026</option>
+                                    <option value="2026-05">Maio 2026</option>
+                                    <option value="2026-06">Junho 2026</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campos TCV -->
+                    <div id="camposTCV" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="clientTCVTotal">Valor Total Contrato (R$) *</label>
+                                <input type="number" id="clientTCVTotal" placeholder="12000" min="0" step="0.01" oninput="atualizarPreviewContrato()">
+                            </div>
+                            <div class="form-group">
+                                <label for="clientTCVParcelas">Nº de Parcelas</label>
+                                <select id="clientTCVParcelas" onchange="atualizarPreviewContrato()">
+                                    <option value="1">1x (À vista)</option>
+                                    <option value="2">2x</option>
+                                    <option value="3" selected>3x</option>
+                                    <option value="4">4x</option>
+                                    <option value="6">6x</option>
+                                    <option value="12">12x</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="clientMesInicio">Mês de Início *</label>
-                            <select id="clientMesInicio">
+                            <label for="clientMesInicioTCV">Mês 1ª Parcela *</label>
+                            <select id="clientMesInicioTCV">
                                 <option value="2025-12">Dezembro 2025</option>
                                 <option value="2026-01">Janeiro 2026</option>
                                 <option value="2026-02">Fevereiro 2026</option>
                                 <option value="2026-03">Março 2026</option>
-                                <option value="2026-04">Abril 2026</option>
-                                <option value="2026-05">Maio 2026</option>
-                                <option value="2026-06">Junho 2026</option>
-                                <option value="2026-07">Julho 2026</option>
-                                <option value="2026-08">Agosto 2026</option>
-                                <option value="2026-09">Setembro 2026</option>
-                                <option value="2026-10">Outubro 2026</option>
-                                <option value="2026-11">Novembro 2026</option>
-                                <option value="2026-12">Dezembro 2026</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="clientCategoria">Categoria *</label>
-                        <input type="text" id="clientCategoria" placeholder="Ex: Gastronomia, Automotivo, Tecnologia..." required>
+                        <label for="clientCategoria">Categoria/Segmento *</label>
+                        <input type="text" id="clientCategoria" placeholder="Ex: Gastronomia, Automotivo..." required>
+                    </div>
+
+                    <!-- Preview do Contrato -->
+                    <div id="contratoPreview" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 12px; padding: 16px; margin-top: 16px;">
+                        <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #166534;">📋 Resumo do Contrato</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+                            <div>
+                                <span style="color: #6b7280;">Tipo:</span>
+                                <strong id="previewTipo" style="color: #166534;">MRR</strong>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280;">Empresa:</span>
+                                <strong id="previewEmpresa" style="color: #166534;">Starken</strong>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280;">Valor Bruto:</span>
+                                <strong id="previewBruto" style="color: #166534;">R$ 0,00</strong>
+                            </div>
+                            <div id="previewRoyaltyRow" style="display: none;">
+                                <span style="color: #6b7280;">Royalty (15%):</span>
+                                <strong id="previewRoyalty" style="color: #ef4444;">- R$ 0,00</strong>
+                            </div>
+                            <div style="grid-column: 1 / -1; padding-top: 8px; border-top: 1px dashed #86efac; margin-top: 8px;">
+                                <span style="color: #6b7280; font-size: 14px;">💰 Líquido Starken:</span>
+                                <strong id="previewLiquido" style="color: #166534; font-size: 18px; margin-left: 8px;">R$ 0,00</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

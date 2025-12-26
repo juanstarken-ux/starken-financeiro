@@ -2138,6 +2138,7 @@
                     </div>
                     <div class="bulk-buttons">
                         <button class="bulk-btn success" onclick="marcarSelecionadosRecebidos()">✓ Marcar como Recebido</button>
+                        <button class="bulk-btn danger" onclick="excluirSelecionados()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">🗑️ Excluir Selecionados</button>
                         <button class="bulk-btn cancel" onclick="limparSelecao()">Cancelar</button>
                     </div>
                 </div>
@@ -2790,6 +2791,47 @@
             showToast(`${selectedItems.size} receitas marcadas como recebidas!`, 'success');
             limparSelecao();
             loadMonthData(currentMonth);
+        }
+
+        // Excluir selecionados
+        async function excluirSelecionados() {
+            const count = selectedItems.size;
+            if (!confirm(`Tem certeza que deseja EXCLUIR ${count} receita(s)?\n\nEssa ação não pode ser desfeita!`)) {
+                return;
+            }
+
+            let excluidos = 0;
+            for (const nome of selectedItems) {
+                try {
+                    // Tenta excluir via API (para itens do banco)
+                    await fetch('/.netlify/functions/sync-data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            acao: 'remover-item',
+                            dados: { tipo: 'receita', nome, mes: currentMonth }
+                        })
+                    });
+
+                    // Remove do GestaoFinanceira local também
+                    if (window.GestaoFinanceira && GestaoFinanceira.removeItem) {
+                        GestaoFinanceira.removeItem(currentMonth, 'receita', nome);
+                    }
+
+                    excluidos++;
+                } catch (error) {
+                    console.error('Erro ao excluir:', nome, error);
+                }
+            }
+
+            showToast(`${excluidos} receita(s) excluída(s) com sucesso!`, 'success');
+            limparSelecao();
+            loadMonthData(currentMonth);
+
+            // Sincroniza com stark-core se disponível
+            if (window.stark) {
+                window.stark.sincronizar(true);
+            }
         }
 
         // Limpar seleção
