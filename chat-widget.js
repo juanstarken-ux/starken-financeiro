@@ -447,21 +447,21 @@ const ChatWidget = {
     container.innerHTML = `
       <div class="chat-widget-window" id="chatWindow">
         <div class="chat-widget-header">
-          <div class="chat-widget-header-avatar">🤖</div>
+          <div class="chat-widget-header-avatar">⚡</div>
           <div class="chat-widget-header-info">
-            <div class="chat-widget-header-title">Agente Financeiro IA</div>
+            <div class="chat-widget-header-title">STARK</div>
             <div class="chat-widget-header-status">
               <span class="status-dot"></span>
-              Online - Pronto para ajudar
+              Seu CFO Virtual
             </div>
           </div>
           <button class="chat-widget-close" onclick="ChatWidget.toggle()">✕</button>
         </div>
         <div class="chat-widget-messages" id="chatMessages">
           <div class="chat-welcome">
-            <div class="chat-welcome-icon">🤖</div>
-            <h3>Olá! Sou seu Agente Financeiro</h3>
-            <p>Posso ajudar com consultas financeiras, análises de despesas e receitas, vencimentos e muito mais.</p>
+            <div class="chat-welcome-icon">⚡</div>
+            <h3>Olá! Eu sou o STARK</h3>
+            <p>Seu CFO Virtual da Starken. Posso ajudar com análises financeiras, despesas, receitas, vencimentos e muito mais.</p>
           </div>
         </div>
         <div class="chat-suggestions" id="chatSuggestions">
@@ -682,9 +682,9 @@ const ChatWidget = {
     const messagesContainer = document.getElementById('chatMessages');
     messagesContainer.innerHTML = `
       <div class="chat-welcome">
-        <div class="chat-welcome-icon">🤖</div>
-        <h3>Olá! Sou seu Agente Financeiro</h3>
-        <p>Posso ajudar com consultas financeiras, análises de despesas e receitas, vencimentos e muito mais.</p>
+        <div class="chat-welcome-icon">⚡</div>
+        <h3>Olá! Eu sou o STARK</h3>
+        <p>Seu CFO Virtual da Starken. Posso ajudar com análises financeiras, despesas, receitas, vencimentos e muito mais.</p>
       </div>
     `;
   }

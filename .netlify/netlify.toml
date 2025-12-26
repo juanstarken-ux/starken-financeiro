@@ -28,12 +28,24 @@ functions = "/Users/juanminni/starken-financeiro/netlify/functions"
 [functions]
 
 [functions."*"]
-external_node_modules = ["@prisma/client"]
+external_node_modules = ["@prisma/client", "@anthropic-ai/sdk"]
 node_bundler = "esbuild"
 
 [[redirects]]
 from = "/api/*"
 to = "/.netlify/functions/sync-data/:splat"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/agent"
+to = "/.netlify/functions/agent"
 status = 200.0
 force = false
 
