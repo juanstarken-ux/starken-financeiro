@@ -11,478 +11,477 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
-// System prompt do agente financeiro
-const SYSTEM_PROMPT = `Você é o STARK, o CFO Virtual da Starken Tecnologia, uma empresa de tecnologia e marketing digital.
-Seu nome STARK representa força, inteligência e conexão com a marca Starken.
-Você ajuda o CEO (Juan) a gerenciar as finanças da empresa de forma inteligente e proativa.
+// ============================================
+// DADOS FINANCEIROS CONSOLIDADOS
+// ============================================
+const dadosFinanceiros = {
+  "2025-10": {
+    periodo: "Outubro 2025",
+    receitas: { total: 46365.05, recebido: 41865.05, pendente: 4500.00 },
+    despesas: { total: 43047.07, pago: 43047.07, pendente: 0 },
+    lucro: 3317.98,
+    margem: 7.2
+  },
+  "2025-11": {
+    periodo: "Novembro 2025",
+    receitas: { total: 35768.18, recebido: 10924.18, pendente: 24844.00 },
+    despesas: { total: 28500.00, pago: 15000.00, pendente: 13500.00 },
+    lucro: 7268.18,
+    margem: 20.3
+  },
+  "2025-12": {
+    periodo: "Dezembro 2025",
+    receitas: {
+      total: 54982.75,
+      starken: 29833.00,
+      alpha: 25149.75,
+      clientes_starken: [
+        { nome: "Bengers - App Festival", valor: 10000, status: "A Receber", tipo: "Projeto" },
+        { nome: "Mortadella Blumenau", valor: 2000, status: "A Receber" },
+        { nome: "Hamburgueria Feio", valor: 2000, status: "A Receber" },
+        { nome: "Academia São Pedro", valor: 1080, status: "A Receber" },
+        { nome: "Estilo Tulipa", valor: 659, status: "A Receber" },
+        { nome: "JPR Móveis Rústicos", valor: 2000, status: "A Receber" },
+        { nome: "Realizzati Móveis", valor: 2500, status: "A Receber" },
+        { nome: "Suprema Pizza", valor: 2000, status: "A Receber" },
+        { nome: "Shield Car Blumenau", valor: 297, status: "A Receber" },
+        { nome: "Rosa Mexicano Blumenau", valor: 2000, status: "A Receber" },
+        { nome: "Rosa Mexicano Brusque", valor: 2000, status: "A Receber" },
+        { nome: "Divino Tempero", valor: 1000, status: "A Receber" },
+        { nome: "Alexandria Burger", valor: 2000, status: "A Receber" },
+        { nome: "Dommus Smart Home", valor: 297, status: "A Receber" }
+      ],
+      clientes_alpha_mrr: [
+        { nome: "Oca Restaurante", valor: 2000, status: "A Receber", origem: "Outbound" },
+        { nome: "Madrugão Lanches", valor: 2000, status: "A Receber", origem: "Outbound" },
+        { nome: "Saporitto Pizzaria", valor: 1500, status: "A Receber", origem: "Outbound" },
+        { nome: "Fratellis Pizzaria", valor: 2500, status: "A Receber", origem: "Outbound" },
+        { nome: "Brazza Hamburgueria", valor: 3000, status: "A Receber" },
+        { nome: "Fabinhus Restaurante", valor: 1000, status: "A Receber", novo: true },
+        { nome: "Tempero Manero Grill", valor: 1000, status: "A Receber", novo: true },
+        { nome: "Super Dupe Hamburgueria BC", valor: 2000, status: "A Receber", novo: true }
+      ],
+      clientes_alpha_tcv: [
+        { nome: "Churrascaria Paiaguas", valor: 3149.75, status: "Recebido", tcv: 7500, novo: true }
+      ]
+    },
+    despesas: {
+      total: 31869.90,
+      categorias: {
+        pessoal: {
+          total: 11100,
+          itens: [
+            { nome: "Ederson", valor: 3200, funcao: "Desenvolvedor" },
+            { nome: "Victor", valor: 3000, funcao: "Desenvolvedor" },
+            { nome: "Igor", valor: 2300, funcao: "Desenvolvedor" },
+            { nome: "Kim", valor: 1300, funcao: "Design" },
+            { nome: "Erick", valor: 1300, funcao: "Desenvolvedor" }
+          ]
+        },
+        comercial: {
+          total: 7500,
+          itens: [
+            { nome: "Dante - Closer", valor: 3500 },
+            { nome: "Nathan - SDR", valor: 2000 },
+            { nome: "João - SDR", valor: 2000 }
+          ]
+        },
+        estrutura: {
+          total: 3009,
+          itens: [
+            { nome: "Aluguel - Sala", valor: 2800 },
+            { nome: "Celesc - Energia", valor: 100 },
+            { nome: "Internet - Claro", valor: 109 }
+          ]
+        },
+        alpha_franquia: { total: 7500 },
+        ferramentas: {
+          total: 2760.90,
+          itens: [
+            { nome: "Mac Ederson", valor: 1200 },
+            { nome: "Claude Code", valor: 500 },
+            { nome: "ClickUp", valor: 350 },
+            { nome: "VPS Hostinger", valor: 200 },
+            { nome: "Lovable", valor: 130 },
+            { nome: "Adobe", valor: 110 },
+            { nome: "Criativivo", valor: 100 },
+            { nome: "CapCut", valor: 65.90 },
+            { nome: "Canva Pro", valor: 35 },
+            { nome: "Railway", valor: 35 },
+            { nome: "Netlify", valor: 35 }
+          ]
+        }
+      }
+    },
+    resultado: {
+      lucro: 23112.85,
+      margem: 42.0
+    }
+  },
+  "2026-01": {
+    periodo: "Janeiro 2026",
+    projecao: true,
+    receitas: { total: 62000, starken: 32000, alpha: 30000 },
+    despesas: { total: 35000 },
+    lucro: 27000,
+    margem: 43.5
+  }
+};
 
-CONTEXTO DA EMPRESA:
-- Starken Tecnologia: Empresa principal de desenvolvimento e marketing digital
-- Alpha Project: Franquia de marketing para restaurantes (15% de royalties sobre receitas)
-- A empresa tem dois tipos de receita: MRR (recorrente mensal) e TCV (contratos únicos)
+// Equipe atual
+const equipe = {
+  desenvolvimento: ["Ederson (Sênior)", "Victor", "Igor", "Erick"],
+  design: ["Kim"],
+  comercial: ["Dante (Closer)", "Nathan (SDR)", "João (SDR)"],
+  ceo: "Juan Fernando Minni"
+};
 
-SUAS CAPACIDADES:
-1. Consultar despesas e receitas do banco de dados
-2. Calcular métricas financeiras (totais, médias, projeções)
-3. Listar contas próximas do vencimento
-4. Comparar períodos e identificar tendências
-5. Gerar resumos e relatórios
+// Clientes ativos
+const clientesAtivos = {
+  starken: 14,
+  alpha_mrr: 8,
+  alpha_tcv: 7,
+  total: 29
+};
 
-REGRAS:
+// ============================================
+// SYSTEM PROMPT - PERSONALIDADE DO STARK
+// ============================================
+const SYSTEM_PROMPT = `Você é o STARK, o CFO Virtual da Starken Tecnologia. Você foi criado pelo Juan para ser o braço direito dele na gestão financeira.
+
+## SUA PERSONALIDADE
+Você fala como o Juan falaria - direto, prático, sem enrolação. Use um tom informal mas profissional. Você é parceiro do Juan, não um robô corporativo.
+
+Exemplos de como você fala:
+- "Cara, dezembro tá bem tranquilo" ao invés de "O mês de dezembro apresenta indicadores positivos"
+- "Temos R$ 54.982 pra entrar" ao invés de "O total de receitas previstas é de R$ 54.982,00"
+- "A Alpha tá crescendo bem, já são 15 clientes" ao invés de "O segmento Alpha apresenta crescimento com 15 clientes ativos"
+
+## CONTEXTO DA STARKEN
+A Starken Tecnologia é uma empresa de tecnologia e marketing digital de Blumenau/SC, fundada pelo Juan. Temos duas linhas de negócio:
+
+1. **STARKEN TECNOLOGIA** (100% nossa)
+   - Desenvolvimento web, apps, marketing digital
+   - 14 clientes ativos
+   - MRR atual: ~R$ 30k
+   - Principais: Bengers, Mortadella, Rosa Mexicano, Hamburgueria Feio
+
+2. **ALPHA PROJECT** (Franquia - 15% royalties)
+   - Marketing para restaurantes
+   - Modelo: fechamos clientes, Alpha cobra 15% de royalties
+   - Clientes Outbound (MRR): Oca, Madrugão, Saporitto, Fratellis
+   - Clientes TCV (projetos): Don Chevico, World Burger, Pizzaria Madrid
+   - Crescendo rápido: de 8 para 15 clientes em 2 meses
+
+## EQUIPE ATUAL
+- **Desenvolvimento**: Ederson (sênior, R$ 3.200), Victor (R$ 3.000), Igor (R$ 2.300), Erick (R$ 1.300)
+- **Design**: Kim (R$ 1.300)
+- **Comercial**: Dante (Closer, R$ 3.500), Nathan (SDR, R$ 2.000), João (SDR, R$ 2.000)
+- **CEO**: Juan Fernando Minni
+
+## DESPESAS FIXAS MENSAIS
+- Salários equipe: ~R$ 18.600
+- Aluguel sala: R$ 2.800
+- Ferramentas (Claude, ClickUp, Adobe, etc): ~R$ 2.700
+- Repasse Alpha (royalties): ~R$ 7.500
+- **Total fixo: ~R$ 32k/mês**
+
+## DADOS FINANCEIROS ATUAIS (Dezembro 2025)
+${JSON.stringify(dadosFinanceiros["2025-12"], null, 2)}
+
+## COMO RESPONDER
+1. Seja direto e prático como o Juan
+2. Use números reais - você tem acesso aos dados
+3. Dê insights, não só números
+4. Se algo tá bom, fala que tá bom. Se tá ruim, avisa
+5. Sugira ações quando fizer sentido
+6. Use R$ e formato brasileiro (1.234,56)
+
+## FERRAMENTAS DISPONÍVEIS
+Você tem acesso a tools para consultar dados do banco. Use-as quando precisar de dados específicos ou atualizados.
+
+## REGRAS
 - Sempre responda em português brasileiro
-- Use formatação clara com valores em R$ (Real)
-- Seja direto e objetivo nas respostas
-- Quando mostrar listas, organize de forma clara
-- Arredonde valores para 2 casas decimais
-- Identifique padrões e faça observações úteis
+- Seja conciso mas completo
+- Arredonde valores para facilitar (R$ 54.982,75 → "quase R$ 55k")
+- Identifique tendências e padrões
+- Lembre que janeiro ainda não começou, então os dados são projeções`;
 
-FORMATO DE MOEDA:
-- Use o formato brasileiro: R$ 1.234,56
-- Para valores negativos: -R$ 123,45`;
-
-// Definição das tools disponíveis
+// ============================================
+// TOOLS DISPONÍVEIS
+// ============================================
 const tools = [
   {
-    name: 'query_despesas',
-    description: 'Consulta despesas no banco de dados. Pode filtrar por mês, categoria, status ou empresa.',
+    name: 'get_resumo_mes',
+    description: 'Retorna o resumo financeiro completo de um mês específico',
     input_schema: {
       type: 'object',
       properties: {
         mes: {
           type: 'string',
-          description: 'Mês no formato YYYY-MM (ex: 2025-01). Se não informado, usa o mês atual.'
-        },
-        categoria: {
-          type: 'string',
-          description: 'Categoria da despesa (pessoal, comercial, estrutura, ferramentas, alpha_franquia, outros)'
-        },
-        status: {
-          type: 'string',
-          enum: ['Pago', 'A Pagar', 'Vencido'],
-          description: 'Status do pagamento'
+          description: 'Mês no formato YYYY-MM (ex: 2025-12). Se não informado, usa dezembro 2025.'
         }
       }
     }
   },
   {
-    name: 'query_receitas',
-    description: 'Consulta receitas no banco de dados. Pode filtrar por mês, empresa, status ou origem.',
+    name: 'get_receitas_detalhadas',
+    description: 'Lista todas as receitas de um mês com detalhes por cliente',
     input_schema: {
       type: 'object',
       properties: {
-        mes: {
-          type: 'string',
-          description: 'Mês no formato YYYY-MM (ex: 2025-01)'
-        },
-        empresa: {
-          type: 'string',
-          enum: ['Starken', 'Alpha'],
-          description: 'Empresa (Starken ou Alpha)'
-        },
-        status: {
-          type: 'string',
-          enum: ['Recebido', 'A Receber', 'Vencido'],
-          description: 'Status do recebimento'
-        }
+        mes: { type: 'string' },
+        empresa: { type: 'string', enum: ['starken', 'alpha', 'todas'] }
       }
     }
   },
   {
-    name: 'get_metricas_mes',
-    description: 'Obtém métricas consolidadas de um mês: total de receitas, despesas, lucro, margem.',
+    name: 'get_despesas_detalhadas',
+    description: 'Lista todas as despesas de um mês por categoria',
     input_schema: {
       type: 'object',
       properties: {
-        mes: {
-          type: 'string',
-          description: 'Mês no formato YYYY-MM'
-        }
-      },
-      required: ['mes']
-    }
-  },
-  {
-    name: 'get_vencimentos',
-    description: 'Lista contas (despesas ou receitas) próximas do vencimento ou já vencidas.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        tipo: {
-          type: 'string',
-          enum: ['despesas', 'receitas', 'todos'],
-          description: 'Tipo de conta para verificar'
-        },
-        dias: {
-          type: 'number',
-          description: 'Quantidade de dias para considerar (padrão: 7)'
-        }
+        mes: { type: 'string' }
       }
     }
   },
   {
     name: 'get_comparativo',
-    description: 'Compara métricas entre dois meses ou entre empresas (Starken vs Alpha).',
+    description: 'Compara dois meses ou compara Starken vs Alpha',
     input_schema: {
       type: 'object',
       properties: {
-        mes1: {
-          type: 'string',
-          description: 'Primeiro mês para comparar (YYYY-MM)'
-        },
-        mes2: {
-          type: 'string',
-          description: 'Segundo mês para comparar (YYYY-MM)'
-        },
-        tipo_comparacao: {
-          type: 'string',
-          enum: ['meses', 'empresas'],
-          description: 'Tipo de comparação: entre meses ou entre empresas no mesmo mês'
-        }
+        tipo: { type: 'string', enum: ['meses', 'empresas'] },
+        mes1: { type: 'string' },
+        mes2: { type: 'string' }
+      }
+    }
+  },
+  {
+    name: 'get_clientes_status',
+    description: 'Retorna status dos clientes (ativos, novos, inativos)',
+    input_schema: {
+      type: 'object',
+      properties: {}
+    }
+  },
+  {
+    name: 'get_projecao',
+    description: 'Retorna projeção financeira para os próximos meses',
+    input_schema: {
+      type: 'object',
+      properties: {
+        meses: { type: 'number', description: 'Quantidade de meses para projetar (1-6)' }
       }
     }
   }
 ];
 
-// Funções que implementam as tools
-async function queryDespesas({ mes, categoria, status }) {
-  const mesAtual = mes || new Date().toISOString().slice(0, 7);
+// ============================================
+// IMPLEMENTAÇÃO DAS TOOLS
+// ============================================
+async function getResumoMes({ mes = '2025-12' }) {
+  const dados = dadosFinanceiros[mes];
+  if (!dados) {
+    return { erro: `Não tenho dados para ${mes}. Meses disponíveis: ${Object.keys(dadosFinanceiros).join(', ')}` };
+  }
 
-  const where = {
-    mes: mesAtual,
-    tipo: 'despesa'
-  };
+  // Buscar dados atualizados do banco
+  const statusData = await prisma.paymentStatus.findMany({ where: { mes } });
+  const customItems = await prisma.customItem.findMany({ where: { mes } });
 
-  if (categoria) where.categoria = categoria;
-  if (status) where.status = status;
-
-  const despesas = await prisma.customItem.findMany({ where });
-
-  // Buscar também os status de pagamento
-  const statusData = await prisma.paymentStatus.findMany({
-    where: {
-      mes: mesAtual,
-      tipo: 'despesa'
-    }
+  // Calcular recebido/pago baseado no banco
+  let recebido = 0;
+  let pago = 0;
+  statusData.forEach(item => {
+    if (item.tipo === 'receita' && item.status === 'Recebido') recebido++;
+    if (item.tipo === 'despesa' && item.status === 'Pago') pago++;
   });
-
-  const statusMap = {};
-  statusData.forEach(s => {
-    statusMap[s.itemNome] = { status: s.status, dataPagamento: s.dataPagamento };
-  });
-
-  // Calcular totais
-  const total = despesas.reduce((sum, d) => sum + d.valor, 0);
-  const porCategoria = {};
-  despesas.forEach(d => {
-    const cat = d.categoria || 'outros';
-    if (!porCategoria[cat]) porCategoria[cat] = 0;
-    porCategoria[cat] += d.valor;
-  });
-
-  return {
-    mes: mesAtual,
-    quantidade: despesas.length,
-    total,
-    porCategoria,
-    itens: despesas.map(d => ({
-      nome: d.nome,
-      valor: d.valor,
-      categoria: d.categoria,
-      status: statusMap[d.nome]?.status || d.status,
-      vencimento: d.vencimento
-    }))
-  };
-}
-
-async function queryReceitas({ mes, empresa, status }) {
-  const mesAtual = mes || new Date().toISOString().slice(0, 7);
-
-  const where = {
-    mes: mesAtual,
-    tipo: 'receita'
-  };
-
-  if (empresa) where.empresa = empresa;
-  if (status) where.status = status;
-
-  const receitas = await prisma.customItem.findMany({ where });
-
-  // Buscar status
-  const statusData = await prisma.paymentStatus.findMany({
-    where: {
-      mes: mesAtual,
-      tipo: 'receita'
-    }
-  });
-
-  const statusMap = {};
-  statusData.forEach(s => {
-    statusMap[s.itemNome] = { status: s.status, dataPagamento: s.dataPagamento };
-  });
-
-  // Calcular totais
-  const total = receitas.reduce((sum, r) => sum + r.valor, 0);
-  const porEmpresa = { Starken: 0, Alpha: 0 };
-  receitas.forEach(r => {
-    const emp = r.empresa || 'Starken';
-    if (!porEmpresa[emp]) porEmpresa[emp] = 0;
-    porEmpresa[emp] += r.valor;
-  });
-
-  return {
-    mes: mesAtual,
-    quantidade: receitas.length,
-    total,
-    porEmpresa,
-    itens: receitas.map(r => ({
-      nome: r.nome,
-      valor: r.valor,
-      empresa: r.empresa,
-      status: statusMap[r.nome]?.status || r.status,
-      categoria: r.categoria
-    }))
-  };
-}
-
-async function getMetricasMes({ mes }) {
-  const despesas = await queryDespesas({ mes });
-  const receitas = await queryReceitas({ mes });
-
-  const totalReceitas = receitas.total;
-  const totalDespesas = despesas.total;
-  const lucro = totalReceitas - totalDespesas;
-  const margem = totalReceitas > 0 ? (lucro / totalReceitas) * 100 : 0;
-
-  // Calcular recebido vs pendente
-  const recebido = receitas.itens
-    .filter(r => r.status === 'Recebido')
-    .reduce((sum, r) => sum + r.valor, 0);
-
-  const aReceber = receitas.itens
-    .filter(r => r.status === 'A Receber')
-    .reduce((sum, r) => sum + r.valor, 0);
-
-  const pago = despesas.itens
-    .filter(d => d.status === 'Pago')
-    .reduce((sum, d) => sum + d.valor, 0);
-
-  const aPagar = despesas.itens
-    .filter(d => d.status === 'A Pagar')
-    .reduce((sum, d) => sum + d.valor, 0);
 
   return {
     mes,
-    receitas: {
-      total: totalReceitas,
-      recebido,
-      aReceber,
-      porEmpresa: receitas.porEmpresa
-    },
-    despesas: {
-      total: totalDespesas,
-      pago,
-      aPagar,
-      porCategoria: despesas.porCategoria
-    },
-    resultado: {
-      lucro,
-      margem: margem.toFixed(1) + '%'
+    periodo: dados.periodo,
+    projecao: dados.projecao || false,
+    receitas: dados.receitas,
+    despesas: dados.despesas,
+    resultado: dados.resultado || { lucro: dados.lucro, margem: dados.margem },
+    status_banco: {
+      itens_atualizados: statusData.length,
+      itens_customizados: customItems.length
     }
   };
 }
 
-async function getVencimentos({ tipo = 'todos', dias = 7 }) {
-  const hoje = new Date();
-  const limite = new Date();
-  limite.setDate(hoje.getDate() + dias);
+async function getReceitasDetalhadas({ mes = '2025-12', empresa = 'todas' }) {
+  const dados = dadosFinanceiros[mes];
+  if (!dados) return { erro: 'Mês não encontrado' };
 
-  const mesAtual = hoje.toISOString().slice(0, 7);
-
-  const resultado = {
-    despesasVencendo: [],
-    receitasVencendo: [],
-    despesasVencidas: [],
-    receitasVencidas: []
+  const receitas = dados.receitas;
+  let resultado = {
+    mes,
+    total: receitas.total,
+    starken: receitas.starken || 0,
+    alpha: receitas.alpha || 0
   };
 
-  if (tipo === 'todos' || tipo === 'despesas') {
-    const despesas = await prisma.customItem.findMany({
-      where: {
-        mes: mesAtual,
-        tipo: 'despesa',
-        status: { not: 'Pago' }
-      }
-    });
-
-    despesas.forEach(d => {
-      if (d.vencimento) {
-        const venc = new Date(d.vencimento);
-        if (venc < hoje) {
-          resultado.despesasVencidas.push({
-            nome: d.nome,
-            valor: d.valor,
-            vencimento: d.vencimento,
-            diasAtraso: Math.floor((hoje - venc) / (1000 * 60 * 60 * 24))
-          });
-        } else if (venc <= limite) {
-          resultado.despesasVencendo.push({
-            nome: d.nome,
-            valor: d.valor,
-            vencimento: d.vencimento,
-            diasRestantes: Math.floor((venc - hoje) / (1000 * 60 * 60 * 24))
-          });
-        }
-      }
-    });
+  if (empresa === 'starken' || empresa === 'todas') {
+    resultado.clientes_starken = receitas.clientes_starken || [];
   }
-
-  if (tipo === 'todos' || tipo === 'receitas') {
-    const receitas = await prisma.customItem.findMany({
-      where: {
-        mes: mesAtual,
-        tipo: 'receita',
-        status: { not: 'Recebido' }
-      }
-    });
-
-    receitas.forEach(r => {
-      if (r.vencimento) {
-        const venc = new Date(r.vencimento);
-        if (venc < hoje) {
-          resultado.receitasVencidas.push({
-            nome: r.nome,
-            valor: r.valor,
-            vencimento: r.vencimento,
-            diasAtraso: Math.floor((hoje - venc) / (1000 * 60 * 60 * 24))
-          });
-        } else if (venc <= limite) {
-          resultado.receitasVencendo.push({
-            nome: r.nome,
-            valor: r.valor,
-            vencimento: r.vencimento,
-            diasRestantes: Math.floor((venc - hoje) / (1000 * 60 * 60 * 24))
-          });
-        }
-      }
-    });
+  if (empresa === 'alpha' || empresa === 'todas') {
+    resultado.clientes_alpha_mrr = receitas.clientes_alpha_mrr || [];
+    resultado.clientes_alpha_tcv = receitas.clientes_alpha_tcv || [];
   }
 
   return resultado;
 }
 
-async function getComparativo({ mes1, mes2, tipo_comparacao = 'meses' }) {
-  if (tipo_comparacao === 'meses') {
-    const metricas1 = await getMetricasMes({ mes: mes1 });
-    const metricas2 = await getMetricasMes({ mes: mes2 });
+async function getDespesasDetalhadas({ mes = '2025-12' }) {
+  const dados = dadosFinanceiros[mes];
+  if (!dados) return { erro: 'Mês não encontrado' };
 
-    const variacaoReceita = metricas1.receitas.total > 0
-      ? ((metricas2.receitas.total - metricas1.receitas.total) / metricas1.receitas.total) * 100
-      : 0;
+  return {
+    mes,
+    total: dados.despesas.total,
+    categorias: dados.despesas.categorias
+  };
+}
 
-    const variacaoDespesa = metricas1.despesas.total > 0
-      ? ((metricas2.despesas.total - metricas1.despesas.total) / metricas1.despesas.total) * 100
-      : 0;
+async function getComparativo({ tipo = 'meses', mes1 = '2025-11', mes2 = '2025-12' }) {
+  if (tipo === 'meses') {
+    const d1 = dadosFinanceiros[mes1];
+    const d2 = dadosFinanceiros[mes2];
+    if (!d1 || !d2) return { erro: 'Um dos meses não foi encontrado' };
+
+    const varReceita = ((d2.receitas.total - d1.receitas.total) / d1.receitas.total * 100).toFixed(1);
+    const varDespesa = ((d2.despesas.total - d1.despesas.total) / d1.despesas.total * 100).toFixed(1);
 
     return {
       tipo: 'comparativo_meses',
-      mes1: {
-        periodo: mes1,
-        ...metricas1
-      },
-      mes2: {
-        periodo: mes2,
-        ...metricas2
-      },
+      [mes1]: { receitas: d1.receitas.total, despesas: d1.despesas.total, lucro: d1.lucro || d1.resultado?.lucro },
+      [mes2]: { receitas: d2.receitas.total, despesas: d2.despesas.total, lucro: d2.lucro || d2.resultado?.lucro },
       variacao: {
-        receita: variacaoReceita.toFixed(1) + '%',
-        despesa: variacaoDespesa.toFixed(1) + '%',
-        lucro: (metricas2.resultado.lucro - metricas1.resultado.lucro)
+        receitas: `${varReceita}%`,
+        despesas: `${varDespesa}%`
       }
     };
   } else {
-    // Comparativo entre empresas no mesmo mês
-    const mes = mes1 || new Date().toISOString().slice(0, 7);
-    const receitasStarken = await queryReceitas({ mes, empresa: 'Starken' });
-    const receitasAlpha = await queryReceitas({ mes, empresa: 'Alpha' });
-
-    const totalGeral = receitasStarken.total + receitasAlpha.total;
+    // Comparativo Starken vs Alpha
+    const dados = dadosFinanceiros['2025-12'];
+    const totalGeral = dados.receitas.total;
 
     return {
       tipo: 'comparativo_empresas',
-      mes,
+      mes: '2025-12',
       starken: {
-        receita: receitasStarken.total,
-        participacao: totalGeral > 0 ? ((receitasStarken.total / totalGeral) * 100).toFixed(1) + '%' : '0%',
-        clientes: receitasStarken.quantidade
+        receita: dados.receitas.starken,
+        participacao: ((dados.receitas.starken / totalGeral) * 100).toFixed(1) + '%',
+        clientes: 14,
+        margem: '100% (sem repasse)'
       },
       alpha: {
-        receitaBruta: receitasAlpha.total,
-        royalties: receitasAlpha.total * 0.15,
-        receitaLiquida: receitasAlpha.total * 0.85,
-        participacao: totalGeral > 0 ? ((receitasAlpha.total / totalGeral) * 100).toFixed(1) + '%' : '0%',
-        clientes: receitasAlpha.quantidade
+        receita_bruta: dados.receitas.alpha,
+        royalties: dados.receitas.alpha * 0.15,
+        receita_liquida: dados.receitas.alpha * 0.85,
+        participacao: ((dados.receitas.alpha / totalGeral) * 100).toFixed(1) + '%',
+        clientes: 15,
+        margem: '85% (após royalties)'
       },
-      total: totalGeral
+      total_geral: totalGeral
     };
   }
 }
 
-// Executar a tool correspondente
+async function getClientesStatus() {
+  return {
+    total_clientes: 29,
+    starken: {
+      ativos: 14,
+      principais: ['Bengers', 'Mortadella', 'Rosa Mexicano', 'Hamburgueria Feio', 'JPR Móveis']
+    },
+    alpha: {
+      mrr: 8,
+      tcv: 7,
+      novos_dezembro: ['Fabinhus', 'Tempero Manero', 'Super Dupe', 'Churrascaria Paiaguas'],
+      crescimento: '+7 clientes nos últimos 2 meses'
+    }
+  };
+}
+
+async function getProjecao({ meses = 3 }) {
+  const projecoes = [];
+  const mesesFuturos = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06'];
+
+  for (let i = 0; i < Math.min(meses, 6); i++) {
+    const mes = mesesFuturos[i];
+    const dados = dadosFinanceiros[mes];
+    if (dados) {
+      projecoes.push({
+        mes,
+        periodo: dados.periodo,
+        receitas: dados.receitas.total,
+        despesas: dados.despesas.total,
+        lucro: dados.lucro,
+        margem: dados.margem + '%'
+      });
+    } else {
+      // Projeção baseada em crescimento
+      const baseReceitaStarken = 32000;
+      const baseReceitaAlpha = 30000 + (i * 5000); // Crescimento Alpha
+      const baseDespesa = 35000 + (i * 1000);
+      const receita = baseReceitaStarken + baseReceitaAlpha;
+      projecoes.push({
+        mes,
+        projecao_estimada: true,
+        receitas: receita,
+        despesas: baseDespesa,
+        lucro: receita - baseDespesa,
+        margem: (((receita - baseDespesa) / receita) * 100).toFixed(1) + '%'
+      });
+    }
+  }
+
+  return {
+    projecoes,
+    observacao: 'A Alpha está crescendo ~5 clientes/mês, o que projeta aumento significativo no MRR'
+  };
+}
+
+// Executar tool
 async function executeTool(name, input) {
   switch (name) {
-    case 'query_despesas':
-      return await queryDespesas(input);
-    case 'query_receitas':
-      return await queryReceitas(input);
-    case 'get_metricas_mes':
-      return await getMetricasMes(input);
-    case 'get_vencimentos':
-      return await getVencimentos(input);
-    case 'get_comparativo':
-      return await getComparativo(input);
-    default:
-      throw new Error(`Tool não reconhecida: ${name}`);
+    case 'get_resumo_mes': return await getResumoMes(input);
+    case 'get_receitas_detalhadas': return await getReceitasDetalhadas(input);
+    case 'get_despesas_detalhadas': return await getDespesasDetalhadas(input);
+    case 'get_comparativo': return await getComparativo(input);
+    case 'get_clientes_status': return await getClientesStatus(input);
+    case 'get_projecao': return await getProjecao(input);
+    default: throw new Error(`Tool não reconhecida: ${name}`);
   }
 }
 
-// Handler principal
+// ============================================
+// HANDLER PRINCIPAL
+// ============================================
 exports.handler = async (event, context) => {
-  // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Método não permitido' })
-    };
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Método não permitido' }) };
   }
 
   try {
     const { message, conversationHistory = [] } = JSON.parse(event.body);
 
     if (!message) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Mensagem não fornecida' })
-      };
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Mensagem não fornecida' }) };
     }
 
-    // Inicializar cliente Anthropic
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    // Preparar mensagens
-    const messages = [
-      ...conversationHistory,
-      { role: 'user', content: message }
-    ];
+    const messages = [...conversationHistory, { role: 'user', content: message }];
 
-    // Primeira chamada ao Claude
     let response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2048,
@@ -491,14 +490,13 @@ exports.handler = async (event, context) => {
       messages
     });
 
-    // Loop agentico - processar tool calls
+    // Loop agentico
     while (response.stop_reason === 'tool_use') {
       const toolUseBlocks = response.content.filter(block => block.type === 'tool_use');
       const toolResults = [];
 
       for (const toolUse of toolUseBlocks) {
-        console.log(`Executando tool: ${toolUse.name}`, toolUse.input);
-
+        console.log(`Executando: ${toolUse.name}`, toolUse.input);
         try {
           const result = await executeTool(toolUse.name, toolUse.input);
           toolResults.push({
@@ -516,11 +514,9 @@ exports.handler = async (event, context) => {
         }
       }
 
-      // Adicionar resposta do assistente e resultados das tools
       messages.push({ role: 'assistant', content: response.content });
       messages.push({ role: 'user', content: toolResults });
 
-      // Nova chamada ao Claude com os resultados
       response = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 2048,
@@ -530,7 +526,6 @@ exports.handler = async (event, context) => {
       });
     }
 
-    // Extrair texto da resposta final
     const textContent = response.content
       .filter(block => block.type === 'text')
       .map(block => block.text)
@@ -542,22 +537,16 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         success: true,
         response: textContent,
-        usage: {
-          input_tokens: response.usage.input_tokens,
-          output_tokens: response.usage.output_tokens
-        }
+        usage: response.usage
       })
     };
 
   } catch (error) {
-    console.error('Erro no agente:', error);
+    console.error('Erro no STARK:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({
-        error: error.message,
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      })
+      body: JSON.stringify({ error: error.message })
     };
   } finally {
     await prisma.$disconnect();
