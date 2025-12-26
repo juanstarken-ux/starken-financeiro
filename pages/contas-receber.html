@@ -2814,8 +2814,8 @@
                     });
 
                     // Remove do GestaoFinanceira local também
-                    if (window.GestaoFinanceira && GestaoFinanceira.removeItem) {
-                        GestaoFinanceira.removeItem(currentMonth, 'receita', nome);
+                    if (window.GestaoFinanceira && GestaoFinanceira.deleteReceita) {
+                        GestaoFinanceira.deleteReceita(currentMonth, nome);
                     }
 
                     excluidos++;
