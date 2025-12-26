@@ -6,6 +6,7 @@
     <title>STARK - CFO Virtual | STARK Intelligence</title>
     <script src="../auth.js"></script>
     <script src="../theme.js"></script>
+    <script src="../js/stark-core.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -707,6 +708,17 @@
                     conversationHistory.push({ role: 'assistant', content: data.response });
                     queryCount++;
                     document.getElementById('statQueries').textContent = queryCount;
+
+                    // Sincroniza dados se houve alteração (CRUD operations)
+                    if (data.response.includes('adicionad') ||
+                        data.response.includes('marcad') ||
+                        data.response.includes('editad') ||
+                        data.response.includes('removid')) {
+                        if (window.stark) {
+                            console.log('🔄 Sincronizando após alteração do STARK...');
+                            window.stark.sincronizar(true);
+                        }
+                    }
                 } else {
                     addMessage('Erro: ' + (data.error || 'Tente novamente.'), 'assistant');
                 }
