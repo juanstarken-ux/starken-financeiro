@@ -7,6 +7,19 @@
   node_bundler = "esbuild"
   external_node_modules = ["@prisma/client", "@anthropic-ai/sdk"]
 
+# Aumentar timeout para 26 segundos (máximo no plano gratuito)
+[functions."agent"]
+  timeout = 26
+
+[functions."sync-data"]
+  timeout = 26
+
+[functions."alerts"]
+  timeout = 10
+
+[functions."reports"]
+  timeout = 26
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/sync-data/:splat"

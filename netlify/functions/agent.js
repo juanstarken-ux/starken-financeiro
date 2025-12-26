@@ -1169,7 +1169,7 @@ exports.handler = async (event, context) => {
 
     let response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 2048,
+      max_tokens: 1500,  // Reduzido para respostas mais rápidas
       system: SYSTEM_PROMPT,
       tools,
       messages
@@ -1204,7 +1204,7 @@ exports.handler = async (event, context) => {
 
       response = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2048,
+        max_tokens: 1500,  // Reduzido para respostas mais rápidas
         system: SYSTEM_PROMPT,
         tools,
         messages

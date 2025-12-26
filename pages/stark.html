@@ -731,8 +731,12 @@
                 hideTyping();
                 if (error.name === 'AbortError') {
                     addMessage('A consulta demorou demais. O STARK está processando muitos dados. Tente uma pergunta mais simples.', 'assistant');
+                } else if (error.message.includes('504') || error.message.includes('Gateway')) {
+                    addMessage('O servidor demorou pra responder (timeout). Isso acontece em perguntas complexas. Tenta de novo ou faz uma pergunta mais direta!', 'assistant');
+                } else if (error.message.includes('502') || error.message.includes('503')) {
+                    addMessage('O servidor tá sobrecarregado. Aguarda uns segundos e tenta de novo.', 'assistant');
                 } else {
-                    addMessage('Erro de conexão: ' + error.message, 'assistant');
+                    addMessage('Erro de conexão: ' + error.message + '. Verifica a internet e tenta novamente.', 'assistant');
                 }
                 console.error('STARK error:', error);
             } finally {
