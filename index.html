@@ -2957,6 +2957,75 @@
 
             // Carregar e renderizar clientes manuais
             renderManualClients();
+
+            // ========================================
+            // INTEGRAÇÃO COM STARK-CORE (Real-time)
+            // ========================================
+
+            // Escuta atualizações do STARK
+            document.addEventListener('stark-sync', function(e) {
+                console.log('🔄 Dashboard recebendo dados do STARK:', e.detail);
+
+                if (e.detail && e.detail.dados) {
+                    const dados = e.detail.dados;
+                    const mes = dados.mes || DashboardState.mesAtual;
+
+                    // Mescla dados do banco com dados estáticos
+                    if (!dadosMensais[mes]) {
+                        dadosMensais[mes] = { receitas: { clientes: [] }, despesas: { categorias: {} } };
+                    }
+
+                    // Atualiza totais com dados do banco
+                    const receitaTotal = dados.receitas.reduce((sum, r) => sum + (r.valor || 0), 0);
+                    const despesaTotal = dados.despesas.reduce((sum, d) => sum + (d.valor || 0), 0);
+
+                    dadosMensais[mes].receitas.total = receitaTotal;
+                    dadosMensais[mes].despesas.total = despesaTotal;
+
+                    // Adiciona novos clientes à lista
+                    const clientesExistentes = new Set(dadosMensais[mes].receitas.clientes.map(c => c.nome));
+                    dados.receitas.forEach(r => {
+                        if (r.isCustom && !clientesExistentes.has(r.nome)) {
+                            dadosMensais[mes].receitas.clientes.push({
+                                nome: r.nome,
+                                valor: r.valor,
+                                status: r.status,
+                                empresa: r.categoria,
+                                isCustom: true
+                            });
+                        }
+                    });
+
+                    console.log('📊 Dados mesclados para', mes, '- Receita:', receitaTotal, 'Despesa:', despesaTotal);
+
+                    // Re-renderiza o dashboard se for o mês atual
+                    if (mes === DashboardState.mesAtual) {
+                        KPIManager.atualizar(mes);
+                        ChartManager.atualizarTodos(mes);
+                        StarkenTableManager.renderTabela(mes);
+                        AlphaTableManager.renderTabela(mes);
+                        atualizarContadoresClientes(mes);
+
+                        // Notifica visualmente
+                        if (window.starkRealTime) {
+                            window.starkRealTime.toast('Dashboard atualizado com novos dados!', {
+                                tipo: 'success',
+                                titulo: 'Dados Sincronizados',
+                                icone: '📊',
+                                duracao: 3000
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Força sync inicial se stark-core estiver disponível
+            setTimeout(() => {
+                if (window.stark) {
+                    console.log('🚀 Solicitando sync inicial com banco...');
+                    window.stark.sincronizar(true);
+                }
+            }, 2000);
         });
 
         // ========================================
