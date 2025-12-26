@@ -533,6 +533,7 @@
                             <div class="stark-stat-value" id="statQueries">0</div>
                             <div class="stark-stat-label">Consultas</div>
                         </div>
+                        <button onclick="clearHistory()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 12px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">Limpar Chat</button>
                     </div>
                 </div>
 
@@ -678,14 +679,25 @@
             document.getElementById('starkSend').disabled = true;
 
             try {
+                // Timeout de 60 segundos (Claude pode demorar)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
+
                 const response = await fetch('/agent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message,
                         conversationHistory: conversationHistory.slice(-10)
-                    })
+                    }),
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
 
                 const data = await response.json();
                 hideTyping();
@@ -696,11 +708,15 @@
                     queryCount++;
                     document.getElementById('statQueries').textContent = queryCount;
                 } else {
-                    addMessage('Desculpe, ocorreu um erro. Tente novamente.', 'assistant');
+                    addMessage('Erro: ' + (data.error || 'Tente novamente.'), 'assistant');
                 }
             } catch (error) {
                 hideTyping();
-                addMessage('Erro de conexão. Verifique sua internet.', 'assistant');
+                if (error.name === 'AbortError') {
+                    addMessage('A consulta demorou demais. O STARK está processando muitos dados. Tente uma pergunta mais simples.', 'assistant');
+                } else {
+                    addMessage('Erro de conexão: ' + error.message, 'assistant');
+                }
                 console.error('STARK error:', error);
             } finally {
                 isLoading = false;
