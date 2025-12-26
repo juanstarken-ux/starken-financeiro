@@ -27,6 +27,18 @@ functions = "/Users/juanminni/starken-financeiro/netlify/functions"
 
 [functions]
 
+[functions.agent]
+timeout = 26.0
+
+[functions.sync-data]
+timeout = 26.0
+
+[functions.alerts]
+timeout = 10.0
+
+[functions.reports]
+timeout = 26.0
+
 [functions."*"]
 external_node_modules = ["@prisma/client", "@anthropic-ai/sdk"]
 node_bundler = "esbuild"

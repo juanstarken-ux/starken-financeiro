@@ -1165,11 +1165,13 @@ exports.handler = async (event, context) => {
 
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    const messages = [...conversationHistory, { role: 'user', content: message }];
+    // Limita histórico para últimas 4 mensagens (menos tokens = mais rápido)
+    const recentHistory = conversationHistory.slice(-4);
+    const messages = [...recentHistory, { role: 'user', content: message }];
 
     let response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1500,  // Reduzido para respostas mais rápidas
+      model: 'claude-3-5-haiku-20241022',  // Haiku é MUITO mais rápido que Sonnet
+      max_tokens: 1500,
       system: SYSTEM_PROMPT,
       tools,
       messages
@@ -1203,8 +1205,8 @@ exports.handler = async (event, context) => {
       messages.push({ role: 'user', content: toolResults });
 
       response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,  // Reduzido para respostas mais rápidas
+        model: 'claude-3-5-haiku-20241022',  // Haiku é MUITO mais rápido que Sonnet
+        max_tokens: 1500,
         system: SYSTEM_PROMPT,
         tools,
         messages
