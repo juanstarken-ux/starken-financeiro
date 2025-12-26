@@ -5,11 +5,16 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@prisma/client"]
+  external_node_modules = ["@prisma/client", "@anthropic-ai/sdk"]
 
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/sync-data/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/agent"
+  to = "/.netlify/functions/agent"
   status = 200
 
 [[redirects]]
