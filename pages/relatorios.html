@@ -1082,51 +1082,354 @@
     </div>
 
     <script>
-        // Navigation interactivity - removed to allow normal link navigation
+        // Mapeamento de títulos para tipos de relatório
+        const reportTypeMap = {
+            'Relatório Mensal Executivo': 'executivo',
+            'DRE Comparativo (6 meses)': 'dre',
+            'Análise de Clientes': 'segmento',
+            'Performance Comercial': 'executivo',
+            'Fluxo de Caixa Projetado': 'projecao',
+            'Relatório de Benefícios dos Sócios': 'executivo'
+        };
+
+        // Função para formatar moeda
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        // Função para buscar relatório da API
+        async function fetchReport(tipo, mes = '2025-12') {
+            try {
+                const response = await fetch(`/reports?tipo=${tipo}&mes=${mes}`);
+                const data = await response.json();
+                return data.relatorio;
+            } catch (error) {
+                console.error('Erro ao buscar relatório:', error);
+                return null;
+            }
+        }
+
+        // Função para exibir relatório em modal
+        function showReportModal(titulo, conteudo) {
+            // Criar modal se não existir
+            let modal = document.getElementById('report-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'report-modal';
+                modal.innerHTML = `
+                    <div class="report-modal-overlay" onclick="closeReportModal()"></div>
+                    <div class="report-modal-content">
+                        <div class="report-modal-header">
+                            <h2 id="report-modal-title"></h2>
+                            <button onclick="closeReportModal()" class="report-modal-close">×</button>
+                        </div>
+                        <div class="report-modal-body" id="report-modal-body"></div>
+                        <div class="report-modal-footer">
+                            <button onclick="printReport()" class="btn-print">🖨️ Imprimir</button>
+                            <button onclick="closeReportModal()" class="btn-close-modal">Fechar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                // Adicionar estilos do modal
+                const style = document.createElement('style');
+                style.textContent = `
+                    #report-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; }
+                    #report-modal.active { display: flex; align-items: center; justify-content: center; }
+                    .report-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+                    .report-modal-content { position: relative; background: white; border-radius: 16px; width: 90%; max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+                    .report-modal-header { padding: 20px 25px; background: linear-gradient(135deg, #4A6B54, #7A9B84); color: white; display: flex; justify-content: space-between; align-items: center; }
+                    .report-modal-header h2 { margin: 0; font-size: 20px; }
+                    .report-modal-close { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+                    .report-modal-body { padding: 25px; overflow-y: auto; flex: 1; }
+                    .report-modal-footer { padding: 15px 25px; background: #f5f7fa; display: flex; justify-content: flex-end; gap: 10px; }
+                    .btn-print, .btn-close-modal { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+                    .btn-print { background: #4A6B54; color: white; border: none; }
+                    .btn-close-modal { background: #e1e8ed; color: #2c3e50; border: none; }
+                    .report-section { margin-bottom: 25px; }
+                    .report-section h3 { color: #4A6B54; font-size: 16px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e1e8ed; }
+                    .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+                    .report-item { background: #f5f7fa; padding: 15px; border-radius: 10px; }
+                    .report-item-label { font-size: 12px; color: #7f8c8d; text-transform: uppercase; margin-bottom: 5px; }
+                    .report-item-value { font-size: 20px; font-weight: 700; color: #2c3e50; }
+                    .report-item-value.positive { color: #27ae60; }
+                    .report-item-value.negative { color: #e74c3c; }
+                    .report-highlight { background: linear-gradient(135deg, #4A6B54, #7A9B84); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+                    .report-highlight h4 { margin: 0 0 10px 0; font-size: 14px; opacity: 0.9; }
+                    .report-highlight .big-value { font-size: 32px; font-weight: 700; }
+                    .destaques-list { list-style: none; padding: 0; }
+                    .destaques-list li { padding: 10px 0; border-bottom: 1px solid #e1e8ed; }
+                    .destaques-list li:last-child { border-bottom: none; }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.getElementById('report-modal-title').textContent = titulo;
+            document.getElementById('report-modal-body').innerHTML = conteudo;
+            modal.classList.add('active');
+        }
+
+        function closeReportModal() {
+            document.getElementById('report-modal').classList.remove('active');
+        }
+
+        function printReport() {
+            const content = document.getElementById('report-modal-body').innerHTML;
+            const title = document.getElementById('report-modal-title').textContent;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html><head><title>${title}</title>
+                <style>body{font-family:Arial,sans-serif;padding:40px;}.report-section{margin-bottom:25px;}.report-section h3{color:#4A6B54;border-bottom:2px solid #ccc;padding-bottom:8px;}.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;}.report-item{background:#f5f5f5;padding:15px;border-radius:8px;}.report-item-label{font-size:12px;color:#666;}.report-item-value{font-size:18px;font-weight:bold;}</style>
+                </head><body><h1>${title}</h1>${content}</body></html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Formatar relatório executivo
+        function formatExecutiveReport(data) {
+            return `
+                <div class="report-highlight">
+                    <h4>Resultado Líquido - ${data.periodo}</h4>
+                    <div class="big-value">${formatCurrency(data.resumo.lucroLiquido)}</div>
+                    <div style="margin-top:10px;font-size:14px;">Margem: ${data.resumo.margemLiquida}</div>
+                </div>
+
+                <div class="report-section">
+                    <h3>📊 Resumo Financeiro</h3>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-item-label">Receita Total</div>
+                            <div class="report-item-value">${formatCurrency(data.resumo.receitaTotal)}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Despesa Total</div>
+                            <div class="report-item-value">${formatCurrency(data.resumo.despesaTotal)}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Variação Receita</div>
+                            <div class="report-item-value ${data.comparativoMesAnterior.receitas.startsWith('+') ? 'positive' : 'negative'}">${data.comparativoMesAnterior.receitas}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>🏢 Por Segmento</h3>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-item-label">Starken</div>
+                            <div class="report-item-value">${formatCurrency(data.segmentos.starken.receita)}</div>
+                            <div style="font-size:12px;color:#7f8c8d;">${data.segmentos.starken.clientes} clientes (${data.segmentos.starken.participacao})</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Alpha Project</div>
+                            <div class="report-item-value">${formatCurrency(data.segmentos.alpha.receita)}</div>
+                            <div style="font-size:12px;color:#7f8c8d;">${data.segmentos.alpha.clientes} clientes (${data.segmentos.alpha.participacao})</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>✅ Destaques</h3>
+                    <ul class="destaques-list">
+                        ${data.destaques.map(d => `<li>${d}</li>`).join('')}
+                    </ul>
+                </div>
+
+                ${data.acoes.length > 0 ? `
+                <div class="report-section">
+                    <h3>📋 Ações Recomendadas</h3>
+                    <ul class="destaques-list">
+                        ${data.acoes.map(a => `<li>⚡ ${a}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // Formatar DRE
+        function formatDREReport(data) {
+            return `
+                <div class="report-section">
+                    <h3>📊 Demonstração de Resultado - ${data.periodo}</h3>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-item-label">Receita Bruta</div>
+                            <div class="report-item-value">${formatCurrency(data.receitaBruta.total)}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">(-) Royalties Alpha</div>
+                            <div class="report-item-value negative">-${formatCurrency(data.deducoes.royaltiesAlpha)}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Receita Líquida</div>
+                            <div class="report-item-value">${formatCurrency(data.receitaLiquida)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>💼 Custos e Despesas</h3>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-item-label">Custo dos Serviços (Pessoal)</div>
+                            <div class="report-item-value">-${formatCurrency(data.custoServicos.total)}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Lucro Bruto</div>
+                            <div class="report-item-value positive">${formatCurrency(data.lucroBruto.valor)}</div>
+                            <div style="font-size:12px;color:#7f8c8d;">Margem: ${data.lucroBruto.margem}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>🏢 Despesas Operacionais</h3>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-item-label">Comercial</div>
+                            <div class="report-item-value">-${formatCurrency(data.despesasOperacionais.comercial)}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Estrutura</div>
+                            <div class="report-item-value">-${formatCurrency(data.despesasOperacionais.estrutura)}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Ferramentas</div>
+                            <div class="report-item-value">-${formatCurrency(data.despesasOperacionais.ferramentas)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-highlight">
+                    <h4>Resultado Líquido</h4>
+                    <div class="big-value">${formatCurrency(data.resultadoLiquido.valor)}</div>
+                    <div style="margin-top:10px;font-size:14px;">Margem Líquida: ${data.resultadoLiquido.margem}</div>
+                </div>
+            `;
+        }
+
+        // Formatar Projeção
+        function formatProjecaoReport(data) {
+            return `
+                <div class="report-section">
+                    <h3>📈 Premissas de Cálculo</h3>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-item-label">Crescimento Starken</div>
+                            <div class="report-item-value">${data.premissas.crescimentoStarken}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Crescimento Alpha</div>
+                            <div class="report-item-value positive">${data.premissas.crescimentoAlpha}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-label">Crescimento Despesas</div>
+                            <div class="report-item-value">${data.premissas.crescimentoDespesas}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>📊 Projeções Mensais</h3>
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f5f7fa;">
+                                <th style="padding:12px;text-align:left;border-bottom:2px solid #e1e8ed;">Período</th>
+                                <th style="padding:12px;text-align:right;border-bottom:2px solid #e1e8ed;">Receitas</th>
+                                <th style="padding:12px;text-align:right;border-bottom:2px solid #e1e8ed;">Despesas</th>
+                                <th style="padding:12px;text-align:right;border-bottom:2px solid #e1e8ed;">Lucro</th>
+                                <th style="padding:12px;text-align:right;border-bottom:2px solid #e1e8ed;">Margem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.projecoes.map(p => `
+                                <tr>
+                                    <td style="padding:12px;border-bottom:1px solid #e1e8ed;">${p.periodo || p.mes}</td>
+                                    <td style="padding:12px;text-align:right;border-bottom:1px solid #e1e8ed;">${formatCurrency(p.receitas)}</td>
+                                    <td style="padding:12px;text-align:right;border-bottom:1px solid #e1e8ed;">${formatCurrency(p.despesas)}</td>
+                                    <td style="padding:12px;text-align:right;border-bottom:1px solid #e1e8ed;color:#27ae60;font-weight:600;">${formatCurrency(p.lucro)}</td>
+                                    <td style="padding:12px;text-align:right;border-bottom:1px solid #e1e8ed;">${p.margem}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="report-section">
+                    <h3>⚠️ Observações</h3>
+                    <ul class="destaques-list">
+                        ${data.alertas.map(a => `<li>${a}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
 
         // Report card interactions
         document.querySelectorAll('.download-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', async function(e) {
                 e.stopPropagation();
-                const reportTitle = this.closest('.report-card').querySelector('.report-card-title').textContent;
-                alert(`Baixando: ${reportTitle}\n\nEm desenvolvimento - Em breve você poderá fazer download dos relatórios em PDF.`);
-            });
-        });
+                const card = this.closest('.report-card');
+                const reportTitle = card.querySelector('.report-card-title').textContent;
+                const tipo = reportTypeMap[reportTitle] || 'executivo';
 
-        // Table action buttons
-        document.querySelectorAll('.btn-view').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const row = this.closest('tr');
-                const reportType = row.querySelector('td:first-child strong').textContent;
-                const period = row.querySelector('td:nth-child(2)').textContent;
-                alert(`Visualizando:\n${reportType}\nPeríodo: ${period}\n\nEm desenvolvimento - Visualização em breve.`);
-            });
-        });
+                this.textContent = '⏳...';
+                this.disabled = true;
 
-        document.querySelectorAll('.btn-download').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const row = this.closest('tr');
-                const reportType = row.querySelector('td:first-child strong').textContent;
-                const period = row.querySelector('td:nth-child(2)').textContent;
-                alert(`Baixando:\n${reportType}\nPeríodo: ${period}\n\nEm desenvolvimento - Download em breve.`);
-            });
-        });
+                try {
+                    const data = await fetchReport(tipo);
+                    if (data) {
+                        let content = '';
+                        switch(tipo) {
+                            case 'dre':
+                                content = formatDREReport(data);
+                                break;
+                            case 'projecao':
+                                content = formatProjecaoReport(data);
+                                break;
+                            default:
+                                content = formatExecutiveReport(data);
+                        }
+                        showReportModal(reportTitle, content);
+                    } else {
+                        alert('Erro ao carregar relatório');
+                    }
+                } catch (error) {
+                    alert('Erro ao carregar relatório: ' + error.message);
+                }
 
-        // Document links
-        document.querySelectorAll('.document-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const docName = this.querySelector('h4').textContent;
-                alert(`Abrindo documento: ${docName}\n\nEm desenvolvimento - Acesso aos documentos em breve.`);
+                this.textContent = 'Baixar';
+                this.disabled = false;
             });
         });
 
         // Report card click
         document.querySelectorAll('.report-card').forEach(card => {
-            card.addEventListener('click', function(e) {
+            card.addEventListener('click', async function(e) {
                 if (!e.target.classList.contains('download-btn')) {
-                    const title = this.querySelector('.report-card-title').textContent;
-                    alert(`Detalhes do relatório: ${title}\n\nEm desenvolvimento - Visualização detalhada em breve.`);
+                    const reportTitle = this.querySelector('.report-card-title').textContent;
+                    const tipo = reportTypeMap[reportTitle] || 'executivo';
+
+                    try {
+                        const data = await fetchReport(tipo);
+                        if (data) {
+                            let content = '';
+                            switch(tipo) {
+                                case 'dre':
+                                    content = formatDREReport(data);
+                                    break;
+                                case 'projecao':
+                                    content = formatProjecaoReport(data);
+                                    break;
+                                default:
+                                    content = formatExecutiveReport(data);
+                            }
+                            showReportModal(reportTitle, content);
+                        }
+                    } catch (error) {
+                        console.error('Erro:', error);
+                    }
                 }
             });
         });
@@ -1279,5 +1582,8 @@
             background: #c0392b;
         }
     </style>
+
+    <!-- Sistema de Notificações -->
+    <script src="../notifications.js"></script>
 </body>
 </html>

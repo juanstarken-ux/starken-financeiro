@@ -274,6 +274,16 @@ const tools = [
         meses: { type: 'number', description: 'Quantidade de meses para projetar (1-6)' }
       }
     }
+  },
+  {
+    name: 'get_alertas',
+    description: 'Retorna alertas ativos do sistema (vencimentos, contas atrasadas, anomalias)',
+    input_schema: {
+      type: 'object',
+      properties: {
+        prioridade: { type: 'string', enum: ['alta', 'media', 'todas'], description: 'Filtrar por prioridade' }
+      }
+    }
   }
 ];
 
@@ -446,6 +456,105 @@ async function getProjecao({ meses = 3 }) {
   };
 }
 
+// Função para calcular dias até vencimento
+function calcularDiasAteVencimento(dataVencimento) {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const vencimento = new Date(dataVencimento);
+  vencimento.setHours(0, 0, 0, 0);
+  const diffTime = vencimento - hoje;
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+async function getAlertas({ prioridade = 'todas' }) {
+  const alertas = [];
+  const dados = dadosFinanceiros['2025-12'];
+
+  // Simular vencimentos (na prática viriam de dados reais)
+  const vencimentos = [
+    { tipo: 'despesa', nome: 'Salários Equipe', valor: 11100, vencimento: '2025-12-05' },
+    { tipo: 'despesa', nome: 'Dante - Closer', valor: 3500, vencimento: '2025-12-05' },
+    { tipo: 'despesa', nome: 'Aluguel Sala', valor: 2800, vencimento: '2025-12-10' },
+    { tipo: 'receita', nome: 'Bengers - App Festival', valor: 10000, vencimento: '2025-12-15' },
+    { tipo: 'receita', nome: 'Mortadella Blumenau', valor: 2000, vencimento: '2025-12-10' }
+  ];
+
+  vencimentos.forEach(item => {
+    const dias = calcularDiasAteVencimento(item.vencimento);
+
+    if (dias < 0) {
+      alertas.push({
+        prioridade: 'alta',
+        tipo: 'vencido',
+        categoria: item.tipo,
+        titulo: `${item.tipo === 'despesa' ? 'Conta atrasada' : 'Pagamento atrasado'}: ${item.nome}`,
+        descricao: `R$ ${item.valor.toLocaleString('pt-BR')} venceu há ${Math.abs(dias)} dias`,
+        valor: item.valor,
+        diasAtraso: Math.abs(dias)
+      });
+    } else if (dias === 0) {
+      alertas.push({
+        prioridade: 'alta',
+        tipo: 'hoje',
+        categoria: item.tipo,
+        titulo: `Vence HOJE: ${item.nome}`,
+        descricao: `R$ ${item.valor.toLocaleString('pt-BR')} ${item.tipo === 'despesa' ? 'a pagar' : 'a receber'}`,
+        valor: item.valor
+      });
+    } else if (dias <= 3) {
+      alertas.push({
+        prioridade: 'media',
+        tipo: 'proximo',
+        categoria: item.tipo,
+        titulo: `Vence em ${dias} dias: ${item.nome}`,
+        descricao: `R$ ${item.valor.toLocaleString('pt-BR')} ${item.tipo === 'despesa' ? 'a pagar' : 'a receber'}`,
+        valor: item.valor,
+        diasRestantes: dias
+      });
+    }
+  });
+
+  // Alertas sobre saúde financeira
+  const margem = dados.resultado.margem;
+  if (margem >= 40) {
+    alertas.push({
+      prioridade: 'info',
+      tipo: 'positivo',
+      categoria: 'saude',
+      titulo: 'Margem excelente!',
+      descricao: `Margem de ${margem}% - acima da meta de 30%`
+    });
+  }
+
+  // Alerta de crescimento Alpha
+  alertas.push({
+    prioridade: 'info',
+    tipo: 'crescimento',
+    categoria: 'alpha',
+    titulo: 'Alpha em crescimento acelerado',
+    descricao: '15 clientes ativos - crescendo ~5/mês'
+  });
+
+  // Filtrar por prioridade se necessário
+  if (prioridade !== 'todas') {
+    return {
+      alertas: alertas.filter(a => a.prioridade === prioridade),
+      total: alertas.length,
+      filtro: prioridade
+    };
+  }
+
+  return {
+    alertas,
+    total: alertas.length,
+    resumo: {
+      alta: alertas.filter(a => a.prioridade === 'alta').length,
+      media: alertas.filter(a => a.prioridade === 'media').length,
+      info: alertas.filter(a => a.prioridade === 'info').length
+    }
+  };
+}
+
 // Executar tool
 async function executeTool(name, input) {
   switch (name) {
@@ -455,6 +564,7 @@ async function executeTool(name, input) {
     case 'get_comparativo': return await getComparativo(input);
     case 'get_clientes_status': return await getClientesStatus(input);
     case 'get_projecao': return await getProjecao(input);
+    case 'get_alertas': return await getAlertas(input);
     default: throw new Error(`Tool não reconhecida: ${name}`);
   }
 }

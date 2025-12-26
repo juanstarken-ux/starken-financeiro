@@ -18,6 +18,16 @@
   status = 200
 
 [[redirects]]
+  from = "/alerts"
+  to = "/.netlify/functions/alerts"
+  status = 200
+
+[[redirects]]
+  from = "/reports"
+  to = "/.netlify/functions/reports"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
