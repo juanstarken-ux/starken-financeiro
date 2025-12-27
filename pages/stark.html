@@ -83,7 +83,6 @@
             flex: 1;
             margin-left: 260px;
             display: flex;
-            flex-direction: column;
             height: 100vh;
         }
 
@@ -95,6 +94,166 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             position: relative;
             overflow: hidden;
+        }
+
+        /* Dashboard Lateral */
+        .stark-dashboard {
+            width: 320px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .dash-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .dash-section-title {
+            color: rgba(255,255,255,0.5);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dash-kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .dash-kpi {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .dash-kpi-value {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .dash-kpi-value.positive { color: #2ecc71; }
+        .dash-kpi-value.warning { color: #f39c12; }
+
+        .dash-kpi-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .dash-kpi.full {
+            grid-column: 1 / -1;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .quick-action:hover {
+            background: rgba(74, 107, 84, 0.3);
+            border-color: rgba(74, 107, 84, 0.5);
+            color: white;
+        }
+
+        .quick-action-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .quick-action-text {
+            flex: 1;
+        }
+
+        .quick-action-arrow {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .vencimentos-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .venc-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+        }
+
+        .venc-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .venc-icon.pagar { background: rgba(231, 76, 60, 0.2); }
+        .venc-icon.receber { background: rgba(46, 204, 113, 0.2); }
+
+        .venc-info { flex: 1; }
+
+        .venc-nome {
+            color: rgba(255,255,255,0.9);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .venc-data {
+            color: rgba(255,255,255,0.4);
+            font-size: 11px;
+        }
+
+        .venc-valor {
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1200px) {
+            .stark-dashboard { display: none; }
         }
 
         .stark-header {
@@ -584,6 +743,105 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Dashboard Lateral -->
+            <aside class="stark-dashboard">
+                <!-- Status Financeiro -->
+                <div class="dash-section">
+                    <div class="dash-section-title">
+                        <span>📊</span> Status Financeiro
+                    </div>
+                    <div class="dash-kpi-grid">
+                        <div class="dash-kpi">
+                            <div class="dash-kpi-value" id="dashReceita">R$ 54,9k</div>
+                            <div class="dash-kpi-label">Receita</div>
+                        </div>
+                        <div class="dash-kpi">
+                            <div class="dash-kpi-value" id="dashDespesa">R$ 31,8k</div>
+                            <div class="dash-kpi-label">Despesas</div>
+                        </div>
+                        <div class="dash-kpi">
+                            <div class="dash-kpi-value positive" id="dashLucro">R$ 23,1k</div>
+                            <div class="dash-kpi-label">Lucro</div>
+                        </div>
+                        <div class="dash-kpi">
+                            <div class="dash-kpi-value positive" id="dashMargem">42%</div>
+                            <div class="dash-kpi-label">Margem</div>
+                        </div>
+                        <div class="dash-kpi full">
+                            <div class="dash-kpi-value" id="dashLiquido">R$ 19,3k</div>
+                            <div class="dash-kpi-label">Líquido (após royalties)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações Rápidas -->
+                <div class="dash-section">
+                    <div class="dash-section-title">
+                        <span>⚡</span> Ações Rápidas
+                    </div>
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="sendSuggestion('Gere o DRE deste mês')">
+                            <div class="quick-action-icon">📑</div>
+                            <div class="quick-action-text">Gerar DRE</div>
+                            <div class="quick-action-arrow">→</div>
+                        </div>
+                        <div class="quick-action" onclick="sendSuggestion('Quais alertas temos hoje?')">
+                            <div class="quick-action-icon">🔔</div>
+                            <div class="quick-action-text">Ver Alertas</div>
+                            <div class="quick-action-arrow">→</div>
+                        </div>
+                        <div class="quick-action" onclick="sendSuggestion('Liste todos os clientes ativos')">
+                            <div class="quick-action-icon">👥</div>
+                            <div class="quick-action-text">Clientes Ativos</div>
+                            <div class="quick-action-arrow">→</div>
+                        </div>
+                        <div class="quick-action" onclick="sendSuggestion('Compare Starken vs Alpha')">
+                            <div class="quick-action-icon">📊</div>
+                            <div class="quick-action-text">Comparar Segmentos</div>
+                            <div class="quick-action-arrow">→</div>
+                        </div>
+                        <div class="quick-action" onclick="sendSuggestion('Projete os próximos 3 meses')">
+                            <div class="quick-action-icon">🔮</div>
+                            <div class="quick-action-text">Projeções</div>
+                            <div class="quick-action-arrow">→</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Próximos Vencimentos -->
+                <div class="dash-section">
+                    <div class="dash-section-title">
+                        <span>📅</span> Próximos Vencimentos
+                    </div>
+                    <div class="vencimentos-list" id="vencimentosList">
+                        <div class="venc-item">
+                            <div class="venc-icon pagar">💳</div>
+                            <div class="venc-info">
+                                <div class="venc-nome">Salários Equipe</div>
+                                <div class="venc-data">Vence em 5 dias</div>
+                            </div>
+                            <div class="venc-valor">R$ 11.100</div>
+                        </div>
+                        <div class="venc-item">
+                            <div class="venc-icon receber">💰</div>
+                            <div class="venc-info">
+                                <div class="venc-nome">Bengers - App</div>
+                                <div class="venc-data">Vence em 10 dias</div>
+                            </div>
+                            <div class="venc-valor">R$ 10.000</div>
+                        </div>
+                        <div class="venc-item">
+                            <div class="venc-icon pagar">💳</div>
+                            <div class="venc-info">
+                                <div class="venc-nome">Aluguel Sala</div>
+                                <div class="venc-data">Vence em 10 dias</div>
+                            </div>
+                            <div class="venc-valor">R$ 2.800</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
         </main>
     </div>
 

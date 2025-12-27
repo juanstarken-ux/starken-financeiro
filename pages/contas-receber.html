@@ -468,6 +468,94 @@
             border-color: var(--primary-green);
         }
 
+        /* Filtros Visuais Modernos */
+        .filters-bar {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: var(--white);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-gray);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .filter-group-label {
+            font-size: 11px;
+            color: var(--text-light);
+            padding-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-chip {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .filter-chip:hover {
+            background: rgba(74, 107, 84, 0.1);
+            color: var(--primary-green);
+        }
+
+        .filter-chip.active {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .filter-chip.starken.active {
+            background: linear-gradient(135deg, #4A6B54, #7A9B84);
+        }
+
+        .filter-chip.alpha.active {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+
+        .filter-chip.mrr.active {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        }
+
+        .filter-chip.tcv.active {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+        }
+
+        .filter-divider {
+            width: 1px;
+            height: 30px;
+            background: var(--border-color);
+        }
+
+        .filters-summary {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .filters-summary strong {
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
         .table-count {
             font-size: 14px;
             color: var(--text-light);
@@ -2128,6 +2216,36 @@
                 </div>
             </div>
 
+            <!-- Filtros Visuais -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <span class="filter-group-label">Status</span>
+                    <button class="filter-chip active" data-filter="todos" onclick="filtrarReceitas('todos')">Todos</button>
+                    <button class="filter-chip" data-filter="pendente" onclick="filtrarReceitas('pendente')">⏳ Pendentes</button>
+                    <button class="filter-chip" data-filter="recebido" onclick="filtrarReceitas('recebido')">✅ Recebidos</button>
+                </div>
+
+                <div class="filter-divider"></div>
+
+                <div class="filter-group">
+                    <span class="filter-group-label">Segmento</span>
+                    <button class="filter-chip starken" data-filter="starken" onclick="filtrarReceitas('starken')">🚀 Starken</button>
+                    <button class="filter-chip alpha" data-filter="alpha" onclick="filtrarReceitas('alpha')">⭐ Alpha</button>
+                </div>
+
+                <div class="filter-divider"></div>
+
+                <div class="filter-group">
+                    <span class="filter-group-label">Tipo</span>
+                    <button class="filter-chip mrr" data-filter="mrr" onclick="filtrarReceitas('mrr')">🔄 MRR</button>
+                    <button class="filter-chip tcv" data-filter="tcv" onclick="filtrarReceitas('tcv')">📋 TCV</button>
+                </div>
+
+                <div class="filters-summary">
+                    <span id="filtersSummary">Mostrando <strong>todos</strong> os registros</span>
+                </div>
+            </div>
+
             <!-- Data Table -->
             <div class="data-table-container" id="tableContainer">
                 <div class="bulk-actions" id="bulkActions">
@@ -2489,6 +2607,10 @@
                 clientesFiltrados = clientes.filter(c => c.empresa === 'Starken');
             } else if (currentFilter === 'alpha') {
                 clientesFiltrados = clientes.filter(c => c.empresa === 'Alpha');
+            } else if (currentFilter === 'mrr') {
+                clientesFiltrados = clientes.filter(c => c.tipo === 'MRR' || (!c.tipo && c.empresa === 'Alpha'));
+            } else if (currentFilter === 'tcv') {
+                clientesFiltrados = clientes.filter(c => c.tipo === 'TCV' || c.tipo === 'Projeto');
             }
 
             // Aplicar ordem customizada se existir
@@ -2578,6 +2700,7 @@
                     </td>
                     <td class="text-right">
                         <span class="amount">${cliente.valor > 0 ? formatMoney(cliente.valor) : '-'}</span>
+                        ${cliente.empresa === 'Alpha' && cliente.valor > 0 ? `<div style="font-size: 11px; color: #7A9B84; margin-top: 2px;">Líq: ${formatMoney(cliente.valor * 0.85)}</div>` : ''}
                     </td>
                     <td class="text-center">
                         ${dataRecebimentoHtml}
@@ -2861,9 +2984,36 @@
         // Filtrar receitas
         function filtrarReceitas(filtro) {
             currentFilter = filtro;
+
+            // Atualiza filter-btn (antigos)
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.filter === filtro);
             });
+
+            // Atualiza filter-chip (novos)
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                if (filtro === 'todos') {
+                    chip.classList.toggle('active', chip.dataset.filter === 'todos');
+                } else {
+                    chip.classList.toggle('active', chip.dataset.filter === filtro);
+                }
+            });
+
+            // Atualiza resumo dos filtros
+            const summary = document.getElementById('filtersSummary');
+            if (summary) {
+                const labels = {
+                    'todos': 'todos os registros',
+                    'pendente': 'pendentes',
+                    'recebido': 'recebidos',
+                    'starken': 'Starken',
+                    'alpha': 'Alpha',
+                    'mrr': 'MRR (recorrentes)',
+                    'tcv': 'TCV (projetos)'
+                };
+                summary.innerHTML = `Mostrando <strong>${labels[filtro] || filtro}</strong>`;
+            }
+
             loadMonthData(currentMonth);
         }
 

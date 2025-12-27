@@ -384,6 +384,84 @@
             border-color: var(--primary-green);
         }
 
+        /* Filtros Visuais Modernos */
+        .filters-bar {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: var(--white);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-gray);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .filter-group-label {
+            font-size: 11px;
+            color: var(--text-light);
+            padding-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-chip {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .filter-chip:hover {
+            background: rgba(74, 107, 84, 0.1);
+            color: var(--primary-green);
+        }
+
+        .filter-chip.active {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .filter-chip.pessoal.active { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+        .filter-chip.comercial.active { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+        .filter-chip.estrutura.active { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .filter-chip.ferramentas.active { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+        .filter-chip.alpha.active { background: linear-gradient(135deg, #ec4899, #f472b6); }
+
+        .filter-divider {
+            width: 1px;
+            height: 30px;
+            background: var(--border-color);
+        }
+
+        .filters-summary {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .filters-summary strong {
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
         .table-count {
             font-size: 14px;
             color: var(--text-light);
@@ -1923,6 +2001,31 @@
                 </div>
             </div>
 
+            <!-- Filtros Visuais -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <span class="filter-group-label">Status</span>
+                    <button class="filter-chip active" data-filter="todos" onclick="filtrarDespesas('todos')">Todos</button>
+                    <button class="filter-chip" data-filter="pendente" onclick="filtrarDespesas('pendente')">⏳ Pendentes</button>
+                    <button class="filter-chip" data-filter="pago" onclick="filtrarDespesas('pago')">✅ Pagos</button>
+                </div>
+
+                <div class="filter-divider"></div>
+
+                <div class="filter-group">
+                    <span class="filter-group-label">Categoria</span>
+                    <button class="filter-chip pessoal" data-filter="pessoal" onclick="filtrarDespesas('pessoal')">👤 Pessoal</button>
+                    <button class="filter-chip comercial" data-filter="comercial" onclick="filtrarDespesas('comercial')">📊 Comercial</button>
+                    <button class="filter-chip estrutura" data-filter="estrutura" onclick="filtrarDespesas('estrutura')">🏢 Estrutura</button>
+                    <button class="filter-chip ferramentas" data-filter="ferramentas" onclick="filtrarDespesas('ferramentas')">🛠️ Ferramentas</button>
+                    <button class="filter-chip alpha" data-filter="alpha" onclick="filtrarDespesas('alpha')">⭐ Alpha</button>
+                </div>
+
+                <div class="filters-summary">
+                    <span id="filtersSummary">Mostrando <strong>todos</strong> os registros</span>
+                </div>
+            </div>
+
             <!-- Data Table -->
             <div class="data-table-container" id="tableContainer">
                 <div class="table-header" style="display: none;">
@@ -2347,6 +2450,16 @@
                 itensFiltrados = itens.filter(i => !i.isPago);
             } else if (currentFilter === 'pago') {
                 itensFiltrados = itens.filter(i => i.isPago);
+            } else if (currentFilter === 'pessoal') {
+                itensFiltrados = itens.filter(i => i.categoria === 'pessoal');
+            } else if (currentFilter === 'comercial') {
+                itensFiltrados = itens.filter(i => i.categoria === 'comercial');
+            } else if (currentFilter === 'estrutura') {
+                itensFiltrados = itens.filter(i => i.categoria === 'estrutura' || i.categoria === 'locacao_aluguel');
+            } else if (currentFilter === 'ferramentas') {
+                itensFiltrados = itens.filter(i => i.categoria === 'ferramentas' || i.categoria === 'equipamentos');
+            } else if (currentFilter === 'alpha') {
+                itensFiltrados = itens.filter(i => i.categoria === 'alpha_franquia' || i.categoria === 'alpha');
             }
 
             // Aplicar ordem customizada se existir, senão ordenar por padrão
@@ -2594,9 +2707,37 @@
         // Filtrar despesas (por status: todos, pendente, pago)
         function filtrarDespesas(filtro) {
             currentFilter = filtro;
+
+            // Atualiza filter-btn (antigos)
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.filter === filtro);
             });
+
+            // Atualiza filter-chip (novos)
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                if (filtro === 'todos') {
+                    chip.classList.toggle('active', chip.dataset.filter === 'todos');
+                } else {
+                    chip.classList.toggle('active', chip.dataset.filter === filtro);
+                }
+            });
+
+            // Atualiza resumo dos filtros
+            const summary = document.getElementById('filtersSummary');
+            if (summary) {
+                const labels = {
+                    'todos': 'todos os registros',
+                    'pendente': 'pendentes',
+                    'pago': 'pagos',
+                    'pessoal': 'Pessoal',
+                    'comercial': 'Comercial',
+                    'estrutura': 'Estrutura',
+                    'ferramentas': 'Ferramentas',
+                    'alpha': 'Alpha'
+                };
+                summary.innerHTML = `Mostrando <strong>${labels[filtro] || filtro}</strong>`;
+            }
+
             applyFiltersAndRender();
         }
 
