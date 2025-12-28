@@ -252,6 +252,133 @@
             font-size: 13px;
         }
 
+        /* Upload de Arquivos */
+        .upload-section {
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-section:hover, .upload-section.dragover {
+            border-color: rgba(74, 107, 84, 0.6);
+            background: rgba(74, 107, 84, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .upload-formats {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .format-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .uploaded-files {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .uploaded-file-icon {
+            font-size: 18px;
+        }
+
+        .uploaded-file-info {
+            flex: 1;
+        }
+
+        .uploaded-file-name {
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+        }
+
+        .uploaded-file-size {
+            color: rgba(255,255,255,0.4);
+            font-size: 10px;
+        }
+
+        .uploaded-file-status {
+            font-size: 14px;
+        }
+
+        .uploaded-file-status.processing {
+            animation: pulse 1s infinite;
+        }
+
+        .uploaded-file-remove {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 14px;
+        }
+
+        .uploaded-file-remove:hover {
+            color: #ef4444;
+        }
+
+        .process-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            background: linear-gradient(135deg, #4A6B54, #7A9B84);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .process-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .process-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         @media (max-width: 1200px) {
             .stark-dashboard { display: none; }
         }
@@ -809,6 +936,28 @@
                     </div>
                 </div>
 
+                <!-- Upload de Arquivos -->
+                <div class="dash-section">
+                    <div class="dash-section-title">
+                        <span>📎</span> Importar Dados
+                    </div>
+                    <div class="upload-section" id="uploadSection" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">Arraste arquivos ou clique para selecionar</div>
+                        <div class="upload-formats">
+                            <span class="format-badge">PDF</span>
+                            <span class="format-badge">OFX</span>
+                            <span class="format-badge">CSV</span>
+                            <span class="format-badge">XLS</span>
+                        </div>
+                        <input type="file" id="fileInput" class="upload-input" multiple accept=".pdf,.ofx,.csv,.xls,.xlsx" onchange="handleFileSelect(event)">
+                    </div>
+                    <div class="uploaded-files" id="uploadedFiles"></div>
+                    <button class="process-btn" id="processBtn" onclick="processFiles()" disabled>
+                        🤖 Processar com STARK
+                    </button>
+                </div>
+
                 <!-- Próximos Vencimentos -->
                 <div class="dash-section">
                     <div class="dash-section-title">
@@ -1062,6 +1211,184 @@
             queryCount = 0;
             localStorage.removeItem('starkHistory');
             location.reload();
+        }
+
+        // ========================================
+        // UPLOAD DE ARQUIVOS
+        // ========================================
+        let uploadedFiles = [];
+
+        // Setup drag and drop
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadSection = document.getElementById('uploadSection');
+            if (uploadSection) {
+                uploadSection.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadSection.classList.add('dragover');
+                });
+
+                uploadSection.addEventListener('dragleave', () => {
+                    uploadSection.classList.remove('dragover');
+                });
+
+                uploadSection.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadSection.classList.remove('dragover');
+                    handleFiles(e.dataTransfer.files);
+                });
+            }
+        });
+
+        // Handle file selection
+        function handleFileSelect(event) {
+            handleFiles(event.target.files);
+        }
+
+        // Process selected files
+        function handleFiles(files) {
+            const validExtensions = ['.pdf', '.ofx', '.csv', '.xls', '.xlsx'];
+
+            for (const file of files) {
+                const ext = '.' + file.name.split('.').pop().toLowerCase();
+                if (!validExtensions.includes(ext)) {
+                    addMessage(`⚠️ Arquivo "${file.name}" não suportado. Use PDF, OFX, CSV ou XLS.`, 'assistant');
+                    continue;
+                }
+
+                // Check if already added
+                if (uploadedFiles.find(f => f.name === file.name)) {
+                    continue;
+                }
+
+                uploadedFiles.push({
+                    file: file,
+                    name: file.name,
+                    size: file.size,
+                    type: ext,
+                    status: 'pending'
+                });
+            }
+
+            renderUploadedFiles();
+            updateProcessButton();
+        }
+
+        // Render uploaded files list
+        function renderUploadedFiles() {
+            const container = document.getElementById('uploadedFiles');
+            if (!container) return;
+
+            container.innerHTML = uploadedFiles.map((f, index) => {
+                const icon = getFileIcon(f.type);
+                const size = formatFileSize(f.size);
+                const statusIcon = f.status === 'pending' ? '⏳' :
+                                   f.status === 'processing' ? '🔄' :
+                                   f.status === 'done' ? '✅' : '❌';
+                const statusClass = f.status === 'processing' ? 'processing' : '';
+
+                return `
+                    <div class="uploaded-file">
+                        <div class="uploaded-file-icon">${icon}</div>
+                        <div class="uploaded-file-info">
+                            <div class="uploaded-file-name">${f.name}</div>
+                            <div class="uploaded-file-size">${size}</div>
+                        </div>
+                        <div class="uploaded-file-status ${statusClass}">${statusIcon}</div>
+                        <button class="uploaded-file-remove" onclick="removeFile(${index})">✕</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Get file icon based on type
+        function getFileIcon(type) {
+            const icons = {
+                '.pdf': '📕',
+                '.ofx': '🏦',
+                '.csv': '📊',
+                '.xls': '📗',
+                '.xlsx': '📗'
+            };
+            return icons[type] || '📄';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Remove file from list
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            renderUploadedFiles();
+            updateProcessButton();
+        }
+
+        // Update process button state
+        function updateProcessButton() {
+            const btn = document.getElementById('processBtn');
+            if (btn) {
+                btn.disabled = uploadedFiles.length === 0;
+            }
+        }
+
+        // Process files with STARK
+        async function processFiles() {
+            if (uploadedFiles.length === 0) return;
+
+            const btn = document.getElementById('processBtn');
+            btn.disabled = true;
+            btn.textContent = '🔄 Processando...';
+
+            for (let i = 0; i < uploadedFiles.length; i++) {
+                uploadedFiles[i].status = 'processing';
+                renderUploadedFiles();
+
+                try {
+                    const result = await processFile(uploadedFiles[i]);
+                    uploadedFiles[i].status = 'done';
+                    uploadedFiles[i].result = result;
+                } catch (error) {
+                    uploadedFiles[i].status = 'error';
+                    console.error('Erro ao processar:', error);
+                }
+
+                renderUploadedFiles();
+            }
+
+            btn.textContent = '🤖 Processar com STARK';
+            btn.disabled = false;
+
+            // Show summary
+            const successCount = uploadedFiles.filter(f => f.status === 'done').length;
+            if (successCount > 0) {
+                const summary = uploadedFiles
+                    .filter(f => f.status === 'done' && f.result)
+                    .map(f => f.result.summary || `${f.name}: processado`)
+                    .join('\n');
+
+                addMessage(`📎 **${successCount} arquivo(s) processado(s)!**\n\n${summary}\n\nPosso analisar esses dados para você. O que gostaria de saber?`, 'assistant');
+            }
+        }
+
+        // Process individual file
+        async function processFile(fileObj) {
+            const formData = new FormData();
+            formData.append('file', fileObj.file);
+            formData.append('type', fileObj.type);
+
+            const response = await fetch('/.netlify/functions/upload-processor', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao processar arquivo');
+            }
+
+            return await response.json();
         }
     </script>
 

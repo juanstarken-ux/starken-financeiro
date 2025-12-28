@@ -20,6 +20,9 @@
 [functions."reports"]
   timeout = 26
 
+[functions."upload-processor"]
+  timeout = 26
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/sync-data/:splat"
