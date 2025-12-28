@@ -1,6 +1,3 @@
-const Busboy = require('busboy');
-const pdf = require('pdf-parse');
-
 // Headers CORS
 const headers = {
   'Access-Control-Allow-Origin': '*',
@@ -9,52 +6,58 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
-// Parse multipart form data
+// Parse multipart form data manually
 function parseMultipartForm(event) {
   return new Promise((resolve, reject) => {
-    const busboy = Busboy({
-      headers: {
-        'content-type': event.headers['content-type'] || event.headers['Content-Type']
+    try {
+      const contentType = event.headers['content-type'] || event.headers['Content-Type'] || '';
+      const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
+
+      if (!boundaryMatch) {
+        reject(new Error('No boundary found in content-type'));
+        return;
       }
-    });
 
-    const result = {
-      files: [],
-      fields: {}
-    };
+      const boundary = boundaryMatch[1] || boundaryMatch[2];
+      const body = event.isBase64Encoded
+        ? Buffer.from(event.body, 'base64')
+        : Buffer.from(event.body, 'binary');
 
-    busboy.on('file', (fieldname, file, info) => {
-      const { filename, encoding, mimeType } = info;
-      const chunks = [];
+      const bodyStr = body.toString('binary');
+      const parts = bodyStr.split('--' + boundary);
 
-      file.on('data', (data) => {
-        chunks.push(data);
-      });
+      const result = { files: [], fields: {} };
 
-      file.on('end', () => {
-        result.files.push({
-          fieldname,
-          filename,
-          encoding,
-          mimeType,
-          content: Buffer.concat(chunks)
-        });
-      });
-    });
+      for (const part of parts) {
+        if (part.trim() === '' || part.trim() === '--') continue;
 
-    busboy.on('field', (fieldname, val) => {
-      result.fields[fieldname] = val;
-    });
+        const headerEnd = part.indexOf('\r\n\r\n');
+        if (headerEnd === -1) continue;
 
-    busboy.on('finish', () => {
+        const headerSection = part.substring(0, headerEnd);
+        const content = part.substring(headerEnd + 4);
+
+        // Remove trailing \r\n
+        const cleanContent = content.replace(/\r\n$/, '');
+
+        const filenameMatch = headerSection.match(/filename="([^"]+)"/);
+        const nameMatch = headerSection.match(/name="([^"]+)"/);
+
+        if (filenameMatch && nameMatch) {
+          result.files.push({
+            fieldname: nameMatch[1],
+            filename: filenameMatch[1],
+            content: Buffer.from(cleanContent, 'binary')
+          });
+        } else if (nameMatch) {
+          result.fields[nameMatch[1]] = cleanContent.trim();
+        }
+      }
+
       resolve(result);
-    });
-
-    busboy.on('error', reject);
-
-    const encoding = event.isBase64Encoded ? 'base64' : 'binary';
-    busboy.write(Buffer.from(event.body, encoding));
-    busboy.end();
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
@@ -63,13 +66,11 @@ function parseOFX(content) {
   const text = content.toString('utf-8');
   const transactions = [];
 
-  // Extract transactions
   const stmtTrnRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
   let match;
 
   while ((match = stmtTrnRegex.exec(text)) !== null) {
     const trn = match[1];
-
     const getTag = (tag) => {
       const tagRegex = new RegExp(`<${tag}>([^<\\n]+)`, 'i');
       const m = trn.match(tagRegex);
@@ -83,46 +84,32 @@ function parseOFX(content) {
 
     if (trnAmt) {
       const amount = parseFloat(trnAmt);
-      const date = dtPosted ? formatOFXDate(dtPosted) : null;
-
       transactions.push({
         tipo: amount >= 0 ? 'receita' : 'despesa',
         valor: Math.abs(amount),
         descricao: memo || (amount >= 0 ? 'Crédito' : 'Débito'),
-        data: date,
+        data: dtPosted ? formatOFXDate(dtPosted) : null,
         trnType
       });
     }
   }
-
-  // Get account info
-  const bankId = text.match(/<BANKID>([^<\n]+)/i)?.[1]?.trim();
-  const acctId = text.match(/<ACCTID>([^<\n]+)/i)?.[1]?.trim();
-  const balAmt = text.match(/<BALAMT>([^<\n]+)/i)?.[1]?.trim();
 
   const totalReceitas = transactions.filter(t => t.tipo === 'receita').reduce((s, t) => s + t.valor, 0);
   const totalDespesas = transactions.filter(t => t.tipo === 'despesa').reduce((s, t) => s + t.valor, 0);
 
   return {
     type: 'ofx',
-    banco: bankId,
-    conta: acctId,
-    saldo: balAmt ? parseFloat(balAmt) : null,
     transacoes: transactions.length,
     receitas: totalReceitas,
     despesas: totalDespesas,
-    items: transactions.slice(0, 50), // Limit to 50 items
+    items: transactions.slice(0, 50),
     summary: `🏦 Extrato OFX: ${transactions.length} transações | Entradas: R$ ${totalReceitas.toFixed(2)} | Saídas: R$ ${totalDespesas.toFixed(2)}`
   };
 }
 
-// Format OFX date (YYYYMMDD or YYYYMMDDHHMMSS)
 function formatOFXDate(dateStr) {
   if (!dateStr || dateStr.length < 8) return null;
-  const year = dateStr.substring(0, 4);
-  const month = dateStr.substring(4, 6);
-  const day = dateStr.substring(6, 8);
-  return `${year}-${month}-${day}`;
+  return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
 }
 
 // Parse CSV file
@@ -134,24 +121,18 @@ function parseCSV(content) {
     return { type: 'csv', error: 'Arquivo vazio', items: [] };
   }
 
-  // Detect delimiter
   const firstLine = lines[0];
   const delimiter = firstLine.includes(';') ? ';' : ',';
-
-  // Parse header
   const headers = firstLine.split(delimiter).map(h => h.trim().toLowerCase().replace(/["']/g, ''));
 
-  // Find relevant columns
   const findColumn = (keywords) => {
-    return headers.findIndex(h =>
-      keywords.some(k => h.includes(k))
-    );
+    return headers.findIndex(h => keywords.some(k => h.includes(k)));
   };
 
-  const descCol = findColumn(['descricao', 'descrição', 'historico', 'histórico', 'nome', 'memo', 'description']);
+  const descCol = findColumn(['descricao', 'descrição', 'historico', 'histórico', 'nome', 'memo']);
   const valorCol = findColumn(['valor', 'value', 'amount', 'quantia']);
-  const dataCol = findColumn(['data', 'date', 'vencimento', 'emissao']);
-  const tipoCol = findColumn(['tipo', 'type', 'natureza', 'categoria']);
+  const dataCol = findColumn(['data', 'date', 'vencimento']);
+  const tipoCol = findColumn(['tipo', 'type', 'natureza']);
 
   const items = [];
   let totalReceitas = 0;
@@ -159,28 +140,20 @@ function parseCSV(content) {
 
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split(delimiter).map(v => v.trim().replace(/["']/g, ''));
-
     if (values.length < 2) continue;
 
     let valor = valorCol >= 0 ? parseFloat(values[valorCol]?.replace(/[^\d.,-]/g, '').replace(',', '.')) : 0;
     const descricao = descCol >= 0 ? values[descCol] : values[0];
-    const data = dataCol >= 0 ? values[dataCol] : null;
     const tipoRaw = tipoCol >= 0 ? values[tipoCol]?.toLowerCase() : '';
 
-    // Determine tipo
     let tipo = 'despesa';
-    if (tipoRaw.includes('credit') || tipoRaw.includes('receita') || tipoRaw.includes('entrada') || valor > 0) {
+    if (tipoRaw.includes('credit') || tipoRaw.includes('receita') || valor > 0) {
       tipo = 'receita';
-    }
-    if (tipoRaw.includes('debit') || tipoRaw.includes('despesa') || tipoRaw.includes('saida') || tipoRaw.includes('saída')) {
-      tipo = 'despesa';
     }
 
     valor = Math.abs(valor);
-
     if (valor > 0) {
-      items.push({ tipo, valor, descricao, data });
-
+      items.push({ tipo, valor, descricao });
       if (tipo === 'receita') totalReceitas += valor;
       else totalDespesas += valor;
     }
@@ -188,8 +161,6 @@ function parseCSV(content) {
 
   return {
     type: 'csv',
-    linhas: lines.length - 1,
-    colunas: headers,
     transacoes: items.length,
     receitas: totalReceitas,
     despesas: totalDespesas,
@@ -198,124 +169,80 @@ function parseCSV(content) {
   };
 }
 
-// Parse PDF (usando pdf-parse)
+// Parse PDF file (extração básica)
 async function parsePDF(content) {
   try {
+    // Tentar usar pdf-parse
+    const pdf = require('pdf-parse');
     const data = await pdf(content);
     const text = data.text;
 
-    console.log('PDF Text extracted, length:', text.length);
-
-    // Try to find monetary values (Brazilian format)
-    const moneyRegex = /R\$\s*[\d.,]+|(?<!\d)[\d]{1,3}(?:\.[\d]{3})*,[\d]{2}(?!\d)/g;
-    const allValues = text.match(moneyRegex) || [];
-
-    // Try to find dates
-    const dateRegex = /\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2}|\d{4}-\d{2}-\d{2}/g;
-    const dates = text.match(dateRegex) || [];
-
-    // Parse lines to find transactions
-    const lines = text.split('\n').filter(l => l.trim());
+    // Extrair valores monetários
+    const moneyRegex = /R?\$?\s*(\d{1,3}(?:\.\d{3})*,\d{2})/g;
     const transactions = [];
 
-    // Keywords for credits and debits
-    const creditKeywords = ['credito', 'crédito', 'deposito', 'depósito', 'ted recebid', 'pix recebid', 'transferencia recebid', 'transferência recebid', 'resgate', 'estorno'];
-    const debitKeywords = ['debito', 'débito', 'pagamento', 'pix enviad', 'ted enviad', 'transferencia enviad', 'transferência enviad', 'saque', 'tarifa', 'taxa', 'iof', 'compra'];
+    const lines = text.split('\n');
+    const creditKeywords = ['credito', 'crédito', 'deposito', 'pix recebid', 'ted recebid', 'transferencia recebid'];
+    const debitKeywords = ['debito', 'débito', 'pagamento', 'pix enviad', 'saque', 'tarifa', 'taxa'];
 
     for (const line of lines) {
       const lineLower = line.toLowerCase();
+      const valueMatch = line.match(/(\d{1,3}(?:\.\d{3})*,\d{2})/);
 
-      // Find value in line
-      const valueMatch = line.match(/(?<!\d)([\d]{1,3}(?:\.[\d]{3})*,[\d]{2})(?!\d)/);
       if (!valueMatch) continue;
 
       const valor = parseFloat(valueMatch[1].replace(/\./g, '').replace(',', '.'));
       if (isNaN(valor) || valor <= 0 || valor > 10000000) continue;
 
-      // Find date in line
-      const dateMatch = line.match(/(\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2})/);
-      const data = dateMatch ? dateMatch[1] : null;
-
-      // Determine type
       let tipo = 'indefinido';
-      if (creditKeywords.some(k => lineLower.includes(k))) {
-        tipo = 'receita';
-      } else if (debitKeywords.some(k => lineLower.includes(k))) {
-        tipo = 'despesa';
-      } else if (lineLower.includes(' c ') || lineLower.includes(' c\t') || line.includes('+')) {
-        tipo = 'receita';
-      } else if (lineLower.includes(' d ') || lineLower.includes(' d\t') || line.includes('-')) {
-        tipo = 'despesa';
-      }
+      if (creditKeywords.some(k => lineLower.includes(k))) tipo = 'receita';
+      else if (debitKeywords.some(k => lineLower.includes(k))) tipo = 'despesa';
 
-      // Get description (first 50 chars, cleaned)
-      const descricao = line.replace(valueMatch[0], '').replace(dateMatch?.[0] || '', '').trim().substring(0, 50);
-
+      const descricao = line.replace(valueMatch[0], '').trim().substring(0, 50);
       if (descricao.length > 3) {
-        transactions.push({ tipo, valor, descricao, data });
+        transactions.push({ tipo, valor, descricao });
       }
     }
 
-    // Calculate totals
     const receitas = transactions.filter(t => t.tipo === 'receita');
     const despesas = transactions.filter(t => t.tipo === 'despesa');
-    const indefinidos = transactions.filter(t => t.tipo === 'indefinido');
-
     const totalReceitas = receitas.reduce((s, t) => s + t.valor, 0);
     const totalDespesas = despesas.reduce((s, t) => s + t.valor, 0);
-    const totalIndefinido = indefinidos.reduce((s, t) => s + t.valor, 0);
-
-    // Parse unique values for fallback
-    const parsedValues = [...new Set(allValues)].map(v => {
-      const num = parseFloat(v.replace(/[R$\s.]/g, '').replace(',', '.'));
-      return isNaN(num) ? 0 : num;
-    }).filter(v => v > 0 && v < 10000000);
-
-    // Get saldo if found
-    const saldoMatch = text.match(/saldo[:\s]*([\d.,]+)/i);
-    const saldo = saldoMatch ? parseFloat(saldoMatch[1].replace(/\./g, '').replace(',', '.')) : null;
 
     return {
       type: 'pdf',
       paginas: data.numpages,
-      transacoes_detectadas: transactions.length,
-      receitas: { count: receitas.length, total: totalReceitas },
-      despesas: { count: despesas.length, total: totalDespesas },
-      indefinidos: { count: indefinidos.length, total: totalIndefinido },
-      saldo_encontrado: saldo,
-      valores_encontrados: parsedValues.length,
-      datas_encontradas: [...new Set(dates)].length,
-      items: transactions.slice(0, 100),
-      summary: `📕 PDF (${data.numpages} pág): ${transactions.length} transações detectadas | Entradas: R$ ${totalReceitas.toFixed(2)} (${receitas.length}) | Saídas: R$ ${totalDespesas.toFixed(2)} (${despesas.length})${indefinidos.length > 0 ? ` | Indefinidos: ${indefinidos.length}` : ''}`,
-      texto_extraido: text.substring(0, 500) + '...'
+      transacoes: transactions.length,
+      receitas: totalReceitas,
+      despesas: totalDespesas,
+      items: transactions.slice(0, 50),
+      summary: `📕 PDF (${data.numpages} pág): ${transactions.length} transações | Entradas: R$ ${totalReceitas.toFixed(2)} | Saídas: R$ ${totalDespesas.toFixed(2)}`
     };
   } catch (error) {
-    console.error('Erro ao parsear PDF:', error);
+    console.error('PDF parse error:', error.message);
 
-    // Fallback to basic extraction
+    // Fallback: extração básica do buffer
     const text = content.toString('latin1');
-    const moneyRegex = /R\$\s*[\d.,]+|\d{1,3}(?:\.\d{3})*,\d{2}/g;
-    const values = text.match(moneyRegex) || [];
+    const moneyRegex = /\d{1,3}(?:\.\d{3})*,\d{2}/g;
+    const values = (text.match(moneyRegex) || [])
+      .map(v => parseFloat(v.replace(/\./g, '').replace(',', '.')))
+      .filter(v => v > 0 && v < 10000000);
 
-    const parsedValues = [...new Set(values)].map(v => {
-      const num = parseFloat(v.replace(/[R$\s.]/g, '').replace(',', '.'));
-      return isNaN(num) ? 0 : num;
-    }).filter(v => v > 0);
+    const total = values.reduce((s, v) => s + v, 0);
 
     return {
       type: 'pdf',
-      error: 'Não foi possível extrair texto estruturado do PDF',
-      valores_encontrados: parsedValues.length,
-      valores: parsedValues.slice(0, 20),
-      summary: `📕 PDF: Extração parcial - ${parsedValues.length} valores encontrados`,
-      nota: 'Este PDF pode estar protegido ou em formato de imagem. Tente exportar o extrato em OFX ou CSV do seu banco.'
+      error: 'Extração limitada',
+      valores_encontrados: values.length,
+      total_estimado: total,
+      summary: `📕 PDF: ${values.length} valores encontrados | Total: R$ ${total.toFixed(2)}`,
+      nota: 'Para melhor precisão, exporte o extrato em OFX ou CSV do seu banco.'
     };
   }
 }
 
 // Main handler
 exports.handler = async (event) => {
-  // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
@@ -329,7 +256,10 @@ exports.handler = async (event) => {
   }
 
   try {
+    console.log('Processing upload...');
+
     const { files, fields } = await parseMultipartForm(event);
+    console.log('Files received:', files.length);
 
     if (files.length === 0) {
       return {
@@ -341,6 +271,8 @@ exports.handler = async (event) => {
 
     const file = files[0];
     const filename = file.filename.toLowerCase();
+    console.log('Processing file:', filename, 'Size:', file.content.length);
+
     let result;
 
     if (filename.endsWith('.ofx')) {
@@ -352,16 +284,18 @@ exports.handler = async (event) => {
     } else if (filename.endsWith('.xls') || filename.endsWith('.xlsx')) {
       result = {
         type: 'excel',
-        summary: '📗 Excel: Processamento de arquivos Excel em desenvolvimento. Por favor, exporte como CSV.',
-        nota: 'Converta o arquivo para CSV no Excel (Salvar Como > CSV) para melhor compatibilidade.'
+        summary: '📗 Excel: Exporte como CSV para processar.',
+        nota: 'No Excel: Arquivo > Salvar Como > CSV'
       };
     } else {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Formato não suportado' })
+        body: JSON.stringify({ error: 'Formato não suportado. Use PDF, OFX ou CSV.' })
       };
     }
+
+    console.log('Processing complete:', result.type);
 
     return {
       statusCode: 200,
@@ -374,11 +308,14 @@ exports.handler = async (event) => {
     };
 
   } catch (error) {
-    console.error('Erro ao processar arquivo:', error);
+    console.error('Upload error:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({
+        error: 'Erro ao processar arquivo: ' + error.message,
+        nota: 'Tente um arquivo menor ou em formato OFX/CSV.'
+      })
     };
   }
 };
