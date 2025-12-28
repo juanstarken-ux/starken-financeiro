@@ -5,7 +5,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@prisma/client", "@anthropic-ai/sdk"]
+  external_node_modules = ["@prisma/client", "@anthropic-ai/sdk", "pdf-parse"]
 
 # Aumentar timeout para 26 segundos (máximo no plano gratuito)
 [functions."agent"]
@@ -41,6 +41,11 @@
 [[redirects]]
   from = "/reports"
   to = "/.netlify/functions/reports"
+  status = 200
+
+[[redirects]]
+  from = "/upload"
+  to = "/.netlify/functions/upload-processor"
   status = 200
 
 [[redirects]]

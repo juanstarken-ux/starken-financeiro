@@ -1157,7 +1157,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { message, conversationHistory = [] } = JSON.parse(event.body);
+    const { message, conversationHistory = [], importedFile } = JSON.parse(event.body);
 
     if (!message) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Mensagem não fornecida' }) };
@@ -1165,14 +1165,127 @@ exports.handler = async (event, context) => {
 
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+    // Preparar contexto do arquivo importado se houver
+    let fileContext = '';
+    if (importedFile) {
+      console.log('Arquivo importado recebido:', importedFile.filename, 'com', importedFile.transacoes, 'transações');
+
+      // Agrupar transações por categoria para resumo
+      const items = importedFile.items || [];
+      const porTipo = { receita: [], despesa: [], indefinido: [] };
+
+      items.forEach(item => {
+        const tipo = item.tipo || 'indefinido';
+        if (porTipo[tipo]) porTipo[tipo].push(item);
+      });
+
+      // Agrupar despesas por categoria/destinatário
+      const categorizarDespesa = (desc) => {
+        const d = (desc || '').toLowerCase();
+        if (d.includes('mercado') || d.includes('market') || d.includes('supermercado') || d.includes('comercio')) return 'Mercado/Supermercado';
+        if (d.includes('posto') || d.includes('combustivel') || d.includes('gasolina') || d.includes('auto posto')) return 'Combustível';
+        if (d.includes('restaurante') || d.includes('lanchonete') || d.includes('pizza') || d.includes('burger') || d.includes('cafe') || d.includes('confeitaria') || d.includes('alimenta')) return 'Alimentação';
+        if (d.includes('drogasil') || d.includes('farmacia') || d.includes('drogaria') || d.includes('medicamento')) return 'Farmácia';
+        if (d.includes('parking') || d.includes('estacionamento')) return 'Estacionamento';
+        if (d.includes('taxa') || d.includes('tarifa') || d.includes('mensageria') || d.includes('boleto')) return 'Taxas Bancárias';
+        if (d.includes('assessoria alpha') || d.includes('alpha ltda')) return 'Royalties Alpha';
+        if (d.includes('starken')) return 'Starken (interno)';
+        return 'Transferências/Pagamentos';
+      };
+
+      // Agrupar despesas por categoria
+      const despesasPorCategoria = {};
+      porTipo.despesa.forEach(item => {
+        const cat = categorizarDespesa(item.descricao);
+        if (!despesasPorCategoria[cat]) despesasPorCategoria[cat] = { total: 0, items: [] };
+        despesasPorCategoria[cat].total += item.valor;
+        despesasPorCategoria[cat].items.push(item);
+      });
+
+      // Agrupar despesas de transferências por destinatário
+      const transferencias = despesasPorCategoria['Transferências/Pagamentos']?.items || [];
+      const porDestinatario = {};
+      transferencias.forEach(item => {
+        const desc = item.descricao || '';
+        const match = desc.match(/para (.+)$/i);
+        const dest = match ? match[1].trim() : 'Outros';
+        if (!porDestinatario[dest]) porDestinatario[dest] = { total: 0, items: [] };
+        porDestinatario[dest].total += item.valor;
+        porDestinatario[dest].items.push(item);
+      });
+
+      // Ordenar todas as receitas por valor
+      const todasReceitas = porTipo.receita.sort((a,b) => b.valor - a.valor);
+
+      // Formato compacto para evitar timeout
+      const categoriasResumo = Object.entries(despesasPorCategoria)
+        .sort((a,b) => b[1].total - a[1].total)
+        .map(([cat, data]) => `${cat}: R$ ${data.total.toFixed(2)} (${data.items.length}x)`)
+        .join(' | ');
+
+      const destinatariosResumo = Object.entries(porDestinatario)
+        .sort((a,b) => b[1].total - a[1].total)
+        .slice(0, 15)
+        .map(([dest, data]) => `${dest.substring(0, 25)}: R$ ${data.total.toFixed(2)}`)
+        .join('\n');
+
+      fileContext = `
+EXTRATO: ${importedFile.filename}
+RECEITAS: R$ ${(importedFile.receitas || 0).toFixed(2)} (${porTipo.receita.length} transações)
+DESPESAS: R$ ${(importedFile.despesas || 0).toFixed(2)} (${porTipo.despesa.length} transações)
+SALDO: R$ ${(importedFile.saldo || 0).toFixed(2)}
+
+RECEITAS:
+${todasReceitas.slice(0, 50).map((item, i) => `${item.data || ''} ${item.descricao?.substring(0, 40) || ''} R$ ${item.valor.toFixed(2)}`).join('\n')}
+
+DESPESAS POR CATEGORIA:
+${categoriasResumo}
+
+PAGAMENTOS POR PESSOA:
+${destinatariosResumo}
+
+Use APENAS estes dados. Responda de forma COMPLETA e DETALHADA.
+`;
+    }
+
     // Limita histórico para últimas 4 mensagens (menos tokens = mais rápido)
     const recentHistory = conversationHistory.slice(-4);
-    const messages = [...recentHistory, { role: 'user', content: message }];
 
+    // Incluir contexto do arquivo na mensagem do usuário
+    const userMessage = fileContext ? `${message}\n\n---\nCONTEXTO DO ARQUIVO:${fileContext}` : message;
+    const messages = [...recentHistory, { role: 'user', content: userMessage }];
+
+    // Se há arquivo importado, adicionar instrução especial no system prompt
+    let systemPrompt = SYSTEM_PROMPT;
+    if (fileContext) {
+      systemPrompt = SYSTEM_PROMPT + `
+
+## ⚠️ ARQUIVO IMPORTADO ATIVO - REGRAS OBRIGATÓRIAS
+O usuário IMPORTOU UM ARQUIVO EXTERNO (extrato bancário).
+
+REGRAS:
+1. Use APENAS os dados do CONTEXTO DO ARQUIVO na mensagem
+2. IGNORE completamente os dados internos do sistema (dadosFinanceiros, R$ 54.982, R$ 31.869)
+3. NÃO faça "Top 5", "Top 10", "Top 20" - LISTE TODAS as transações
+4. Mantenha o formato organizado por CATEGORIA e DESTINATÁRIO que está no contexto
+5. Sempre inclua DATA, DESCRIÇÃO e VALOR de cada transação
+6. Despesas de mesma categoria (alimentação, combustível) já estão agrupadas - mantenha assim
+7. Transferências estão agrupadas por DESTINATÁRIO - mostre o total e cada pagamento
+8. Seja DETALHADO e COMPLETO - o usuário quer ver TUDO, não resumos
+
+FORMATO DE RESPOSTA:
+- Use tabelas ou listas organizadas
+- Mostre totais por categoria
+- Inclua todas as datas
+- Não omita nenhuma transação
+`;
+    }
+
+    // Haiku para todas as consultas (mais rápido, evita timeout)
     let response = await anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022',  // Haiku é MUITO mais rápido que Sonnet
-      max_tokens: 1500,
-      system: SYSTEM_PROMPT,
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 4096,
+      system: systemPrompt,
       tools,
       messages
     });
@@ -1205,9 +1318,9 @@ exports.handler = async (event, context) => {
       messages.push({ role: 'user', content: toolResults });
 
       response = await anthropic.messages.create({
-        model: 'claude-3-5-haiku-20241022',  // Haiku é MUITO mais rápido que Sonnet
-        max_tokens: 1500,
-        system: SYSTEM_PROMPT,
+        model: 'claude-3-5-haiku-20241022',
+        max_tokens: 4096,
+        system: systemPrompt,
         tools,
         messages
       });
