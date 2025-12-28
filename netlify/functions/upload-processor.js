@@ -1,4 +1,5 @@
 const Busboy = require('busboy');
+const pdf = require('pdf-parse');
 
 // Headers CORS
 const headers = {
@@ -197,37 +198,119 @@ function parseCSV(content) {
   };
 }
 
-// Parse PDF (basic text extraction)
-function parsePDF(content) {
-  // Simple PDF text extraction - looks for text between stream/endstream
-  const text = content.toString('latin1');
+// Parse PDF (usando pdf-parse)
+async function parsePDF(content) {
+  try {
+    const data = await pdf(content);
+    const text = data.text;
 
-  // Try to find monetary values
-  const moneyRegex = /R\$\s*[\d.,]+|\d{1,3}(?:\.\d{3})*,\d{2}/g;
-  const values = text.match(moneyRegex) || [];
+    console.log('PDF Text extracted, length:', text.length);
 
-  // Try to find dates
-  const dateRegex = /\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2}/g;
-  const dates = text.match(dateRegex) || [];
+    // Try to find monetary values (Brazilian format)
+    const moneyRegex = /R\$\s*[\d.,]+|(?<!\d)[\d]{1,3}(?:\.[\d]{3})*,[\d]{2}(?!\d)/g;
+    const allValues = text.match(moneyRegex) || [];
 
-  // Parse unique values
-  const parsedValues = [...new Set(values)].map(v => {
-    const num = parseFloat(v.replace(/[R$\s.]/g, '').replace(',', '.'));
-    return isNaN(num) ? 0 : num;
-  }).filter(v => v > 0);
+    // Try to find dates
+    const dateRegex = /\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2}|\d{4}-\d{2}-\d{2}/g;
+    const dates = text.match(dateRegex) || [];
 
-  const total = parsedValues.reduce((s, v) => s + v, 0);
+    // Parse lines to find transactions
+    const lines = text.split('\n').filter(l => l.trim());
+    const transactions = [];
 
-  return {
-    type: 'pdf',
-    valores_encontrados: parsedValues.length,
-    datas_encontradas: dates.length,
-    valores: parsedValues.slice(0, 20),
-    datas: [...new Set(dates)].slice(0, 10),
-    total_estimado: total,
-    summary: `📕 PDF: ${parsedValues.length} valores encontrados | Total estimado: R$ ${total.toFixed(2)}`,
-    nota: 'PDFs complexos podem requerer análise manual. Considere usar OFX ou CSV para melhor precisão.'
-  };
+    // Keywords for credits and debits
+    const creditKeywords = ['credito', 'crédito', 'deposito', 'depósito', 'ted recebid', 'pix recebid', 'transferencia recebid', 'transferência recebid', 'resgate', 'estorno'];
+    const debitKeywords = ['debito', 'débito', 'pagamento', 'pix enviad', 'ted enviad', 'transferencia enviad', 'transferência enviad', 'saque', 'tarifa', 'taxa', 'iof', 'compra'];
+
+    for (const line of lines) {
+      const lineLower = line.toLowerCase();
+
+      // Find value in line
+      const valueMatch = line.match(/(?<!\d)([\d]{1,3}(?:\.[\d]{3})*,[\d]{2})(?!\d)/);
+      if (!valueMatch) continue;
+
+      const valor = parseFloat(valueMatch[1].replace(/\./g, '').replace(',', '.'));
+      if (isNaN(valor) || valor <= 0 || valor > 10000000) continue;
+
+      // Find date in line
+      const dateMatch = line.match(/(\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2})/);
+      const data = dateMatch ? dateMatch[1] : null;
+
+      // Determine type
+      let tipo = 'indefinido';
+      if (creditKeywords.some(k => lineLower.includes(k))) {
+        tipo = 'receita';
+      } else if (debitKeywords.some(k => lineLower.includes(k))) {
+        tipo = 'despesa';
+      } else if (lineLower.includes(' c ') || lineLower.includes(' c\t') || line.includes('+')) {
+        tipo = 'receita';
+      } else if (lineLower.includes(' d ') || lineLower.includes(' d\t') || line.includes('-')) {
+        tipo = 'despesa';
+      }
+
+      // Get description (first 50 chars, cleaned)
+      const descricao = line.replace(valueMatch[0], '').replace(dateMatch?.[0] || '', '').trim().substring(0, 50);
+
+      if (descricao.length > 3) {
+        transactions.push({ tipo, valor, descricao, data });
+      }
+    }
+
+    // Calculate totals
+    const receitas = transactions.filter(t => t.tipo === 'receita');
+    const despesas = transactions.filter(t => t.tipo === 'despesa');
+    const indefinidos = transactions.filter(t => t.tipo === 'indefinido');
+
+    const totalReceitas = receitas.reduce((s, t) => s + t.valor, 0);
+    const totalDespesas = despesas.reduce((s, t) => s + t.valor, 0);
+    const totalIndefinido = indefinidos.reduce((s, t) => s + t.valor, 0);
+
+    // Parse unique values for fallback
+    const parsedValues = [...new Set(allValues)].map(v => {
+      const num = parseFloat(v.replace(/[R$\s.]/g, '').replace(',', '.'));
+      return isNaN(num) ? 0 : num;
+    }).filter(v => v > 0 && v < 10000000);
+
+    // Get saldo if found
+    const saldoMatch = text.match(/saldo[:\s]*([\d.,]+)/i);
+    const saldo = saldoMatch ? parseFloat(saldoMatch[1].replace(/\./g, '').replace(',', '.')) : null;
+
+    return {
+      type: 'pdf',
+      paginas: data.numpages,
+      transacoes_detectadas: transactions.length,
+      receitas: { count: receitas.length, total: totalReceitas },
+      despesas: { count: despesas.length, total: totalDespesas },
+      indefinidos: { count: indefinidos.length, total: totalIndefinido },
+      saldo_encontrado: saldo,
+      valores_encontrados: parsedValues.length,
+      datas_encontradas: [...new Set(dates)].length,
+      items: transactions.slice(0, 100),
+      summary: `📕 PDF (${data.numpages} pág): ${transactions.length} transações detectadas | Entradas: R$ ${totalReceitas.toFixed(2)} (${receitas.length}) | Saídas: R$ ${totalDespesas.toFixed(2)} (${despesas.length})${indefinidos.length > 0 ? ` | Indefinidos: ${indefinidos.length}` : ''}`,
+      texto_extraido: text.substring(0, 500) + '...'
+    };
+  } catch (error) {
+    console.error('Erro ao parsear PDF:', error);
+
+    // Fallback to basic extraction
+    const text = content.toString('latin1');
+    const moneyRegex = /R\$\s*[\d.,]+|\d{1,3}(?:\.\d{3})*,\d{2}/g;
+    const values = text.match(moneyRegex) || [];
+
+    const parsedValues = [...new Set(values)].map(v => {
+      const num = parseFloat(v.replace(/[R$\s.]/g, '').replace(',', '.'));
+      return isNaN(num) ? 0 : num;
+    }).filter(v => v > 0);
+
+    return {
+      type: 'pdf',
+      error: 'Não foi possível extrair texto estruturado do PDF',
+      valores_encontrados: parsedValues.length,
+      valores: parsedValues.slice(0, 20),
+      summary: `📕 PDF: Extração parcial - ${parsedValues.length} valores encontrados`,
+      nota: 'Este PDF pode estar protegido ou em formato de imagem. Tente exportar o extrato em OFX ou CSV do seu banco.'
+    };
+  }
 }
 
 // Main handler
@@ -265,7 +348,7 @@ exports.handler = async (event) => {
     } else if (filename.endsWith('.csv')) {
       result = parseCSV(file.content);
     } else if (filename.endsWith('.pdf')) {
-      result = parsePDF(file.content);
+      result = await parsePDF(file.content);
     } else if (filename.endsWith('.xls') || filename.endsWith('.xlsx')) {
       result = {
         type: 'excel',

@@ -39,6 +39,9 @@ timeout = 10.0
 [functions.reports]
 timeout = 26.0
 
+[functions.upload-processor]
+timeout = 26.0
+
 [functions."*"]
 external_node_modules = ["@prisma/client", "@anthropic-ai/sdk"]
 node_bundler = "esbuild"
