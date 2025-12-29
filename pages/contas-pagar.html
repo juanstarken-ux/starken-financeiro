@@ -3194,9 +3194,31 @@
             let updated = false;
             let found = false;
 
-            // Buscar em todas as categorias de despesas
+            // Para itens customizados, usar a função editDespesa
+            if (isCustom) {
+                try {
+                    // Usar editDespesa para itens manuais
+                    GestaoFinanceira.editDespesa(currentMonth, itemNome, { categoria: novaCategoria });
+                    await GestaoFinanceira.syncToServer();
+                    loadMonthData(currentMonth);
+                    showToast(`Categoria alterada para "${getCategoryName(novaCategoria)}"`);
+                } catch (e) {
+                    console.error('Erro ao atualizar:', e);
+                    showToast('Erro ao salvar alteração');
+                }
+                return;
+            }
+
+            // Para itens não-custom, buscar em todas as categorias de despesas
             for (const catKey of Object.keys(dados.despesas.categorias)) {
                 const items = dados.despesas.categorias[catKey];
+
+                // Verificar se é um array
+                if (!Array.isArray(items)) {
+                    console.log('Categoria', catKey, 'não é array, pulando');
+                    continue;
+                }
+
                 const itemIndex = items.findIndex(i => i.nome === itemNome);
 
                 if (itemIndex >= 0) {
@@ -3225,21 +3247,10 @@
             }
 
             if (!found) {
-                console.warn('Item não encontrado:', itemNome);
+                console.warn('Item não encontrado nas categorias:', itemNome);
             }
 
-            // Se é custom item, atualizar no banco também
-            if (isCustom && GestaoFinanceira.updateDespesa) {
-                try {
-                    GestaoFinanceira.updateDespesa(currentMonth, itemNome, { categoria: novaCategoria });
-                    updated = true;
-                    console.log('Custom item atualizado');
-                } catch (e) {
-                    console.error('Erro ao atualizar custom item:', e);
-                }
-            }
-
-            if (updated || isCustom) {
+            if (updated) {
                 try {
                     await GestaoFinanceira.syncToServer();
                     loadMonthData(currentMonth);
