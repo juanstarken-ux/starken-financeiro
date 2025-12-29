@@ -3185,7 +3185,7 @@
             console.log('Alterando categoria:', itemNome, 'para', novaCategoria, 'isCustom:', isCustom);
 
             // Atualizar no GestaoFinanceira
-            const dados = GestaoFinanceira.getDadosMes(currentMonth);
+            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
             if (!dados) {
                 console.error('Dados do mês não encontrados');
                 return;
@@ -3340,7 +3340,7 @@
 
             if (selectedItems.size === 0) return;
 
-            const dados = GestaoFinanceira.getDadosMes(currentMonth);
+            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
             if (!dados) return;
 
             let updated = 0;
@@ -3403,7 +3403,7 @@
 
             if (selectedItems.size === 0) return;
 
-            const dados = GestaoFinanceira.getDadosMes(currentMonth);
+            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
             if (!dados) return;
 
             let updated = 0;
