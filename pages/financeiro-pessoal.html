@@ -268,6 +268,37 @@
             border-left-color: var(--light-green);
         }
 
+        .nav-separator {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 15px 20px;
+        }
+
+        .nav-item-expandable {
+            justify-content: space-between;
+        }
+
+        .menu-arrow {
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(0,0,0,0.1);
+        }
+
+        .submenu.expanded {
+            max-height: 300px;
+        }
+
+        .submenu .nav-item {
+            padding-left: 45px;
+            font-size: 13px;
+        }
+
         .nav-icon {
             margin-right: 12px;
             font-size: 18px;
@@ -754,35 +785,71 @@
     <!-- Dashboard Container -->
     <div class="dashboard-container" id="dashboardContainer">
         <!-- Sidebar -->
-        <nav class="sidebar">
+        <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="../logo-starken.png" alt="STARK" class="logo-image">
-                <div class="company-info">STARK Intelligence</div>
+                <img src="../logo-starken.png" alt="STARK Intelligence" class="logo-image">
+                <div class="company-info">STARK Intelligence<br>Starken Tecnologia Ltda</div>
             </div>
-
-            <div class="sidebar-nav">
+            <nav class="sidebar-nav">
                 <a href="../index.html" class="nav-item">
                     <span class="nav-icon">📊</span>
-                    Dashboard
+                    Dashboard Financeiro
                 </a>
-                <a href="contas-pagar.html" class="nav-item">
-                    <span class="nav-icon">💸</span>
-                    Contas a Pagar
+                <a href="dashboard-comercial.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    Dashboard Comercial
                 </a>
-                <a href="contas-receber.html" class="nav-item">
-                    <span class="nav-icon">💰</span>
-                    Contas a Receber
-                </a>
-                <a href="financeiro-pessoal.html" class="nav-item active">
-                    <span class="nav-icon">👤</span>
-                    Finanças Pessoais
-                </a>
+
+                <div class="nav-separator"></div>
+
                 <a href="stark.html" class="nav-item">
-                    <span class="nav-icon">🤖</span>
-                    STARK CFO
+                    <span class="nav-icon">⚡</span>
+                    STARK - CFO Virtual
                 </a>
-            </div>
-        </nav>
+
+                <div class="nav-separator"></div>
+
+                <!-- Menu Gestão Financeira Expansível -->
+                <div class="nav-item nav-item-expandable" data-menu="submenu-gestao" onclick="toggleSubMenu('submenu-gestao')">
+                    <span class="nav-icon">💰</span>
+                    Gestão Financeira
+                    <span class="menu-arrow">▶</span>
+                </div>
+                <div id="submenu-gestao" class="submenu expanded">
+                    <a href="contas-pagar.html" class="nav-item">
+                        <span class="nav-icon">💳</span>
+                        Contas a Pagar
+                    </a>
+                    <a href="contas-receber.html" class="nav-item">
+                        <span class="nav-icon">🤑</span>
+                        Contas a Receber
+                    </a>
+                    <a href="fluxo-caixa.html" class="nav-item">
+                        <span class="nav-icon">📈</span>
+                        Fluxo de Caixa
+                    </a>
+                    <a href="financeiro-pessoal.html" class="nav-item active">
+                        <span class="nav-icon">🔐</span>
+                        Finanças Pessoais
+                    </a>
+                </div>
+
+                <div class="nav-separator"></div>
+
+                <a href="dre.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    DRE
+                </a>
+                <a href="analiticos.html" class="nav-item">
+                    <span class="nav-icon">🔍</span>
+                    Analíticos
+                </a>
+                <a href="relatorios.html" class="nav-item">
+                    <span class="nav-icon">📄</span>
+                    Relatórios
+                </a>
+            </nav>
+        </aside>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -1603,6 +1670,20 @@
             toast.textContent = message;
             toast.className = `toast ${type} show`;
             setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Toggle submenu
+        function toggleSubMenu(menuId) {
+            const submenu = document.getElementById(menuId);
+            const arrow = document.querySelector(`[data-menu="${menuId}"] .menu-arrow`);
+
+            if (submenu.classList.contains('expanded')) {
+                submenu.classList.remove('expanded');
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            } else {
+                submenu.classList.add('expanded');
+                if (arrow) arrow.style.transform = 'rotate(90deg)';
+            }
         }
     </script>
 </body>
