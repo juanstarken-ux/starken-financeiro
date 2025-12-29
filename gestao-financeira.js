@@ -171,7 +171,11 @@ const GestaoFinanceira = {
             funcao: despesa.funcao || '',
             vencimento: despesa.vencimento || '',
             dataCriacao: new Date().toISOString(),
-            isCustom: true
+            isCustom: true,
+            // Campos para pagamento parcial
+            origemParcial: despesa.origemParcial || null,  // Nome da despesa mãe
+            valorOriginal: despesa.valorOriginal || null,   // Valor original antes do parcial
+            observacao: despesa.observacao || ''            // Observações adicionais
         };
 
         if (!this.customItems[mes]) {

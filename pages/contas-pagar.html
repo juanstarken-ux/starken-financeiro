@@ -728,6 +728,18 @@
             margin-left: 8px;
         }
 
+        .parcial-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+            cursor: help;
+        }
+
         .category-badge {
             padding: 5px 12px;
             border-radius: 20px;
@@ -2883,6 +2895,14 @@
                     ? `<span class="date-badge date-badge-pago">${formatDate(item.dataPagamento)}</span>`
                     : '<span class="date-badge date-badge-empty">-</span>';
 
+                // Badge para pagamento parcial
+                const parcialBadge = item.origemParcial
+                    ? `<span class="parcial-badge" title="Origem: ${item.origemParcial}${item.valorOriginal ? ' - Original: R$ ' + item.valorOriginal.toFixed(2) : ''}">⚡ Parcial</span>`
+                    : '';
+                const observacaoInfo = item.observacao
+                    ? `<div class="item-info" style="font-style: italic; color: #7f8c8d;">📝 ${item.observacao}</div>`
+                    : '';
+
                 tr.innerHTML = `
                     <td class="checkbox-cell">
                         <input type="checkbox" class="row-checkbox" data-nome="${item.nome}" data-valor="${item.valor}" data-status="${item.isPago ? 'pago' : 'pendente'}" data-custom="${item.isCustom || false}" onchange="handleRowSelect(this)">
@@ -2894,9 +2914,11 @@
                                 <div class="item-name">
                                     ${item.nome}
                                     ${item.isCustom ? '<span class="custom-badge">Manual</span>' : ''}
+                                    ${parcialBadge}
                                 </div>
                                 ${item.tipo ? `<div class="item-info">${item.tipo}</div>` : ''}
                                 ${item.funcao ? `<div class="item-info">${item.funcao}</div>` : ''}
+                                ${observacaoInfo}
                             </div>
                         </div>
                     </td>
@@ -3578,28 +3600,38 @@
                 }
 
                 const remainingValor = totalValor - partialValor;
-                const nomeBase = pendingPayment.nome.replace(/ \(Restante\)$/, '').replace(/ \(Parcial\)$/, '');
+                const nomeBase = pendingPayment.nome.replace(/ \(Restante.*\)$/, '').replace(/ \(Parcial\)$/, '').replace(/ \(Pago.*\)$/, '');
+                const nomeOriginal = pendingPayment.origemParcial || pendingPayment.nome;
+                const valorOriginalTotal = pendingPayment.valorOriginal || totalValor;
 
                 // 1. Deletar o item original
                 GestaoFinanceira.deleteDespesa(currentMonth, pendingPayment.nome, pendingPayment.isCustom);
 
                 // 2. Criar item PAGO com o valor parcial
+                const nomePago = nomeBase + ' (Pago ' + formatDate(date) + ')';
                 GestaoFinanceira.addDespesa(currentMonth, {
-                    nome: nomeBase + ' (Pago ' + formatDate(date) + ')',
+                    nome: nomePago,
                     valor: partialValor,
                     categoria: pendingPayment.categoria || 'outros',
                     tipo: pendingPayment.tipo || '',
-                    status: 'Pago'
+                    status: 'Pago',
+                    origemParcial: nomeOriginal,
+                    valorOriginal: valorOriginalTotal,
+                    observacao: `Pagamento parcial de "${nomeOriginal}" - Original: ${formatMoney(valorOriginalTotal)}`
                 });
-                GestaoFinanceira.updateStatus(currentMonth, 'despesa', nomeBase + ' (Pago ' + formatDate(date) + ')', 'Pago', date);
+                GestaoFinanceira.updateStatus(currentMonth, 'despesa', nomePago, 'Pago', date);
 
-                // 3. Criar item PENDENTE com o valor restante
+                // 3. Criar item PENDENTE com o valor restante (referencia a despesa mãe)
+                const nomeRestante = nomeBase + ' (Restante de ' + formatMoney(valorOriginalTotal) + ')';
                 GestaoFinanceira.addDespesa(currentMonth, {
-                    nome: nomeBase + ' (Restante)',
+                    nome: nomeRestante,
                     valor: remainingValor,
                     categoria: pendingPayment.categoria || 'outros',
                     tipo: pendingPayment.tipo || '',
-                    status: 'A Pagar'
+                    status: 'A Pagar',
+                    origemParcial: nomeOriginal,
+                    valorOriginal: valorOriginalTotal,
+                    observacao: `Saldo restante de "${nomeOriginal}" - Já pago: ${formatMoney(valorOriginalTotal - remainingValor)}`
                 });
 
                 showToast(`Pago ${formatMoney(partialValor)}. Restam ${formatMoney(remainingValor)} a pagar.`, 'success');
