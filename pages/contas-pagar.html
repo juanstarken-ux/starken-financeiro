@@ -3236,20 +3236,34 @@
         // ========================================
 
         // Toggle dropdown de categoria em massa
-        function toggleBulkCategoryDropdown() {
+        function toggleBulkCategoryDropdown(event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
             const dropdown = document.getElementById('bulkCategoryDropdown');
+            if (!dropdown) {
+                console.error('Dropdown não encontrado');
+                return;
+            }
+
             const isActive = dropdown.classList.contains('active');
 
-            if (isActive) {
-                dropdown.classList.remove('active');
-            } else {
+            // Fechar qualquer dropdown aberto
+            document.querySelectorAll('.bulk-category-dropdown.active').forEach(d => d.classList.remove('active'));
+
+            if (!isActive) {
                 // Popular dropdown
                 dropdown.innerHTML = '';
                 CATEGORIAS_DISPONIVEIS.forEach(cat => {
                     const item = document.createElement('div');
                     item.className = 'cat-item';
                     item.innerHTML = `<span class="cat-icon">${cat.icon}</span> ${cat.nome}`;
-                    item.onclick = () => applyBulkCategory(cat.id);
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        applyBulkCategory(cat.id);
+                    });
                     dropdown.appendChild(item);
                 });
                 dropdown.classList.add('active');
@@ -3257,12 +3271,14 @@
                 // Fechar ao clicar fora
                 setTimeout(() => {
                     document.addEventListener('click', closeBulkCategoryDropdown);
-                }, 10);
+                }, 50);
             }
         }
 
         function closeBulkCategoryDropdown(e) {
             const dropdown = document.getElementById('bulkCategoryDropdown');
+            if (!dropdown) return;
+
             const wrapper = dropdown.closest('.bulk-dropdown-wrapper');
             if (e && wrapper && wrapper.contains(e.target)) return;
 
@@ -3320,11 +3336,11 @@
 
             document.getElementById('bulkDateCount').textContent = selectedItems.size;
             document.getElementById('bulkDateInput').value = '';
-            document.getElementById('bulkDateModal').classList.add('active');
+            document.getElementById('bulkDateModal').classList.add('show');
         }
 
         function closeBulkDateModal() {
-            document.getElementById('bulkDateModal').classList.remove('active');
+            document.getElementById('bulkDateModal').classList.remove('show');
         }
 
         // Aplicar vencimento em massa
@@ -4488,7 +4504,7 @@
         <button class="bulk-action-btn primary" onclick="bulkMarkAsPaid()">✓ Pago</button>
         <button class="bulk-action-btn secondary" onclick="bulkMarkAsPending()">○ Pendente</button>
         <div class="bulk-dropdown-wrapper">
-            <button class="bulk-action-btn category" onclick="toggleBulkCategoryDropdown()">🏷️ Categoria ▾</button>
+            <button class="bulk-action-btn category" onclick="toggleBulkCategoryDropdown(event)">🏷️ Categoria ▾</button>
             <div class="bulk-category-dropdown" id="bulkCategoryDropdown"></div>
         </div>
         <button class="bulk-action-btn date" onclick="openBulkDateModal()">📅 Vencimento</button>
