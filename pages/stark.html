@@ -594,6 +594,142 @@
             text-align: right;
         }
 
+        /* Reply functionality */
+        .message-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+        }
+
+        .message-wrapper.user {
+            align-self: flex-end;
+        }
+
+        .message-wrapper.assistant {
+            align-self: flex-start;
+        }
+
+        .message-actions {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            gap: 4px;
+        }
+
+        .message-wrapper.user .message-actions {
+            left: -36px;
+        }
+
+        .message-wrapper.assistant .message-actions {
+            right: -36px;
+        }
+
+        .message-wrapper:hover .message-actions {
+            opacity: 1;
+        }
+
+        .reply-btn {
+            background: rgba(74, 107, 84, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .reply-btn:hover {
+            background: #4A6B54;
+            transform: scale(1.1);
+        }
+
+        .quoted-message {
+            background: rgba(74, 107, 84, 0.2);
+            border-left: 3px solid #4A6B54;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .quoted-message .quote-author {
+            font-weight: 600;
+            color: #7A9B84;
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+
+        .quoted-message .quote-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Reply preview above input */
+        .reply-preview {
+            display: none;
+            background: rgba(74, 107, 84, 0.15);
+            border-left: 3px solid #4A6B54;
+            padding: 10px 40px 10px 15px;
+            margin: 0 20px;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            animation: slideDown 0.2s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reply-preview.active {
+            display: block;
+        }
+
+        .reply-preview .reply-author {
+            font-size: 12px;
+            font-weight: 600;
+            color: #7A9B84;
+            margin-bottom: 4px;
+        }
+
+        .reply-preview .reply-text {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .reply-preview .cancel-reply {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .reply-preview .cancel-reply:hover {
+            color: #ff6b6b;
+        }
+
         .typing-indicator {
             display: flex;
             align-items: center;
@@ -886,6 +1022,13 @@
                     </div>
                 </div>
 
+                <!-- Reply Preview -->
+                <div class="reply-preview" id="replyPreview">
+                    <div class="reply-author" id="replyAuthor">Respondendo a STARK</div>
+                    <div class="reply-text" id="replyText">Texto da mensagem...</div>
+                    <button class="cancel-reply" onclick="cancelReply()">×</button>
+                </div>
+
                 <div class="stark-input-area">
                     <div class="stark-input-wrapper">
                         <input type="text" class="stark-input" id="starkInput" placeholder="Pergunte algo ao STARK..." />
@@ -1169,29 +1312,79 @@
             recognition = initVoiceRecognition();
         });
 
+        // Estado de reply
+        let replyingTo = null;
+
         // Adicionar mensagem
-        function addMessage(content, role) {
+        function addMessage(content, role, quotedMessage = null) {
             const container = document.getElementById('starkMessages');
             const welcome = document.getElementById('starkWelcome');
             if (welcome) welcome.remove();
 
             const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const messageIndex = messages.length;
 
-            const messageEl = document.createElement('div');
-            messageEl.className = `message ${role}`;
-            messageEl.innerHTML = `
-                <div class="message-content">${formatMessage(content)}</div>
-                <div class="message-time">${time}</div>
+            // Criar wrapper
+            const wrapperEl = document.createElement('div');
+            wrapperEl.className = `message-wrapper ${role}`;
+            wrapperEl.dataset.index = messageIndex;
+
+            // HTML da mensagem citada se houver
+            let quotedHtml = '';
+            if (quotedMessage) {
+                const truncatedText = quotedMessage.content.length > 100
+                    ? quotedMessage.content.substring(0, 100) + '...'
+                    : quotedMessage.content;
+                quotedHtml = `
+                    <div class="quoted-message">
+                        <div class="quote-author">${quotedMessage.role === 'user' ? 'Você' : 'STARK'}</div>
+                        <div class="quote-text">${formatMessage(truncatedText)}</div>
+                    </div>
+                `;
+            }
+
+            wrapperEl.innerHTML = `
+                <div class="message-actions">
+                    <button class="reply-btn" onclick="setReply(${messageIndex})" title="Responder">↩️</button>
+                </div>
+                <div class="message ${role}">
+                    ${quotedHtml}
+                    <div class="message-content">${formatMessage(content)}</div>
+                    <div class="message-time">${time}</div>
+                </div>
             `;
 
-            container.appendChild(messageEl);
+            container.appendChild(wrapperEl);
             container.scrollTop = container.scrollHeight;
 
-            messages.push({ role, content, time });
+            messages.push({ role, content, time, quotedMessage });
             messageCount++;
             document.getElementById('statMessages').textContent = messageCount;
 
             saveHistory();
+        }
+
+        // Definir mensagem para responder
+        function setReply(messageIndex) {
+            const msg = messages[messageIndex];
+            if (!msg) return;
+
+            replyingTo = { index: messageIndex, ...msg };
+
+            const preview = document.getElementById('replyPreview');
+            document.getElementById('replyAuthor').textContent = msg.role === 'user' ? 'Respondendo a você' : 'Respondendo a STARK';
+            document.getElementById('replyText').textContent = msg.content.length > 80
+                ? msg.content.substring(0, 80) + '...'
+                : msg.content;
+
+            preview.classList.add('active');
+            document.getElementById('starkInput').focus();
+        }
+
+        // Cancelar reply
+        function cancelReply() {
+            replyingTo = null;
+            document.getElementById('replyPreview').classList.remove('active');
         }
 
         // Formatar mensagem
@@ -1231,10 +1424,24 @@
 
             if (!message || isLoading) return;
 
-            addMessage(message, 'user');
+            // Capturar mensagem citada antes de limpar
+            const quotedMessage = replyingTo ? { role: replyingTo.role, content: replyingTo.content } : null;
+
+            // Adicionar mensagem do usuário com citação se houver
+            addMessage(message, 'user', quotedMessage);
             input.value = '';
 
-            conversationHistory.push({ role: 'user', content: message });
+            // Limpar estado de reply
+            cancelReply();
+
+            // Preparar mensagem com contexto da citação para o STARK
+            let messageWithContext = message;
+            if (quotedMessage) {
+                const authorLabel = quotedMessage.role === 'user' ? 'eu disse anteriormente' : 'você disse anteriormente';
+                messageWithContext = `[Respondendo a mensagem onde ${authorLabel}: "${quotedMessage.content.substring(0, 200)}"]\n\n${message}`;
+            }
+
+            conversationHistory.push({ role: 'user', content: messageWithContext });
 
             showTyping();
             isLoading = true;
@@ -1260,7 +1467,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message,
+                        message: messageWithContext,
                         conversationHistory: conversationHistory.slice(-10),
                         importedFile: fileContext
                     }),
