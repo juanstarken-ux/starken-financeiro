@@ -1304,13 +1304,15 @@
                     } else if (data.details === 'context_length') {
                         addMessage('📊 Muitos dados para processar de uma vez!\n\n**Sugestão:** Peça para processar um mês de cada vez, ex: "Lance as despesas de novembro"', 'assistant');
                     } else {
-                        addMessage('Erro: ' + errorMsg, 'assistant');
+                        addMessage('❌ ' + errorMsg, 'assistant');
                     }
                 }
             } catch (error) {
                 hideTyping();
                 if (error.name === 'AbortError') {
                     addMessage('⏳ O STARK ainda está processando... Aguarde mais um momento ou reenvie a mensagem.', 'assistant');
+                } else if (error.message.includes('429')) {
+                    addMessage('⏳ **Rate Limit** - Muitas requisições em sequência.\n\n**Aguarde 15 segundos** e tente novamente. A API precisa de um intervalo entre as chamadas.', 'assistant');
                 } else if (error.message.includes('504') || error.message.includes('Gateway')) {
                     addMessage('⏱️ O servidor demorou pra responder. Isso acontece em perguntas complexas.\n\n**Sugestão:** Tenta de novo ou faz uma pergunta mais direta!', 'assistant');
                 } else if (error.message.includes('502') || error.message.includes('503')) {
