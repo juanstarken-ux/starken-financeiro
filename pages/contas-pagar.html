@@ -1760,6 +1760,137 @@
             background: #e74c3c;
             color: white;
         }
+
+        /* ============================================
+           CHECKBOXES E BARRA DE AÇÕES EM MASSA
+           ============================================ */
+        .row-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #4A6B54;
+        }
+
+        .checkbox-cell {
+            width: 40px !important;
+            text-align: center;
+            padding: 0 10px !important;
+        }
+
+        tr.selected {
+            background: rgba(74, 107, 84, 0.15) !important;
+        }
+
+        tr.selected:hover {
+            background: rgba(74, 107, 84, 0.2) !important;
+        }
+
+        /* Barra de ações flutuante */
+        .bulk-actions-bar {
+            position: fixed;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 1000;
+            transition: bottom 0.3s ease;
+            border: 1px solid rgba(74, 107, 84, 0.3);
+        }
+
+        .bulk-actions-bar.visible {
+            bottom: 30px;
+        }
+
+        .bulk-actions-bar .selected-count {
+            color: #4A6B54;
+            font-weight: 700;
+            font-size: 15px;
+            padding-right: 20px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .bulk-actions-bar .selected-total {
+            color: #eee;
+            font-size: 14px;
+            padding-right: 20px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .bulk-action-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .bulk-action-btn.primary {
+            background: linear-gradient(135deg, #4A6B54, #5d8a6b);
+            color: white;
+        }
+
+        .bulk-action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 107, 84, 0.4);
+        }
+
+        .bulk-action-btn.danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .bulk-action-btn.danger:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .bulk-action-btn.secondary {
+            background: rgba(255,255,255,0.1);
+            color: #ccc;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .bulk-action-btn.secondary:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .bulk-close-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px;
+            margin-left: 10px;
+        }
+
+        .bulk-close-btn:hover {
+            color: #e74c3c;
+        }
+
+        /* Filtro de selecionados */
+        .filter-btn[data-filter="selecionados"] {
+            background: rgba(74, 107, 84, 0.2);
+            border-color: #4A6B54;
+        }
+
+        .filter-btn[data-filter="selecionados"].active {
+            background: #4A6B54;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -2036,19 +2167,21 @@
                         <button class="filter-btn active" data-filter="todos" onclick="filtrarDespesas('todos')">Todos</button>
                         <button class="filter-btn" data-filter="pendente" onclick="filtrarDespesas('pendente')">Pendentes</button>
                         <button class="filter-btn" data-filter="pago" onclick="filtrarDespesas('pago')">Pagos</button>
+                        <button class="filter-btn" data-filter="selecionados" onclick="filtrarDespesas('selecionados')" id="btnSelecionados" style="display: none;">📌 Selecionados (<span id="countSelecionados">0</span>)</button>
                         <span class="table-count" id="tableCount2">0 registros</span>
                     </div>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 25%;">Descrição</th>
-                            <th style="width: 12%;">Categoria</th>
-                            <th class="text-center" style="width: 12%;">Vencimento</th>
-                            <th class="text-center" style="width: 12%;">Pagamento</th>
-                            <th class="text-right" style="width: 12%;">Valor</th>
-                            <th class="text-center" style="width: 12%;">Status</th>
-                            <th class="text-center" style="width: 15%;">Ações</th>
+                            <th class="checkbox-cell"><input type="checkbox" id="selectAll" class="row-checkbox" onclick="toggleSelectAll(this)" title="Selecionar todos"></th>
+                            <th style="width: 23%;">Descrição</th>
+                            <th style="width: 11%;">Categoria</th>
+                            <th class="text-center" style="width: 11%;">Vencimento</th>
+                            <th class="text-center" style="width: 11%;">Pagamento</th>
+                            <th class="text-right" style="width: 11%;">Valor</th>
+                            <th class="text-center" style="width: 11%;">Status</th>
+                            <th class="text-center" style="width: 12%;">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -2056,7 +2189,7 @@
                     </tbody>
                     <tfoot id="tableFooter">
                         <tr style="background: linear-gradient(135deg, #4A6B54 0%, #5d8a6b 100%); color: white; font-weight: 600;">
-                            <td colspan="4" style="padding: 15px 20px; font-size: 16px;">TOTAL FILTRADO</td>
+                            <td colspan="5" style="padding: 15px 20px; font-size: 16px;">TOTAL FILTRADO</td>
                             <td class="text-right" style="padding: 15px 20px; font-size: 18px;" id="totalFiltrado">R$ 0,00</td>
                             <td colspan="2" style="padding: 15px 20px; text-align: center;" id="totalInfo">0 despesas</td>
                         </tr>
@@ -2313,7 +2446,7 @@
 
             if (!dados) {
                 console.error('Dados não encontrados para o mês:', mes);
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#999;">Nenhum dado encontrado para este mês</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#999;">Nenhum dado encontrado para este mês</td></tr>';
                 return;
             }
 
@@ -2460,6 +2593,8 @@
                 itensFiltrados = itens.filter(i => i.categoria === 'ferramentas' || i.categoria === 'equipamentos');
             } else if (currentFilter === 'alpha') {
                 itensFiltrados = itens.filter(i => i.categoria === 'alpha_franquia' || i.categoria === 'alpha');
+            } else if (currentFilter === 'selecionados') {
+                itensFiltrados = itens.filter(i => selectedItems.has(i.nome));
             }
 
             // Aplicar ordem customizada se existir, senão ordenar por padrão
@@ -2475,7 +2610,7 @@
             }
 
             if (itensFiltrados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#999;">Nenhuma despesa encontrada</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#999;">Nenhuma despesa encontrada</td></tr>';
                 document.getElementById('tableCount').textContent = '0 registros';
                 return;
             }
@@ -2535,6 +2670,9 @@
                     : '<span class="date-badge date-badge-empty">-</span>';
 
                 tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-nome="${item.nome}" data-valor="${item.valor}" data-status="${item.isPago ? 'pago' : 'pendente'}" data-custom="${item.isCustom || false}" onchange="handleRowSelect(this)">
+                    </td>
                     <td>
                         <div style="display: flex; align-items: center;">
                             <span class="drag-handle" title="Arraste para reordenar">⋮⋮</span>
@@ -2729,6 +2867,7 @@
                     'todos': 'todos os registros',
                     'pendente': 'pendentes',
                     'pago': 'pagos',
+                    'selecionados': 'selecionados',
                     'pessoal': 'Pessoal',
                     'comercial': 'Comercial',
                     'estrutura': 'Estrutura',
@@ -3507,6 +3646,149 @@
             loadMonthData(currentMonth);
         }
 
+        // ========================================
+        // SELEÇÃO E AÇÕES EM MASSA
+        // ========================================
+
+        let selectedItems = new Set();
+
+        function handleRowSelect(checkbox) {
+            const nome = checkbox.dataset.nome;
+            const tr = checkbox.closest('tr');
+
+            if (checkbox.checked) {
+                selectedItems.add(nome);
+                tr.classList.add('selected');
+            } else {
+                selectedItems.delete(nome);
+                tr.classList.remove('selected');
+            }
+
+            updateBulkActionsBar();
+            updateSelectAllCheckbox();
+        }
+
+        function toggleSelectAll(checkbox) {
+            const rowCheckboxes = document.querySelectorAll('#tableBody .row-checkbox');
+
+            rowCheckboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                const tr = cb.closest('tr');
+                const nome = cb.dataset.nome;
+
+                if (checkbox.checked) {
+                    selectedItems.add(nome);
+                    tr.classList.add('selected');
+                } else {
+                    selectedItems.delete(nome);
+                    tr.classList.remove('selected');
+                }
+            });
+
+            updateBulkActionsBar();
+        }
+
+        function updateSelectAllCheckbox() {
+            const selectAll = document.getElementById('selectAll');
+            const rowCheckboxes = document.querySelectorAll('#tableBody .row-checkbox');
+            const checkedCount = document.querySelectorAll('#tableBody .row-checkbox:checked').length;
+
+            if (checkedCount === 0) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+            } else if (checkedCount === rowCheckboxes.length) {
+                selectAll.checked = true;
+                selectAll.indeterminate = false;
+            } else {
+                selectAll.checked = false;
+                selectAll.indeterminate = true;
+            }
+        }
+
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulkActionsBar');
+            const countText = document.getElementById('selectedCountText');
+            const totalText = document.getElementById('selectedTotalText');
+            const btnSelecionados = document.getElementById('btnSelecionados');
+            const countSelecionados = document.getElementById('countSelecionados');
+
+            if (selectedItems.size > 0) {
+                bar.classList.add('visible');
+                btnSelecionados.style.display = 'inline-block';
+
+                // Calcular total selecionado
+                let total = 0;
+                document.querySelectorAll('#tableBody .row-checkbox:checked').forEach(cb => {
+                    total += parseFloat(cb.dataset.valor) || 0;
+                });
+
+                countText.textContent = `${selectedItems.size} selecionado${selectedItems.size > 1 ? 's' : ''}`;
+                totalText.textContent = formatMoney(total);
+                countSelecionados.textContent = selectedItems.size;
+            } else {
+                bar.classList.remove('visible');
+                btnSelecionados.style.display = 'none';
+            }
+        }
+
+        function clearSelection() {
+            selectedItems.clear();
+            document.querySelectorAll('#tableBody .row-checkbox').forEach(cb => {
+                cb.checked = false;
+                cb.closest('tr').classList.remove('selected');
+            });
+            document.getElementById('selectAll').checked = false;
+            document.getElementById('selectAll').indeterminate = false;
+            updateBulkActionsBar();
+
+            // Se estava filtrando por selecionados, voltar para todos
+            if (currentFilter === 'selecionados') {
+                filtrarDespesas('todos');
+            }
+        }
+
+        async function bulkMarkAsPaid() {
+            if (selectedItems.size === 0) return;
+
+            const hoje = new Date().toISOString().split('T')[0];
+
+            for (const nome of selectedItems) {
+                await GestaoFinanceira.updateStatus(currentMonth, 'despesa', nome, 'Pago', hoje);
+            }
+
+            clearSelection();
+            loadMonthData(currentMonth);
+        }
+
+        async function bulkMarkAsPending() {
+            if (selectedItems.size === 0) return;
+
+            for (const nome of selectedItems) {
+                await GestaoFinanceira.updateStatus(currentMonth, 'despesa', nome, 'A Pagar', null);
+            }
+
+            clearSelection();
+            loadMonthData(currentMonth);
+        }
+
+        async function bulkDelete() {
+            if (selectedItems.size === 0) return;
+
+            if (!confirm(`Tem certeza que deseja excluir ${selectedItems.size} item(s)?`)) {
+                return;
+            }
+
+            for (const nome of selectedItems) {
+                GestaoFinanceira.deleteDespesa(currentMonth, nome);
+            }
+
+            // Sincronizar com servidor
+            await GestaoFinanceira.syncToServer();
+
+            clearSelection();
+            loadMonthData(currentMonth);
+        }
+
         // Inicializar
         window.addEventListener('DOMContentLoaded', function() {
             GestaoFinanceira.init();
@@ -3677,7 +3959,14 @@
         </div>
     </div>
 
-    <!-- Sistema de Notificações -->
-    <script src="../notifications.js"></script>
+    <!-- Barra de Ações em Massa -->
+    <div class="bulk-actions-bar" id="bulkActionsBar">
+        <span class="selected-count" id="selectedCountText">0 selecionados</span>
+        <span class="selected-total" id="selectedTotalText">R$ 0,00</span>
+        <button class="bulk-action-btn primary" onclick="bulkMarkAsPaid()">✓ Marcar como Pago</button>
+        <button class="bulk-action-btn secondary" onclick="bulkMarkAsPending()">○ Marcar Pendente</button>
+        <button class="bulk-action-btn danger" onclick="bulkDelete()">🗑️ Excluir</button>
+        <button class="bulk-close-btn" onclick="clearSelection()" title="Limpar seleção">×</button>
+    </div>
 </body>
 </html>

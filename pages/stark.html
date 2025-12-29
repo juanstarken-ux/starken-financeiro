@@ -845,7 +845,7 @@
                     <div class="stark-avatar">⚡</div>
                     <div class="stark-info">
                         <h1>STARK</h1>
-                        <p><span class="status-dot"></span> CFO Virtual - Online</p>
+                        <p>CFO Virtual</p>
                     </div>
                     <div class="stark-stats">
                         <div class="stark-stat">
@@ -1241,9 +1241,9 @@
             document.getElementById('starkSend').disabled = true;
 
             try {
-                // Timeout de 60 segundos (Claude pode demorar)
+                // Timeout de 5 minutos (Railway sem limite)
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 60000);
+                const timeoutId = setTimeout(() => controller.abort(), 300000);
 
                 // Preparar dados do arquivo importado se houver
                 const fileContext = importedFileData ? {
@@ -1302,7 +1302,7 @@
             } catch (error) {
                 hideTyping();
                 if (error.name === 'AbortError') {
-                    addMessage('A consulta demorou demais. O STARK está processando muitos dados. Tente uma pergunta mais simples.', 'assistant');
+                    addMessage('O STARK ainda está processando... Aguarde mais um momento ou reenvie a mensagem.', 'assistant');
                 } else if (error.message.includes('504') || error.message.includes('Gateway')) {
                     addMessage('O servidor demorou pra responder (timeout). Isso acontece em perguntas complexas. Tenta de novo ou faz uma pergunta mais direta!', 'assistant');
                 } else if (error.message.includes('502') || error.message.includes('503')) {
@@ -1533,19 +1533,54 @@
             // Show summary
             const successCount = uploadedFiles.filter(f => f.status === 'done').length;
             if (successCount > 0) {
-                const summary = uploadedFiles
-                    .filter(f => f.status === 'done' && f.result)
+                const successFiles = uploadedFiles.filter(f => f.status === 'done' && f.result);
+                const summary = successFiles
                     .map(f => f.result.summary || `${f.name}: processado`)
                     .join('\n');
 
-                // Armazenar dados do primeiro arquivo processado com sucesso para análise
-                const firstSuccess = uploadedFiles.find(f => f.status === 'done' && f.result);
-                if (firstSuccess && firstSuccess.result) {
-                    importedFileData = firstSuccess.result;
-                    console.log('Arquivo importado para análise:', importedFileData);
-                }
+                // COMBINAR TODOS OS ARQUIVOS em um único objeto
+                if (successFiles.length === 1) {
+                    // Apenas um arquivo
+                    importedFileData = successFiles[0].result;
+                } else {
+                    // Múltiplos arquivos - combinar tudo
+                    const allItems = [];
+                    let totalReceitas = 0;
+                    let totalDespesas = 0;
+                    const filenames = [];
 
-                addMessage(`📎 **${successCount} arquivo(s) processado(s)!**\n\n${summary}\n\n💡 **Os dados do arquivo estão carregados.** Agora você pode me perguntar:\n- "Analise as despesas do extrato"\n- "Quais foram as maiores saídas?"\n- "Resuma as entradas e saídas"\n- "Categorize as transações"`, 'assistant');
+                    successFiles.forEach(f => {
+                        if (f.result) {
+                            filenames.push(f.result.filename || f.name);
+                            totalReceitas += f.result.receitas || 0;
+                            totalDespesas += f.result.despesas || 0;
+                            if (f.result.items && Array.isArray(f.result.items)) {
+                                // Adicionar identificador do arquivo em cada item
+                                f.result.items.forEach(item => {
+                                    allItems.push({
+                                        ...item,
+                                        arquivo: f.result.filename || f.name
+                                    });
+                                });
+                            }
+                        }
+                    });
+
+                    importedFileData = {
+                        filename: filenames.join(' + '),
+                        type: 'combined',
+                        transacoes: allItems.length,
+                        receitas: totalReceitas,
+                        despesas: totalDespesas,
+                        saldo: totalReceitas - totalDespesas,
+                        items: allItems,
+                        arquivosOrigem: filenames
+                    };
+                    console.log(`📦 Combinados ${successFiles.length} arquivos: ${allItems.length} transações totais`);
+                }
+                console.log('Dados importados para análise:', importedFileData);
+
+                addMessage(`📎 **${successCount} arquivo(s) processado(s)!**\n\n${summary}\n\n💡 **TODOS os dados estão carregados (${importedFileData.items?.length || 0} transações).** Agora você pode me pedir:\n- "Lance todas as transações no sistema"\n- "Analise os extratos"\n- "Categorize as despesas"`, 'assistant');
             }
         }
 
@@ -1578,7 +1613,5 @@
         }
     </script>
 
-    <!-- Sistema de Notificações -->
-    <script src="../notifications.js"></script>
 </body>
 </html>

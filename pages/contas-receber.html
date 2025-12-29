@@ -1922,6 +1922,191 @@
             background: linear-gradient(135deg, var(--primary-green) 0%, #5d8a6b 100%);
             color: white;
         }
+
+        /* ============================================
+           BOTÕES DE AÇÃO NA TABELA
+           ============================================ */
+        .row-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .action-btn.edit {
+            background: rgba(74, 107, 84, 0.1);
+            color: #4A6B54;
+        }
+
+        .action-btn.edit:hover {
+            background: #4A6B54;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .action-btn.delete {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+
+        .action-btn.delete:hover {
+            background: #e74c3c;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* ============================================
+           MODAL DE EDIÇÃO DE RECEITA
+           ============================================ */
+        .edit-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .edit-modal-overlay.show {
+            display: flex;
+        }
+
+        .edit-modal {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(74, 107, 84, 0.3);
+        }
+
+        .edit-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .edit-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .edit-modal-close {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .edit-modal-close:hover {
+            color: #e74c3c;
+        }
+
+        .edit-form-group {
+            margin-bottom: 20px;
+        }
+
+        .edit-form-label {
+            display: block;
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .edit-form-input,
+        .edit-form-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .edit-form-input:focus,
+        .edit-form-select:focus {
+            outline: none;
+            border-color: #4A6B54;
+            background: rgba(74, 107, 84, 0.1);
+        }
+
+        .edit-form-select option {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .edit-modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .edit-modal-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-modal-btn.cancel {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #ccc;
+        }
+
+        .edit-modal-btn.cancel:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .edit-modal-btn.save {
+            background: linear-gradient(135deg, #4A6B54, #5d8a6b);
+            border: none;
+            color: white;
+        }
+
+        .edit-modal-btn.save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 107, 84, 0.4);
+        }
+
+        .edit-modal-btn.delete {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        .edit-modal-btn.delete:hover {
+            background: #e74c3c;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -2279,11 +2464,12 @@
                             <th class="checkbox-cell" style="width: 5%;">
                                 <div class="custom-checkbox" id="selectAll" onclick="toggleSelectAll()"></div>
                             </th>
-                            <th style="width: 30%;">Cliente</th>
-                            <th style="width: 15%;">Empresa</th>
-                            <th class="text-right" style="width: 15%;">Valor</th>
-                            <th class="text-center" style="width: 15%;">Recebimento</th>
-                            <th class="text-center" style="width: 20%;">Status</th>
+                            <th style="width: 25%;">Cliente</th>
+                            <th style="width: 12%;">Empresa</th>
+                            <th class="text-right" style="width: 12%;">Valor</th>
+                            <th class="text-center" style="width: 12%;">Recebimento</th>
+                            <th class="text-center" style="width: 14%;">Status</th>
+                            <th class="text-center" style="width: 10%;">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -2291,7 +2477,7 @@
                     </tbody>
                     <tfoot id="tableFooter">
                         <tr style="background: linear-gradient(135deg, #4A6B54 0%, #5d8a6b 100%); color: white; font-weight: 600;">
-                            <td colspan="3" style="padding: 15px 20px; font-size: 16px;">TOTAL FILTRADO</td>
+                            <td colspan="4" style="padding: 15px 20px; font-size: 16px;">TOTAL FILTRADO</td>
                             <td class="text-right" style="padding: 15px 20px; font-size: 18px;" id="totalFiltrado">R$ 0,00</td>
                             <td colspan="2" style="padding: 15px 20px; text-align: center;" id="totalInfo">0 receitas</td>
                         </tr>
@@ -2712,6 +2898,16 @@
                             <span class="status-icon">${statusIcon}</span>
                             <span class="status-text">${statusText}</span>
                         </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="row-actions">
+                            <button class="action-btn edit" onclick="openEditReceitaModal('${cliente.nome.replace(/'/g, "\\'")}', '${cliente.empresa || 'Starken'}', ${cliente.valor}, '${cliente.isRecebido ? 'Recebido' : 'A Receber'}', ${cliente.isCustom || false}, '${cliente.tipo || 'TCV'}', '${(cliente.origem || 'Prospecção').replace(/'/g, "\\'")}', ${cliente.novo || false}, ${cliente.renovacao || false}, '${(cliente.categoria || '').replace(/'/g, "\\'")}')" title="Editar">
+                                ✏️
+                            </button>
+                            <button class="action-btn delete" onclick="excluirReceita('${cliente.nome.replace(/'/g, "\\'")}')" title="Excluir">
+                                🗑️
+                            </button>
+                        </div>
                     </td>
                 `;
 
@@ -3898,7 +4094,418 @@
         </div>
     </div>
 
-    <!-- Sistema de Notificações -->
-    <script src="../notifications.js"></script>
+    <!-- Modal de Edição de Receita (Completo) -->
+    <div id="editReceitaModal" class="receita-modal-overlay" onclick="if(event.target===this) closeEditReceitaModal()">
+        <div class="receita-modal">
+            <div class="modal-header">
+                <h3>✏️ Editar Receita</h3>
+                <button class="modal-close" onclick="closeEditReceitaModal()">✕</button>
+            </div>
+            <form id="editReceitaForm" onsubmit="saveEditReceita(event)">
+                <input type="hidden" id="editReceitaNomeOriginal">
+                <input type="hidden" id="editReceitaIsCustom">
+                <input type="hidden" id="editReceitaTipoOriginal">
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Nome do Cliente *</label>
+                        <input type="text" class="form-input" id="editReceitaNome" placeholder="Ex: Restaurante Exemplo" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Empresa *</label>
+                            <select class="form-select" id="editReceitaEmpresa" onchange="toggleEditAlphaFields()">
+                                <option value="Starken">🚀 Starken</option>
+                                <option value="Alpha">⭐ Alpha (Franquia)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Origem</label>
+                            <select class="form-select" id="editReceitaOrigem">
+                                <option value="Prospecção">Prospecção</option>
+                                <option value="Indicação">Indicação</option>
+                                <option value="Inbound">Inbound</option>
+                                <option value="Outbound">Outbound</option>
+                                <option value="Matriz">Matriz</option>
+                                <option value="Renovação">Renovação</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campos Starken (simples) -->
+                    <div id="editStarkenFields">
+                        <div class="form-group">
+                            <label class="form-label">Valor (R$) *</label>
+                            <input type="number" class="form-input" id="editReceitaValorSimples" placeholder="2000" min="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <!-- Campos Alpha (com cálculo de repasse) -->
+                    <div id="editAlphaFields" class="alpha-fields" style="display: none;">
+                        <div class="alpha-fields-title">
+                            ⭐ Cálculo do Repasse Alpha
+                        </div>
+
+                        <!-- Tipo de Contrato -->
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Tipo de Contrato *</label>
+                            <div style="display: flex; gap: 10px;">
+                                <label style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white;" id="editLabelTCV" onclick="setEditTipoContrato('tcv')">
+                                    <input type="radio" name="editTipoContrato" value="tcv" checked style="width: 16px; height: 16px;">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 13px;">📋 TCV</div>
+                                        <div style="font-size: 10px; color: var(--text-light);">Projeto único</div>
+                                    </div>
+                                </label>
+                                <label style="flex: 1; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white;" id="editLabelMRR" onclick="setEditTipoContrato('mrr')">
+                                    <input type="radio" name="editTipoContrato" value="mrr" style="width: 16px; height: 16px;">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 13px;">🔄 MRR</div>
+                                        <div style="font-size: 10px; color: var(--text-light);">Recorrente</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Grid: Campos à esquerda, Resumo à direita -->
+                        <div class="alpha-content-grid">
+                            <div class="alpha-inputs-section">
+                                <!-- Campos TCV -->
+                                <div id="editCamposTCV">
+                                    <div class="form-row">
+                                        <div class="form-group" style="margin-bottom: 10px;">
+                                            <label class="form-label">TCV Total (Valor Bruto) *</label>
+                                            <input type="number" class="form-input" id="editReceitaTCV" placeholder="7500" min="0" step="0.01" oninput="calcularEditRepasseAlpha()">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 10px;">
+                                            <label class="form-label">Meses de Trabalho</label>
+                                            <select class="form-select" id="editReceitaMeses" onchange="calcularEditRepasseAlpha()">
+                                                <option value="1">1 (Mensal)</option>
+                                                <option value="3">3 (Trimestral)</option>
+                                                <option value="6">6 (Semestral)</option>
+                                                <option value="12">12 (Anual)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row-3">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">Parcelas</label>
+                                            <select class="form-select" id="editReceitaParcelas" onchange="calcularEditRepasseAlpha()">
+                                                <option value="1">1x</option>
+                                                <option value="2">2x</option>
+                                                <option value="3">3x</option>
+                                                <option value="4">4x</option>
+                                                <option value="5">5x</option>
+                                                <option value="6">6x</option>
+                                                <option value="10">10x</option>
+                                                <option value="12">12x</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">% Royalties</label>
+                                            <input type="number" class="form-input" id="editReceitaRoyaltiesTCV" value="15" min="0" max="100" step="0.01" oninput="calcularEditRepasseAlpha()">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">% Taxa Cartão</label>
+                                            <input type="number" class="form-input" id="editReceitaTaxaCartao" value="0" min="0" max="100" step="0.01" oninput="calcularEditRepasseAlpha()">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Campos MRR -->
+                                <div id="editCamposMRR" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">Valor Mensal (MRR Bruto) *</label>
+                                            <input type="number" class="form-input" id="editReceitaMRR" placeholder="2000" min="0" step="0.01" oninput="calcularEditRepasseAlpha()">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">% Royalties</label>
+                                            <input type="number" class="form-input" id="editReceitaRoyaltiesMRR" value="15" min="0" max="100" step="0.01" oninput="calcularEditRepasseAlpha()">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resumo do Repasse -->
+                            <div id="editRepasseSummary" class="repasse-summary" style="display: block; margin-top: 0;">
+                                <div class="repasse-summary-title">📊 Resumo do Repasse</div>
+                                <div class="repasse-row" id="editRowValorBruto">
+                                    <span class="label" id="editLabelValorBruto">TCV Total:</span>
+                                    <span class="value" id="editSummaryTCV">R$ 0,00</span>
+                                </div>
+                                <div class="repasse-row">
+                                    <span class="label">Royalties (<span id="editSummaryRoyaltiesPct">15</span>%):</span>
+                                    <span class="value negative" id="editSummaryRoyalties">- R$ 0,00</span>
+                                </div>
+                                <div class="repasse-row" id="editRowTaxaCartao">
+                                    <span class="label">Taxa Cartão (<span id="editSummaryTaxaPct">0</span>%):</span>
+                                    <span class="value negative" id="editSummaryTaxa">- R$ 0,00</span>
+                                </div>
+                                <div class="repasse-row total">
+                                    <span class="label">💰 <span id="editLabelValorLiquido">Valor Líquido</span>:</span>
+                                    <span class="value positive" id="editSummaryLiquido">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="margin-top: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="editReceitaStatus" onchange="toggleEditDataRecebimento()">
+                                <option value="A Receber">A Receber</option>
+                                <option value="Recebido">Recebido</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="editReceitaDataGroup" style="display: none;">
+                            <label class="form-label">Data de Recebimento</label>
+                            <input type="date" class="form-input" id="editReceitaData">
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="editReceitaNovo">
+                            <span>✨ Novo Cliente</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="editReceitaRenovacao">
+                            <span>🔄 Renovação</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label class="form-label">Categoria</label>
+                        <input type="text" class="form-input" id="editReceitaCategoria" placeholder="Ex: Gastronomia, Automotivo...">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeEditReceitaModal()">Cancelar</button>
+                    <button type="button" class="btn-delete" onclick="excluirReceitaDoModal()" style="background: #e74c3c; color: white;">🗑️ Excluir</button>
+                    <button type="submit" class="btn-save">💾 Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // FUNÇÕES DE EDIÇÃO DE RECEITA (COMPLETO)
+        // ========================================
+
+        let editTipoContrato = 'tcv';
+
+        function openEditReceitaModal(nome, empresa, valor, status, isCustom, tipo, origem, novo, renovacao, categoria) {
+            document.getElementById('editReceitaNomeOriginal').value = nome;
+            document.getElementById('editReceitaIsCustom').value = isCustom;
+            document.getElementById('editReceitaTipoOriginal').value = tipo || 'TCV';
+            document.getElementById('editReceitaNome').value = nome;
+            document.getElementById('editReceitaEmpresa').value = empresa;
+            document.getElementById('editReceitaOrigem').value = origem || 'Prospecção';
+            document.getElementById('editReceitaStatus').value = status;
+            document.getElementById('editReceitaNovo').checked = novo || false;
+            document.getElementById('editReceitaRenovacao').checked = renovacao || false;
+            document.getElementById('editReceitaCategoria').value = categoria || '';
+
+            // Configurar campos baseado na empresa
+            toggleEditAlphaFields();
+
+            // Configurar valor
+            if (empresa === 'Alpha') {
+                const tipoContrato = (tipo === 'MRR' || tipo === 'mrr') ? 'mrr' : 'tcv';
+                setEditTipoContrato(tipoContrato);
+                if (tipoContrato === 'mrr') {
+                    document.getElementById('editReceitaMRR').value = valor;
+                } else {
+                    document.getElementById('editReceitaTCV').value = valor;
+                }
+                calcularEditRepasseAlpha();
+            } else {
+                document.getElementById('editReceitaValorSimples').value = valor;
+            }
+
+            // Mostrar campo de data se status for Recebido
+            toggleEditDataRecebimento();
+
+            document.getElementById('editReceitaModal').classList.add('active');
+        }
+
+        function closeEditReceitaModal() {
+            document.getElementById('editReceitaModal').classList.remove('active');
+        }
+
+        function toggleEditAlphaFields() {
+            const empresa = document.getElementById('editReceitaEmpresa').value;
+            const starkenFields = document.getElementById('editStarkenFields');
+            const alphaFields = document.getElementById('editAlphaFields');
+
+            if (empresa === 'Alpha') {
+                starkenFields.style.display = 'none';
+                alphaFields.style.display = 'block';
+            } else {
+                starkenFields.style.display = 'block';
+                alphaFields.style.display = 'none';
+            }
+        }
+
+        function toggleEditDataRecebimento() {
+            const status = document.getElementById('editReceitaStatus').value;
+            const dataGroup = document.getElementById('editReceitaDataGroup');
+            if (status === 'Recebido') {
+                dataGroup.style.display = 'block';
+                if (!document.getElementById('editReceitaData').value) {
+                    document.getElementById('editReceitaData').value = new Date().toISOString().split('T')[0];
+                }
+            } else {
+                dataGroup.style.display = 'none';
+            }
+        }
+
+        function setEditTipoContrato(tipo) {
+            editTipoContrato = tipo;
+            const camposTCV = document.getElementById('editCamposTCV');
+            const camposMRR = document.getElementById('editCamposMRR');
+            const labelTCV = document.getElementById('editLabelTCV');
+            const labelMRR = document.getElementById('editLabelMRR');
+            const labelValorBruto = document.getElementById('editLabelValorBruto');
+            const rowTaxaCartao = document.getElementById('editRowTaxaCartao');
+
+            if (tipo === 'tcv') {
+                camposTCV.style.display = 'block';
+                camposMRR.style.display = 'none';
+                labelTCV.style.borderColor = 'var(--primary-green)';
+                labelTCV.style.background = 'rgba(74, 107, 84, 0.05)';
+                labelMRR.style.borderColor = 'var(--border-color)';
+                labelMRR.style.background = 'transparent';
+                labelValorBruto.textContent = 'TCV Total:';
+                rowTaxaCartao.style.display = 'flex';
+                document.querySelector('input[name="editTipoContrato"][value="tcv"]').checked = true;
+            } else {
+                camposTCV.style.display = 'none';
+                camposMRR.style.display = 'block';
+                labelMRR.style.borderColor = 'var(--primary-green)';
+                labelMRR.style.background = 'rgba(74, 107, 84, 0.05)';
+                labelTCV.style.borderColor = 'var(--border-color)';
+                labelTCV.style.background = 'transparent';
+                labelValorBruto.textContent = 'MRR Bruto (Mensal):';
+                rowTaxaCartao.style.display = 'none';
+                document.querySelector('input[name="editTipoContrato"][value="mrr"]').checked = true;
+            }
+            calcularEditRepasseAlpha();
+        }
+
+        function calcularEditRepasseAlpha() {
+            let valorBruto = 0;
+            let royaltiesPct = 15;
+            let taxaPct = 0;
+
+            if (editTipoContrato === 'tcv') {
+                valorBruto = parseFloat(document.getElementById('editReceitaTCV').value) || 0;
+                royaltiesPct = parseFloat(document.getElementById('editReceitaRoyaltiesTCV').value) || 15;
+                taxaPct = parseFloat(document.getElementById('editReceitaTaxaCartao').value) || 0;
+            } else {
+                valorBruto = parseFloat(document.getElementById('editReceitaMRR').value) || 0;
+                royaltiesPct = parseFloat(document.getElementById('editReceitaRoyaltiesMRR').value) || 15;
+            }
+
+            const royaltiesValor = valorBruto * (royaltiesPct / 100);
+            const taxaValor = valorBruto * (taxaPct / 100);
+            const valorLiquido = valorBruto - royaltiesValor - taxaValor;
+
+            document.getElementById('editSummaryTCV').textContent = formatMoney(valorBruto);
+            document.getElementById('editSummaryRoyaltiesPct').textContent = royaltiesPct;
+            document.getElementById('editSummaryRoyalties').textContent = '- ' + formatMoney(royaltiesValor);
+            document.getElementById('editSummaryTaxaPct').textContent = taxaPct;
+            document.getElementById('editSummaryTaxa').textContent = '- ' + formatMoney(taxaValor);
+            document.getElementById('editSummaryLiquido').textContent = formatMoney(valorLiquido);
+        }
+
+        async function saveEditReceita(event) {
+            event.preventDefault();
+
+            const nomeOriginal = document.getElementById('editReceitaNomeOriginal').value;
+            const isCustom = document.getElementById('editReceitaIsCustom').value === 'true';
+            const novoNome = document.getElementById('editReceitaNome').value;
+            const empresa = document.getElementById('editReceitaEmpresa').value;
+            const origem = document.getElementById('editReceitaOrigem').value;
+            const status = document.getElementById('editReceitaStatus').value;
+            const dataRecebimento = document.getElementById('editReceitaData').value;
+            const novo = document.getElementById('editReceitaNovo').checked;
+            const renovacao = document.getElementById('editReceitaRenovacao').checked;
+            const categoria = document.getElementById('editReceitaCategoria').value;
+
+            // Determinar valor baseado na empresa
+            let valor = 0;
+            let tipo = 'TCV';
+            if (empresa === 'Alpha') {
+                tipo = editTipoContrato.toUpperCase();
+                if (editTipoContrato === 'tcv') {
+                    valor = parseFloat(document.getElementById('editReceitaTCV').value) || 0;
+                } else {
+                    valor = parseFloat(document.getElementById('editReceitaMRR').value) || 0;
+                }
+            } else {
+                valor = parseFloat(document.getElementById('editReceitaValorSimples').value) || 0;
+            }
+
+            try {
+                // Atualizar via GestaoFinanceira
+                if (novoNome !== nomeOriginal || valor) {
+                    await GestaoFinanceira.editItem(currentMonth, 'receita', nomeOriginal, novoNome, valor, empresa);
+                }
+
+                // Atualizar status
+                await GestaoFinanceira.updateStatus(currentMonth, 'receita', novoNome || nomeOriginal, status, status === 'Recebido' ? dataRecebimento : null);
+
+                // Sincronizar
+                await GestaoFinanceira.syncToServer();
+
+                closeEditReceitaModal();
+                loadMonthData(currentMonth);
+                showToast('Receita atualizada com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao salvar receita:', error);
+                showToast('Erro ao salvar receita', 'error');
+            }
+        }
+
+        async function excluirReceita(nome) {
+            if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) {
+                return;
+            }
+
+            try {
+                GestaoFinanceira.deleteReceita(currentMonth, nome);
+                await GestaoFinanceira.syncToServer();
+                loadMonthData(currentMonth);
+                showToast('Receita excluída com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao excluir receita:', error);
+                showToast('Erro ao excluir receita', 'error');
+            }
+        }
+
+        async function excluirReceitaDoModal() {
+            const nome = document.getElementById('editReceitaNomeOriginal').value;
+            if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) {
+                return;
+            }
+
+            try {
+                GestaoFinanceira.deleteReceita(currentMonth, nome);
+                await GestaoFinanceira.syncToServer();
+                closeEditReceitaModal();
+                loadMonthData(currentMonth);
+                showToast('Receita excluída com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao excluir receita:', error);
+                showToast('Erro ao excluir receita', 'error');
+            }
+        }
+    </script>
 </body>
 </html>

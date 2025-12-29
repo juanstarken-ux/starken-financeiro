@@ -33,21 +33,8 @@ class StarkRealTime {
   // ============================================
 
   criarIndicadorConexao() {
-    // Remove existente se houver
-    const existente = document.getElementById('stark-connection-status');
-    if (existente) existente.remove();
-
-    const indicator = document.createElement('div');
-    indicator.id = 'stark-connection-status';
-    indicator.className = 'stark-connection-status status-online';
-    indicator.innerHTML = `
-      <span class="status-dot"></span>
-      <span class="status-text">Online</span>
-    `;
-    document.body.appendChild(indicator);
-
-    // Adiciona estilos se não existirem
-    this.injetarEstilos();
+    // Indicador desabilitado
+    return;
   }
 
   injetarEstilos() {
