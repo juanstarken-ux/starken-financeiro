@@ -3158,11 +3158,17 @@
         async function changeCategoryFast(itemNome, novaCategoria, isCustom) {
             closeCategoryDropdown();
 
+            console.log('Alterando categoria:', itemNome, 'para', novaCategoria, 'isCustom:', isCustom);
+
             // Atualizar no GestaoFinanceira
             const dados = GestaoFinanceira.getDadosMes(currentMonth);
-            if (!dados) return;
+            if (!dados) {
+                console.error('Dados do mês não encontrados');
+                return;
+            }
 
             let updated = false;
+            let found = false;
 
             // Buscar em todas as categorias de despesas
             for (const catKey of Object.keys(dados.despesas.categorias)) {
@@ -3170,7 +3176,9 @@
                 const itemIndex = items.findIndex(i => i.nome === itemNome);
 
                 if (itemIndex >= 0) {
+                    found = true;
                     const item = items[itemIndex];
+                    console.log('Item encontrado na categoria:', catKey);
 
                     // Se a categoria mudou
                     if (catKey !== novaCategoria) {
@@ -3184,22 +3192,38 @@
                         item.categoria = novaCategoria;
                         dados.despesas.categorias[novaCategoria].push(item);
                         updated = true;
+                        console.log('Item movido para categoria:', novaCategoria);
+                    } else {
+                        console.log('Mesma categoria, nada a fazer');
                     }
                     break;
                 }
             }
 
-            // Se é custom item, atualizar também
-            if (isCustom) {
-                GestaoFinanceira.updateDespesa(currentMonth, itemNome, { categoria: novaCategoria });
+            if (!found) {
+                console.warn('Item não encontrado:', itemNome);
             }
 
-            if (updated) {
-                await GestaoFinanceira.syncToServer();
-                loadMonthData(currentMonth);
+            // Se é custom item, atualizar no banco também
+            if (isCustom && GestaoFinanceira.updateDespesa) {
+                try {
+                    GestaoFinanceira.updateDespesa(currentMonth, itemNome, { categoria: novaCategoria });
+                    updated = true;
+                    console.log('Custom item atualizado');
+                } catch (e) {
+                    console.error('Erro ao atualizar custom item:', e);
+                }
+            }
 
-                // Feedback visual
-                showToast(`Categoria alterada para "${getCategoryName(novaCategoria)}"`);
+            if (updated || isCustom) {
+                try {
+                    await GestaoFinanceira.syncToServer();
+                    loadMonthData(currentMonth);
+                    showToast(`Categoria alterada para "${getCategoryName(novaCategoria)}"`);
+                } catch (e) {
+                    console.error('Erro ao sincronizar:', e);
+                    showToast('Erro ao salvar alteração');
+                }
             }
         }
 
