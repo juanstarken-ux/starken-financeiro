@@ -2005,6 +2005,78 @@
             color: #e74c3c;
         }
 
+        .bulk-action-btn.category {
+            background: rgba(155, 89, 182, 0.15);
+            color: #b39ddb;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .bulk-action-btn.category:hover {
+            background: rgba(155, 89, 182, 0.3);
+        }
+
+        .bulk-action-btn.date {
+            background: rgba(52, 152, 219, 0.15);
+            color: #64b5f6;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .bulk-action-btn.date:hover {
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .bulk-dropdown-wrapper {
+            position: relative;
+        }
+
+        .bulk-category-dropdown {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .bulk-category-dropdown.active {
+            display: block;
+            animation: dropdownUp 0.2s ease;
+        }
+
+        @keyframes dropdownUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bulk-category-dropdown .cat-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #333;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .bulk-category-dropdown .cat-item:last-child {
+            border-bottom: none;
+        }
+
+        .bulk-category-dropdown .cat-item:hover {
+            background: #f8f9fa;
+        }
+
+        .bulk-category-dropdown .cat-item .cat-icon {
+            font-size: 18px;
+        }
+
         /* Filtro de selecionados */
         .filter-btn[data-filter="selecionados"] {
             background: rgba(74, 107, 84, 0.2);
@@ -3141,7 +3213,7 @@
             toast.textContent = message;
             toast.style.cssText = `
                 position: fixed;
-                bottom: 20px;
+                bottom: 100px;
                 left: 50%;
                 transform: translateX(-50%);
                 background: #333;
@@ -3157,6 +3229,140 @@
                 toast.style.animation = 'toastOut 0.3s ease forwards';
                 setTimeout(() => toast.remove(), 300);
             }, 2000);
+        }
+
+        // ========================================
+        // AÇÕES EM MASSA - CATEGORIA E VENCIMENTO
+        // ========================================
+
+        // Toggle dropdown de categoria em massa
+        function toggleBulkCategoryDropdown() {
+            const dropdown = document.getElementById('bulkCategoryDropdown');
+            const isActive = dropdown.classList.contains('active');
+
+            if (isActive) {
+                dropdown.classList.remove('active');
+            } else {
+                // Popular dropdown
+                dropdown.innerHTML = '';
+                CATEGORIAS_DISPONIVEIS.forEach(cat => {
+                    const item = document.createElement('div');
+                    item.className = 'cat-item';
+                    item.innerHTML = `<span class="cat-icon">${cat.icon}</span> ${cat.nome}`;
+                    item.onclick = () => applyBulkCategory(cat.id);
+                    dropdown.appendChild(item);
+                });
+                dropdown.classList.add('active');
+
+                // Fechar ao clicar fora
+                setTimeout(() => {
+                    document.addEventListener('click', closeBulkCategoryDropdown);
+                }, 10);
+            }
+        }
+
+        function closeBulkCategoryDropdown(e) {
+            const dropdown = document.getElementById('bulkCategoryDropdown');
+            const wrapper = dropdown.closest('.bulk-dropdown-wrapper');
+            if (e && wrapper && wrapper.contains(e.target)) return;
+
+            dropdown.classList.remove('active');
+            document.removeEventListener('click', closeBulkCategoryDropdown);
+        }
+
+        // Aplicar categoria em massa
+        async function applyBulkCategory(novaCategoria) {
+            closeBulkCategoryDropdown();
+
+            if (selectedItems.size === 0) return;
+
+            const dados = GestaoFinanceira.getDadosMes(currentMonth);
+            if (!dados) return;
+
+            let updated = 0;
+
+            for (const itemNome of selectedItems) {
+                // Buscar em todas as categorias
+                for (const catKey of Object.keys(dados.despesas.categorias)) {
+                    const items = dados.despesas.categorias[catKey];
+                    const itemIndex = items.findIndex(i => i.nome === itemNome);
+
+                    if (itemIndex >= 0) {
+                        const item = items[itemIndex];
+
+                        if (catKey !== novaCategoria) {
+                            // Remover da categoria atual
+                            items.splice(itemIndex, 1);
+
+                            // Adicionar na nova categoria
+                            if (!dados.despesas.categorias[novaCategoria]) {
+                                dados.despesas.categorias[novaCategoria] = [];
+                            }
+                            item.categoria = novaCategoria;
+                            dados.despesas.categorias[novaCategoria].push(item);
+                            updated++;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (updated > 0) {
+                await GestaoFinanceira.syncToServer();
+                loadMonthData(currentMonth);
+                showToast(`${updated} itens alterados para "${getCategoryName(novaCategoria)}"`);
+            }
+        }
+
+        // Modal de vencimento em massa
+        function openBulkDateModal() {
+            if (selectedItems.size === 0) return;
+
+            document.getElementById('bulkDateCount').textContent = selectedItems.size;
+            document.getElementById('bulkDateInput').value = '';
+            document.getElementById('bulkDateModal').classList.add('active');
+        }
+
+        function closeBulkDateModal() {
+            document.getElementById('bulkDateModal').classList.remove('active');
+        }
+
+        // Aplicar vencimento em massa
+        async function applyBulkDate() {
+            const novaData = document.getElementById('bulkDateInput').value;
+            if (!novaData) {
+                alert('Selecione uma data');
+                return;
+            }
+
+            closeBulkDateModal();
+
+            if (selectedItems.size === 0) return;
+
+            const dados = GestaoFinanceira.getDadosMes(currentMonth);
+            if (!dados) return;
+
+            let updated = 0;
+
+            for (const itemNome of selectedItems) {
+                // Buscar em todas as categorias
+                for (const catKey of Object.keys(dados.despesas.categorias)) {
+                    const items = dados.despesas.categorias[catKey];
+                    const item = items.find(i => i.nome === itemNome);
+
+                    if (item) {
+                        item.vencimento = novaData;
+                        updated++;
+                        break;
+                    }
+                }
+            }
+
+            if (updated > 0) {
+                await GestaoFinanceira.syncToServer();
+                loadMonthData(currentMonth);
+                showToast(`Vencimento alterado para ${updated} itens`);
+            }
         }
 
         function filtrarDespesas(filtro) {
@@ -4279,10 +4485,38 @@
     <div class="bulk-actions-bar" id="bulkActionsBar">
         <span class="selected-count" id="selectedCountText">0 selecionados</span>
         <span class="selected-total" id="selectedTotalText">R$ 0,00</span>
-        <button class="bulk-action-btn primary" onclick="bulkMarkAsPaid()">✓ Marcar como Pago</button>
-        <button class="bulk-action-btn secondary" onclick="bulkMarkAsPending()">○ Marcar Pendente</button>
+        <button class="bulk-action-btn primary" onclick="bulkMarkAsPaid()">✓ Pago</button>
+        <button class="bulk-action-btn secondary" onclick="bulkMarkAsPending()">○ Pendente</button>
+        <div class="bulk-dropdown-wrapper">
+            <button class="bulk-action-btn category" onclick="toggleBulkCategoryDropdown()">🏷️ Categoria ▾</button>
+            <div class="bulk-category-dropdown" id="bulkCategoryDropdown"></div>
+        </div>
+        <button class="bulk-action-btn date" onclick="openBulkDateModal()">📅 Vencimento</button>
         <button class="bulk-action-btn danger" onclick="bulkDelete()">🗑️ Excluir</button>
         <button class="bulk-close-btn" onclick="clearSelection()" title="Limpar seleção">×</button>
+    </div>
+
+    <!-- Modal de Vencimento em Massa -->
+    <div class="modal-overlay" id="bulkDateModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>📅 Alterar Vencimento</h3>
+                <button class="modal-close" onclick="closeBulkDateModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px; color: #666;">
+                    Alterar vencimento de <strong id="bulkDateCount">0</strong> itens selecionados
+                </p>
+                <div class="form-group">
+                    <label>Nova Data de Vencimento</label>
+                    <input type="date" id="bulkDateInput" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeBulkDateModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="applyBulkDate()">Aplicar</button>
+            </div>
+        </div>
     </div>
 </body>
 </html>
