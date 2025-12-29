@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanças Pessoais - STARK Intelligence</title>
+    <script src="../auth.js"></script>
+    <script src="../theme.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #4A6B54;
+            --secondary-green: #7A9B84;
+            --light-green: #B8D4BE;
+            --bg-gray: #f5f7fa;
+            --white: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #e1e8ed;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           MODAL DE AUTENTICAÇÃO
+        ======================================== */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .auth-modal {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .auth-title {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .socio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .socio-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .socio-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .socio-card.selected {
+            background: rgba(74, 107, 84, 0.3);
+            border-color: var(--primary-green);
+        }
+
+        .socio-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .socio-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .auth-input-group {
+            margin-bottom: 20px;
+        }
+
+        .auth-input-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(74, 107, 84, 0.3);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .auth-error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            color: #e74c3c;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .auth-error.show {
+            display: block;
+        }
+
+        /* ========================================
+           LAYOUT PRINCIPAL
+        ======================================== */
+        .dashboard-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .dashboard-container.show {
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            padding: 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-image {
+            width: 140px;
+            height: auto;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        .company-info {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 8px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--white);
+            border-left-color: var(--light-green);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255,255,255,0.15);
+            color: var(--white);
+            border-left-color: var(--light-green);
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .user-badge-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .user-badge-info {
+            text-align: left;
+        }
+
+        .user-badge-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .user-badge-role {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .btn-logout-socio {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout-socio:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .kpi-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: var(--bg-gray);
+            color: var(--text-dark);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-green);
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 14px 16px;
+            background: var(--bg-gray);
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table tr:hover {
+            background: var(--bg-gray);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.pago {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+
+        .status-badge.pendente {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .status-badge.ativo {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .status-badge.quitado {
+            background: rgba(149, 165, 166, 0.1);
+            color: var(--text-light);
+        }
+
+        .categoria-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-gray);
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action.edit {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .btn-action.delete {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-action:hover {
+            transform: scale(1.05);
+        }
+
+        /* Add Button */
+        .btn-add {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--primary-green);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add:hover {
+            background: var(--secondary-green);
+        }
+
+        .tab-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-cancel {
+            padding: 10px 20px;
+            background: var(--bg-gray);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-save {
+            padding: 10px 20px;
+            background: var(--primary-green);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            .socio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal de Autenticação -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-modal">
+            <div class="auth-header">
+                <div class="auth-icon">🔐</div>
+                <h2 class="auth-title">Área Restrita dos Sócios</h2>
+                <p class="auth-subtitle">Selecione seu perfil e digite sua senha pessoal</p>
+            </div>
+
+            <div class="socio-grid" id="socioGrid">
+                <!-- Sócios serão carregados aqui -->
+            </div>
+
+            <div class="auth-error" id="authError"></div>
+
+            <div class="auth-input-group">
+                <label>Senha Pessoal</label>
+                <input type="password" class="auth-input" id="authPassword" placeholder="Digite sua senha">
+            </div>
+
+            <button class="auth-btn" id="authBtn" onclick="handleSocioLogin()" disabled>
+                Acessar Finanças Pessoais
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container" id="dashboardContainer">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="../logo-starken.png" alt="STARK" class="logo-image">
+                <div class="company-info">STARK Intelligence</div>
+            </div>
+
+            <div class="sidebar-nav">
+                <a href="../index.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="contas-pagar.html" class="nav-item">
+                    <span class="nav-icon">💸</span>
+                    Contas a Pagar
+                </a>
+                <a href="contas-receber.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    Contas a Receber
+                </a>
+                <a href="financeiro-pessoal.html" class="nav-item active">
+                    <span class="nav-icon">👤</span>
+                    Finanças Pessoais
+                </a>
+                <a href="stark.html" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    STARK CFO
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Finanças Pessoais</h1>
+                    <p class="page-subtitle" id="pageSubtitle">Gerencie suas contas pessoais de forma privada</p>
+                </div>
+                <div class="user-badge">
+                    <div class="user-badge-avatar" id="userAvatar">J</div>
+                    <div class="user-badge-info">
+                        <div class="user-badge-name" id="userName">Juan Minni</div>
+                        <div class="user-badge-role">Sócio</div>
+                    </div>
+                    <button class="btn-logout-socio" onclick="logoutSocio()">Sair</button>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">💳</div>
+                    <div class="kpi-value" id="kpiTotalDespesas">R$ 0,00</div>
+                    <div class="kpi-label">Total Despesas</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">⏳</div>
+                    <div class="kpi-value" id="kpiPendente">R$ 0,00</div>
+                    <div class="kpi-label">A Pagar</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤝</div>
+                    <div class="kpi-value" id="kpiEmprestimos">R$ 0,00</div>
+                    <div class="kpi-label">Empréstimos Ativos</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-value" id="kpiInvestimentos">R$ 0,00</div>
+                    <div class="kpi-label">Investimentos</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="switchTab('despesas')">💳 Despesas Pessoais</button>
+                    <button class="tab-btn" onclick="switchTab('emprestimos')">🤝 Empréstimos</button>
+                    <button class="tab-btn" onclick="switchTab('investimentos')">📈 Investimentos</button>
+                </div>
+
+                <!-- Tab Despesas -->
+                <div class="tab-content active" id="tabDespesas">
+                    <div class="tab-header-actions">
+                        <h3 class="tab-title">Minhas Despesas Pessoais</h3>
+                        <button class="btn-add" onclick="openModal('despesa')">
+                            <span>+</span> Nova Despesa
+                        </button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Vencimento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="despesasTableBody">
+                            <!-- Dados carregados via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab Empréstimos -->
+                <div class="tab-content" id="tabEmprestimos">
+                    <div class="tab-header-actions">
+                        <h3 class="tab-title">Meus Empréstimos</h3>
+                        <button class="btn-add" onclick="openModal('emprestimo')">
+                            <span>+</span> Novo Empréstimo
+                        </button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th>Tipo</th>
+                                <th>Valor Total</th>
+                                <th>Restante</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emprestimosTableBody">
+                            <!-- Dados carregados via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab Investimentos -->
+                <div class="tab-content" id="tabInvestimentos">
+                    <div class="tab-header-actions">
+                        <h3 class="tab-title">Meus Investimentos</h3>
+                        <button class="btn-add" onclick="openModal('investimento')">
+                            <span>+</span> Novo Investimento
+                        </button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th>Tipo</th>
+                                <th>Valor</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="investimentosTableBody">
+                            <!-- Dados carregados via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Despesa -->
+    <div class="modal-overlay" id="modalDespesa">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalDespesaTitle">Nova Despesa</h3>
+                <button class="modal-close" onclick="closeModal('despesa')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="despesaId">
+                <div class="form-group">
+                    <label>Nome *</label>
+                    <input type="text" class="form-input" id="despesaNome" placeholder="Ex: Cartão Nubank">
+                </div>
+                <div class="form-group">
+                    <label>Valor (R$) *</label>
+                    <input type="number" class="form-input" id="despesaValor" step="0.01" placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select class="form-select" id="despesaCategoria">
+                        <option value="moradia">🏠 Moradia</option>
+                        <option value="transporte">🚗 Transporte</option>
+                        <option value="alimentacao">🍔 Alimentação</option>
+                        <option value="saude">🏥 Saúde</option>
+                        <option value="educacao">📚 Educação</option>
+                        <option value="lazer">🎮 Lazer</option>
+                        <option value="cartao">💳 Cartão de Crédito</option>
+                        <option value="seguros">🛡️ Seguros</option>
+                        <option value="outros">📦 Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Vencimento</label>
+                    <input type="date" class="form-input" id="despesaVencimento">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-select" id="despesaStatus">
+                        <option value="A Pagar">A Pagar</option>
+                        <option value="Pago">Pago</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Observação</label>
+                    <input type="text" class="form-input" id="despesaObservacao" placeholder="Opcional">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('despesa')">Cancelar</button>
+                <button class="btn-save" onclick="saveDespesa()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Empréstimo -->
+    <div class="modal-overlay" id="modalEmprestimo">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalEmprestimoTitle">Novo Empréstimo</h3>
+                <button class="modal-close" onclick="closeModal('emprestimo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="emprestimoId">
+                <div class="form-group">
+                    <label>Descrição *</label>
+                    <input type="text" class="form-input" id="emprestimoDescricao" placeholder="Ex: Empréstimo para compra de equipamento">
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select class="form-select" id="emprestimoTipo">
+                        <option value="emprestimo_para_empresa">Emprestei para a empresa</option>
+                        <option value="adiantamento_do_socio">Adiantamento que recebi</option>
+                        <option value="emprestimo_entre_socios">Entre sócios</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Valor Total (R$) *</label>
+                    <input type="number" class="form-input" id="emprestimoValor" step="0.01" placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label>Previsão de Quitação</label>
+                    <input type="date" class="form-input" id="emprestimoPrevisao">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('emprestimo')">Cancelar</button>
+                <button class="btn-save" onclick="saveEmprestimo()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Investimento -->
+    <div class="modal-overlay" id="modalInvestimento">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalInvestimentoTitle">Novo Investimento</h3>
+                <button class="modal-close" onclick="closeModal('investimento')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="investimentoId">
+                <div class="form-group">
+                    <label>Descrição *</label>
+                    <input type="text" class="form-input" id="investimentoDescricao" placeholder="Ex: Aporte de capital">
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select class="form-select" id="investimentoTipo">
+                        <option value="aporte_capital">Aporte de Capital</option>
+                        <option value="reinvestimento">Reinvestimento de Lucros</option>
+                        <option value="distribuicao">Distribuição de Lucros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Valor (R$) *</label>
+                    <input type="number" class="form-input" id="investimentoValor" step="0.01" placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label>Data da Operação</label>
+                    <input type="date" class="form-input" id="investimentoData">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('investimento')">Cancelar</button>
+                <button class="btn-save" onclick="saveInvestimento()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Estado global
+        let currentSocio = null;
+        let dadosFinanceiros = { despesas: [], emprestimos: [], investimentos: [] };
+
+        // Categorias com ícones
+        const categorias = {
+            moradia: { nome: 'Moradia', icone: '🏠' },
+            transporte: { nome: 'Transporte', icone: '🚗' },
+            alimentacao: { nome: 'Alimentação', icone: '🍔' },
+            saude: { nome: 'Saúde', icone: '🏥' },
+            educacao: { nome: 'Educação', icone: '📚' },
+            lazer: { nome: 'Lazer', icone: '🎮' },
+            cartao: { nome: 'Cartão', icone: '💳' },
+            seguros: { nome: 'Seguros', icone: '🛡️' },
+            outros: { nome: 'Outros', icone: '📦' }
+        };
+
+        const tiposEmprestimo = {
+            emprestimo_para_empresa: 'Emprestei para empresa',
+            adiantamento_do_socio: 'Adiantamento recebido',
+            emprestimo_entre_socios: 'Entre sócios'
+        };
+
+        const tiposInvestimento = {
+            aporte_capital: 'Aporte de Capital',
+            reinvestimento: 'Reinvestimento',
+            distribuicao: 'Distribuição'
+        };
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se já tem sessão do sócio
+            const socioSession = sessionStorage.getItem('socio_session');
+            if (socioSession) {
+                currentSocio = JSON.parse(socioSession);
+                showDashboard();
+                loadDados();
+            } else {
+                loadSocios();
+            }
+
+            // Enter no campo de senha
+            document.getElementById('authPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSocioLogin();
+                }
+            });
+        });
+
+        // Carregar lista de sócios
+        async function loadSocios() {
+            try {
+                const response = await fetch('/.netlify/functions/socio-auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ acao: 'listar-socios' })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    renderSocioGrid(result.socios);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar sócios:', error);
+            }
+        }
+
+        // Renderizar grid de sócios
+        function renderSocioGrid(socios) {
+            const grid = document.getElementById('socioGrid');
+            grid.innerHTML = socios.map(socio => `
+                <div class="socio-card" onclick="selectSocio('${socio.id}', '${socio.nome}', '${socio.username}')" id="socio-${socio.id}">
+                    <div class="socio-avatar">${socio.nome.charAt(0)}</div>
+                    <div class="socio-name">${socio.nome.split(' ')[0]}</div>
+                </div>
+            `).join('');
+        }
+
+        let selectedSocioId = null;
+        let selectedSocioUsername = null;
+
+        // Selecionar sócio
+        function selectSocio(id, nome, username) {
+            // Remover seleção anterior
+            document.querySelectorAll('.socio-card').forEach(card => card.classList.remove('selected'));
+
+            // Selecionar atual
+            document.getElementById(`socio-${id}`).classList.add('selected');
+            selectedSocioId = id;
+            selectedSocioUsername = username;
+
+            // Habilitar botão
+            document.getElementById('authBtn').disabled = false;
+            document.getElementById('authPassword').focus();
+        }
+
+        // Login do sócio
+        async function handleSocioLogin() {
+            if (!selectedSocioUsername) {
+                showAuthError('Selecione um sócio');
+                return;
+            }
+
+            const senha = document.getElementById('authPassword').value;
+            if (!senha) {
+                showAuthError('Digite sua senha');
+                return;
+            }
+
+            try {
+                const response = await fetch('/.netlify/functions/socio-auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        acao: 'login',
+                        username: selectedSocioUsername,
+                        senha: senha
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentSocio = result.socio;
+                    sessionStorage.setItem('socio_session', JSON.stringify(currentSocio));
+                    showDashboard();
+                    loadDados();
+                } else {
+                    showAuthError(result.error || 'Erro ao fazer login');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showAuthError('Erro de conexão');
+            }
+        }
+
+        function showAuthError(message) {
+            const errorEl = document.getElementById('authError');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function showDashboard() {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('dashboardContainer').classList.add('show');
+
+            // Atualizar header com nome do sócio
+            document.getElementById('userName').textContent = currentSocio.nome;
+            document.getElementById('userAvatar').textContent = currentSocio.nome.charAt(0);
+        }
+
+        function logoutSocio() {
+            sessionStorage.removeItem('socio_session');
+            currentSocio = null;
+            location.reload();
+        }
+
+        // Carregar dados financeiros
+        async function loadDados() {
+            if (!currentSocio) return;
+
+            try {
+                const response = await fetch(`/.netlify/functions/financeiro-pessoal?socioId=${currentSocio.id}&tipo=todos`);
+                const result = await response.json();
+
+                if (result.success) {
+                    dadosFinanceiros = result.dados;
+                    updateKPIs(result.resumo);
+                    renderTables();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+
+        // Atualizar KPIs
+        function updateKPIs(resumo) {
+            document.getElementById('kpiTotalDespesas').textContent = formatMoney(resumo.totalDespesas);
+            document.getElementById('kpiPendente').textContent = formatMoney(resumo.totalPendente);
+            document.getElementById('kpiEmprestimos').textContent = formatMoney(resumo.totalEmprestimosAtivos);
+            document.getElementById('kpiInvestimentos').textContent = formatMoney(resumo.totalInvestimentos);
+        }
+
+        // Renderizar tabelas
+        function renderTables() {
+            renderDespesas();
+            renderEmprestimos();
+            renderInvestimentos();
+        }
+
+        function renderDespesas() {
+            const tbody = document.getElementById('despesasTableBody');
+            const despesas = dadosFinanceiros.despesas || [];
+
+            if (despesas.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">💳</div>
+                                <div class="empty-state-text">Nenhuma despesa cadastrada</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = despesas.map(d => {
+                const cat = categorias[d.categoria] || categorias.outros;
+                return `
+                    <tr>
+                        <td><strong>${d.nome}</strong></td>
+                        <td><span class="categoria-badge">${cat.icone} ${cat.nome}</span></td>
+                        <td><strong>${formatMoney(d.valor)}</strong></td>
+                        <td>${d.vencimento ? formatDate(d.vencimento) : '-'}</td>
+                        <td><span class="status-badge ${d.status === 'Pago' ? 'pago' : 'pendente'}">${d.status}</span></td>
+                        <td>
+                            <button class="btn-action edit" onclick="editDespesa('${d.id}')">Editar</button>
+                            <button class="btn-action delete" onclick="deleteDespesa('${d.id}')">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderEmprestimos() {
+            const tbody = document.getElementById('emprestimosTableBody');
+            const emprestimos = dadosFinanceiros.emprestimos || [];
+
+            if (emprestimos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🤝</div>
+                                <div class="empty-state-text">Nenhum empréstimo cadastrado</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = emprestimos.map(e => `
+                <tr>
+                    <td><strong>${e.descricao}</strong></td>
+                    <td>${tiposEmprestimo[e.tipo] || e.tipo}</td>
+                    <td>${formatMoney(e.valor)}</td>
+                    <td><strong>${formatMoney(e.valorRestante)}</strong></td>
+                    <td><span class="status-badge ${e.status === 'Ativo' ? 'ativo' : 'quitado'}">${e.status}</span></td>
+                    <td>
+                        <button class="btn-action edit" onclick="editEmprestimo('${e.id}')">Editar</button>
+                        <button class="btn-action delete" onclick="deleteEmprestimo('${e.id}')">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderInvestimentos() {
+            const tbody = document.getElementById('investimentosTableBody');
+            const investimentos = dadosFinanceiros.investimentos || [];
+
+            if (investimentos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📈</div>
+                                <div class="empty-state-text">Nenhum investimento cadastrado</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = investimentos.map(i => `
+                <tr>
+                    <td><strong>${i.descricao}</strong></td>
+                    <td>${tiposInvestimento[i.tipo] || i.tipo}</td>
+                    <td><strong>${formatMoney(i.valor)}</strong></td>
+                    <td>${formatDate(i.dataOperacao)}</td>
+                    <td>
+                        <button class="btn-action edit" onclick="editInvestimento('${i.id}')">Editar</button>
+                        <button class="btn-action delete" onclick="deleteInvestimento('${i.id}')">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+        }
+
+        // Modais
+        function openModal(tipo) {
+            document.getElementById(`modal${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).classList.add('show');
+        }
+
+        function closeModal(tipo) {
+            const modal = document.getElementById(`modal${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+            modal.classList.remove('show');
+            // Limpar form
+            modal.querySelectorAll('input:not([type="hidden"])').forEach(input => input.value = '');
+            modal.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+        }
+
+        // CRUD Despesas
+        async function saveDespesa() {
+            const id = document.getElementById('despesaId').value;
+            const dados = {
+                nome: document.getElementById('despesaNome').value,
+                valor: document.getElementById('despesaValor').value,
+                categoria: document.getElementById('despesaCategoria').value,
+                vencimento: document.getElementById('despesaVencimento').value || null,
+                status: document.getElementById('despesaStatus').value,
+                observacao: document.getElementById('despesaObservacao').value
+            };
+
+            if (!dados.nome || !dados.valor) {
+                showToast('Preencha nome e valor', 'error');
+                return;
+            }
+
+            try {
+                const url = '/.netlify/functions/financeiro-pessoal';
+                const method = id ? 'PUT' : 'POST';
+                const body = id
+                    ? { tipo: 'despesa', id, socioId: currentSocio.id, dados }
+                    : { acao: 'criar-despesa', socioId: currentSocio.id, dados };
+
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    closeModal('despesa');
+                    loadDados();
+                    showToast(id ? 'Despesa atualizada!' : 'Despesa criada!', 'success');
+                } else {
+                    showToast(result.error, 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao salvar', 'error');
+            }
+        }
+
+        function editDespesa(id) {
+            const despesa = dadosFinanceiros.despesas.find(d => d.id === id);
+            if (!despesa) return;
+
+            document.getElementById('despesaId').value = despesa.id;
+            document.getElementById('despesaNome').value = despesa.nome;
+            document.getElementById('despesaValor').value = despesa.valor;
+            document.getElementById('despesaCategoria').value = despesa.categoria;
+            document.getElementById('despesaVencimento').value = despesa.vencimento ? despesa.vencimento.split('T')[0] : '';
+            document.getElementById('despesaStatus').value = despesa.status;
+            document.getElementById('despesaObservacao').value = despesa.observacao || '';
+            document.getElementById('modalDespesaTitle').textContent = 'Editar Despesa';
+
+            openModal('despesa');
+        }
+
+        async function deleteDespesa(id) {
+            if (!confirm('Excluir esta despesa?')) return;
+
+            try {
+                const response = await fetch('/.netlify/functions/financeiro-pessoal', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tipo: 'despesa', id, socioId: currentSocio.id })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    loadDados();
+                    showToast('Despesa excluída!', 'success');
+                }
+            } catch (error) {
+                showToast('Erro ao excluir', 'error');
+            }
+        }
+
+        // CRUD Empréstimos
+        async function saveEmprestimo() {
+            const id = document.getElementById('emprestimoId').value;
+            const dados = {
+                descricao: document.getElementById('emprestimoDescricao').value,
+                tipo: document.getElementById('emprestimoTipo').value,
+                valor: document.getElementById('emprestimoValor').value,
+                dataPrevisao: document.getElementById('emprestimoPrevisao').value || null
+            };
+
+            if (!dados.descricao || !dados.valor) {
+                showToast('Preencha descrição e valor', 'error');
+                return;
+            }
+
+            try {
+                const url = '/.netlify/functions/financeiro-pessoal';
+                const method = id ? 'PUT' : 'POST';
+                const body = id
+                    ? { tipo: 'emprestimo', id, socioId: currentSocio.id, dados }
+                    : { acao: 'criar-emprestimo', socioId: currentSocio.id, dados };
+
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    closeModal('emprestimo');
+                    loadDados();
+                    showToast(id ? 'Empréstimo atualizado!' : 'Empréstimo criado!', 'success');
+                } else {
+                    showToast(result.error, 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao salvar', 'error');
+            }
+        }
+
+        function editEmprestimo(id) {
+            const emp = dadosFinanceiros.emprestimos.find(e => e.id === id);
+            if (!emp) return;
+
+            document.getElementById('emprestimoId').value = emp.id;
+            document.getElementById('emprestimoDescricao').value = emp.descricao;
+            document.getElementById('emprestimoTipo').value = emp.tipo;
+            document.getElementById('emprestimoValor').value = emp.valor;
+            document.getElementById('emprestimoPrevisao').value = emp.dataPrevisao ? emp.dataPrevisao.split('T')[0] : '';
+            document.getElementById('modalEmprestimoTitle').textContent = 'Editar Empréstimo';
+
+            openModal('emprestimo');
+        }
+
+        async function deleteEmprestimo(id) {
+            if (!confirm('Excluir este empréstimo?')) return;
+
+            try {
+                const response = await fetch('/.netlify/functions/financeiro-pessoal', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tipo: 'emprestimo', id, socioId: currentSocio.id })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    loadDados();
+                    showToast('Empréstimo excluído!', 'success');
+                }
+            } catch (error) {
+                showToast('Erro ao excluir', 'error');
+            }
+        }
+
+        // CRUD Investimentos
+        async function saveInvestimento() {
+            const id = document.getElementById('investimentoId').value;
+            const dados = {
+                descricao: document.getElementById('investimentoDescricao').value,
+                tipo: document.getElementById('investimentoTipo').value,
+                valor: document.getElementById('investimentoValor').value,
+                dataOperacao: document.getElementById('investimentoData').value || new Date().toISOString()
+            };
+
+            if (!dados.descricao || !dados.valor) {
+                showToast('Preencha descrição e valor', 'error');
+                return;
+            }
+
+            try {
+                const url = '/.netlify/functions/financeiro-pessoal';
+                const method = id ? 'PUT' : 'POST';
+                const body = id
+                    ? { tipo: 'investimento', id, socioId: currentSocio.id, dados }
+                    : { acao: 'criar-investimento', socioId: currentSocio.id, dados };
+
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    closeModal('investimento');
+                    loadDados();
+                    showToast(id ? 'Investimento atualizado!' : 'Investimento criado!', 'success');
+                } else {
+                    showToast(result.error, 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao salvar', 'error');
+            }
+        }
+
+        function editInvestimento(id) {
+            const inv = dadosFinanceiros.investimentos.find(i => i.id === id);
+            if (!inv) return;
+
+            document.getElementById('investimentoId').value = inv.id;
+            document.getElementById('investimentoDescricao').value = inv.descricao;
+            document.getElementById('investimentoTipo').value = inv.tipo;
+            document.getElementById('investimentoValor').value = inv.valor;
+            document.getElementById('investimentoData').value = inv.dataOperacao ? inv.dataOperacao.split('T')[0] : '';
+            document.getElementById('modalInvestimentoTitle').textContent = 'Editar Investimento';
+
+            openModal('investimento');
+        }
+
+        async function deleteInvestimento(id) {
+            if (!confirm('Excluir este investimento?')) return;
+
+            try {
+                const response = await fetch('/.netlify/functions/financeiro-pessoal', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tipo: 'investimento', id, socioId: currentSocio.id })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    loadDados();
+                    showToast('Investimento excluído!', 'success');
+                }
+            } catch (error) {
+                showToast('Erro ao excluir', 'error');
+            }
+        }
+
+        // Helpers
+        function formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value || 0);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

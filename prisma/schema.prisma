@@ -70,3 +70,112 @@ model EditedItem {
   @@unique([mes, tipo, itemNome])
   @@map("edited_items")
 }
+
+// Mensagens de conversa do STARK
+model ConversationMessage {
+  id        String   @id @default(cuid())
+  role      String   // "user" ou "assistant"
+  content   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@map("conversation_messages")
+}
+
+// Memória persistente do STARK
+model StarkMemory {
+  id         String   @id @default(cuid())
+  tipo       String   // fato, preferencia, lembrete, contexto
+  conteudo   String
+  relevancia Int      @default(5) // 1-10
+  mes        String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("stark_memories")
+}
+
+// =====================================================
+// ÁREA FINANCEIRA PESSOAL DOS SÓCIOS
+// =====================================================
+
+// Sócios com autenticação separada
+model Socio {
+  id            String   @id @default(cuid())
+  username      String   @unique  // juan, dante, gabriel, victor
+  nome          String
+  senhaHash     String   // bcrypt hash da senha pessoal
+  email         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relações
+  despesasPessoais  DespesaPessoal[]
+  emprestimos       Emprestimo[]
+  investimentos     Investimento[]
+
+  @@map("socios")
+}
+
+// Despesas pessoais do sócio
+model DespesaPessoal {
+  id            String    @id @default(cuid())
+  socioId       String
+  socio         Socio     @relation(fields: [socioId], references: [id])
+
+  mes           String    // 2025-12
+  nome          String    // "Cartão Nubank", "Aluguel Apartamento"
+  valor         Float
+  categoria     String    // moradia, transporte, alimentacao, lazer, saude, outros
+  status        String    @default("A Pagar") // A Pagar, Pago
+  vencimento    DateTime?
+  dataPagamento DateTime?
+  observacao    String?
+  recorrente    Boolean   @default(false)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("despesas_pessoais")
+}
+
+// Empréstimos entre sócios e empresa
+model Emprestimo {
+  id             String    @id @default(cuid())
+  socioId        String
+  socio          Socio     @relation(fields: [socioId], references: [id])
+
+  tipo           String    // "emprestimo_para_empresa", "adiantamento_do_socio", "emprestimo_entre_socios"
+  valor          Float
+  valorRestante  Float     // Quanto ainda falta pagar/receber
+  descricao      String
+  dataInicio     DateTime
+  dataPrevisao   DateTime? // Previsão de quitação
+  status         String    @default("Ativo") // Ativo, Quitado
+
+  // Se for entre sócios
+  socioDestinoId String?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("emprestimos")
+}
+
+// Investimentos/Aportes dos sócios
+model Investimento {
+  id            String   @id @default(cuid())
+  socioId       String
+  socio         Socio    @relation(fields: [socioId], references: [id])
+
+  tipo          String   // "aporte_capital", "reinvestimento", "distribuicao"
+  valor         Float
+  descricao     String
+  dataOperacao  DateTime
+  mes           String   // Para filtrar por período
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("investimentos")
+}
