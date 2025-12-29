@@ -384,6 +384,130 @@
             border-color: var(--primary-green);
         }
 
+        /* Campo de Pesquisa */
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 8px 12px 8px 35px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 13px;
+            width: 200px;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(74, 107, 84, 0.1);
+            width: 250px;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 16px;
+            display: none;
+            padding: 2px 6px;
+        }
+
+        .clear-search:hover {
+            color: var(--danger-color);
+        }
+
+        .search-input:not(:placeholder-shown) + .clear-search {
+            display: block;
+        }
+
+        /* Dropdown Rápido de Categoria */
+        .category-badge {
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .category-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .category-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 180px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            animation: dropdownSlide 0.2s ease;
+        }
+
+        @keyframes dropdownSlide {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-dropdown.active {
+            display: block;
+        }
+
+        .category-dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .category-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .category-dropdown-item.selected {
+            background: rgba(74, 107, 84, 0.1);
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        .category-dropdown-item .cat-icon {
+            font-size: 16px;
+        }
+
+        .category-cell {
+            position: relative;
+        }
+
         /* Filtros Visuais Modernos */
         .filters-bar {
             display: flex;
@@ -2070,6 +2194,11 @@
                             📊 Kanban
                         </button>
                     </div>
+                    <div class="search-input-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nome..." oninput="filtrarPorPesquisa()">
+                        <button class="clear-search" onclick="limparPesquisa()">×</button>
+                    </div>
                     <div class="table-actions">
                         <button class="filter-btn active" data-filter="todos" onclick="filtrarDespesas('todos')">Todos</button>
                         <button class="filter-btn" data-filter="pendente" onclick="filtrarDespesas('pendente')">Pendentes</button>
@@ -2597,6 +2726,15 @@
                 itensFiltrados = itens.filter(i => selectedItems.has(i.nome));
             }
 
+            // Aplicar filtro de pesquisa por nome
+            if (searchTerm) {
+                itensFiltrados = itensFiltrados.filter(i =>
+                    i.nome.toLowerCase().includes(searchTerm) ||
+                    (i.categoria && i.categoria.toLowerCase().includes(searchTerm)) ||
+                    (i.tipo && i.tipo.toLowerCase().includes(searchTerm))
+                );
+            }
+
             // Aplicar ordem customizada se existir, senão ordenar por padrão
             const customOrder = getCustomOrder();
             if (customOrder && customOrder.length > 0) {
@@ -2686,8 +2824,8 @@
                             </div>
                         </div>
                     </td>
-                    <td>
-                        <span class="category-badge ${getCategoryClass(item.categoria)}">
+                    <td class="category-cell">
+                        <span class="category-badge ${getCategoryClass(item.categoria)} js-category-badge" data-nome="${item.nome}" data-categoria="${item.categoria}" data-custom="${item.isCustom || false}" title="Clique para alterar categoria">
                             ${getCategoryName(item.categoria)}
                         </span>
                     </td>
@@ -2732,6 +2870,13 @@
                 const deleteBtn = tr.querySelector('.js-delete-btn');
                 deleteBtn.addEventListener('click', () => {
                     openDeleteModal(item.nome, item.valor, item.isCustom || false);
+                });
+
+                // Category quick change
+                const categoryBadge = tr.querySelector('.js-category-badge');
+                categoryBadge.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openCategoryDropdown(categoryBadge, item.nome, item.categoria, item.isCustom || false);
                 });
 
                 // Drag and drop event listeners
@@ -2843,6 +2988,177 @@
         }
 
         // Filtrar despesas (por status: todos, pendente, pago)
+        // ========================================
+        // PESQUISA E FILTRO POR NOME
+        // ========================================
+        let searchTerm = '';
+
+        function filtrarPorPesquisa() {
+            const input = document.getElementById('searchInput');
+            searchTerm = input.value.toLowerCase().trim();
+
+            // Mostrar/esconder botão de limpar
+            const clearBtn = input.parentElement.querySelector('.clear-search');
+            clearBtn.style.display = searchTerm ? 'block' : 'none';
+
+            // Recarregar tabela com filtro de pesquisa
+            loadMonthData(currentMonth);
+        }
+
+        function limparPesquisa() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            searchTerm = '';
+
+            const clearBtn = input.parentElement.querySelector('.clear-search');
+            clearBtn.style.display = 'none';
+
+            loadMonthData(currentMonth);
+            input.focus();
+        }
+
+        // ========================================
+        // DROPDOWN RÁPIDO DE CATEGORIA
+        // ========================================
+        const CATEGORIAS_DISPONIVEIS = [
+            { id: 'pessoal', nome: 'Pessoal', icon: '👤' },
+            { id: 'comercial', nome: 'Comercial', icon: '💼' },
+            { id: 'estrutura', nome: 'Estrutura', icon: '🏢' },
+            { id: 'locacao_aluguel', nome: 'Aluguel', icon: '🏠' },
+            { id: 'ferramentas', nome: 'Ferramentas', icon: '🔧' },
+            { id: 'equipamentos', nome: 'Equipamentos', icon: '💻' },
+            { id: 'combustivel', nome: 'Combustível', icon: '⛽' },
+            { id: 'alimentacao', nome: 'Alimentação', icon: '🍽️' },
+            { id: 'servicos', nome: 'Serviços', icon: '🛠️' },
+            { id: 'operacionais', nome: 'Operacional', icon: '⚙️' },
+            { id: 'alpha_franquia', nome: 'Alpha', icon: '🅰️' },
+            { id: 'adiantamentos', nome: 'Adiantamentos', icon: '💵' },
+            { id: 'impostos', nome: 'Impostos', icon: '📋' },
+            { id: 'taxas', nome: 'Taxas Bancárias', icon: '🏦' },
+            { id: 'marketing', nome: 'Marketing', icon: '📢' },
+            { id: 'software', nome: 'Software', icon: '💾' },
+            { id: 'transporte', nome: 'Transporte', icon: '🚗' },
+            { id: 'saude', nome: 'Saúde', icon: '🏥' },
+            { id: 'outros', nome: 'Outros', icon: '📦' }
+        ];
+
+        let activeDropdown = null;
+
+        function openCategoryDropdown(badge, itemNome, currentCategoria, isCustom) {
+            // Fechar dropdown anterior
+            closeCategoryDropdown();
+
+            // Criar dropdown
+            const dropdown = document.createElement('div');
+            dropdown.className = 'category-dropdown active';
+            dropdown.id = 'activeCategoryDropdown';
+
+            CATEGORIAS_DISPONIVEIS.forEach(cat => {
+                const item = document.createElement('div');
+                item.className = 'category-dropdown-item' + (cat.id === currentCategoria ? ' selected' : '');
+                item.innerHTML = `<span class="cat-icon">${cat.icon}</span> ${cat.nome}`;
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    changeCategoryFast(itemNome, cat.id, isCustom);
+                };
+                dropdown.appendChild(item);
+            });
+
+            // Posicionar dropdown
+            const cell = badge.closest('.category-cell');
+            cell.appendChild(dropdown);
+            activeDropdown = dropdown;
+
+            // Fechar ao clicar fora
+            setTimeout(() => {
+                document.addEventListener('click', closeCategoryDropdown);
+            }, 10);
+        }
+
+        function closeCategoryDropdown() {
+            if (activeDropdown) {
+                activeDropdown.remove();
+                activeDropdown = null;
+            }
+            document.removeEventListener('click', closeCategoryDropdown);
+        }
+
+        async function changeCategoryFast(itemNome, novaCategoria, isCustom) {
+            closeCategoryDropdown();
+
+            // Atualizar no GestaoFinanceira
+            const dados = GestaoFinanceira.getDadosMes(currentMonth);
+            if (!dados) return;
+
+            let updated = false;
+
+            // Buscar em todas as categorias de despesas
+            for (const catKey of Object.keys(dados.despesas.categorias)) {
+                const items = dados.despesas.categorias[catKey];
+                const itemIndex = items.findIndex(i => i.nome === itemNome);
+
+                if (itemIndex >= 0) {
+                    const item = items[itemIndex];
+
+                    // Se a categoria mudou
+                    if (catKey !== novaCategoria) {
+                        // Remover da categoria atual
+                        items.splice(itemIndex, 1);
+
+                        // Adicionar na nova categoria
+                        if (!dados.despesas.categorias[novaCategoria]) {
+                            dados.despesas.categorias[novaCategoria] = [];
+                        }
+                        item.categoria = novaCategoria;
+                        dados.despesas.categorias[novaCategoria].push(item);
+                        updated = true;
+                    }
+                    break;
+                }
+            }
+
+            // Se é custom item, atualizar também
+            if (isCustom) {
+                GestaoFinanceira.updateDespesa(currentMonth, itemNome, { categoria: novaCategoria });
+            }
+
+            if (updated) {
+                await GestaoFinanceira.syncToServer();
+                loadMonthData(currentMonth);
+
+                // Feedback visual
+                showToast(`Categoria alterada para "${getCategoryName(novaCategoria)}"`);
+            }
+        }
+
+        // Toast notification simples
+        function showToast(message) {
+            const existing = document.querySelector('.toast-notification');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #333;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 9999;
+                animation: toastIn 0.3s ease;
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
         function filtrarDespesas(filtro) {
             currentFilter = filtro;
 
