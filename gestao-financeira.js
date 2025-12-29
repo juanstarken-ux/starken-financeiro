@@ -19,12 +19,15 @@ const GestaoFinanceira = {
     syncInProgress: false,
 
     // Inicializar sistema
-    async init() {
+    init() {
         this.loadFromStorage();
         console.log('💰 Sistema de Gestão Financeira inicializado');
 
-        // Tentar carregar dados do servidor
-        await this.loadFromServer();
+        // Carregar dados do servidor em background (não bloqueia)
+        this.loadFromServer().then(() => {
+            // Disparar evento para atualizar UI após sync
+            window.dispatchEvent(new CustomEvent('gestao-sync-complete'));
+        });
     },
 
     // Carregar dados do servidor
@@ -177,8 +180,28 @@ const GestaoFinanceira = {
         this.customItems[mes].despesas.push(novaDespesa);
         this.saveToStorage();
 
+        // Sincronizar com servidor
+        this.syncAddDespesaToServer(mes, novaDespesa);
+
         this.dispatchEvent('despesaAdded', { mes, despesa: novaDespesa });
         return novaDespesa;
+    },
+
+    async syncAddDespesaToServer(mes, despesa) {
+        if (!this.syncEnabled) return;
+        try {
+            await fetch(this.API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acao: 'adicionar-despesa',
+                    dados: { mes, ...despesa }
+                })
+            });
+            console.log('✅ Despesa sincronizada com servidor');
+        } catch (error) {
+            console.error('❌ Erro ao sincronizar despesa:', error);
+        }
     },
 
     // Editar despesa existente
@@ -196,8 +219,36 @@ const GestaoFinanceira = {
         };
 
         this.saveToStorage();
+
+        // Sincronizar com servidor
+        this.syncEditDespesaToServer(mes, nomeOriginal, novosDados);
+
         this.dispatchEvent('despesaEdited', { mes, nomeOriginal, novosDados });
         return true;
+    },
+
+    async syncEditDespesaToServer(mes, nomeOriginal, novosDados) {
+        if (!this.syncEnabled) return;
+        try {
+            await fetch(this.API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acao: 'editar-item',
+                    dados: {
+                        mes,
+                        tipo: 'despesa',
+                        nomeAtual: nomeOriginal,
+                        novoNome: novosDados.nome,
+                        novoValor: parseFloat(novosDados.valor),
+                        novaCategoria: novosDados.categoria
+                    }
+                })
+            });
+            console.log('✅ Edição sincronizada com servidor');
+        } catch (error) {
+            console.error('❌ Erro ao sincronizar edição:', error);
+        }
     },
 
     // Excluir despesa
@@ -252,8 +303,29 @@ const GestaoFinanceira = {
         }
 
         this.saveToStorage();
+
+        // Sincronizar com servidor
+        this.syncDeleteDespesaToServer(mes, nome);
+
         this.dispatchEvent('despesaDeleted', { mes, nome });
         return true;
+    },
+
+    async syncDeleteDespesaToServer(mes, nome) {
+        if (!this.syncEnabled) return;
+        try {
+            await fetch(this.API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acao: 'remover-item',
+                    dados: { mes, tipo: 'despesa', nome }
+                })
+            });
+            console.log('✅ Exclusão sincronizada com servidor');
+        } catch (error) {
+            console.error('❌ Erro ao sincronizar exclusão:', error);
+        }
     },
 
     // Restaurar despesa excluída
@@ -288,8 +360,28 @@ const GestaoFinanceira = {
         this.customItems[mes].receitas.push(novaReceita);
         this.saveToStorage();
 
+        // Sincronizar com servidor
+        this.syncAddReceitaToServer(mes, novaReceita);
+
         this.dispatchEvent('receitaAdded', { mes, receita: novaReceita });
         return novaReceita;
+    },
+
+    async syncAddReceitaToServer(mes, receita) {
+        if (!this.syncEnabled) return;
+        try {
+            await fetch(this.API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acao: 'adicionar-receita',
+                    dados: { mes, ...receita, categoria: receita.empresa }
+                })
+            });
+            console.log('✅ Receita sincronizada com servidor');
+        } catch (error) {
+            console.error('❌ Erro ao sincronizar receita:', error);
+        }
     },
 
     // Editar receita existente
@@ -305,8 +397,36 @@ const GestaoFinanceira = {
         };
 
         this.saveToStorage();
+
+        // Sincronizar com servidor
+        this.syncEditReceitaToServer(mes, nomeOriginal, novosDados);
+
         this.dispatchEvent('receitaEdited', { mes, nomeOriginal, novosDados });
         return true;
+    },
+
+    async syncEditReceitaToServer(mes, nomeOriginal, novosDados) {
+        if (!this.syncEnabled) return;
+        try {
+            await fetch(this.API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acao: 'editar-item',
+                    dados: {
+                        mes,
+                        tipo: 'receita',
+                        nomeAtual: nomeOriginal,
+                        novoNome: novosDados.nome,
+                        novoValor: parseFloat(novosDados.valor),
+                        novaCategoria: novosDados.empresa
+                    }
+                })
+            });
+            console.log('✅ Edição de receita sincronizada com servidor');
+        } catch (error) {
+            console.error('❌ Erro ao sincronizar edição de receita:', error);
+        }
     },
 
     // Excluir receita
@@ -325,8 +445,29 @@ const GestaoFinanceira = {
         }
 
         this.saveToStorage();
+
+        // Sincronizar com servidor
+        this.syncDeleteReceitaToServer(mes, nome);
+
         this.dispatchEvent('receitaDeleted', { mes, nome });
         return true;
+    },
+
+    async syncDeleteReceitaToServer(mes, nome) {
+        if (!this.syncEnabled) return;
+        try {
+            await fetch(this.API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acao: 'remover-item',
+                    dados: { mes, tipo: 'receita', nome }
+                })
+            });
+            console.log('✅ Exclusão de receita sincronizada com servidor');
+        } catch (error) {
+            console.error('❌ Erro ao sincronizar exclusão de receita:', error);
+        }
     },
 
     // ========== STATUS ==========

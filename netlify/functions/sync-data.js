@@ -12,6 +12,33 @@ const headers = {
 
 // Dados financeiros base (mesmo do agent.js)
 const dadosBase = {
+  "2026-01": {
+    receitas: [],
+    despesas: [
+      { nome: "Ederson", valor: 3200, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
+      { nome: "Victor", valor: 3000, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
+      { nome: "Igor", valor: 2300, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
+      { nome: "Kim", valor: 1300, categoria: "pessoal", funcao: "Design", status: "A Pagar" },
+      { nome: "Erick", valor: 1300, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
+      { nome: "Dante - Closer", valor: 3500, categoria: "comercial", status: "A Pagar" },
+      { nome: "Nathan - SDR", valor: 2000, categoria: "comercial", status: "A Pagar" },
+      { nome: "João - SDR", valor: 2000, categoria: "comercial", status: "A Pagar" },
+      { nome: "Aluguel - Sala", valor: 2800, categoria: "estrutura", status: "A Pagar" },
+      { nome: "Celesc - Energia", valor: 100, categoria: "estrutura", status: "A Pagar" },
+      { nome: "Internet - Claro", valor: 109, categoria: "estrutura", status: "A Pagar" },
+      { nome: "Pagamento - Alpha", valor: 7500, categoria: "alpha", status: "A Pagar" },
+      { nome: "Claude Code", valor: 500, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "ClickUp", valor: 350, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "VPS Hostinger", valor: 200, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "Lovable", valor: 130, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "Adobe", valor: 110, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "Criativivo", valor: 100, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "CapCut", valor: 65.90, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "Canva Pro", valor: 35, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "Railway Backend", valor: 35, categoria: "ferramentas", status: "A Pagar" },
+      { nome: "Netlify", valor: 35, categoria: "ferramentas", status: "A Pagar" }
+    ]
+  },
   "2025-12": {
     receitas: [
       { nome: "Bengers - App Festival", valor: 10000, categoria: "starken", tipo: "Projeto", status: "A Receber" },
@@ -121,8 +148,13 @@ exports.handler = async (event, context) => {
 
       const organizedDeleted = {};
       deletedItems.forEach(item => {
-        const key = `${item.mes}_${item.tipo}_${item.itemNome}`;
-        organizedDeleted[key] = true;
+        if (!organizedDeleted[item.mes]) {
+          organizedDeleted[item.mes] = { despesas: [], receitas: [] };
+        }
+        const tipo = item.tipo === 'despesa' ? 'despesas' : 'receitas';
+        if (!organizedDeleted[item.mes][tipo].includes(item.itemNome)) {
+          organizedDeleted[item.mes][tipo].push(item.itemNome);
+        }
       });
 
       const organizedEdited = {};
@@ -131,10 +163,11 @@ exports.handler = async (event, context) => {
           organizedEdited[item.mes] = { despesas: {}, receitas: {} };
         }
         const tipo = item.tipo === 'despesa' ? 'despesas' : 'receitas';
+        // Formato compatível com o frontend
         organizedEdited[item.mes][tipo][item.itemNome] = {
-          novoNome: item.novoNome,
-          novoValor: item.novoValor,
-          novaCategoria: item.novaCategoria
+          nome: item.novoNome || item.itemNome,
+          valor: item.novoValor,
+          categoria: item.novaCategoria
         };
       });
 

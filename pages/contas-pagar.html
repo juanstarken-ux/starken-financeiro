@@ -4404,7 +4404,7 @@
 
         // Inicializar
         window.addEventListener('DOMContentLoaded', function() {
-            GestaoFinanceira.init();
+            GestaoFinanceira.init(); // Não bloqueia mais
             const defaultMonth = document.getElementById('monthSelect').value;
             loadMonthData(defaultMonth);
 
@@ -4413,6 +4413,12 @@
             if (savedView) {
                 setView(savedView);
             }
+        });
+
+        // Atualizar dados quando sync completar (background)
+        window.addEventListener('gestao-sync-complete', function() {
+            console.log('🔄 Sync completo, atualizando dados...');
+            loadMonthData(currentMonth);
         });
 
         // ========================================

@@ -3595,6 +3595,12 @@
             }
         });
 
+        // Atualizar dados quando sync completar (background)
+        window.addEventListener('gestao-sync-complete', function() {
+            console.log('🔄 Sync completo, atualizando dados...');
+            loadMonthData(currentMonth);
+        });
+
         // Fechar modal ao clicar fora
         document.getElementById('modalOverlay').addEventListener('click', function(e) {
             if (e.target === this) {
