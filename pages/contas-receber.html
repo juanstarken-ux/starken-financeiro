@@ -4461,7 +4461,11 @@
             try {
                 // Atualizar via GestaoFinanceira
                 if (novoNome !== nomeOriginal || valor) {
-                    await GestaoFinanceira.editItem(currentMonth, 'receita', nomeOriginal, novoNome, valor, empresa);
+                    GestaoFinanceira.editReceita(currentMonth, nomeOriginal, {
+                        nome: novoNome,
+                        valor: valor,
+                        empresa: empresa
+                    });
                 }
 
                 // Atualizar status
