@@ -3401,22 +3401,31 @@
             for (const itemNome of selectedItems) {
                 // Buscar em todas as categorias
                 for (const catKey of Object.keys(dados.despesas.categorias)) {
-                    const items = dados.despesas.categorias[catKey];
-                    const itemIndex = items.findIndex(i => i.nome === itemNome);
+                    const catData = dados.despesas.categorias[catKey];
+                    const items = catData.itens || catData;
 
-                    if (itemIndex >= 0) {
-                        const item = items[itemIndex];
+                    if (!Array.isArray(items)) continue;
 
-                        if (catKey !== novaCategoria) {
-                            // Remover da categoria atual
-                            items.splice(itemIndex, 1);
+                    const item = items.find(i => i.nome === itemNome);
 
-                            // Adicionar na nova categoria
-                            if (!dados.despesas.categorias[novaCategoria]) {
-                                dados.despesas.categorias[novaCategoria] = [];
+                    if (item && catKey !== novaCategoria) {
+                        // Item customizado - atualizar diretamente
+                        if (item.isCustom) {
+                            const customData = GestaoFinanceira.customItems[currentMonth];
+                            if (customData && customData.despesas) {
+                                const customItem = customData.despesas.find(d => d.nome === itemNome);
+                                if (customItem) {
+                                    customItem.categoria = novaCategoria;
+                                    updated++;
+                                }
                             }
-                            item.categoria = novaCategoria;
-                            dados.despesas.categorias[novaCategoria].push(item);
+                        } else {
+                            // Item base - usar editDespesa para salvar a mudança
+                            GestaoFinanceira.editDespesa(currentMonth, itemNome, {
+                                nome: item.nome,
+                                valor: item.valor,
+                                categoria: novaCategoria
+                            });
                             updated++;
                         }
                         break;
@@ -3425,9 +3434,13 @@
             }
 
             if (updated > 0) {
+                GestaoFinanceira.saveToStorage();
                 await GestaoFinanceira.syncToServer();
+                clearSelection();
                 loadMonthData(currentMonth);
                 showToast(`${updated} itens alterados para "${getCategoryName(novaCategoria)}"`);
+            } else {
+                showToast('Nenhum item foi alterado', 'warning');
             }
         }
 
