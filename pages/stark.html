@@ -1297,18 +1297,30 @@
                         }
                     }
                 } else {
-                    addMessage('Erro: ' + (data.error || 'Tente novamente.'), 'assistant');
+                    // Tratar mensagens de erro específicas do servidor
+                    const errorMsg = data.error || 'Tente novamente.';
+                    if (data.details === 'rate_limit') {
+                        addMessage('⏳ API temporariamente sobrecarregada. Aguarde 10 segundos e tente novamente.', 'assistant');
+                    } else if (data.details === 'context_length') {
+                        addMessage('📊 Muitos dados para processar de uma vez!\n\n**Sugestão:** Peça para processar um mês de cada vez, ex: "Lance as despesas de novembro"', 'assistant');
+                    } else {
+                        addMessage('Erro: ' + errorMsg, 'assistant');
+                    }
                 }
             } catch (error) {
                 hideTyping();
                 if (error.name === 'AbortError') {
-                    addMessage('O STARK ainda está processando... Aguarde mais um momento ou reenvie a mensagem.', 'assistant');
+                    addMessage('⏳ O STARK ainda está processando... Aguarde mais um momento ou reenvie a mensagem.', 'assistant');
                 } else if (error.message.includes('504') || error.message.includes('Gateway')) {
-                    addMessage('O servidor demorou pra responder (timeout). Isso acontece em perguntas complexas. Tenta de novo ou faz uma pergunta mais direta!', 'assistant');
+                    addMessage('⏱️ O servidor demorou pra responder. Isso acontece em perguntas complexas.\n\n**Sugestão:** Tenta de novo ou faz uma pergunta mais direta!', 'assistant');
                 } else if (error.message.includes('502') || error.message.includes('503')) {
-                    addMessage('O servidor tá sobrecarregado. Aguarda uns segundos e tenta de novo.', 'assistant');
+                    addMessage('🔄 Servidor temporariamente sobrecarregado. Aguarda uns segundos e tenta de novo.', 'assistant');
+                } else if (error.message.includes('500')) {
+                    addMessage('❌ Erro interno do servidor. Tente novamente em alguns segundos.', 'assistant');
+                } else if (error.message.includes('Failed to fetch')) {
+                    addMessage('🌐 Erro de conexão. Verifica sua internet e tenta novamente.', 'assistant');
                 } else {
-                    addMessage('Erro de conexão: ' + error.message + '. Verifica a internet e tenta novamente.', 'assistant');
+                    addMessage('❌ Erro: ' + error.message + '\n\nVerifica a internet e tenta novamente.', 'assistant');
                 }
                 console.error('STARK error:', error);
             } finally {
