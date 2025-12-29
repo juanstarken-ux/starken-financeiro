@@ -3120,19 +3120,37 @@
             // Fechar dropdown anterior
             closeCategoryDropdown();
 
+            console.log('Abrindo dropdown para:', itemNome, 'categoria atual:', currentCategoria);
+
             // Criar dropdown
             const dropdown = document.createElement('div');
             dropdown.className = 'category-dropdown active';
             dropdown.id = 'activeCategoryDropdown';
 
+            // Prevenir que cliques no dropdown fechem ele
+            dropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
             CATEGORIAS_DISPONIVEIS.forEach(cat => {
                 const item = document.createElement('div');
                 item.className = 'category-dropdown-item' + (cat.id === currentCategoria ? ' selected' : '');
                 item.innerHTML = `<span class="cat-icon">${cat.icon}</span> ${cat.nome}`;
-                item.onclick = (e) => {
+
+                // Usar função separada para evitar problemas de closure
+                item.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    changeCategoryFast(itemNome, cat.id, isCustom);
-                };
+                    e.preventDefault();
+                    console.log('Clicou na categoria:', cat.id);
+                    const nome = itemNome;
+                    const novaCat = cat.id;
+                    const custom = isCustom;
+                    // Fechar dropdown primeiro
+                    closeCategoryDropdown();
+                    // Depois alterar categoria
+                    changeCategoryFast(nome, novaCat, custom);
+                });
+
                 dropdown.appendChild(item);
             });
 
@@ -3141,10 +3159,16 @@
             cell.appendChild(dropdown);
             activeDropdown = dropdown;
 
-            // Fechar ao clicar fora
+            // Fechar ao clicar fora (com delay maior)
             setTimeout(() => {
-                document.addEventListener('click', closeCategoryDropdown);
-            }, 10);
+                document.addEventListener('click', handleOutsideClick);
+            }, 100);
+        }
+
+        function handleOutsideClick(e) {
+            if (activeDropdown && !activeDropdown.contains(e.target)) {
+                closeCategoryDropdown();
+            }
         }
 
         function closeCategoryDropdown() {
@@ -3152,7 +3176,7 @@
                 activeDropdown.remove();
                 activeDropdown = null;
             }
-            document.removeEventListener('click', closeCategoryDropdown);
+            document.removeEventListener('click', handleOutsideClick);
         }
 
         async function changeCategoryFast(itemNome, novaCategoria, isCustom) {
