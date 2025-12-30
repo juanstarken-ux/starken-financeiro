@@ -1,15 +1,34 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const { PrismaClient } = require('@prisma/client');
+const {
+  contaPagarSchema,
+  contaReceberSchema,
+  marcarPagoSchema,
+  editarItemSchema,
+  removerItemSchema,
+  validar
+} = require('./lib/validators');
+const { applyRateLimit } = require('./lib/rate-limiter');
 
 const prisma = new PrismaClient();
 
-// Headers CORS
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Content-Type': 'application/json'
-};
+// Headers CORS - Configuração Segura
+const allowedOrigins = [
+  'https://starkentecnologia-performance.netlify.app',
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
+
+function getHeaders(origin) {
+  const isAllowed = allowedOrigins.includes(origin);
+  return {
+    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+}
 
 // ============================================
 // DADOS FINANCEIROS CONSOLIDADOS
@@ -747,8 +766,15 @@ function getMesAtual() {
 }
 
 // Adicionar conta a pagar
-async function adicionarContaPagar({ nome, valor, categoria, vencimento, mes }) {
-  const mesRef = mes || getMesAtual();
+async function adicionarContaPagar(dados) {
+  // Validar dados de entrada
+  const validacao = validar(contaPagarSchema, dados);
+  if (!validacao.sucesso) {
+    return validacao;
+  }
+
+  const { nome, valor, categoria, vencimento } = validacao.dados;
+  const mesRef = validacao.dados.mes || getMesAtual();
 
   try {
     const item = await prisma.customItem.create({
@@ -757,7 +783,7 @@ async function adicionarContaPagar({ nome, valor, categoria, vencimento, mes }) 
         tipo: 'despesa',
         nome,
         valor,
-        categoria: categoria || 'outros',
+        categoria,
         status: 'A Pagar',
         vencimento: vencimento || null,
         createdAt: new Date()
@@ -786,8 +812,15 @@ async function adicionarContaPagar({ nome, valor, categoria, vencimento, mes }) 
 }
 
 // Adicionar conta a receber
-async function adicionarContaReceber({ nome, valor, empresa, tipo, vencimento, mes }) {
-  const mesRef = mes || getMesAtual();
+async function adicionarContaReceber(dados) {
+  // Validar dados de entrada
+  const validacao = validar(contaReceberSchema, dados);
+  if (!validacao.sucesso) {
+    return validacao;
+  }
+
+  const { nome, valor, empresa, tipo, vencimento } = validacao.dados;
+  const mesRef = validacao.dados.mes || getMesAtual();
 
   try {
     const item = await prisma.customItem.create({
@@ -796,9 +829,10 @@ async function adicionarContaReceber({ nome, valor, empresa, tipo, vencimento, m
         tipo: 'receita',
         nome,
         valor,
-        categoria: empresa || 'starken',
+        categoria: empresa,
         status: 'A Receber',
         vencimento: vencimento || null,
+        tipoDetalhe: tipo || 'mrr',
         createdAt: new Date()
       }
     });
@@ -810,7 +844,7 @@ async function adicionarContaReceber({ nome, valor, empresa, tipo, vencimento, m
         id: item.id,
         nome,
         valor: `R$ ${valor.toLocaleString('pt-BR')}`,
-        empresa: empresa || 'starken',
+        empresa,
         tipo: tipo || 'mrr',
         vencimento: vencimento || 'Não informado',
         status: 'A Receber',
@@ -826,9 +860,16 @@ async function adicionarContaReceber({ nome, valor, empresa, tipo, vencimento, m
 }
 
 // Marcar como pago
-async function marcarComoPago({ nome, mes, data_pagamento }) {
-  const mesRef = mes || getMesAtual();
-  const dataPag = data_pagamento || new Date().toISOString().split('T')[0];
+async function marcarComoPago(dados) {
+  // Validar dados de entrada
+  const validacao = validar(marcarPagoSchema, dados);
+  if (!validacao.sucesso) {
+    return validacao;
+  }
+
+  const { nome } = validacao.dados;
+  const mesRef = validacao.dados.mes || getMesAtual();
+  const dataPag = validacao.dados.data_pagamento || new Date().toISOString().split('T')[0];
 
   try {
     // Primeiro tentar atualizar em CustomItem
@@ -884,9 +925,16 @@ async function marcarComoPago({ nome, mes, data_pagamento }) {
 }
 
 // Marcar como recebido
-async function marcarComoRecebido({ nome, mes, data_recebimento }) {
-  const mesRef = mes || getMesAtual();
-  const dataRec = data_recebimento || new Date().toISOString().split('T')[0];
+async function marcarComoRecebido(dados) {
+  // Validar dados de entrada (usar mesmo schema de marcarPago, só muda o nome do campo)
+  const validacao = validar(marcarPagoSchema, dados);
+  if (!validacao.sucesso) {
+    return validacao;
+  }
+
+  const { nome } = validacao.dados;
+  const mesRef = validacao.dados.mes || getMesAtual();
+  const dataRec = dados.data_recebimento || new Date().toISOString().split('T')[0];
 
   try {
     // Primeiro tentar atualizar em CustomItem
@@ -942,8 +990,15 @@ async function marcarComoRecebido({ nome, mes, data_recebimento }) {
 }
 
 // Editar item
-async function editarItem({ tipo, nome_atual, novo_nome, novo_valor, mes }) {
-  const mesRef = mes || getMesAtual();
+async function editarItem(dados) {
+  // Validar dados de entrada
+  const validacao = validar(editarItemSchema, dados);
+  if (!validacao.sucesso) {
+    return validacao;
+  }
+
+  const { tipo, nome_atual, novo_nome, novo_valor } = validacao.dados;
+  const mesRef = validacao.dados.mes || getMesAtual();
   const tipoDb = tipo === 'despesa' ? 'despesa' : 'receita';
 
   try {
@@ -1002,8 +1057,15 @@ async function editarItem({ tipo, nome_atual, novo_nome, novo_valor, mes }) {
 }
 
 // Remover item
-async function removerItem({ tipo, nome, mes }) {
-  const mesRef = mes || getMesAtual();
+async function removerItem(dados) {
+  // Validar dados de entrada
+  const validacao = validar(removerItemSchema, dados);
+  if (!validacao.sucesso) {
+    return validacao;
+  }
+
+  const { tipo, nome } = validacao.dados;
+  const mesRef = validacao.dados.mes || getMesAtual();
   const tipoDb = tipo === 'despesa' ? 'despesa' : 'receita';
 
   try {
@@ -1148,6 +1210,16 @@ async function executeTool(name, input) {
 // HANDLER PRINCIPAL
 // ============================================
 exports.handler = async (event, context) => {
+  const origin = event.headers.origin || event.headers.Origin || '';
+  let headers = getHeaders(origin);
+
+  // Rate limiting (10 req/min para agent - usa API Anthropic)
+  const rateLimitResult = applyRateLimit(event, headers, true);
+  if (!rateLimitResult.allowed) {
+    return rateLimitResult;
+  }
+  headers = rateLimitResult.headers;
+
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
@@ -1163,7 +1235,33 @@ exports.handler = async (event, context) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Mensagem não fornecida' }) };
     }
 
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    // Validação da API Key do Anthropic
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      console.error('❌ ANTHROPIC_API_KEY não configurada!');
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: 'Configuração inválida - entre em contato com o administrador',
+          code: 'MISSING_API_KEY'
+        })
+      };
+    }
+
+    if (!apiKey.startsWith('sk-ant-')) {
+      console.error('❌ ANTHROPIC_API_KEY com formato inválido!');
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: 'Configuração inválida',
+          code: 'INVALID_API_KEY_FORMAT'
+        })
+      };
+    }
+
+    const anthropic = new Anthropic({ apiKey });
 
     // Preparar contexto do arquivo importado se houver
     let fileContext = '';

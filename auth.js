@@ -5,7 +5,21 @@
 (function() {
     // Verificar se não é a página de login
     if (window.location.pathname !== '/login.html' && !window.location.pathname.endsWith('/login.html')) {
-        const session = localStorage.getItem('starken_session');
+        let session = null;
+
+        try {
+            session = localStorage.getItem('starken_session');
+        } catch (e) {
+            // localStorage bloqueado (modo privado)
+            console.warn('localStorage não disponível, tentando sessionStorage');
+            try {
+                session = sessionStorage.getItem('starken_session');
+            } catch (err) {
+                console.error('Nenhum storage disponível');
+                window.location.replace('/login.html');
+                throw new Error('Storage not available');
+            }
+        }
 
         if (!session) {
             // Não está logado, redirecionar IMEDIATAMENTE
@@ -19,16 +33,69 @@
             // Sessão válida, permitir continuar
         } catch (e) {
             // Sessão inválida, redirecionar
-            localStorage.removeItem('starken_session');
+            try {
+                localStorage.removeItem('starken_session');
+            } catch (err) {
+                try {
+                    sessionStorage.removeItem('starken_session');
+                } catch (e2) {
+                    // Ignorar erro de storage
+                }
+            }
             window.location.replace('/login.html');
             throw new Error('Invalid session');
         }
     }
 })();
 
+// ============================================
+// HELPERS DE STORAGE COM FALLBACK
+// ============================================
+
+function getFromStorage(key) {
+    try {
+        return localStorage.getItem(key);
+    } catch (e) {
+        try {
+            return sessionStorage.getItem(key);
+        } catch (err) {
+            console.error('Storage não disponível');
+            return null;
+        }
+    }
+}
+
+function setToStorage(key, value) {
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch (e) {
+        console.warn('localStorage falhou, usando sessionStorage');
+        try {
+            sessionStorage.setItem(key, value);
+            return true;
+        } catch (err) {
+            console.error('Nenhum storage disponível');
+            return false;
+        }
+    }
+}
+
+function removeFromStorage(key) {
+    try {
+        localStorage.removeItem(key);
+    } catch (e) {
+        try {
+            sessionStorage.removeItem(key);
+        } catch (err) {
+            // Ignorar erro
+        }
+    }
+}
+
 // Verificar se o usuário está autenticado (retorna boolean)
 function isAuthenticated() {
-    const session = localStorage.getItem('starken_session');
+    const session = getFromStorage('starken_session');
     if (!session) return false;
 
     try {
@@ -41,7 +108,7 @@ function isAuthenticated() {
 
 // Verificar se o usuário está autenticado
 function checkAuth() {
-    const session = localStorage.getItem('starken_session');
+    const session = getFromStorage('starken_session');
 
     if (!session) {
         // Não está logado, redirecionar para login
@@ -61,13 +128,13 @@ function checkAuth() {
 
 // Fazer logout
 function logout() {
-    localStorage.removeItem('starken_session');
+    removeFromStorage('starken_session');
     window.location.replace('/login.html');
 }
 
 // Obter dados do sócio logado
 function getLoggedPartner() {
-    const session = localStorage.getItem('starken_session');
+    const session = getFromStorage('starken_session');
     if (!session) return null;
 
     try {

@@ -1,96 +1,49 @@
 const { PrismaClient } = require('@prisma/client');
+const {
+  contaPagarSchema,
+  contaReceberSchema,
+  marcarPagoSchema,
+  editarItemSchema,
+  removerItemSchema,
+  validar
+} = require('./lib/validators');
+const { applyRateLimit } = require('./lib/rate-limiter');
+const { dadosBase } = require('./lib/dados-financeiros');
 
 const prisma = new PrismaClient();
 
-// Headers CORS
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Content-Type': 'application/json'
-};
+// Headers CORS - Configuração Segura
+const allowedOrigins = [
+  'https://starkentecnologia-performance.netlify.app',
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
 
-// Dados financeiros base (mesmo do agent.js)
-const dadosBase = {
-  "2026-01": {
-    receitas: [],
-    despesas: [
-      { nome: "Ederson", valor: 3200, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
-      { nome: "Victor", valor: 3000, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
-      { nome: "Igor", valor: 2300, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
-      { nome: "Kim", valor: 1300, categoria: "pessoal", funcao: "Design", status: "A Pagar" },
-      { nome: "Erick", valor: 1300, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
-      { nome: "Dante - Closer", valor: 3500, categoria: "comercial", status: "A Pagar" },
-      { nome: "Nathan - SDR", valor: 2000, categoria: "comercial", status: "A Pagar" },
-      { nome: "João - SDR", valor: 2000, categoria: "comercial", status: "A Pagar" },
-      { nome: "Aluguel - Sala", valor: 2800, categoria: "estrutura", status: "A Pagar" },
-      { nome: "Celesc - Energia", valor: 100, categoria: "estrutura", status: "A Pagar" },
-      { nome: "Internet - Claro", valor: 109, categoria: "estrutura", status: "A Pagar" },
-      { nome: "Pagamento - Alpha", valor: 7500, categoria: "alpha", status: "A Pagar" },
-      { nome: "Claude Code", valor: 500, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "ClickUp", valor: 350, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "VPS Hostinger", valor: 200, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Lovable", valor: 130, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Adobe", valor: 110, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Criativivo", valor: 100, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "CapCut", valor: 65.90, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Canva Pro", valor: 35, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Railway Backend", valor: 35, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Netlify", valor: 35, categoria: "ferramentas", status: "A Pagar" }
-    ]
-  },
-  "2025-12": {
-    receitas: [
-      { nome: "Bengers - App Festival", valor: 10000, categoria: "starken", tipo: "Projeto", status: "A Receber" },
-      { nome: "Mortadella Blumenau", valor: 2000, categoria: "starken", status: "A Receber" },
-      { nome: "Hamburgueria Feio", valor: 2000, categoria: "starken", status: "A Receber" },
-      { nome: "Academia São Pedro", valor: 1080, categoria: "starken", status: "A Receber" },
-      { nome: "Estilo Tulipa", valor: 659, categoria: "starken", status: "A Receber" },
-      { nome: "JPR Móveis Rústicos", valor: 2000, categoria: "starken", status: "A Receber" },
-      { nome: "Realizzati Móveis", valor: 2500, categoria: "starken", status: "A Receber" },
-      { nome: "Suprema Pizza", valor: 2000, categoria: "starken", status: "A Receber" },
-      { nome: "Shield Car Blumenau", valor: 297, categoria: "starken", status: "A Receber" },
-      { nome: "Rosa Mexicano Blumenau", valor: 2000, categoria: "starken", status: "A Receber" },
-      { nome: "Rosa Mexicano Brusque", valor: 2000, categoria: "starken", status: "A Receber" },
-      { nome: "Divino Tempero", valor: 1000, categoria: "starken", status: "A Receber" },
-      { nome: "Alexandria Burger", valor: 2000, categoria: "starken", status: "A Receber" },
-      { nome: "Dommus Smart Home", valor: 297, categoria: "starken", status: "A Receber" },
-      { nome: "Oca Restaurante", valor: 2000, categoria: "alpha", tipo: "MRR", status: "A Receber" },
-      { nome: "Madrugão Lanches", valor: 2000, categoria: "alpha", tipo: "MRR", status: "A Receber" },
-      { nome: "Saporitto Pizzaria", valor: 1500, categoria: "alpha", tipo: "MRR", status: "A Receber" },
-      { nome: "Fratellis Pizzaria", valor: 2500, categoria: "alpha", tipo: "MRR", status: "A Receber" },
-      { nome: "Brazza Hamburgueria", valor: 3000, categoria: "alpha", tipo: "MRR", status: "A Receber" },
-      { nome: "Fabinhus Restaurante", valor: 1000, categoria: "alpha", tipo: "MRR", status: "A Receber" },
-      { nome: "Tempero Manero Grill", valor: 1000, categoria: "alpha", tipo: "MRR", status: "A Receber" },
-      { nome: "Super Dupe Hamburgueria BC", valor: 2000, categoria: "alpha", tipo: "MRR", status: "A Receber" },
-      { nome: "Churrascaria Paiaguas", valor: 3149.75, categoria: "alpha", tipo: "TCV", status: "Recebido" }
-    ],
-    despesas: [
-      { nome: "Ederson", valor: 3200, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
-      { nome: "Victor", valor: 3000, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
-      { nome: "Igor", valor: 2300, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
-      { nome: "Kim", valor: 1300, categoria: "pessoal", funcao: "Design", status: "A Pagar" },
-      { nome: "Erick", valor: 1300, categoria: "pessoal", funcao: "Desenvolvedor", status: "A Pagar" },
-      { nome: "Dante - Closer", valor: 3500, categoria: "comercial", status: "A Pagar" },
-      { nome: "Nathan - SDR", valor: 2000, categoria: "comercial", status: "A Pagar" },
-      { nome: "João - SDR", valor: 2000, categoria: "comercial", status: "A Pagar" },
-      { nome: "Aluguel - Sala", valor: 2800, categoria: "estrutura", status: "A Pagar" },
-      { nome: "Celesc - Energia", valor: 100, categoria: "estrutura", status: "A Pagar" },
-      { nome: "Internet - Claro", valor: 109, categoria: "estrutura", status: "A Pagar" },
-      { nome: "Alpha - Franquia", valor: 7500, categoria: "alpha", status: "A Pagar" },
-      { nome: "Render.com", valor: 120, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "OpenAI", valor: 120, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Anthropic", valor: 120, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Pipedrive", valor: 750, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Telefonia IP", valor: 250, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Kommo", valor: 640, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Contabilidade", valor: 550.90, categoria: "ferramentas", status: "A Pagar" },
-      { nome: "Make.com", valor: 210, categoria: "ferramentas", status: "A Pagar" }
-    ]
-  }
-};
+function getHeaders(origin) {
+  const isAllowed = allowedOrigins.includes(origin);
+  return {
+    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+}
+
+// Dados financeiros agora são carregados do arquivo centralizado
+// Ver: netlify/functions/data/financeiro-base.json
 
 exports.handler = async (event, context) => {
+  const origin = event.headers.origin || event.headers.Origin || '';
+  let headers = getHeaders(origin);
+
+  // Rate limiting (30 req/min para sync-data)
+  const rateLimitResult = applyRateLimit(event, headers, false);
+  if (!rateLimitResult.allowed) {
+    return rateLimitResult;
+  }
+  headers = rateLimitResult.headers;
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
@@ -562,57 +515,90 @@ function gerarAlertas(receitas, despesas) {
 
 // Adicionar receita
 async function adicionarReceita(dados) {
-  const mes = dados.mes || getMesAtual();
+  // Validar dados de entrada
+  const validacao = validar(contaReceberSchema, dados);
+  if (!validacao.sucesso) {
+    return {
+      statusCode: 400,
+      headers: getHeaders(''),
+      body: JSON.stringify(validacao)
+    };
+  }
+
+  const { nome, valor, empresa, tipo, vencimento } = validacao.dados;
+  const mes = validacao.dados.mes || getMesAtual();
 
   const item = await prisma.customItem.create({
     data: {
       mes,
       tipo: 'receita',
-      nome: dados.nome,
-      valor: dados.valor,
-      categoria: dados.categoria || dados.empresa || 'starken',
-      status: dados.status || 'A Receber',
-      vencimento: dados.vencimento,
-      tipoDetalhe: dados.tipo,
-      empresa: dados.empresa
+      nome,
+      valor,
+      categoria: empresa,
+      status: 'A Receber',
+      vencimento: vencimento || null,
+      tipoDetalhe: tipo || 'mrr',
+      empresa
     }
   });
 
   return {
     statusCode: 200,
-    headers,
+    headers: getHeaders(''),
     body: JSON.stringify({ success: true, item })
   };
 }
 
 // Adicionar despesa
 async function adicionarDespesa(dados) {
-  const mes = dados.mes || getMesAtual();
+  // Validar dados de entrada
+  const validacao = validar(contaPagarSchema, dados);
+  if (!validacao.sucesso) {
+    return {
+      statusCode: 400,
+      headers: getHeaders(''),
+      body: JSON.stringify(validacao)
+    };
+  }
+
+  const { nome, valor, categoria, vencimento } = validacao.dados;
+  const mes = validacao.dados.mes || getMesAtual();
 
   const item = await prisma.customItem.create({
     data: {
       mes,
       tipo: 'despesa',
-      nome: dados.nome,
-      valor: dados.valor,
-      categoria: dados.categoria,
-      status: dados.status || 'A Pagar',
-      vencimento: dados.vencimento,
-      funcao: dados.funcao
+      nome,
+      valor,
+      categoria,
+      status: 'A Pagar',
+      vencimento: vencimento || null,
+      funcao: dados.funcao || null
     }
   });
 
   return {
     statusCode: 200,
-    headers,
+    headers: getHeaders(''),
     body: JSON.stringify({ success: true, item })
   };
 }
 
 // Marcar como pago
 async function marcarPago(dados) {
-  const mes = dados.mes || getMesAtual();
-  const dataPagamento = dados.data_pagamento || new Date().toISOString().split('T')[0];
+  // Validar dados de entrada
+  const validacao = validar(marcarPagoSchema, dados);
+  if (!validacao.sucesso) {
+    return {
+      statusCode: 400,
+      headers: getHeaders(''),
+      body: JSON.stringify(validacao)
+    };
+  }
+
+  const { nome } = validacao.dados;
+  const mes = validacao.dados.mes || getMesAtual();
+  const dataPagamento = validacao.dados.data_pagamento || new Date().toISOString().split('T')[0];
 
   // Primeiro tenta encontrar no CustomItem
   const customItem = await prisma.customItem.findFirst({
@@ -648,7 +634,18 @@ async function marcarPago(dados) {
 
 // Marcar como recebido
 async function marcarRecebido(dados) {
-  const mes = dados.mes || getMesAtual();
+  // Validar dados de entrada
+  const validacao = validar(marcarPagoSchema, dados);
+  if (!validacao.sucesso) {
+    return {
+      statusCode: 400,
+      headers: getHeaders(''),
+      body: JSON.stringify(validacao)
+    };
+  }
+
+  const { nome } = validacao.dados;
+  const mes = validacao.dados.mes || getMesAtual();
   const dataRecebimento = dados.data_recebimento || new Date().toISOString().split('T')[0];
 
   const customItem = await prisma.customItem.findFirst({
@@ -683,7 +680,17 @@ async function marcarRecebido(dados) {
 
 // Editar item
 async function editarItem(dados) {
-  const mes = dados.mes || getMesAtual();
+  // Validar dados de entrada
+  const validacao = validar(editarItemSchema, dados);
+  if (!validacao.sucesso) {
+    return {
+      statusCode: 400,
+      headers: getHeaders(''),
+      body: JSON.stringify(validacao)
+    };
+  }
+
+  const mes = validacao.dados.mes || getMesAtual();
 
   const customItem = await prisma.customItem.findFirst({
     where: {
@@ -732,7 +739,17 @@ async function editarItem(dados) {
 
 // Remover item
 async function removerItem(dados) {
-  const mes = dados.mes || getMesAtual();
+  // Validar dados de entrada
+  const validacao = validar(removerItemSchema, dados);
+  if (!validacao.sucesso) {
+    return {
+      statusCode: 400,
+      headers: getHeaders(''),
+      body: JSON.stringify(validacao)
+    };
+  }
+
+  const mes = validacao.dados.mes || getMesAtual();
 
   const customItem = await prisma.customItem.findFirst({
     where: {

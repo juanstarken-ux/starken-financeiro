@@ -20,6 +20,9 @@ model PaymentStatus {
   updatedAt     DateTime @updatedAt
 
   @@unique([mes, tipo, itemNome])
+  @@index([mes])
+  @@index([status])
+  @@index([mes, tipo])
   @@map("payment_status")
 }
 
@@ -40,6 +43,10 @@ model CustomItem {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@index([mes])
+  @@index([tipo])
+  @@index([status])
+  @@index([mes, tipo])
   @@map("custom_items")
 }
 
@@ -52,6 +59,8 @@ model DeletedItem {
   createdAt DateTime @default(now())
 
   @@unique([mes, tipo, itemNome])
+  @@index([mes])
+  @@index([mes, tipo])
   @@map("deleted_items")
 }
 
@@ -68,6 +77,8 @@ model EditedItem {
   updatedAt    DateTime @updatedAt
 
   @@unique([mes, tipo, itemNome])
+  @@index([mes])
+  @@index([mes, tipo])
   @@map("edited_items")
 }
 
@@ -79,6 +90,7 @@ model ConversationMessage {
   metadata  Json?
   createdAt DateTime @default(now())
 
+  @@index([createdAt])
   @@map("conversation_messages")
 }
 
@@ -92,6 +104,9 @@ model StarkMemory {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  @@index([tipo])
+  @@index([relevancia])
+  @@index([mes])
   @@map("stark_memories")
 }
 
@@ -136,6 +151,10 @@ model DespesaPessoal {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  @@index([socioId])
+  @@index([mes])
+  @@index([status])
+  @@index([socioId, mes])
   @@map("despesas_pessoais")
 }
 
@@ -159,6 +178,9 @@ model Emprestimo {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
+  @@index([socioId])
+  @@index([status])
+  @@index([socioId, status])
   @@map("emprestimos")
 }
 
@@ -177,5 +199,8 @@ model Investimento {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@index([socioId])
+  @@index([mes])
+  @@index([socioId, mes])
   @@map("investimentos")
 }

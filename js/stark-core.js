@@ -251,22 +251,48 @@ class StarkCore {
         mesAtual: this._estado.mesAtual,
         ultimaAtualizacao: this._estado.ultimaAtualizacao
       };
-      localStorage.setItem('stark_dados', JSON.stringify(dados));
+      const json = JSON.stringify(dados);
+
+      try {
+        localStorage.setItem('stark_dados', json);
+      } catch (e) {
+        // localStorage falhou (modo privado ou quota excedida)
+        console.warn('localStorage não disponível, tentando sessionStorage');
+        try {
+          sessionStorage.setItem('stark_dados', json);
+        } catch (err) {
+          console.warn('Nenhum storage disponível - dados não serão persistidos');
+        }
+      }
     } catch (e) {
-      console.warn('Não foi possível salvar no localStorage');
+      console.warn('Erro ao salvar dados:', e.message);
     }
   }
 
   carregarLocal() {
     try {
-      const saved = localStorage.getItem('stark_dados');
+      let saved = null;
+
+      // Tentar localStorage primeiro
+      try {
+        saved = localStorage.getItem('stark_dados');
+      } catch (e) {
+        console.warn('localStorage não disponível, tentando sessionStorage');
+        try {
+          saved = sessionStorage.getItem('stark_dados');
+        } catch (err) {
+          console.warn('Nenhum storage disponível');
+          return;
+        }
+      }
+
       if (saved) {
         const dados = JSON.parse(saved);
         Object.assign(this._estado, dados);
         console.log('📦 Dados carregados do cache local');
       }
     } catch (e) {
-      console.warn('Não foi possível carregar do localStorage');
+      console.warn('Erro ao carregar dados do cache:', e.message);
     }
   }
 

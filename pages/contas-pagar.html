@@ -3396,68 +3396,83 @@
                 return;
             }
 
+            console.log('=== ALTERAÇÃO DE CATEGORIA EM MASSA ===');
             console.log('Itens selecionados:', Array.from(selectedItems));
             console.log('Nova categoria:', novaCategoria);
 
             let updated = 0;
 
             for (const itemNome of selectedItems) {
-                console.log('Processando item:', itemNome);
+                console.log('--- Processando item:', itemNome, '---');
 
-                // Primeiro, verificar se é item customizado
+                // Buscar o item NA UI (allItems) para saber a categoria EXIBIDA
+                const itemNaUI = allItems.find(i => i.nome === itemNome);
+                if (!itemNaUI) {
+                    console.log('⚠ Item não encontrado na UI:', itemNome);
+                    continue;
+                }
+
+                const categoriaAtualUI = itemNaUI.categoria;
+                const isCustomUI = itemNaUI.isCustom === true;
+                console.log('UI mostra categoria:', categoriaAtualUI, '| isCustom:', isCustomUI);
+
+                // Se a categoria exibida já é a desejada, pular
+                if (categoriaAtualUI === novaCategoria) {
+                    console.log('Categoria já é', novaCategoria, '- pulando');
+                    continue;
+                }
+
+                // Verificar se existe duplicata em customItems
                 const customData = GestaoFinanceira.customItems[currentMonth];
                 if (customData && customData.despesas) {
-                    const customItem = customData.despesas.find(d => d.nome === itemNome);
-                    if (customItem) {
-                        console.log('Item customizado encontrado:', customItem);
-                        if (customItem.categoria !== novaCategoria) {
+                    const customItemIdx = customData.despesas.findIndex(d => d.nome === itemNome);
+                    if (customItemIdx !== -1) {
+                        const customItem = customData.despesas[customItemIdx];
+                        console.log('Existe em customItems com categoria:', customItem.categoria);
+
+                        // Se o item da UI NÃO é custom, mas existe um custom com mesmo nome,
+                        // precisamos remover o custom duplicado e usar editDespesa no base
+                        if (!isCustomUI) {
+                            console.log('⚠ Duplicata detectada! Removendo de customItems...');
+                            customData.despesas.splice(customItemIdx, 1);
+                        } else {
+                            // Item da UI É o custom, então atualizar ele
                             customItem.categoria = novaCategoria;
                             updated++;
-                            console.log('Categoria alterada para:', novaCategoria);
-                        }
-                        continue; // Próximo item
-                    }
-                }
-
-                // Se não é customizado, é item base - usar editDespesa
-                const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
-                if (dados && dados.despesas && dados.despesas.categorias) {
-                    for (const catKey of Object.keys(dados.despesas.categorias)) {
-                        const catData = dados.despesas.categorias[catKey];
-                        const items = catData.itens || (Array.isArray(catData) ? catData : []);
-
-                        const item = items.find(i => i.nome === itemNome);
-                        if (item && !item.isCustom) {
-                            console.log('Item base encontrado na categoria:', catKey);
-                            if (catKey !== novaCategoria) {
-                                GestaoFinanceira.editDespesa(currentMonth, itemNome, {
-                                    nome: item.nome,
-                                    valor: item.valor,
-                                    categoria: novaCategoria
-                                });
-                                updated++;
-                                console.log('editDespesa chamado para:', itemNome);
-                            }
-                            break;
+                            console.log('✓ customItem.categoria alterada para:', novaCategoria);
+                            continue;
                         }
                     }
                 }
+
+                // Item é dos dados base - usar editDespesa
+                console.log('Usando editDespesa para item base');
+                GestaoFinanceira.editDespesa(currentMonth, itemNome, {
+                    nome: itemNaUI.nome,
+                    valor: itemNaUI.valor,
+                    categoria: novaCategoria
+                });
+                updated++;
+                console.log('✓ editDespesa chamado para:', itemNome);
             }
 
-            console.log('Total atualizado:', updated);
+            console.log('=== TOTAL ATUALIZADO:', updated, '===');
+
+            // SEMPRE salvar e recarregar
+            GestaoFinanceira.saveToStorage();
+            try {
+                await GestaoFinanceira.syncToServer();
+            } catch (e) {
+                console.warn('Sync falhou:', e);
+            }
+
+            clearSelection();
+            loadMonthData(currentMonth);
 
             if (updated > 0) {
-                GestaoFinanceira.saveToStorage();
-                try {
-                    await GestaoFinanceira.syncToServer();
-                } catch (e) {
-                    console.warn('Sync falhou:', e);
-                }
-                clearSelection();
-                loadMonthData(currentMonth);
                 showToast(`${updated} itens alterados para "${getCategoryName(novaCategoria)}"`);
             } else {
-                showToast('Nenhum item foi alterado', 'warning');
+                showToast('Nenhuma alteração necessária');
             }
         }
 
