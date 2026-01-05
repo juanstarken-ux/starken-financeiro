@@ -3367,6 +3367,11 @@
             const clientesAtivos = clientes.filter(c => {
                 const isDeleted = deletedIds.includes(c.id);
 
+                // NÃO mostrar cards de projeção
+                if (c.isProjecao) {
+                    return false;
+                }
+
                 // Cards de renovação: aparecer apenas no mês de renovação
                 if (c.statusRenovacao && c.mesRenovacao === mesAtual) {
                     return !isDeleted;
