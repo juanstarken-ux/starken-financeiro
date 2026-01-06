@@ -3330,6 +3330,17 @@
             }
         }
 
+        // Função para limpar clientes de projeção (executar uma vez)
+        function limparClientesProjecao() {
+            const clientes = getManualClients();
+            const clientesSemProjecao = clientes.filter(c => !c.isProjecao);
+
+            if (clientesSemProjecao.length < clientes.length) {
+                saveManualClients(clientesSemProjecao);
+                console.log(`✅ Removidos ${clientes.length - clientesSemProjecao.length} clientes de projeção`);
+            }
+        }
+
         // Executar quando a página carregar
         document.addEventListener('DOMContentLoaded', () => {
             // 1. Migrar cards estáticos para localStorage (só executa na primeira vez)
@@ -3338,10 +3349,13 @@
             // 2. Marcar renovações de Janeiro
             marcarRenovacoesJaneiro();
 
-            // 3. Renderizar todos os clientes
+            // 3. Limpar clientes de projeção
+            limparClientesProjecao();
+
+            // 4. Renderizar todos os clientes
             renderManualClients();
 
-            // 4. Atualizar contadores
+            // 5. Atualizar contadores
             updateClientCounters();
         });
 
@@ -3634,7 +3648,7 @@
                             <input type="number" id="clientTaxaJuros" placeholder="Ex: 2.5" min="0" max="100" step="0.01" oninput="atualizarPreviewContrato()">
                             <small style="color: #6b7280; font-size: 11px;">Opcional - Taxa do cartão</small>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="display: none;">
                             <label for="clientIsProjecao">
                                 <input type="checkbox" id="clientIsProjecao" style="width: auto; margin-right: 8px;" onchange="atualizarPreviewContrato()">
                                 📊 Cliente é Projeção?
