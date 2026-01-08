@@ -870,10 +870,25 @@
 
             <!-- KPI Cards -->
             <div class="kpi-grid">
-                <div class="kpi-card">
+                <div class="kpi-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-value" id="kpiTotalReceitas" style="color: white;">R$ 0,00</div>
+                    <div class="kpi-label" style="color: rgba(255,255,255,0.9);">Total Receitas</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
                     <div class="kpi-icon">💳</div>
-                    <div class="kpi-value" id="kpiTotalDespesas">R$ 0,00</div>
-                    <div class="kpi-label">Total Despesas</div>
+                    <div class="kpi-value" id="kpiTotalDespesas" style="color: white;">R$ 0,00</div>
+                    <div class="kpi-label" style="color: rgba(255,255,255,0.9);">Total Despesas</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-value" id="kpiSaldoLiquido" style="color: white;">R$ 0,00</div>
+                    <div class="kpi-label" style="color: rgba(255,255,255,0.9);">Saldo Líquido</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                    <div class="kpi-icon">💵</div>
+                    <div class="kpi-value" id="kpiProLabore" style="color: white;">R$ 0,00</div>
+                    <div class="kpi-label" style="color: rgba(255,255,255,0.9);">Pro-labore Mensal</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">⏳</div>
@@ -885,23 +900,74 @@
                     <div class="kpi-value" id="kpiEmprestimos">R$ 0,00</div>
                     <div class="kpi-label">Empréstimos Ativos</div>
                 </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon">📈</div>
-                    <div class="kpi-value" id="kpiInvestimentos">R$ 0,00</div>
-                    <div class="kpi-label">Investimentos</div>
-                </div>
             </div>
 
             <!-- Tabs -->
             <div class="tabs-container">
                 <div class="tabs-header">
-                    <button class="tab-btn active" onclick="switchTab('despesas')">💳 Despesas Pessoais</button>
+                    <button class="tab-btn active" onclick="switchTab('receitas')">💰 Receitas</button>
+                    <button class="tab-btn" onclick="switchTab('despesas')">💳 Despesas Pessoais</button>
                     <button class="tab-btn" onclick="switchTab('emprestimos')">🤝 Empréstimos</button>
-                    <button class="tab-btn" onclick="switchTab('investimentos')">📈 Investimentos</button>
+                    <button class="tab-btn" onclick="switchTab('investimentos')">📈 Aportes</button>
+                </div>
+
+                <!-- Tab Receitas -->
+                <div class="tab-content active" id="tabReceitas">
+                    <div class="tab-header-actions">
+                        <h3 class="tab-title">Minhas Receitas</h3>
+                        <button class="btn-add" onclick="openModal('receita')">
+                            <span>+</span> Nova Receita
+                        </button>
+                    </div>
+
+                    <!-- Dashboard de Receitas por Canal -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">💵</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="receitaProLabore">R$ 0,00</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Pro-labore</div>
+                            <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;" id="receitaProLaboreCount">0 lançamentos</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 20px; color: white;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">🎯</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="receitaFreelance">R$ 0,00</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Freelance/Consultoria</div>
+                            <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;" id="receitaFreelanceCount">0 lançamentos</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; padding: 20px; color: white;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">📈</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="receitaAportes">R$ 0,00</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Aportes/Investimentos</div>
+                            <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;" id="receitaAportesCount">0 lançamentos</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; padding: 20px; color: white;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">💰</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="receitaOutras">R$ 0,00</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Outras Receitas</div>
+                            <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;" id="receitaOutrasCount">0 lançamentos</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Receitas -->
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>DESCRIÇÃO</th>
+                                <th>TIPO/CANAL</th>
+                                <th>VALOR</th>
+                                <th>DATA</th>
+                                <th>MÊS</th>
+                                <th>AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="receitasTableBody">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
                 </div>
 
                 <!-- Tab Despesas -->
-                <div class="tab-content active" id="tabDespesas">
+                <div class="tab-content" id="tabDespesas">
                     <div class="tab-header-actions">
                         <h3 class="tab-title">Minhas Despesas Pessoais</h3>
                         <button class="btn-add" onclick="openModal('despesa')">
@@ -1286,17 +1352,115 @@
 
         // Atualizar KPIs
         function updateKPIs(resumo) {
-            document.getElementById('kpiTotalDespesas').textContent = formatMoney(resumo.totalDespesas);
+            const totalReceitas = resumo.totalInvestimentos || 0;
+            const totalDespesas = resumo.totalDespesas || 0;
+            const saldoLiquido = totalReceitas - totalDespesas;
+            const proLabore = resumo.proLaboreMedia || 0;
+
+            document.getElementById('kpiTotalReceitas').textContent = formatMoney(totalReceitas);
+            document.getElementById('kpiTotalDespesas').textContent = formatMoney(totalDespesas);
+            document.getElementById('kpiSaldoLiquido').textContent = formatMoney(saldoLiquido);
+            document.getElementById('kpiProLabore').textContent = formatMoney(proLabore);
             document.getElementById('kpiPendente').textContent = formatMoney(resumo.totalPendente);
             document.getElementById('kpiEmprestimos').textContent = formatMoney(resumo.totalEmprestimosAtivos);
-            document.getElementById('kpiInvestimentos').textContent = formatMoney(resumo.totalInvestimentos);
+
+            // Colorir saldo líquido
+            const saldoEl = document.getElementById('kpiSaldoLiquido');
+            if (saldoLiquido >= 0) {
+                saldoEl.parentElement.style.background = 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+            } else {
+                saldoEl.parentElement.style.background = 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)';
+            }
         }
 
         // Renderizar tabelas
         function renderTables() {
+            renderReceitas();
             renderDespesas();
             renderEmprestimos();
             renderInvestimentos();
+        }
+
+        function renderReceitas() {
+            const tbody = document.getElementById('receitasTableBody');
+            const investimentos = dadosFinanceiros.investimentos || [];
+
+            // Calcular receitas por canal
+            let proLaboreTotal = 0, proLaboreCount = 0;
+            let freelanceTotal = 0, freelanceCount = 0;
+            let aportesTotal = 0, aportesCount = 0;
+            let outrasTotal = 0, outrasCount = 0;
+
+            investimentos.forEach(inv => {
+                if (inv.tipo === 'distribuicao' || inv.descricao.toLowerCase().includes('pro-labore')) {
+                    proLaboreTotal += inv.valor;
+                    proLaboreCount++;
+                } else if (inv.tipo === 'aporte_capital' || inv.tipo === 'reinvestimento') {
+                    aportesTotal += inv.valor;
+                    aportesCount++;
+                } else if (inv.descricao.toLowerCase().includes('freelance') || inv.descricao.toLowerCase().includes('consultoria')) {
+                    freelanceTotal += inv.valor;
+                    freelanceCount++;
+                } else {
+                    outrasTotal += inv.valor;
+                    outrasCount++;
+                }
+            });
+
+            // Atualizar cards de receitas por canal
+            document.getElementById('receitaProLabore').textContent = formatMoney(proLaboreTotal);
+            document.getElementById('receitaProLaboreCount').textContent = `${proLaboreCount} lançamento${proLaboreCount !== 1 ? 's' : ''}`;
+            document.getElementById('receitaFreelance').textContent = formatMoney(freelanceTotal);
+            document.getElementById('receitaFreelanceCount').textContent = `${freelanceCount} lançamento${freelanceCount !== 1 ? 's' : ''}`;
+            document.getElementById('receitaAportes').textContent = formatMoney(aportesTotal);
+            document.getElementById('receitaAportesCount').textContent = `${aportesCount} lançamento${aportesCount !== 1 ? 's' : ''}`;
+            document.getElementById('receitaOutras').textContent = formatMoney(outrasTotal);
+            document.getElementById('receitaOutrasCount').textContent = `${outrasCount} lançamento${outrasCount !== 1 ? 's' : ''}`;
+
+            // Renderizar tabela
+            if (investimentos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">💰</div>
+                                <div class="empty-state-text">Nenhuma receita cadastrada</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = investimentos.map(i => {
+                let tipoLabel = tiposInvestimento[i.tipo] || i.tipo;
+                let tipoIcon = '💰';
+
+                if (i.tipo === 'distribuicao' || i.descricao.toLowerCase().includes('pro-labore')) {
+                    tipoIcon = '💵';
+                    tipoLabel = 'Pro-labore';
+                } else if (i.tipo === 'aporte_capital' || i.tipo === 'reinvestimento') {
+                    tipoIcon = '📈';
+                    tipoLabel = 'Aporte';
+                } else if (i.descricao.toLowerCase().includes('freelance') || i.descricao.toLowerCase().includes('consultoria')) {
+                    tipoIcon = '🎯';
+                    tipoLabel = 'Freelance';
+                }
+
+                return `
+                    <tr>
+                        <td><strong>${i.descricao}</strong></td>
+                        <td><span class="categoria-badge">${tipoIcon} ${tipoLabel}</span></td>
+                        <td><strong style="color: #27ae60;">${formatMoney(i.valor)}</strong></td>
+                        <td>${formatDate(i.dataOperacao)}</td>
+                        <td>${formatMes(i.mes)}</td>
+                        <td>
+                            <button class="btn-action edit" onclick="editInvestimento('${i.id}')">Editar</button>
+                            <button class="btn-action delete" onclick="deleteInvestimento('${i.id}')">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function renderDespesas() {
@@ -1663,6 +1827,13 @@
             if (!dateStr) return '-';
             const date = new Date(dateStr);
             return date.toLocaleDateString('pt-BR');
+        }
+
+        function formatMes(mesStr) {
+            if (!mesStr) return '-';
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const [ano, mes] = mesStr.split('-');
+            return `${meses[parseInt(mes) - 1]}/${ano}`;
         }
 
         function showToast(message, type = 'success') {
