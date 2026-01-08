@@ -3023,8 +3023,9 @@
                 console.log('✅ Cliente adicionado:', clienteData);
             }
 
-            // Salvar no banco via API (para integrar com Contas a Receber)
-            try {
+            // Salvar no banco via API (para integrar com Contas a Receber) - DESABILITADO
+            // Sistema funciona apenas com localStorage, sem necessidade de sync com banco
+            /* try {
                 if (tipoValor === 'mrr') {
                     // MRR: adiciona uma única receita mensal
                     await fetch('/.netlify/functions/sync-data', {
@@ -3068,7 +3069,8 @@
                 console.log('✅ Cliente salvo no banco');
             } catch (error) {
                 console.error('Erro ao salvar no banco:', error);
-            }
+            } */
+            console.log('✅ Cliente salvo no localStorage');
 
             closeClientModal();
             renderManualClients();
