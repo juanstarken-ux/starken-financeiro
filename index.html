@@ -2341,6 +2341,12 @@
                     return;
                 }
 
+                // NÃO GERAR MAIS CARDS AUTOMÁTICOS - apenas limpar
+                container.innerHTML = '';
+                console.log('✅ Cards Matriz desabilitados - adicionar manualmente via "+ Novo Cliente"');
+                return;
+
+                // ===== CÓDIGO ANTIGO DESABILITADO =====
                 let html = '';
 
                 // Helper para criar card
