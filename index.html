@@ -3074,21 +3074,9 @@
 
             closeClientModal();
 
-            // Forçar re-renderização após pequeno delay
-            setTimeout(() => {
-                renderManualClients();
-
-                // Atualizar dashboard
-                const mesAtual = DashboardState.mesAtual;
-                if (empresa === 'starken') {
-                    StarkenTableManager.renderTabela(mesAtual);
-                } else {
-                    AlphaTableManager.renderTabela(mesAtual);
-                }
-                atualizarContadoresClientes(mesAtual);
-
-                console.log('🔄 Cards e contadores atualizados no front-end');
-            }, 100);
+            // Forçar reload da página para atualizar tudo
+            console.log('🔄 Recarregando página para atualizar visualização...');
+            window.location.reload();
 
             // Sincronizar dados
             if (window.stark) {
@@ -3495,7 +3483,13 @@
                 valorDisplay = `<div style="font-size: 11px; color: #666; margin-bottom: 2px;">💰 Bruto: R$ ${brutoFormatado}</div>`;
                 valorDisplay += `<div style="font-weight: 600;">💵 Líquido: R$ ${liquidoFormatado}</div>`;
             } else {
-                valorDisplay = `R$ ${brutoFormatado}/mês`;
+                // MRR: mostrar bruto e líquido
+                if (valorBruto !== valorLiquido) {
+                    valorDisplay = `<div style="font-size: 11px; color: #666; margin-bottom: 2px;">💰 Bruto: R$ ${brutoFormatado}</div>`;
+                    valorDisplay += `<div style="font-weight: 600;">💵 Líquido: R$ ${liquidoFormatado}/mês</div>`;
+                } else {
+                    valorDisplay = `R$ ${brutoFormatado}/mês`;
+                }
             }
 
             // Estilo especial para renovação e projeção
