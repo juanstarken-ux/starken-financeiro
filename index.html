@@ -2854,9 +2854,9 @@
             let explicacao = '';
 
             if (tipo === 'tcv' && origem === 'repasse-matriz') {
-                // REPASSE MATRIZ: Valor líquido (50%) dividido por meses de trabalho
-                liquidoFinal = liquido / mesesTrabalho;
-                explicacao = ` (R$ ${formatarMoeda(liquido)} ÷ ${mesesTrabalho} meses)`;
+                // REPASSE MATRIZ: Valor líquido (50%) recebido integralmente no mês
+                liquidoFinal = liquido;
+                explicacao = ` (projeto de ${mesesTrabalho} meses - recebido integralmente)`;
             } else if (tipo === 'tcv') {
                 // OUTROS TCV: Apenas royalty + taxa (sem divisão por meses)
                 liquidoFinal = liquido;
@@ -2880,7 +2880,7 @@
             let liquidoTexto = formatarMoeda(liquidoFinal);
 
             if (tipo === 'tcv' && origem === 'repasse-matriz') {
-                liquidoTexto += '/mês' + explicacao;
+                liquidoTexto += explicacao;
             } else if (tipo === 'tcv') {
                 liquidoTexto += explicacao;
             } else {
@@ -2903,7 +2903,7 @@
                 taxaCartao: `${taxaJurosPercentual}% = R$ ${taxaCartao.toFixed(2)}`,
                 liquidoFinal,
                 mesesTrabalho,
-                formula: origem === 'repasse-matriz' ? 'Valor × 50% ÷ Meses' : 'Valor - Royalty - Taxa ÷ Meses'
+                formula: origem === 'repasse-matriz' ? 'Valor × 50% (integral)' : 'Valor - Royalty - Taxa'
             });
         }
 
@@ -3470,12 +3470,8 @@
                 // REPASSE MATRIZ: Cálculo especial (50% do valor)
                 if (cliente.origem === 'repasse-matriz' && cliente.empresa === 'alpha') {
                     // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% líquido
+                    // Valor recebido integralmente no mês (não dividido pelos meses de trabalho)
                     valorLiquido = valorBruto * 0.50; // Líquido é 50% do bruto
-
-                    // Dividir por meses de trabalho
-                    if (cliente.mesesTrabalho) {
-                        valorLiquido = valorLiquido / cliente.mesesTrabalho;
-                    }
                 } else {
                     // OUTROS CASOS: Aplicar royalty e taxa normalmente
                     valorLiquido = valorBruto;
