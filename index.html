@@ -3073,16 +3073,22 @@
             console.log('✅ Cliente salvo no localStorage');
 
             closeClientModal();
-            renderManualClients();
 
-            // Atualizar dashboard
-            const mesAtual = DashboardState.mesAtual;
-            if (empresa === 'starken') {
-                StarkenTableManager.renderTabela(mesAtual);
-            } else {
-                AlphaTableManager.renderTabela(mesAtual);
-            }
-            atualizarContadoresClientes(mesAtual);
+            // Forçar re-renderização após pequeno delay
+            setTimeout(() => {
+                renderManualClients();
+
+                // Atualizar dashboard
+                const mesAtual = DashboardState.mesAtual;
+                if (empresa === 'starken') {
+                    StarkenTableManager.renderTabela(mesAtual);
+                } else {
+                    AlphaTableManager.renderTabela(mesAtual);
+                }
+                atualizarContadoresClientes(mesAtual);
+
+                console.log('🔄 Cards e contadores atualizados no front-end');
+            }, 100);
 
             // Sincronizar dados
             if (window.stark) {
