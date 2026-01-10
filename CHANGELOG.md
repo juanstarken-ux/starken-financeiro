@@ -4,6 +4,55 @@ Histórico completo de todas as mudanças realizadas no dashboard.
 
 ---
 
+## 🚀 [2.1.0] - 2026-01-10 - MODAL COMPLETO + DATAS + GATEWAY + PARCELAS
+
+### ✨ Novos Campos no Modal
+
+#### 📅 Datas do Contrato
+- **Data de Fechamento**: Campo de data para registrar quando o contrato foi fechado
+- **Data de Pagamento TCV**: Campo específico para TCV informar quando será pago
+- **Data do 1º Vencimento MRR**: Campo específico para MRR informar o primeiro vencimento
+
+#### 💳 Informações de Pagamento
+- **Gateway de Pagamento**: Dropdown com opções Asaas, Infinity Pay e Outro
+- **Parcelas no Cartão**: Seleção de 1x, 2x, 3x, 4x, 6x ou 12x
+- **Taxa de Juros do Cartão**: Campo numérico para percentual de juros
+- **Contrato Fechado/Assinado**: Checkbox para marcar contratos assinados
+
+### 🎴 Informações Adicionadas nos Cards
+
+Agora os cards exibem:
+- 📅 **Data de Fechamento**: dd/mm/aaaa
+- 🚀 **Data de Início**: Mês/Ano
+- 💰 **Data de Pagamento TCV**: dd/mm/aaaa (apenas TCV)
+- 📆 **1º Vencimento MRR**: dd/mm/aaaa (apenas MRR)
+- ⏱️ **Duração do Projeto**: X meses (TCV)
+- 🏦 **Gateway**: Asaas, Infinity Pay ou Outro
+- 💳 **Parcelas**: Xx no cartão ou À vista
+
+### 🔧 Melhorias Técnicas
+
+- Função `toggleTCVFields` melhorada para mostrar/esconder campos de data conforme tipo
+- Função `saveClient` salva todos os novos campos no localStorage
+- Função `openEditClientModal` carrega todos os campos ao editar
+- Validações e formatação de datas em pt-BR
+
+### 📊 Estrutura de Dados
+
+Novos campos adicionados:
+```javascript
+{
+  dataFechamento: "YYYY-MM-DD",
+  dataPagamentoTCV: "YYYY-MM-DD",
+  dataPagamentoMRR: "YYYY-MM-DD",
+  gateway: "asaas" | "infinity-pay" | "outro",
+  parcelasCartao: Number (1-12),
+  isContratoFechado: Boolean
+}
+```
+
+---
+
 ## 🚀 [2.0.0] - 2026-01-10 - CARDS COMPLETOS + DRAG AND DROP
 
 ### ✨ Novas Funcionalidades
