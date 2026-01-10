@@ -4304,6 +4304,151 @@
                         <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 4px;">Marca como futuro (não faturado ainda)</small>
                     </div>
 
+                    <!-- Seletor de Meses de Visibilidade -->
+                    <div style="margin: 20px 0; padding: 16px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <label style="margin: 0; font-size: 13px; font-weight: 600; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px;">
+                                📅 Visibilidade por Mês
+                            </label>
+                            <button
+                                type="button"
+                                onclick="toggleMesesPersonalizados()"
+                                id="btnToggleMeses"
+                                style="padding: 6px 12px; background: #4A6B54; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;"
+                            >
+                                Personalizar
+                            </button>
+                        </div>
+                        <small style="color: #64748b; font-size: 11px; display: block; margin-bottom: 12px;">
+                            Configure em quais meses este cliente aparecerá no dashboard
+                        </small>
+
+                        <div id="mesesPersonalizados" style="display: none;">
+                            <!-- Grid de meses -->
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;">
+                                <!-- Out/2025 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2025-10" style="margin-right: 8px;">
+                                    <span>Out/2025</span>
+                                </label>
+                                <!-- Nov/2025 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2025-11" style="margin-right: 8px;">
+                                    <span>Nov/2025</span>
+                                </label>
+                                <!-- Dez/2025 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2025-12" style="margin-right: 8px;">
+                                    <span>Dez/2025</span>
+                                </label>
+                                <!-- Jan/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-01" style="margin-right: 8px;">
+                                    <span>Jan/2026</span>
+                                </label>
+                                <!-- Fev/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-02" style="margin-right: 8px;">
+                                    <span>Fev/2026</span>
+                                </label>
+                                <!-- Mar/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-03" style="margin-right: 8px;">
+                                    <span>Mar/2026</span>
+                                </label>
+                                <!-- Abr/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-04" style="margin-right: 8px;">
+                                    <span>Abr/2026</span>
+                                </label>
+                                <!-- Mai/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-05" style="margin-right: 8px;">
+                                    <span>Mai/2026</span>
+                                </label>
+                                <!-- Jun/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-06" style="margin-right: 8px;">
+                                    <span>Jun/2026</span>
+                                </label>
+                                <!-- Jul/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-07" style="margin-right: 8px;">
+                                    <span>Jul/2026</span>
+                                </label>
+                                <!-- Ago/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-08" style="margin-right: 8px;">
+                                    <span>Ago/2026</span>
+                                </label>
+                                <!-- Set/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-09" style="margin-right: 8px;">
+                                    <span>Set/2026</span>
+                                </label>
+                                <!-- Out/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-10" style="margin-right: 8px;">
+                                    <span>Out/2026</span>
+                                </label>
+                                <!-- Nov/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-11" style="margin-right: 8px;">
+                                    <span>Nov/2026</span>
+                                </label>
+                                <!-- Dez/2026 -->
+                                <label style="display: flex; align-items: center; padding: 8px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;"
+                                       onmouseover="this.style.borderColor='#4A6B54'; this.style.background='#f0fdf4'"
+                                       onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+                                    <input type="checkbox" class="mes-checkbox" data-mes="2026-12" style="margin-right: 8px;">
+                                    <span>Dez/2026</span>
+                                </label>
+                            </div>
+
+                            <!-- Opção TCV: Tipo de Visibilidade -->
+                            <div id="tcvTipoVisibilidade" style="display: none; padding: 12px; background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; margin-top: 12px;">
+                                <div style="font-size: 12px; font-weight: 600; color: #92400e; margin-bottom: 8px;">
+                                    💡 Para cada mês marcado, escolha o tipo:
+                                </div>
+                                <div style="font-size: 11px; color: #78350f; line-height: 1.6;">
+                                    <strong>Mês de Trabalho:</strong> Cliente aparece mas sem receita (apenas projeção)<br>
+                                    <strong>Mês de Receita:</strong> Cliente aparece com valor de entrada
+                                </div>
+                                <div id="tcvMesesConfig" style="margin-top: 12px;">
+                                    <!-- Será preenchido dinamicamente -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Preview do Contrato -->
                     <div id="contratoPreview" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 12px; padding: 16px; margin-top: 16px;">
                         <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #166534;">📋 Resumo do Contrato</h4>
