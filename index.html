@@ -792,15 +792,14 @@
         }
 
         .badge-active {
-            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            background: #6b7280;
             color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(107,114,128,0.3);
+            letter-spacing: 0.3px;
         }
 
         .badge-new {
@@ -819,15 +818,14 @@
         }
 
         .badge-tcv {
-            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+            background: #9333ea;
             color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(147,51,234,0.3);
+            letter-spacing: 0.3px;
         }
 
         .badge-bonus {
@@ -881,39 +879,36 @@
         }
 
         .badge-outbound {
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            background: #f59e0b;
             color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+            letter-spacing: 0.3px;
         }
 
         .badge-envio {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: #3b82f6;
             color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+            letter-spacing: 0.3px;
         }
 
         .badge-growth {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            background: #10b981;
             color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+            letter-spacing: 0.3px;
         }
 
         .badge-projecao {
@@ -4269,39 +4264,44 @@
             if (isRenovacao) {
                 valorDisplay = `
                     <div style="text-align:center;">
-                        <div style="font-size: 13px; color: #f59e0b; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">🔄 Renovação</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #1f2937;">R$ ${cliente.valorRenovacao || brutoFormatado}</div>
-                        <div style="font-size: 11px; color: #6b7280; margin-top: 4px; font-weight: 600;">por mês</div>
-                        <div style="font-size: 10px; color: #ef4444; margin-top: 6px; padding: 4px 8px; background: rgba(239,68,68,0.1); border-radius: 6px; display: inline-block;">Não contabilizado</div>
+                        <div style="font-size: 11px; color: #f59e0b; font-weight: 600; margin-bottom: 4px;">🔄 Renovação</div>
+                        <div style="font-size: 20px; font-weight: 700; color: #111827;">R$ ${cliente.valorRenovacao || brutoFormatado}/mês</div>
+                        <div style="font-size: 10px; color: #ef4444; margin-top: 6px;">Não contabilizado</div>
                     </div>
                 `;
             } else if (cliente.tipoValor === 'tcv') {
                 valorDisplay = `
-                    <div style="text-align:center;">
-                        <div style="font-size: 11px; color: #6b7280; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💰 Valor Bruto</div>
-                        <div style="font-size: 18px; font-weight: 700; color: #4b5563; margin-bottom: 8px;">R$ ${brutoFormatado}</div>
-                        <div style="width: 40px; height: 2px; background: linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 0 auto 8px;"></div>
-                        <div style="font-size: 11px; color: #10b981; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💵 Valor Líquido</div>
-                        <div style="font-size: 24px; font-weight: 800; color: #10b981;">R$ ${liquidoFormatado}</div>
+                    <div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <span style="font-size:11px;color:#6b7280;font-weight:500;">Bruto:</span>
+                            <span style="font-size:15px;color:#374151;font-weight:600;">R$ ${brutoFormatado}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #e5e7eb;">
+                            <span style="font-size:11px;color:#059669;font-weight:600;">Líquido:</span>
+                            <span style="font-size:20px;color:#059669;font-weight:700;">R$ ${liquidoFormatado}</span>
+                        </div>
                     </div>
                 `;
             } else {
                 // MRR: mostrar bruto e líquido
                 if (valorBruto !== valorLiquido) {
                     valorDisplay = `
-                        <div style="text-align:center;">
-                            <div style="font-size: 11px; color: #6b7280; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💰 Bruto Mensal</div>
-                            <div style="font-size: 16px; font-weight: 700; color: #4b5563; margin-bottom: 8px;">R$ ${brutoFormatado}</div>
-                            <div style="width: 40px; height: 2px; background: linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 0 auto 8px;"></div>
-                            <div style="font-size: 11px; color: #10b981; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💵 Líquido Mensal</div>
-                            <div style="font-size: 24px; font-weight: 800; color: #10b981;">R$ ${liquidoFormatado}</div>
+                        <div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                <span style="font-size:11px;color:#6b7280;font-weight:500;">Bruto/mês:</span>
+                                <span style="font-size:15px;color:#374151;font-weight:600;">R$ ${brutoFormatado}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #e5e7eb;">
+                                <span style="font-size:11px;color:#059669;font-weight:600;">Líquido/mês:</span>
+                                <span style="font-size:20px;color:#059669;font-weight:700;">R$ ${liquidoFormatado}</span>
+                            </div>
                         </div>
                     `;
                 } else {
                     valorDisplay = `
                         <div style="text-align:center;">
-                            <div style="font-size: 11px; color: #10b981; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💵 Valor Mensal</div>
-                            <div style="font-size: 26px; font-weight: 800; color: #10b981;">R$ ${brutoFormatado}</div>
+                            <div style="font-size: 11px; color: #059669; margin-bottom: 4px; font-weight: 600;">Valor Mensal</div>
+                            <div style="font-size: 22px; font-weight: 700; color: #059669;">R$ ${brutoFormatado}</div>
                         </div>
                     `;
                 }
@@ -4320,7 +4320,7 @@
             if (cliente.tipoValor === 'tcv') {
                 tipoBadge = '<span class="badge-tcv">TCV</span>';
             } else if (cliente.tipoValor === 'mrr') {
-                tipoBadge = '<span style="background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:white;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(16,185,129,0.3);display:inline-block;">MRR</span>';
+                tipoBadge = '<span style="background:#10b981;color:white;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;display:inline-block;">MRR</span>';
             }
 
             // Badge de Origem
@@ -4347,12 +4347,9 @@
             if (cliente.dataFechamento) {
                 const dataFechamentoFormatada = new Date(cliente.dataFechamento + 'T00:00:00').toLocaleDateString('pt-BR');
                 datasInfo += `
-                    <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:white;border-radius:6px;margin-bottom:6px;">
-                        <span style="font-size:16px;">📅</span>
-                        <div style="flex:1;">
-                            <div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Fechamento</div>
-                            <div style="font-size:11px;color:#1f2937;font-weight:700;">${dataFechamentoFormatada}</div>
-                        </div>
+                    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                        <span style="font-size:11px;color:#6b7280;">📅 Fechamento</span>
+                        <span style="font-size:11px;color:#111827;font-weight:600;">${dataFechamentoFormatada}</span>
                     </div>
                 `;
             }
@@ -4363,12 +4360,9 @@
                 const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
                 const mesFormatado = `${meses[parseInt(mes)-1]}/${ano}`;
                 datasInfo += `
-                    <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:white;border-radius:6px;margin-bottom:6px;">
-                        <span style="font-size:16px;">🚀</span>
-                        <div style="flex:1;">
-                            <div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Início</div>
-                            <div style="font-size:11px;color:#1f2937;font-weight:700;">${mesFormatado}</div>
-                        </div>
+                    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                        <span style="font-size:11px;color:#6b7280;">🚀 Início</span>
+                        <span style="font-size:11px;color:#111827;font-weight:600;">${mesFormatado}</span>
                     </div>
                 `;
             }
@@ -4379,12 +4373,9 @@
                     ? new Date(cliente.dataPagamentoTCV + 'T00:00:00').toLocaleDateString('pt-BR')
                     : cliente.dataPagamentoTCV;
                 datasInfo += `
-                    <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);border-radius:6px;margin-bottom:6px;border:1px solid #fbbf24;">
-                        <span style="font-size:16px;">💰</span>
-                        <div style="flex:1;">
-                            <div style="font-size:9px;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Pagamento TCV</div>
-                            <div style="font-size:11px;color:#78350f;font-weight:800;">${dataPagamentoFormatada}</div>
-                        </div>
+                    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                        <span style="font-size:11px;color:#6b7280;">💰 Pagamento</span>
+                        <span style="font-size:11px;color:#111827;font-weight:600;">${dataPagamentoFormatada}</span>
                     </div>
                 `;
             }
@@ -4393,12 +4384,9 @@
             if (cliente.tipoValor === 'mrr' && cliente.dataPagamentoMRR) {
                 const dataVencimentoFormatada = new Date(cliente.dataPagamentoMRR + 'T00:00:00').toLocaleDateString('pt-BR');
                 datasInfo += `
-                    <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);border-radius:6px;margin-bottom:6px;border:1px solid #10b981;">
-                        <span style="font-size:16px;">📆</span>
-                        <div style="flex:1;">
-                            <div style="font-size:9px;color:#065f46;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">1º Vencimento</div>
-                            <div style="font-size:11px;color:#064e3b;font-weight:800;">${dataVencimentoFormatada}</div>
-                        </div>
+                    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                        <span style="font-size:11px;color:#6b7280;">📆 1º Vencimento</span>
+                        <span style="font-size:11px;color:#111827;font-weight:600;">${dataVencimentoFormatada}</span>
                     </div>
                 `;
             }
@@ -4406,108 +4394,91 @@
             // Meses de trabalho (para TCV)
             if (cliente.tipoValor === 'tcv' && cliente.mesesTrabalho) {
                 datasInfo += `
-                    <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:white;border-radius:6px;margin-bottom:6px;">
-                        <span style="font-size:16px;">⏱️</span>
-                        <div style="flex:1;">
-                            <div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Duração</div>
-                            <div style="font-size:11px;color:#1f2937;font-weight:700;">${cliente.mesesTrabalho} ${cliente.mesesTrabalho === 1 ? 'mês' : 'meses'}</div>
-                        </div>
+                    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                        <span style="font-size:11px;color:#6b7280;">⏱️ Duração</span>
+                        <span style="font-size:11px;color:#111827;font-weight:600;">${cliente.mesesTrabalho} ${cliente.mesesTrabalho === 1 ? 'mês' : 'meses'}</span>
                     </div>
                 `;
             }
 
             // Forma de Pagamento
             if (cliente.formaPagamento) {
-                const formaPagamentoConfig = {
-                    'pix': { icone: '💰', nome: 'PIX', cor: '#10b981', bg: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)' },
-                    'cartao': { icone: '💳', nome: 'Cartão', cor: '#3b82f6', bg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' },
-                    'boleto': { icone: '📄', nome: 'Boleto', cor: '#f59e0b', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' },
-                    'transferencia': { icone: '🏦', nome: 'Transferência', cor: '#6366f1', bg: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)' }
+                const formaPagamentoNomes = {
+                    'pix': '💰 PIX',
+                    'cartao': '💳 Cartão',
+                    'boleto': '📄 Boleto',
+                    'transferencia': '🏦 Transferência'
                 };
-                const config = formaPagamentoConfig[cliente.formaPagamento];
+                const formaNome = formaPagamentoNomes[cliente.formaPagamento];
 
-                if (config) {
-                    datasInfo += `
-                        <div style="padding:8px;background:${config.bg};border-radius:8px;margin-top:8px;border:1px solid ${config.cor};">
-                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:${cliente.formaPagamento === 'cartao' ? '8px' : '0'};">
-                                <span style="font-size:18px;">${config.icone}</span>
-                                <div style="flex:1;">
-                                    <div style="font-size:9px;color:${config.cor};text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Pagamento</div>
-                                    <div style="font-size:12px;color:#1f2937;font-weight:800;">${config.nome}</div>
-                                </div>
-                            </div>`;
+                datasInfo += `
+                    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                        <span style="font-size:11px;color:#6b7280;">Pagamento</span>
+                        <span style="font-size:11px;color:#111827;font-weight:600;">${formaNome}</span>
+                    </div>
+                `;
 
-                    // Se for cartão, mostrar detalhes
-                    if (cliente.formaPagamento === 'cartao') {
-                        datasInfo += `<div style="background:white;border-radius:6px;padding:6px;border-left:3px solid ${config.cor};">`;
-
-                        if (cliente.gateway) {
-                            const gatewayNomes = {
-                                'asaas': 'Asaas',
-                                'infinity-pay': 'Infinity Pay',
-                                'outro': 'Outro'
-                            };
-                            const gatewayNome = gatewayNomes[cliente.gateway] || cliente.gateway;
-                            datasInfo += `
-                                <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Gateway</div>
-                                <div style="font-size:11px;color:#1f2937;font-weight:700;margin-bottom:6px;">${gatewayNome}</div>
-                            `;
-                        }
-
-                        if (cliente.parcelasCartao) {
-                            datasInfo += `
-                                <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Parcelas</div>
-                                <div style="font-size:11px;color:#1f2937;font-weight:700;">${cliente.parcelasCartao}</div>
-                            `;
-                        }
-
-                        datasInfo += `</div>`;
+                // Se for cartão, mostrar detalhes
+                if (cliente.formaPagamento === 'cartao') {
+                    if (cliente.gateway) {
+                        const gatewayNomes = {
+                            'asaas': 'Asaas',
+                            'infinity-pay': 'Infinity Pay',
+                            'outro': 'Outro'
+                        };
+                        const gatewayNome = gatewayNomes[cliente.gateway] || cliente.gateway;
+                        datasInfo += `
+                            <div style="display:flex;justify-content:space-between;padding:6px 0 6px 16px;border-bottom:1px solid #f3f4f6;">
+                                <span style="font-size:10px;color:#9ca3af;">Gateway</span>
+                                <span style="font-size:10px;color:#6b7280;font-weight:500;">${gatewayNome}</span>
+                            </div>
+                        `;
                     }
 
-                    datasInfo += `</div>`;
+                    if (cliente.parcelasCartao) {
+                        datasInfo += `
+                            <div style="display:flex;justify-content:space-between;padding:6px 0 6px 16px;border-bottom:1px solid #f3f4f6;">
+                                <span style="font-size:10px;color:#9ca3af;">Parcelas</span>
+                                <span style="font-size:10px;color:#6b7280;font-weight:500;">${cliente.parcelasCartao}</span>
+                            </div>
+                        `;
+                    }
                 }
             }
 
             // Cor da barra lateral baseada no tipo
-            let corBarra = cliente.tipoValor === 'tcv' ? 'linear-gradient(180deg, #9333ea 0%, #7c3aed 100%)' : 'linear-gradient(180deg, #4CAF50 0%, #45a049 100%)';
-            let corHeader = cliente.tipoValor === 'tcv' ? 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)' : 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+            let corBarra = cliente.tipoValor === 'tcv' ? '#9333ea' : '#10b981';
 
             return `
-                <div class="${cardClass}" data-client-id="${cliente.id}" draggable="true" style="border-left: 6px solid ${cliente.tipoValor === 'tcv' ? '#9333ea' : '#4CAF50'};">
-                    <button class="btn-delete-client" onclick="deleteManualClient(${cliente.id})" title="Excluir cliente" style="position:absolute;top:8px;right:8px;background:rgba(239,68,68,0.9);color:white;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;font-weight:700;z-index:10;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">✕</button>
+                <div class="${cardClass}" data-client-id="${cliente.id}" draggable="true" style="border-left: 4px solid ${corBarra};">
+                    <button class="btn-delete-client" onclick="deleteManualClient(${cliente.id})" title="Excluir cliente" style="position:absolute;top:10px;right:10px;background:#ef4444;color:white;border:none;width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;z-index:10;opacity:0.7;transition:opacity 0.2s;">✕</button>
 
                     <!-- HEADER -->
-                    <div style="background:${corHeader};padding:16px 20px;border-bottom:2px solid ${cliente.tipoValor === 'tcv' ? '#e9d5ff' : '#a7f3d0'};">
-                        <div style="font-size:42px;margin-bottom:8px;">${emoji}</div>
-                        <h3 style="margin:0;font-size:15px;font-weight:700;color:#1f2937;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <div style="padding:20px 16px 12px 16px;text-align:center;border-bottom:1px solid #f3f4f6;">
+                        <div style="font-size:36px;margin-bottom:10px;">${emoji}</div>
+                        <h3 style="margin:0;font-size:16px;font-weight:600;color:#111827;display:flex;align-items:center;justify-content:center;gap:6px;">
                             ${cliente.nome}
                             ${contratoFechadoBadge}
                         </h3>
+                        <p style="margin:6px 0 0 0;font-size:11px;color:#9ca3af;font-weight:500;">${cliente.categoria}</p>
                     </div>
 
                     <!-- BADGES -->
-                    <div style="padding:12px 16px;background:#f9fafb;border-bottom:1px solid #e5e7eb;">
-                        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+                    <div style="padding:12px 16px;border-bottom:1px solid #f3f4f6;">
+                        <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
                             ${tipoBadge}
                             ${origemBadge}
                         </div>
                     </div>
 
-                    <!-- CATEGORIA -->
-                    <div style="padding:8px 16px;background:white;">
-                        <p style="margin:0;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">${cliente.categoria}</p>
-                    </div>
-
-                    <!-- VALORES (DESTAQUE) -->
-                    <div style="padding:16px;background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);margin:12px;border-radius:12px;border:2px solid #fbbf24;box-shadow:0 2px 8px rgba(251,191,36,0.2);">
+                    <!-- VALORES -->
+                    <div style="padding:16px;background:#fafafa;border-bottom:1px solid #f3f4f6;">
                         ${valorDisplay}
                     </div>
 
-                    <!-- TIMELINE DATAS -->
-                    <div style="padding:0 16px 16px 16px;background:white;">
-                        <div style="background:#f9fafb;border-radius:8px;padding:12px;border-left:3px solid #3b82f6;">
-                            ${datasInfo}
-                        </div>
+                    <!-- INFORMAÇÕES -->
+                    <div style="padding:12px 16px;">
+                        ${datasInfo}
                     </div>
                 </div>
             `;
