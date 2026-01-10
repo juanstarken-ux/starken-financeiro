@@ -3131,6 +3131,7 @@
             const campoDataPagamentoTCV = document.getElementById('campoDataPagamentoTCV');
             const campoDataVencimentoMRR = document.getElementById('campoDataVencimentoMRR');
             const valorInput = document.getElementById('clientValor');
+            const tcvTipoVisibilidade = document.getElementById('tcvTipoVisibilidade');
 
             if (tipo === 'tcv') {
                 camposMRR.style.display = 'none';
@@ -3138,13 +3139,95 @@
                 campoDataPagamentoTCV.style.display = 'block';
                 campoDataVencimentoMRR.style.display = 'none';
                 valorInput.removeAttribute('required');
+
+                // Mostrar opção TCV se personalização estiver ativa
+                const mesesPersonalizados = document.getElementById('mesesPersonalizados');
+                if (mesesPersonalizados.style.display !== 'none') {
+                    tcvTipoVisibilidade.style.display = 'block';
+                }
             } else {
                 camposMRR.style.display = 'block';
                 camposTCV.style.display = 'none';
                 campoDataPagamentoTCV.style.display = 'none';
                 campoDataVencimentoMRR.style.display = 'block';
                 valorInput.setAttribute('required', 'required');
+                tcvTipoVisibilidade.style.display = 'none';
             }
+        }
+
+        // Toggle personalização de meses
+        function toggleMesesPersonalizados() {
+            const painel = document.getElementById('mesesPersonalizados');
+            const btn = document.getElementById('btnToggleMeses');
+            const tipo = document.getElementById('clientTipoValor').value;
+
+            if (painel.style.display === 'none') {
+                painel.style.display = 'block';
+                btn.textContent = 'Usar Automático';
+                btn.style.background = '#dc2626';
+
+                // Se for TCV, mostrar seção de tipo
+                if (tipo === 'tcv') {
+                    document.getElementById('tcvTipoVisibilidade').style.display = 'block';
+                }
+            } else {
+                painel.style.display = 'none';
+                btn.textContent = 'Personalizar';
+                btn.style.background = '#4A6B54';
+                document.getElementById('tcvTipoVisibilidade').style.display = 'none';
+
+                // Limpar checkboxes
+                document.querySelectorAll('.mes-checkbox').forEach(cb => cb.checked = false);
+            }
+        }
+
+        // Quando marca/desmarca um mês (para TCV)
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('mes-checkbox')) {
+                const tipo = document.getElementById('clientTipoValor').value;
+                if (tipo === 'tcv') {
+                    atualizarTCVMesesConfig();
+                }
+            }
+        });
+
+        // Atualizar configuração de meses TCV
+        function atualizarTCVMesesConfig() {
+            const mesesMarcados = [];
+            document.querySelectorAll('.mes-checkbox:checked').forEach(cb => {
+                mesesMarcados.push(cb.getAttribute('data-mes'));
+            });
+
+            const container = document.getElementById('tcvMesesConfig');
+
+            if (mesesMarcados.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const mesesNomes = {
+                '2025-10': 'Out/2025', '2025-11': 'Nov/2025', '2025-12': 'Dez/2025',
+                '2026-01': 'Jan/2026', '2026-02': 'Fev/2026', '2026-03': 'Mar/2026',
+                '2026-04': 'Abr/2026', '2026-05': 'Mai/2026', '2026-06': 'Jun/2026',
+                '2026-07': 'Jul/2026', '2026-08': 'Ago/2026', '2026-09': 'Set/2026',
+                '2026-10': 'Out/2026', '2026-11': 'Nov/2026', '2026-12': 'Dez/2026'
+            };
+
+            let html = '';
+            mesesMarcados.forEach(mes => {
+                const nome = mesesNomes[mes] || mes;
+                html += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; background: white; border-radius: 6px; margin-bottom: 6px;">
+                        <span style="font-size: 12px; font-weight: 600; color: #374151;">${nome}</span>
+                        <select class="tcv-mes-tipo" data-mes="${mes}" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 11px;">
+                            <option value="trabalho">⚙️ Trabalho (sem receita)</option>
+                            <option value="receita">💰 Receita (com valor)</option>
+                        </select>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
         }
 
         // Atualizar preview do contrato
@@ -3345,6 +3428,29 @@
 
             console.log('💾 Salvando cliente...', { nome, valor, isEditing, editingId });
 
+            // Capturar meses personalizados (se configurado)
+            let mesesPersonalizados = null;
+            let tcvMesesReceita = null;
+
+            const painelMeses = document.getElementById('mesesPersonalizados');
+            if (painelMeses && painelMeses.style.display !== 'none') {
+                // Usuário personalizou os meses
+                mesesPersonalizados = [];
+                document.querySelectorAll('.mes-checkbox:checked').forEach(cb => {
+                    mesesPersonalizados.push(cb.getAttribute('data-mes'));
+                });
+
+                // Para TCV, capturar quais meses têm receita
+                if (tipoValor === 'tcv') {
+                    tcvMesesReceita = [];
+                    document.querySelectorAll('.tcv-mes-tipo').forEach(select => {
+                        if (select.value === 'receita') {
+                            tcvMesesReceita.push(select.getAttribute('data-mes'));
+                        }
+                    });
+                }
+            }
+
             let clienteData = {
                 nome,
                 empresa,
@@ -3365,7 +3471,10 @@
                 dataPagamentoMRR: dataPagamentoMRR,
                 gateway: gateway,
                 parcelasCartao: parcelasCartao,
-                isContratoFechado: isContratoFechado
+                isContratoFechado: isContratoFechado,
+                // Meses personalizados
+                mesesPersonalizados: mesesPersonalizados,
+                tcvMesesReceita: tcvMesesReceita
             };
 
             if (isEditing) {
