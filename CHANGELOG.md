@@ -4,6 +4,91 @@ Histórico completo de todas as mudanças realizadas no dashboard.
 
 ---
 
+## 🚀 [2.3.0] - 2026-01-10 - CALENDÁRIO DE VISIBILIDADE DE CLIENTES
+
+### 📅 Painel de Calendário
+
+Um painel completo que mostra **TODOS os clientes** e em quais meses cada um aparece no dashboard.
+
+#### Botão de Acesso:
+- **Local**: Barra de busca, ao lado do botão "Limpar"
+- **Texto**: "📅 Ver Calendário de Clientes"
+- **Ação**: Abre/fecha o painel de calendário
+
+#### O que o Painel Mostra:
+
+Para cada cliente cadastrado, exibe:
+1. **Nome do cliente**
+2. **Badge de tipo**: TCV (roxo) ou MRR (verde)
+3. **Badge de origem**: Outbound, Growth Hub, Repasse Matriz, etc.
+4. **Número de meses**: Ex: "12 meses", "3 meses"
+5. **Lista de meses**: Ex: "Jan/2026, Fev/2026, Mar/2026..."
+
+#### Organização:
+- Separado em duas seções: **Starken** e **Alpha**
+- Contador por empresa
+- Scroll vertical para muitos clientes
+- Hover effect interativo
+
+#### Lógica de Cálculo:
+
+O sistema calcula automaticamente quando cada cliente aparece:
+
+**TCV (Projetos)**:
+- Aparece **apenas** no mês de `dataPagamentoTCV`
+- Ex: Pagamento em Jan/2026 → Só aparece em Jan/2026
+
+**MRR (Recorrente)**:
+- Aparece por **12 meses consecutivos** a partir de `mesInicio`
+- Ex: Início Dez/2025 → Aparece de Dez/2025 a Nov/2026
+
+**Renovações**:
+- Aparece no mês específico de renovação
+
+### 🎨 Exemplo Visual:
+
+```
+╔═══════════════════════════════════════════╗
+║ 📅 Calendário de Visibilidade            ║
+║                          [✕ Fechar]       ║
+╠═══════════════════════════════════════════╣
+║ Veja em quais meses cada cliente aparece  ║
+║                                           ║
+║ 🚀 Starken (14 clientes)                 ║
+║ ┌───────────────────────────────────────┐ ║
+║ │ Oca Restaurante [MRR] [Outbound]     │ ║
+║ │                           12 meses    │ ║
+║ │ 📅 Aparece em: Dez/2025, Jan/2026,   │ ║
+║ │    Fev/2026, Mar/2026... (12 meses)  │ ║
+║ └───────────────────────────────────────┘ ║
+║                                           ║
+║ ⭐ Alpha (18 clientes)                    ║
+║ ┌───────────────────────────────────────┐ ║
+║ │ Pizzaria Don Chevico [TCV] [Repasse] │ ║
+║ │                            3 meses    │ ║
+║ │ 📅 Aparece em: Nov/2025, Dez/2025,   │ ║
+║ │    Jan/2026                          │ ║
+║ └───────────────────────────────────────┘ ║
+╚═══════════════════════════════════════════╝
+```
+
+### 🎯 Casos de Uso:
+
+1. **Planejamento**: Ver quais clientes estarão ativos em cada mês
+2. **Validação**: Conferir se configurou datas corretamente
+3. **Visão geral**: Entender distribuição de clientes ao longo do ano
+4. **Controle**: Verificar TCV vs MRR de forma rápida
+
+### 💡 Benefícios:
+
+✅ **Visão completa** de todos os clientes
+✅ **Não precisa buscar** um por um
+✅ **Validação rápida** de configurações
+✅ **Planejamento financeiro** facilitado
+✅ **Interface clara** e organizada
+
+---
+
 ## 🚀 [2.2.0] - 2026-01-10 - SISTEMA DE BUSCA + BUG FIX DE ABA
 
 ### 🔍 Sistema de Busca de Clientes
