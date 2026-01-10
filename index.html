@@ -2819,15 +2819,21 @@
             const tipo = document.getElementById('clientTipoValor').value;
             const camposMRR = document.getElementById('camposMRR');
             const camposTCV = document.getElementById('camposTCV');
+            const campoDataPagamentoTCV = document.getElementById('campoDataPagamentoTCV');
+            const campoDataVencimentoMRR = document.getElementById('campoDataVencimentoMRR');
             const valorInput = document.getElementById('clientValor');
 
             if (tipo === 'tcv') {
                 camposMRR.style.display = 'none';
                 camposTCV.style.display = 'block';
+                campoDataPagamentoTCV.style.display = 'block';
+                campoDataVencimentoMRR.style.display = 'none';
                 valorInput.removeAttribute('required');
             } else {
                 camposMRR.style.display = 'block';
                 camposTCV.style.display = 'none';
+                campoDataPagamentoTCV.style.display = 'none';
+                campoDataVencimentoMRR.style.display = 'block';
                 valorInput.setAttribute('required', 'required');
             }
         }
@@ -3010,6 +3016,14 @@
             // Taxa de juros do cartão (opcional)
             const taxaJuros = parseFloat(document.getElementById('clientTaxaJuros')?.value) || 0;
 
+            // Novos campos adicionados
+            const dataFechamento = document.getElementById('clientDataFechamento')?.value || null;
+            const dataPagamentoTCV = document.getElementById('clientDataPagamentoTCV')?.value || null;
+            const dataPagamentoMRR = document.getElementById('clientDataPagamentoMRR')?.value || null;
+            const gateway = document.getElementById('clientGateway')?.value || null;
+            const parcelasCartao = parseInt(document.getElementById('clientParcelasCartao')?.value) || 1;
+            const isContratoFechado = document.getElementById('clientIsContratoFechado')?.checked || false;
+
             // Calcular líquido (15% royalty para Alpha + taxa de juros)
             valorLiquido = empresa === 'alpha' ? valor * 0.85 : valor;
             if (taxaJuros > 0) {
@@ -3035,7 +3049,14 @@
                 taxaJuros: taxaJuros || 0,
                 origem: origem,
                 mesesTrabalho: tipoValor === 'tcv' ? mesesTrabalho : null,
-                isProjecao: isProjecao
+                isProjecao: isProjecao,
+                // Novos campos
+                dataFechamento: dataFechamento,
+                dataPagamentoTCV: dataPagamentoTCV,
+                dataPagamentoMRR: dataPagamentoMRR,
+                gateway: gateway,
+                parcelasCartao: parcelasCartao,
+                isContratoFechado: isContratoFechado
             };
 
             if (isEditing) {
@@ -3335,6 +3356,27 @@
             const checkboxProjecao = document.getElementById('clientIsProjecao');
             if (checkboxProjecao) {
                 checkboxProjecao.checked = cliente.isProjecao || false;
+            }
+
+            // Preencher novos campos adicionados
+            if (cliente.dataFechamento) {
+                document.getElementById('clientDataFechamento').value = cliente.dataFechamento;
+            }
+            if (cliente.dataPagamentoTCV) {
+                document.getElementById('clientDataPagamentoTCV').value = cliente.dataPagamentoTCV;
+            }
+            if (cliente.dataPagamentoMRR) {
+                document.getElementById('clientDataPagamentoMRR').value = cliente.dataPagamentoMRR;
+            }
+            if (cliente.gateway) {
+                document.getElementById('clientGateway').value = cliente.gateway;
+            }
+            if (cliente.parcelasCartao) {
+                document.getElementById('clientParcelasCartao').value = cliente.parcelasCartao;
+            }
+            const checkboxContratoFechado = document.getElementById('clientIsContratoFechado');
+            if (checkboxContratoFechado) {
+                checkboxContratoFechado.checked = cliente.isContratoFechado || false;
             }
 
             // Armazena ID do cliente para edição
@@ -3688,12 +3730,36 @@
                 const dataPagamentoFormatada = cliente.dataPagamentoTCV.includes('-') && cliente.dataPagamentoTCV.split('-').length === 3
                     ? new Date(cliente.dataPagamentoTCV + 'T00:00:00').toLocaleDateString('pt-BR')
                     : cliente.dataPagamentoTCV;
-                datasInfo += `<div style="font-size:10px;color:#FFC107;font-weight:600;margin-top:2px;">💰 Pagamento: ${dataPagamentoFormatada}</div>`;
+                datasInfo += `<div style="font-size:10px;color:#FFC107;font-weight:600;margin-top:2px;">💰 Pagamento TCV: ${dataPagamentoFormatada}</div>`;
+            }
+
+            // Data do 1º Vencimento (apenas para MRR)
+            if (cliente.tipoValor === 'mrr' && cliente.dataPagamentoMRR) {
+                const dataVencimentoFormatada = new Date(cliente.dataPagamentoMRR + 'T00:00:00').toLocaleDateString('pt-BR');
+                datasInfo += `<div style="font-size:10px;color:#4CAF50;font-weight:600;margin-top:2px;">📆 1º Vencimento: ${dataVencimentoFormatada}</div>`;
             }
 
             // Meses de trabalho (para TCV)
             if (cliente.tipoValor === 'tcv' && cliente.mesesTrabalho) {
                 datasInfo += `<div style="font-size:10px;color:#666;">⏱️ Duração: ${cliente.mesesTrabalho} ${cliente.mesesTrabalho === 1 ? 'mês' : 'meses'}</div>`;
+            }
+
+            // Gateway de pagamento
+            if (cliente.gateway) {
+                const gatewayNomes = {
+                    'asaas': '🏦 Asaas',
+                    'infinity-pay': '🏦 Infinity Pay',
+                    'outro': '🏦 Outro'
+                };
+                const gatewayNome = gatewayNomes[cliente.gateway] || `🏦 ${cliente.gateway}`;
+                datasInfo += `<div style="font-size:10px;color:#666;margin-top:2px;">${gatewayNome}</div>`;
+            }
+
+            // Parcelas do cartão
+            if (cliente.parcelasCartao && cliente.parcelasCartao > 1) {
+                datasInfo += `<div style="font-size:10px;color:#666;">💳 ${cliente.parcelasCartao}x no cartão</div>`;
+            } else if (cliente.parcelasCartao === 1) {
+                datasInfo += `<div style="font-size:10px;color:#4CAF50;">💳 À vista</div>`;
             }
 
             return `
@@ -3849,19 +3915,72 @@
                         <input type="text" id="clientCategoria" placeholder="Ex: Gastronomia, Automotivo..." required>
                     </div>
 
+                    <!-- Datas do Contrato -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="clientTaxaJuros">💳 Taxa de Juros Cartão (%)</label>
+                            <label for="clientDataFechamento">📅 Data de Fechamento</label>
+                            <input type="date" id="clientDataFechamento">
+                            <small style="color: #6b7280; font-size: 11px;">Quando o contrato foi fechado</small>
+                        </div>
+                        <div class="form-group" id="campoDataPagamentoTCV" style="display: none;">
+                            <label for="clientDataPagamentoTCV">💰 Data de Pagamento (TCV)</label>
+                            <input type="date" id="clientDataPagamentoTCV">
+                            <small style="color: #6b7280; font-size: 11px;">Quando o TCV será pago</small>
+                        </div>
+                        <div class="form-group" id="campoDataVencimentoMRR">
+                            <label for="clientDataPagamentoMRR">📆 1º Vencimento (MRR)</label>
+                            <input type="date" id="clientDataPagamentoMRR">
+                            <small style="color: #6b7280; font-size: 11px;">Primeiro vencimento mensal</small>
+                        </div>
+                    </div>
+
+                    <!-- Gateway de Pagamento e Parcelas do Cartão -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientGateway">🏦 Gateway de Pagamento</label>
+                            <select id="clientGateway" onchange="atualizarPreviewContrato()">
+                                <option value="">Não informado</option>
+                                <option value="asaas">Asaas</option>
+                                <option value="infinity-pay">Infinity Pay</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                            <small style="color: #6b7280; font-size: 11px;">Plataforma de pagamento</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientParcelasCartao">💳 Parcelas no Cartão</label>
+                            <select id="clientParcelasCartao" onchange="atualizarPreviewContrato()">
+                                <option value="1">1x (À vista)</option>
+                                <option value="2">2x</option>
+                                <option value="3">3x</option>
+                                <option value="4">4x</option>
+                                <option value="6">6x</option>
+                                <option value="12">12x</option>
+                            </select>
+                            <small style="color: #6b7280; font-size: 11px;">Parcelamento no cartão</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientTaxaJuros">📊 Taxa de Juros Cartão (%)</label>
                             <input type="number" id="clientTaxaJuros" placeholder="Ex: 2.5" min="0" max="100" step="0.01" oninput="atualizarPreviewContrato()">
-                            <small style="color: #6b7280; font-size: 11px;">Opcional - Taxa do cartão</small>
+                            <small style="color: #6b7280; font-size: 11px;">Taxa do parcelamento</small>
                         </div>
-                        <div class="form-group" style="display: none;">
-                            <label for="clientIsProjecao">
-                                <input type="checkbox" id="clientIsProjecao" style="width: auto; margin-right: 8px;" onchange="atualizarPreviewContrato()">
-                                📊 Cliente é Projeção?
+                        <div class="form-group">
+                            <label for="clientIsContratoFechado">
+                                <input type="checkbox" id="clientIsContratoFechado" style="width: auto; margin-right: 8px;" onchange="atualizarPreviewContrato()">
+                                ✅ Contrato Fechado/Assinado?
                             </label>
-                            <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 4px;">Marca como futuro (não faturado ainda)</small>
+                            <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 4px;">Marcar se contrato foi assinado</small>
                         </div>
+                    </div>
+
+                    <div class="form-group" style="display: none;">
+                        <label for="clientIsProjecao">
+                            <input type="checkbox" id="clientIsProjecao" style="width: auto; margin-right: 8px;" onchange="atualizarPreviewContrato()">
+                            📊 Cliente é Projeção?
+                        </label>
+                        <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 4px;">Marca como futuro (não faturado ainda)</small>
                     </div>
 
                     <!-- Preview do Contrato -->
