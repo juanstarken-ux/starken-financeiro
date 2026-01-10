@@ -1393,6 +1393,15 @@
                         >
                             ✕ Limpar
                         </button>
+                        <button
+                            onclick="togglePainelMeses()"
+                            id="btnPainelMeses"
+                            style="padding: 12px 20px; background: #4A6B54; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s ease;"
+                            onmouseover="this.style.background='#3d5a45'"
+                            onmouseout="this.style.background='#4A6B54'"
+                        >
+                            📅 Ver Calendário de Clientes
+                        </button>
                     </div>
                     <div id="searchResults" style="margin-top: 12px; display: none;">
                         <div style="font-size: 13px; color: #7f8c8d; margin-bottom: 8px;">
@@ -1401,6 +1410,27 @@
                         <div id="searchMeses" style="font-size: 12px; color: #4A6B54; padding: 8px; background: #f0fdf4; border-radius: 8px; display: none;">
                             <!-- Meses onde o cliente aparece -->
                         </div>
+                    </div>
+                </div>
+
+                <!-- Painel de Calendário de Clientes -->
+                <div id="painelCalendario" style="display: none; padding: 20px; background: white; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0; color: #2c3e50; font-size: 18px;">
+                            📅 Calendário de Visibilidade dos Clientes
+                        </h3>
+                        <button
+                            onclick="togglePainelMeses()"
+                            style="padding: 8px 16px; background: #f5f7fa; border: 2px solid #e1e8ed; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #7f8c8d;"
+                        >
+                            ✕ Fechar
+                        </button>
+                    </div>
+                    <p style="margin: 0 0 16px 0; color: #7f8c8d; font-size: 14px;">
+                        Veja em quais meses cada cliente aparece no dashboard
+                    </p>
+                    <div id="calendarioContent" style="max-height: 500px; overflow-y: auto;">
+                        <!-- Conteúdo será gerado dinamicamente -->
                     </div>
                 </div>
 
@@ -1847,6 +1877,126 @@
             document.querySelectorAll('.client-card').forEach(card => {
                 card.style.display = 'flex';
             });
+        }
+
+        // Toggle painel de calendário
+        function togglePainelMeses() {
+            const painel = document.getElementById('painelCalendario');
+            const btn = document.getElementById('btnPainelMeses');
+
+            if (painel.style.display === 'none') {
+                painel.style.display = 'block';
+                btn.textContent = '✕ Fechar Calendário';
+                renderCalendarioClientes();
+            } else {
+                painel.style.display = 'none';
+                btn.textContent = '📅 Ver Calendário de Clientes';
+            }
+        }
+
+        // Renderizar calendário de clientes
+        function renderCalendarioClientes() {
+            const clientes = getManualClients();
+            const deletedIds = getDeletedCards();
+            const container = document.getElementById('calendarioContent');
+
+            // Filtrar apenas clientes ativos (não deletados, não projeção)
+            const clientesAtivos = clientes.filter(c => {
+                return !deletedIds.includes(c.id) && !c.isProjecao;
+            });
+
+            // Separar por empresa
+            const clientesStarken = clientesAtivos.filter(c => c.empresa === 'starken');
+            const clientesAlpha = clientesAtivos.filter(c => c.empresa === 'alpha');
+
+            let html = '';
+
+            // Renderizar Starken
+            if (clientesStarken.length > 0) {
+                html += `
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="margin: 0 0 12px 0; color: #4A6B54; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                            <span>🚀</span> Starken (${clientesStarken.length} clientes)
+                        </h4>
+                        <div style="display: grid; gap: 12px;">
+                            ${clientesStarken.map(c => criarLinhaCalendario(c)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Renderizar Alpha
+            if (clientesAlpha.length > 0) {
+                html += `
+                    <div>
+                        <h4 style="margin: 0 0 12px 0; color: #4A6B54; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                            <span>⭐</span> Alpha (${clientesAlpha.length} clientes)
+                        </h4>
+                        <div style="display: grid; gap: 12px;">
+                            ${clientesAlpha.map(c => criarLinhaCalendario(c)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (clientesAtivos.length === 0) {
+                html = `
+                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+                        <p style="margin: 0; font-size: 16px; font-weight: 600;">Nenhum cliente cadastrado</p>
+                        <p style="margin: 8px 0 0 0; font-size: 14px;">Adicione clientes para ver o calendário de visibilidade</p>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Criar linha do calendário para um cliente
+        function criarLinhaCalendario(cliente) {
+            const meses = getMesesDoCliente(cliente);
+            const totalMeses = meses.length;
+
+            // Badge de tipo
+            let tipoBadge = '';
+            if (cliente.tipoValor === 'tcv') {
+                tipoBadge = '<span style="background:#9333ea;color:white;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:8px;">TCV</span>';
+            } else if (cliente.tipoValor === 'mrr') {
+                tipoBadge = '<span style="background:#4CAF50;color:white;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:8px;">MRR</span>';
+            }
+
+            // Badge de origem
+            let origemBadge = '';
+            const origemMap = {
+                'outbound': '<span style="background:#f97316;color:white;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:4px;">Outbound</span>',
+                'growth-hub': '<span style="background:#4ade80;color:white;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:4px;">Growth Hub</span>',
+                'repasse-matriz': '<span style="background:#3b82f6;color:white;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:4px;">Repasse Matriz</span>',
+                'inbound': '<span style="background:#22c55e;color:white;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:4px;">Inbound</span>',
+                'outros': '<span style="background:#94a3b8;color:white;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-left:4px;">Outros</span>'
+            };
+            origemBadge = origemMap[cliente.origem] || '';
+
+            return `
+                <div style="padding: 12px 16px; background: #f8fafc; border-left: 4px solid #4A6B54; border-radius: 8px; transition: all 0.2s ease;"
+                     onmouseover="this.style.background='#f1f5f9'"
+                     onmouseout="this.style.background='#f8fafc'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="flex: 1;">
+                            <strong style="font-size: 14px; color: #2c3e50;">${cliente.nome}</strong>
+                            ${tipoBadge}
+                            ${origemBadge}
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 12px; color: #4A6B54; font-weight: 600;">
+                                ${totalMeses} ${totalMeses === 1 ? 'mês' : 'meses'}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; line-height: 1.6;">
+                        📅 <strong>Aparece em:</strong> ${meses.join(', ')}
+                    </div>
+                </div>
+            `;
         }
 
         // Função para renderizar cards Alpha dinamicamente
