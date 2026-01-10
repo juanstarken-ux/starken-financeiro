@@ -3855,6 +3855,62 @@
                 checkboxContratoFechado.checked = cliente.isContratoFechado || false;
             }
 
+            // Carregar meses personalizados se existirem
+            if (cliente.mesesPersonalizados && cliente.mesesPersonalizados.length > 0) {
+                // Primeiro, mostra o painel de personalização
+                const painelMeses = document.getElementById('mesesPersonalizados');
+                const btnToggle = document.getElementById('btnToggleMeses');
+                if (painelMeses && btnToggle) {
+                    painelMeses.style.display = 'block';
+                    btnToggle.textContent = 'Usar Automático';
+                    btnToggle.style.background = '#dc2626';
+                }
+
+                // Marca os checkboxes dos meses selecionados
+                cliente.mesesPersonalizados.forEach(mes => {
+                    const checkbox = document.querySelector(`.mes-checkbox[data-mes="${mes}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+
+                // Se for TCV e tiver meses de receita, configurar os dropdowns
+                if (cliente.tipoValor === 'tcv' && cliente.tcvMesesReceita) {
+                    // Atualizar a config TCV
+                    atualizarTCVMesesConfig();
+
+                    // Aguardar DOM atualizar e então setar os valores
+                    setTimeout(() => {
+                        cliente.tcvMesesReceita.forEach(mes => {
+                            const select = document.querySelector(`.tcv-mes-tipo[data-mes="${mes}"]`);
+                            if (select) {
+                                select.value = 'receita';
+                            }
+                        });
+                    }, 100);
+                }
+            }
+
+            // Carregar projeção MRR se existir
+            if (cliente.projetarMRR) {
+                const checkboxProjetar = document.getElementById('clientProjetarMRR');
+                if (checkboxProjetar) {
+                    checkboxProjetar.checked = true;
+                    toggleProjecaoMRR(); // Mostrar campos
+                }
+
+                if (cliente.projecaoValorMRR) {
+                    document.getElementById('clientProjecaoValorMRR').value = cliente.projecaoValorMRR;
+                }
+                if (cliente.projecaoDuracao) {
+                    document.getElementById('clientProjecaoDuracao').value = cliente.projecaoDuracao;
+                }
+                if (cliente.projecaoInicio) {
+                    document.getElementById('clientProjecaoInicio').value = cliente.projecaoInicio;
+                    calcularTerminoProjecao(); // Calcular término
+                }
+            }
+
             // Armazena ID do cliente para edição
             document.getElementById('clientForm').setAttribute('data-editing-id', clientId);
 
@@ -3955,6 +4011,11 @@
                 // NÃO mostrar cards de projeção
                 if (c.isProjecao) {
                     return false;
+                }
+
+                // 🎯 PRIORIDADE: Se tem MESES PERSONALIZADOS configurados, usar eles!
+                if (c.mesesPersonalizados && c.mesesPersonalizados.length > 0) {
+                    return c.mesesPersonalizados.includes(mesAtual) && !isDeleted;
                 }
 
                 // Cards de renovação: aparecer apenas no mês de renovação
