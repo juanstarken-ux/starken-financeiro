@@ -301,6 +301,11 @@ class StarkRealTime {
   // ============================================
 
   iniciarPolling() {
+    // Polling desabilitado por padrão para evitar erros de conexão
+    console.log('ℹ️ STARK Real-Time em modo offline - dados salvos localmente');
+    return;
+
+    // Para reativar polling, remova o return acima
     if (this.pollInterval) clearInterval(this.pollInterval);
 
     this.pollInterval = setInterval(() => {
@@ -335,7 +340,7 @@ class StarkRealTime {
       this.atualizarStatusConexao('online');
 
     } catch (error) {
-      console.error('❌ Erro no polling:', error);
+      // Erro silencioso - modo offline sem poluir console
       this.atualizarStatusConexao('offline');
     }
   }

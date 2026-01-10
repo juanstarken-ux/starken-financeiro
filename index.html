@@ -1456,7 +1456,8 @@
                                 <thead>
                                     <tr>
                                         <th>Cliente</th>
-                                        <th>Modelo</th>
+                                        <th>Tipo</th>
+                                        <th>Origem</th>
                                         <th>MRR</th>
                                         <th>TCV</th>
                                         <th>Status</th>
@@ -2277,16 +2278,31 @@
                     .filter(c => {
                         // TCV: apenas no mês de pagamento
                         if (c.tipoValor === 'tcv') {
-                            return c.mesInicio === mesChave;
+                            const mesPagamento = (c.dataPagamentoTCV || c.mesInicio || '').substring(0, 7);
+                            return mesPagamento === mesChave;
                         }
-                        return true; // MRR sempre conta
+                        // MRR: aparece de mesInicio até 12 meses depois
+                        if (c.tipoValor === 'mrr') {
+                            const [anoInicio, mesInicio] = c.mesInicio.split('-').map(Number);
+                            const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
+                            const dataFim = new Date(dataInicio);
+                            dataFim.setMonth(dataFim.getMonth() + 12);
+
+                            const [anoMes, mesMes] = mesChave.split('-').map(Number);
+                            const dataMes = new Date(anoMes, mesMes - 1, 1);
+
+                            return dataMes >= dataInicio && dataMes < dataFim;
+                        }
+                        return true;
                     })
                     .map(c => ({
                         nome: c.nome,
-                        modelo: c.categoria,
-                        mrr: c.tipoValor === 'mrr' ? c.valor : 0,
-                        tcv: c.tipoValor === 'tcv' ? c.valor : 0,
-                        status: c.mesInicio === mesChave ? 'novo' : 'active'
+                        modelo: c.origem || c.categoria,
+                        tipoValor: c.tipoValor,
+                        mrr: c.tipoValor === 'mrr' ? (c.valorLiquido || c.valor) : 0,
+                        tcv: c.tipoValor === 'tcv' ? (c.valorLiquido || c.valor) : 0,
+                        status: c.mesInicio === mesChave ? 'novo' : 'active',
+                        isContratoFechado: c.isContratoFechado
                     }));
 
                 return this.calcularTotais(clientes);
@@ -2301,13 +2317,22 @@
 
             renderBadge: function(modelo) {
                 const badges = {
+                    // Origens de canal
+                    'outbound': '<span class="badge-outbound">Outbound</span>',
                     'Outbound': '<span class="badge-outbound">Outbound</span>',
-                    'MRR': '<span class="badge-outbound">MRR</span>',
+                    'growth-hub': '<span class="badge-growth">Growth Hub</span>',
+                    'Growth Hub': '<span class="badge-growth">Growth Hub</span>',
+                    'repasse-matriz': '<span class="badge-envio">Repasse Matriz</span>',
                     'Envio Matriz': '<span class="badge-envio">Envio Matriz</span>',
                     'Matriz TCV': '<span class="badge-envio">Matriz TCV</span>',
-                    'Growth Hub': '<span class="badge-growth">Growth Hub</span>',
+                    'inbound': '<span class="badge-growth">Inbound</span>',
+                    'Inbound': '<span class="badge-growth">Inbound</span>',
+                    'outros': '<span class="badge-active">Outros</span>',
+                    'Outros': '<span class="badge-active">Outros</span>',
+                    // Tipo de valor (legacy)
+                    'MRR': '<span class="badge-outbound">MRR</span>',
                 };
-                return badges[modelo] || `<span class="badge-active">${modelo}</span>`;
+                return badges[modelo] || `<span class="badge-active">${modelo || 'N/A'}</span>`;
             },
 
             renderStatus: function(cliente) {
@@ -2487,11 +2512,32 @@
                 clientes.forEach(cliente => {
                     const isProjecao = cliente.status === 'projecao';
                     const isRenovacao = cliente.status === 'renovacao';
+                    const isTCV = cliente.tipoValor === 'tcv';
+                    const isMRR = cliente.tipoValor === 'mrr';
                     const rowStyle = isProjecao ? 'background: #fffde7;' : (isRenovacao ? 'background: #e8f5e9;' : '');
 
+                    // Nome com badges de projeção/renovação e contrato fechado
+                    let nomeHtml = `<strong>${cliente.nome}</strong>`;
+                    if (isProjecao) nomeHtml += ' <span class="badge-projecao">📊</span>';
+                    if (isRenovacao) nomeHtml += ' <span style="color:#4CAF50">🔄</span>';
+                    if (cliente.isContratoFechado) nomeHtml += ' <span style="color:#4CAF50;font-size:16px;" title="Contrato Fechado">✅</span>';
+
                     html += `<tr style="${rowStyle}">`;
-                    html += `<td><strong>${cliente.nome}</strong>${isProjecao ? ' <span class="badge-projecao">📊</span>' : ''}${isRenovacao ? ' <span style="color:#4CAF50">🔄</span>' : ''}</td>`;
+                    html += `<td>${nomeHtml}</td>`;
+
+                    // Badge de Tipo (TCV/MRR)
+                    if (isTCV) {
+                        html += `<td><span class="badge-tcv">TCV</span></td>`;
+                    } else if (isMRR) {
+                        html += `<td><span style="background:#4CAF50;color:white;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;">MRR</span></td>`;
+                    } else {
+                        html += `<td>-</td>`;
+                    }
+
+                    // Badge de Origem
                     html += `<td>${this.renderBadge(cliente.modelo)}</td>`;
+
+                    // Valores
                     html += `<td>${cliente.mrr > 0 ? 'R$ ' + cliente.mrr.toLocaleString('pt-BR') : '-'}</td>`;
                     html += `<td style="${cliente.tcv > 0 ? 'color: #FFC107; font-weight: 700;' : ''}">${cliente.tcv > 0 ? 'R$ ' + cliente.tcv.toLocaleString('pt-BR') : '-'}</td>`;
                     html += `<td>${this.renderStatus(cliente)}</td>`;
@@ -2501,7 +2547,7 @@
                 // Linha de totais
                 const totalGeral = totalMRR + totalTCV;
                 html += `<tr style="background: #f0f4f1; font-weight: 700;">`;
-                html += `<td colspan="2" style="text-align: right;">TOTAIS:</td>`;
+                html += `<td colspan="3" style="text-align: right;">TOTAIS:</td>`;
                 html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR')}</td>`;
                 html += `<td style="color: #FFC107;">R$ ${totalTCV.toLocaleString('pt-BR')}</td>`;
                 html += `<td style="color: #2c3e50;">R$ ${totalGeral.toLocaleString('pt-BR')}</td>`;
@@ -3389,14 +3435,29 @@
                     return !isDeleted;
                 }
 
-                // Para TCV: aparecer APENAS no mês de início (pagamento)
+                // Para TCV: aparecer APENAS no mês de pagamento
                 if (c.tipoValor === 'tcv') {
-                    return c.mesInicio === mesAtual && !isDeleted;
+                    const mesPagamento = (c.dataPagamentoTCV || c.mesInicio || '').substring(0, 7);
+                    return mesPagamento === mesAtual && !isDeleted;
                 }
 
-                // Para MRR: aparecer a partir do mês de início
-                const isActive = c.mesInicio <= mesAtual;
-                return isActive && !isDeleted;
+                // Para MRR: aparecer de mesInicio até 12 meses depois
+                if (c.tipoValor === 'mrr') {
+                    if (!c.mesInicio) return false;
+
+                    const [anoInicio, mesInicio] = c.mesInicio.split('-').map(Number);
+                    const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
+                    const dataFim = new Date(dataInicio);
+                    dataFim.setMonth(dataFim.getMonth() + 12);
+
+                    const [anoAtual, mesAtualNum] = mesAtual.split('-').map(Number);
+                    const dataAtual = new Date(anoAtual, mesAtualNum - 1, 1);
+
+                    const isActive = dataAtual >= dataInicio && dataAtual < dataFim;
+                    return isActive && !isDeleted;
+                }
+
+                return !isDeleted;
             });
 
             // Separar por empresa
@@ -3500,12 +3561,41 @@
                 cardClass = 'client-card projecao-card';
             }
 
+            // Badge de Tipo (TCV/MRR)
+            let tipoBadge = '';
+            if (cliente.tipoValor === 'tcv') {
+                tipoBadge = '<span class="badge-tcv" style="margin: 4px 0;">TCV</span>';
+            } else if (cliente.tipoValor === 'mrr') {
+                tipoBadge = '<span style="background:#4CAF50;color:white;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;margin:4px 0;display:inline-block;">MRR</span>';
+            }
+
+            // Badge de Origem
+            let origemBadge = '';
+            const origemMap = {
+                'outbound': '<span class="badge-outbound">Outbound</span>',
+                'growth-hub': '<span class="badge-growth">Growth Hub</span>',
+                'repasse-matriz': '<span class="badge-envio">Repasse Matriz</span>',
+                'inbound': '<span class="badge-growth">Inbound</span>',
+                'outros': '<span class="badge-active">Outros</span>'
+            };
+            origemBadge = origemMap[cliente.origem] || '';
+
+            // Indicador de Contrato Fechado
+            let contratoFechadoBadge = '';
+            if (cliente.isContratoFechado) {
+                contratoFechadoBadge = '<span style="color:#4CAF50;font-size:18px;margin-left:4px;" title="Contrato Fechado">✅</span>';
+            }
+
             return `
                 <div class="${cardClass}" data-client-id="${cliente.id}">
                     <button class="btn-delete-client" onclick="deleteManualClient(${cliente.id})" title="Excluir cliente">✕</button>
                     <div class="client-logo">${emoji}</div>
-                    <h3 class="client-name">${cliente.nome}</h3>
-                    <p class="client-category">${cliente.categoria}</p>
+                    <h3 class="client-name">${cliente.nome}${contratoFechadoBadge}</h3>
+                    <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:4px 0;">
+                        ${tipoBadge}
+                        ${origemBadge}
+                    </div>
+                    <p class="client-category" style="font-size:12px;color:#666;margin:2px 0;">${cliente.categoria}</p>
                     <div class="client-value">${valorDisplay}</div>
                 </div>
             `;

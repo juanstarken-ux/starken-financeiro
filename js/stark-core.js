@@ -60,13 +60,13 @@ class StarkCore {
     // Carrega dados do localStorage primeiro (cache)
     this.carregarLocal();
 
-    // Sincroniza com o banco
-    await this.sincronizar();
+    // Sincronização desabilitada - modo offline por padrão
+    // await this.sincronizar();
 
-    // Inicia polling para atualizações (a cada 30s)
-    this.iniciarPolling(30000);
+    // Polling desabilitado - modo offline
+    // this.iniciarPolling(30000);
 
-    console.log('✅ STARK Core pronto!');
+    console.log('✅ STARK Core pronto (modo offline)!');
   }
 
   getMesAtual() {
@@ -117,14 +117,22 @@ class StarkCore {
       }
 
     } catch (error) {
-      console.error('❌ Erro na sincronização:', error);
-      this.dispararEvento('stark-error', { error: error.message });
+      // Erro silencioso - não poluir console para erros de conexão
+      if (error.message !== 'Falha na sincronização') {
+        console.warn('⚠️ Sincronização offline - dados locais mantidos');
+      }
+      this.dispararEvento('stark-error', { error: error.message, silent: true });
     } finally {
       this.dados.carregando = false;
     }
   }
 
   iniciarPolling(intervalo = 30000) {
+    // Polling desabilitado por padrão - pode ser ativado manualmente
+    console.log('ℹ️ Polling de sincronização disponível, mas desabilitado por padrão');
+    return;
+
+    // Para ativar, remova o return acima
     if (this.syncInterval) clearInterval(this.syncInterval);
 
     this.syncInterval = setInterval(() => {
