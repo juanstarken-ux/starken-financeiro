@@ -3496,6 +3496,86 @@
             // Adicionar eventos de clique e botões de delete
             addEditClickToCards();
             addDeleteButtonsToAllCards();
+
+            // Adicionar drag and drop
+            addDragAndDropToCards();
+        }
+
+        // Implementar Drag and Drop para reorganizar cards
+        let draggedCard = null;
+        let draggedClientId = null;
+
+        function addDragAndDropToCards() {
+            document.querySelectorAll('.client-card[draggable="true"]').forEach(card => {
+                // Drag start
+                card.addEventListener('dragstart', (e) => {
+                    draggedCard = card;
+                    draggedClientId = card.getAttribute('data-client-id');
+                    card.style.opacity = '0.5';
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                // Drag end
+                card.addEventListener('dragend', (e) => {
+                    card.style.opacity = '1';
+                    draggedCard = null;
+                    draggedClientId = null;
+                });
+
+                // Drag over
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+
+                    const afterElement = getDragAfterElement(card.parentElement, e.clientY);
+                    if (afterElement == null) {
+                        card.parentElement.appendChild(draggedCard);
+                    } else {
+                        card.parentElement.insertBefore(draggedCard, afterElement);
+                    }
+                });
+            });
+
+            // Permitir drop nas grids
+            document.querySelectorAll('.clients-grid').forEach(grid => {
+                grid.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+
+                grid.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    saveCardsOrder();
+                });
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.client-card:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function saveCardsOrder() {
+            // Salvar ordem dos cards no localStorage
+            const starkenGrid = document.getElementById('starken-clients');
+            const alphaGrid = document.getElementById('alpha-clients');
+
+            const starkenOrder = [...starkenGrid.querySelectorAll('.client-card')].map(card => card.getAttribute('data-client-id'));
+            const alphaOrder = [...alphaGrid.querySelectorAll('.client-card')].map(card => card.getAttribute('data-client-id'));
+
+            localStorage.setItem('starken_cards_order', JSON.stringify(starkenOrder));
+            localStorage.setItem('alpha_cards_order', JSON.stringify(alphaOrder));
+
+            console.log('✅ Ordem dos cards salva');
         }
 
         // Criar HTML do card manual
@@ -3586,8 +3666,38 @@
                 contratoFechadoBadge = '<span style="color:#4CAF50;font-size:18px;margin-left:4px;" title="Contrato Fechado">✅</span>';
             }
 
+            // Informações de datas
+            let datasInfo = '';
+
+            // Data de Fechamento do Contrato
+            if (cliente.dataFechamento) {
+                const dataFechamentoFormatada = new Date(cliente.dataFechamento + 'T00:00:00').toLocaleDateString('pt-BR');
+                datasInfo += `<div style="font-size:10px;color:#666;margin-top:4px;">📅 Fechamento: ${dataFechamentoFormatada}</div>`;
+            }
+
+            // Data de Início
+            if (cliente.mesInicio) {
+                const [ano, mes] = cliente.mesInicio.split('-');
+                const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                const mesFormatado = `${meses[parseInt(mes)-1]}/${ano}`;
+                datasInfo += `<div style="font-size:10px;color:#666;">🚀 Início: ${mesFormatado}</div>`;
+            }
+
+            // Data de Pagamento (apenas para TCV)
+            if (cliente.tipoValor === 'tcv' && cliente.dataPagamentoTCV) {
+                const dataPagamentoFormatada = cliente.dataPagamentoTCV.includes('-') && cliente.dataPagamentoTCV.split('-').length === 3
+                    ? new Date(cliente.dataPagamentoTCV + 'T00:00:00').toLocaleDateString('pt-BR')
+                    : cliente.dataPagamentoTCV;
+                datasInfo += `<div style="font-size:10px;color:#FFC107;font-weight:600;margin-top:2px;">💰 Pagamento: ${dataPagamentoFormatada}</div>`;
+            }
+
+            // Meses de trabalho (para TCV)
+            if (cliente.tipoValor === 'tcv' && cliente.mesesTrabalho) {
+                datasInfo += `<div style="font-size:10px;color:#666;">⏱️ Duração: ${cliente.mesesTrabalho} ${cliente.mesesTrabalho === 1 ? 'mês' : 'meses'}</div>`;
+            }
+
             return `
-                <div class="${cardClass}" data-client-id="${cliente.id}">
+                <div class="${cardClass}" data-client-id="${cliente.id}" draggable="true">
                     <button class="btn-delete-client" onclick="deleteManualClient(${cliente.id})" title="Excluir cliente">✕</button>
                     <div class="client-logo">${emoji}</div>
                     <h3 class="client-name">${cliente.nome}${contratoFechadoBadge}</h3>
@@ -3595,8 +3705,9 @@
                         ${tipoBadge}
                         ${origemBadge}
                     </div>
-                    <p class="client-category" style="font-size:12px;color:#666;margin:2px 0;">${cliente.categoria}</p>
-                    <div class="client-value">${valorDisplay}</div>
+                    <p class="client-category" style="font-size:11px;color:#999;margin:2px 0;">${cliente.categoria}</p>
+                    ${datasInfo}
+                    <div class="client-value" style="margin-top:8px;">${valorDisplay}</div>
                 </div>
             `;
         }
