@@ -1830,6 +1830,17 @@
                 '2026-10': 'Out/2026', '2026-11': 'Nov/2026', '2026-12': 'Dez/2026'
             };
 
+            // SE TEM MESES PERSONALIZADOS, usar eles!
+            if (cliente.mesesPersonalizados && cliente.mesesPersonalizados.length > 0) {
+                cliente.mesesPersonalizados.forEach(mes => {
+                    if (mesesNomes[mes]) {
+                        meses.push(mesesNomes[mes]);
+                    }
+                });
+                return meses;
+            }
+
+            // Senão, usar lógica automática
             Object.keys(mesesNomes).forEach(mesChave => {
                 let aparece = false;
 
