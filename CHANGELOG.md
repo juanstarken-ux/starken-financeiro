@@ -4,6 +4,69 @@ Histórico completo de todas as mudanças realizadas no dashboard.
 
 ---
 
+## 🚀 [2.2.0] - 2026-01-10 - SISTEMA DE BUSCA + BUG FIX DE ABA
+
+### 🔍 Sistema de Busca de Clientes
+
+#### Barra de Busca Completa:
+- **Campo de busca em tempo real**: Digite 2+ caracteres para filtrar
+- **Ícone de busca**: Interface visual clara com 🔍
+- **Botão "Limpar"**: Reset rápido da busca
+- **Contador de resultados**: Mostra quantos clientes foram encontrados
+
+#### Funcionalidades de Busca:
+- **Busca por nome**: Case insensitive, busca parcial
+- **Filtro visual**: Esconde cards que não correspondem
+- **Info de meses**: Quando encontra 1 cliente, mostra em quais meses ele aparece
+- **Lógica inteligente**: Considera TCV (mês de pagamento) e MRR (12 meses)
+
+#### Exemplo de Uso:
+```
+🔍 [don chevico           ] [✕ Limpar]
+
+    1 cliente(s) encontrado(s)
+    📅 Pizzaria Don Chevico aparece em: Nov/2025, Dez/2025, Jan/2026
+```
+
+### 🐛 Bug Fix - Aba Mantida ao Salvar
+
+#### Problema Corrigido:
+- **Antes**: Ao editar cliente na aba Alpha, ao salvar voltava para Starken
+- **Agora**: Permanece na mesma aba após salvar
+
+#### Solução Técnica:
+- Variável global `abaAtiva` rastreia aba atual
+- Salva aba no localStorage antes de reload
+- Restaura aba após reload da página
+- Limpa flag do localStorage automaticamente
+
+### 📊 Funções Adicionadas:
+
+#### `searchClients(query)`
+- Filtra cards em tempo real
+- Atualiza contador de resultados
+- Controla visibilidade dos cards
+
+#### `getMesesDoCliente(cliente)`
+- Calcula meses em que o cliente aparece
+- Retorna array formatado (Jan/2026, Fev/2026...)
+- Considera TCV, MRR e renovações
+
+#### `clearSearch()`
+- Limpa campo de busca
+- Restaura visibilidade de todos os cards
+- Esconde área de resultados
+
+### 🎨 Interface Visual:
+
+A barra de busca aparece logo abaixo das tabs Starken/Alpha com:
+- Campo responsivo com foco visual (borda verde)
+- Botão estilizado para limpar
+- Área de resultados com contador
+- Box verde para mostrar meses do cliente
+
+---
+
 ## 🚀 [2.1.0] - 2026-01-10 - MODAL COMPLETO + DATAS + GATEWAY + PARCELAS
 
 ### ✨ Novos Campos no Modal
