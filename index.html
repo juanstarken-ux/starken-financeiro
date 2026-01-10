@@ -1360,14 +1360,48 @@
                 </div>
 
                 <div class="clients-tabs">
-                    <button class="client-tab active" onclick="showClientTab('starken')">
+                    <button class="client-tab active" onclick="showClientTab('starken')" id="tab-starken">
                         <span class="tab-icon">🚀</span>
                         <span class="tab-label" id="starken-tab-label">Starken (14)</span>
                     </button>
-                    <button class="client-tab" onclick="showClientTab('alpha')">
+                    <button class="client-tab" onclick="showClientTab('alpha')" id="tab-alpha">
                         <span class="tab-icon">⭐</span>
                         <span class="tab-label" id="alpha-tab-label">Alpha (16)</span>
                     </button>
+                </div>
+
+                <!-- Barra de Busca -->
+                <div style="padding: 16px 20px; background: white; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="flex: 1; position: relative;">
+                            <input
+                                type="text"
+                                id="searchClientInput"
+                                placeholder="🔍 Buscar cliente por nome..."
+                                style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #e1e8ed; border-radius: 10px; font-size: 14px; transition: all 0.2s ease;"
+                                oninput="searchClients(this.value)"
+                                onfocus="this.style.borderColor='#4A6B54'; this.style.boxShadow='0 0 0 4px rgba(74,107,84,0.1)'"
+                                onblur="this.style.borderColor='#e1e8ed'; this.style.boxShadow='none'"
+                            >
+                            <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px;">🔍</span>
+                        </div>
+                        <button
+                            onclick="clearSearch()"
+                            style="padding: 12px 20px; background: #f5f7fa; border: 2px solid #e1e8ed; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: #7f8c8d; transition: all 0.2s ease;"
+                            onmouseover="this.style.background='#e1e8ed'"
+                            onmouseout="this.style.background='#f5f7fa'"
+                        >
+                            ✕ Limpar
+                        </button>
+                    </div>
+                    <div id="searchResults" style="margin-top: 12px; display: none;">
+                        <div style="font-size: 13px; color: #7f8c8d; margin-bottom: 8px;">
+                            <strong id="searchCount">0</strong> cliente(s) encontrado(s)
+                        </div>
+                        <div id="searchMeses" style="font-size: 12px; color: #4A6B54; padding: 8px; background: #f0fdf4; border-radius: 8px; display: none;">
+                            <!-- Meses onde o cliente aparece -->
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Starken Clients - Renderizados dinamicamente -->
@@ -1669,8 +1703,14 @@
 
         // Navigation interactivity - removed preventDefault to allow normal link navigation
 
+        // Variável global para guardar aba ativa
+        let abaAtiva = 'starken';
+
         // Client tabs functionality
         function showClientTab(tabName) {
+            // Salvar aba ativa
+            abaAtiva = tabName;
+
             // Hide all client grids
             document.getElementById('starken-clients').style.display = 'none';
             document.getElementById('alpha-clients').style.display = 'none';
@@ -1687,7 +1727,126 @@
             // Update active tab
             const tabs = document.querySelectorAll('.client-tab');
             tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.closest('.client-tab').classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // Função de busca de clientes
+        function searchClients(query) {
+            const searchResults = document.getElementById('searchResults');
+            const searchCount = document.getElementById('searchCount');
+            const searchMeses = document.getElementById('searchMeses');
+
+            if (!query || query.trim().length < 2) {
+                searchResults.style.display = 'none';
+                // Mostrar todos os cards
+                document.querySelectorAll('.client-card').forEach(card => {
+                    card.style.display = 'flex';
+                });
+                return;
+            }
+
+            const clientes = getManualClients();
+            const deletedIds = getDeletedCards();
+            const queryLower = query.trim().toLowerCase();
+
+            // Buscar clientes que correspondem à query
+            const clientesEncontrados = clientes.filter(c => {
+                const isDeleted = deletedIds.includes(c.id);
+                if (isDeleted || c.isProjecao) return false;
+                return c.nome.toLowerCase().includes(queryLower);
+            });
+
+            searchCount.textContent = clientesEncontrados.length;
+            searchResults.style.display = 'block';
+
+            if (clientesEncontrados.length === 0) {
+                searchMeses.style.display = 'none';
+                // Ocultar todos os cards
+                document.querySelectorAll('.client-card').forEach(card => {
+                    card.style.display = 'none';
+                });
+                return;
+            }
+
+            // Se encontrou apenas 1 cliente, mostrar em quais meses ele aparece
+            if (clientesEncontrados.length === 1) {
+                const cliente = clientesEncontrados[0];
+                const mesesDisponiveis = getMesesDoCliente(cliente);
+
+                searchMeses.style.display = 'block';
+                searchMeses.innerHTML = `
+                    <strong>📅 ${cliente.nome}</strong> aparece em: ${mesesDisponiveis.join(', ')}
+                `;
+            } else {
+                searchMeses.style.display = 'none';
+            }
+
+            // Mostrar apenas cards que correspondem à busca
+            document.querySelectorAll('.client-card').forEach(card => {
+                const clientId = card.getAttribute('data-client-id');
+                const clienteEncontrado = clientesEncontrados.find(c => c.id == clientId);
+                card.style.display = clienteEncontrado ? 'flex' : 'none';
+            });
+        }
+
+        // Função para obter meses em que o cliente aparece
+        function getMesesDoCliente(cliente) {
+            const meses = [];
+            const mesesNomes = {
+                '2025-10': 'Out/2025', '2025-11': 'Nov/2025', '2025-12': 'Dez/2025',
+                '2026-01': 'Jan/2026', '2026-02': 'Fev/2026', '2026-03': 'Mar/2026',
+                '2026-04': 'Abr/2026', '2026-05': 'Mai/2026', '2026-06': 'Jun/2026',
+                '2026-07': 'Jul/2026', '2026-08': 'Ago/2026', '2026-09': 'Set/2026',
+                '2026-10': 'Out/2026', '2026-11': 'Nov/2026', '2026-12': 'Dez/2026'
+            };
+
+            Object.keys(mesesNomes).forEach(mesChave => {
+                let aparece = false;
+
+                // Card de renovação
+                if (cliente.statusRenovacao && cliente.mesRenovacao === mesChave) {
+                    aparece = true;
+                }
+
+                // TCV: apenas no mês de pagamento
+                if (cliente.tipoValor === 'tcv') {
+                    const mesPagamento = (cliente.dataPagamentoTCV || cliente.mesInicio || '').substring(0, 7);
+                    if (mesPagamento === mesChave) {
+                        aparece = true;
+                    }
+                }
+
+                // MRR: 12 meses a partir do início
+                if (cliente.tipoValor === 'mrr' && cliente.mesInicio) {
+                    const [anoInicio, mesInicio] = cliente.mesInicio.split('-').map(Number);
+                    const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
+                    const dataFim = new Date(dataInicio);
+                    dataFim.setMonth(dataFim.getMonth() + 12);
+
+                    const [anoMes, mesMes] = mesChave.split('-').map(Number);
+                    const dataMes = new Date(anoMes, mesMes - 1, 1);
+
+                    if (dataMes >= dataInicio && dataMes < dataFim) {
+                        aparece = true;
+                    }
+                }
+
+                if (aparece) {
+                    meses.push(mesesNomes[mesChave]);
+                }
+            });
+
+            return meses.length > 0 ? meses : ['Nenhum mês'];
+        }
+
+        // Limpar busca
+        function clearSearch() {
+            document.getElementById('searchClientInput').value = '';
+            document.getElementById('searchResults').style.display = 'none';
+            // Mostrar todos os cards
+            document.querySelectorAll('.client-card').forEach(card => {
+                card.style.display = 'flex';
+            });
         }
 
         // Função para renderizar cards Alpha dinamicamente
@@ -3139,6 +3298,9 @@
             } */
             console.log('✅ Cliente salvo no localStorage');
 
+            // Salvar aba ativa antes de recarregar
+            localStorage.setItem('starken_aba_ativa', abaAtiva);
+
             closeClientModal();
 
             // Forçar reload da página para atualizar tudo
@@ -3443,6 +3605,15 @@
 
             // 5. Atualizar contadores
             updateClientCounters();
+
+            // 6. Restaurar aba ativa após reload
+            const abaGuardada = localStorage.getItem('starken_aba_ativa');
+            if (abaGuardada && abaGuardada !== 'starken') {
+                // Restaurar aba
+                showClientTab(abaGuardada);
+                localStorage.removeItem('starken_aba_ativa');
+                console.log('✅ Aba restaurada:', abaGuardada);
+            }
         });
 
         // Re-adicionar botões quando mudar de aba
