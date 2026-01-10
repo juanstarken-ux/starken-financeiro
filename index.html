@@ -3241,6 +3241,22 @@
             container.innerHTML = html;
         }
 
+        // Toggle campos de pagamento conforme forma selecionada
+        function toggleCamposPagamento() {
+            const formaPagamento = document.getElementById('clientFormaPagamento')?.value;
+            const camposCartao = document.getElementById('camposCartao');
+
+            if (formaPagamento === 'cartao') {
+                // Mostrar campos de cartão
+                camposCartao.style.display = 'block';
+            } else {
+                // Esconder campos de cartão
+                camposCartao.style.display = 'none';
+            }
+
+            atualizarPreviewContrato();
+        }
+
         // Toggle projeção MRR
         function toggleProjecaoMRR() {
             const checkbox = document.getElementById('clientProjetarMRR');
@@ -3462,8 +3478,9 @@
             const dataFechamento = document.getElementById('clientDataFechamento')?.value || null;
             const dataPagamentoTCV = document.getElementById('clientDataPagamentoTCV')?.value || null;
             const dataPagamentoMRR = document.getElementById('clientDataPagamentoMRR')?.value || null;
+            const formaPagamento = document.getElementById('clientFormaPagamento')?.value || null;
             const gateway = document.getElementById('clientGateway')?.value || null;
-            const parcelasCartao = parseInt(document.getElementById('clientParcelasCartao')?.value) || 1;
+            const parcelasCartao = document.getElementById('clientParcelasCartao')?.value || null;
             const isContratoFechado = document.getElementById('clientIsContratoFechado')?.checked || false;
 
             // Calcular líquido (15% royalty para Alpha + taxa de juros)
@@ -3519,6 +3536,7 @@
                 dataFechamento: dataFechamento,
                 dataPagamentoTCV: dataPagamentoTCV,
                 dataPagamentoMRR: dataPagamentoMRR,
+                formaPagamento: formaPagamento,
                 gateway: gateway,
                 parcelasCartao: parcelasCartao,
                 isContratoFechado: isContratoFechado,
@@ -3843,6 +3861,11 @@
             }
             if (cliente.dataPagamentoMRR) {
                 document.getElementById('clientDataPagamentoMRR').value = cliente.dataPagamentoMRR;
+            }
+            if (cliente.formaPagamento) {
+                document.getElementById('clientFormaPagamento').value = cliente.formaPagamento;
+                // Chamar toggle para mostrar/esconder campos de cartão
+                toggleCamposPagamento();
             }
             if (cliente.gateway) {
                 document.getElementById('clientGateway').value = cliente.gateway;
@@ -4290,22 +4313,35 @@
                 datasInfo += `<div style="font-size:10px;color:#666;">⏱️ Duração: ${cliente.mesesTrabalho} ${cliente.mesesTrabalho === 1 ? 'mês' : 'meses'}</div>`;
             }
 
-            // Gateway de pagamento
-            if (cliente.gateway) {
-                const gatewayNomes = {
-                    'asaas': '🏦 Asaas',
-                    'infinity-pay': '🏦 Infinity Pay',
-                    'outro': '🏦 Outro'
+            // Forma de Pagamento
+            if (cliente.formaPagamento) {
+                const formaPagamentoNomes = {
+                    'pix': '💰 PIX',
+                    'cartao': '💳 Cartão',
+                    'boleto': '📄 Boleto',
+                    'transferencia': '🏦 Transferência'
                 };
-                const gatewayNome = gatewayNomes[cliente.gateway] || `🏦 ${cliente.gateway}`;
-                datasInfo += `<div style="font-size:10px;color:#666;margin-top:2px;">${gatewayNome}</div>`;
-            }
+                const formaNome = formaPagamentoNomes[cliente.formaPagamento] || cliente.formaPagamento;
+                datasInfo += `<div style="font-size:10px;color:#4CAF50;font-weight:600;margin-top:2px;">${formaNome}</div>`;
 
-            // Parcelas do cartão
-            if (cliente.parcelasCartao && cliente.parcelasCartao > 1) {
-                datasInfo += `<div style="font-size:10px;color:#666;">💳 ${cliente.parcelasCartao}x no cartão</div>`;
-            } else if (cliente.parcelasCartao === 1) {
-                datasInfo += `<div style="font-size:10px;color:#4CAF50;">💳 À vista</div>`;
+                // Se for cartão, mostrar detalhes
+                if (cliente.formaPagamento === 'cartao') {
+                    // Gateway
+                    if (cliente.gateway) {
+                        const gatewayNomes = {
+                            'asaas': 'Asaas',
+                            'infinity-pay': 'Infinity Pay',
+                            'outro': 'Outro'
+                        };
+                        const gatewayNome = gatewayNomes[cliente.gateway] || cliente.gateway;
+                        datasInfo += `<div style="font-size:9px;color:#999;margin-left:12px;">Gateway: ${gatewayNome}</div>`;
+                    }
+
+                    // Parcelas
+                    if (cliente.parcelasCartao) {
+                        datasInfo += `<div style="font-size:9px;color:#999;margin-left:12px;">Parcelas: ${cliente.parcelasCartao}</div>`;
+                    }
+                }
             }
 
             return `
@@ -4528,37 +4564,18 @@
                         </div>
                     </div>
 
-                    <!-- Gateway de Pagamento e Parcelas do Cartão -->
+                    <!-- Forma de Pagamento -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="clientGateway">🏦 Gateway de Pagamento</label>
-                            <select id="clientGateway" onchange="atualizarPreviewContrato()">
-                                <option value="">Não informado</option>
-                                <option value="asaas">Asaas</option>
-                                <option value="infinity-pay">Infinity Pay</option>
-                                <option value="outro">Outro</option>
+                            <label for="clientFormaPagamento">💰 Forma de Pagamento</label>
+                            <select id="clientFormaPagamento" onchange="toggleCamposPagamento()">
+                                <option value="">Selecione...</option>
+                                <option value="pix">PIX</option>
+                                <option value="cartao">Cartão de Crédito</option>
+                                <option value="boleto">Boleto</option>
+                                <option value="transferencia">Transferência Bancária</option>
                             </select>
-                            <small style="color: #6b7280; font-size: 11px;">Plataforma de pagamento</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="clientParcelasCartao">💳 Parcelas no Cartão</label>
-                            <select id="clientParcelasCartao" onchange="atualizarPreviewContrato()">
-                                <option value="1">1x (À vista)</option>
-                                <option value="2">2x</option>
-                                <option value="3">3x</option>
-                                <option value="4">4x</option>
-                                <option value="6">6x</option>
-                                <option value="12">12x</option>
-                            </select>
-                            <small style="color: #6b7280; font-size: 11px;">Parcelamento no cartão</small>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="clientTaxaJuros">📊 Taxa de Juros Cartão (%)</label>
-                            <input type="number" id="clientTaxaJuros" placeholder="Ex: 2.5" min="0" max="100" step="0.01" oninput="atualizarPreviewContrato()">
-                            <small style="color: #6b7280; font-size: 11px;">Taxa do parcelamento</small>
+                            <small style="color: #6b7280; font-size: 11px;">Como o cliente irá pagar</small>
                         </div>
                         <div class="form-group">
                             <label for="clientIsContratoFechado">
@@ -4566,6 +4583,50 @@
                                 ✅ Contrato Fechado/Assinado?
                             </label>
                             <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 4px;">Marcar se contrato foi assinado</small>
+                        </div>
+                    </div>
+
+                    <!-- Campos específicos de CARTÃO (aparecem apenas se forma = cartão) -->
+                    <div id="camposCartao" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="clientGateway">🏦 Gateway de Pagamento</label>
+                                <select id="clientGateway" onchange="atualizarPreviewContrato()">
+                                    <option value="">Não informado</option>
+                                    <option value="asaas">Asaas</option>
+                                    <option value="infinity-pay">Infinity Pay</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                                <small style="color: #6b7280; font-size: 11px;">Plataforma de pagamento</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientParcelasCartao">💳 Parcelas no Cartão</label>
+                                <select id="clientParcelasCartao" onchange="atualizarPreviewContrato()">
+                                    <option value="">Selecione...</option>
+                                    <option value="1">À vista (1x)</option>
+                                    <option value="2">2x sem juros</option>
+                                    <option value="3">3x sem juros</option>
+                                    <option value="4">4x sem juros</option>
+                                    <option value="6">6x sem juros</option>
+                                    <option value="12">12x sem juros</option>
+                                    <option value="1+1">1+1 (entrada + 1 parcela)</option>
+                                    <option value="1+2">1+2 (entrada + 2 parcelas)</option>
+                                    <option value="1+3">1+3 (entrada + 3 parcelas)</option>
+                                    <option value="1+4">1+4 (entrada + 4 parcelas)</option>
+                                    <option value="1+5">1+5 (entrada + 5 parcelas)</option>
+                                    <option value="1+6">1+6 (entrada + 6 parcelas)</option>
+                                    <option value="1+11">1+11 (entrada + 11 parcelas)</option>
+                                </select>
+                                <small style="color: #6b7280; font-size: 11px;">Parcelamento no cartão</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="clientTaxaJuros">📊 Taxa de Juros Cartão (%)</label>
+                                <input type="number" id="clientTaxaJuros" placeholder="Ex: 2.5" min="0" max="100" step="0.01" oninput="atualizarPreviewContrato()">
+                                <small style="color: #6b7280; font-size: 11px;">Taxa do parcelamento (se houver)</small>
+                            </div>
                         </div>
                     </div>
 
