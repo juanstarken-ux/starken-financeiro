@@ -3230,6 +3230,45 @@
             container.innerHTML = html;
         }
 
+        // Toggle projeção MRR
+        function toggleProjecaoMRR() {
+            const checkbox = document.getElementById('clientProjetarMRR');
+            const campos = document.getElementById('camposProjecaoMRR');
+
+            if (checkbox.checked) {
+                campos.style.display = 'block';
+                calcularTerminoProjecao();
+            } else {
+                campos.style.display = 'none';
+            }
+        }
+
+        // Calcular término da projeção
+        function calcularTerminoProjecao() {
+            const inicio = document.getElementById('clientProjecaoInicio')?.value;
+            const duracao = parseInt(document.getElementById('clientProjecaoDuracao')?.value) || 12;
+
+            if (!inicio) return;
+
+            const [ano, mes] = inicio.split('-').map(Number);
+            const dataInicio = new Date(ano, mes - 1, 1);
+            const dataFim = new Date(dataInicio);
+            dataFim.setMonth(dataFim.getMonth() + duracao - 1);
+
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const mesNome = meses[dataFim.getMonth()];
+            const anoFim = dataFim.getFullYear();
+
+            document.getElementById('projecaoTerminoCalc').textContent = `${mesNome}/${anoFim}`;
+        }
+
+        // Event listeners para projeção
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'clientProjecaoInicio' || e.target.id === 'clientProjecaoDuracao') {
+                calcularTerminoProjecao();
+            }
+        });
+
         // Atualizar preview do contrato
         function atualizarPreviewContrato() {
             const tipo = document.getElementById('clientTipoValor').value;
@@ -3474,7 +3513,12 @@
                 isContratoFechado: isContratoFechado,
                 // Meses personalizados
                 mesesPersonalizados: mesesPersonalizados,
-                tcvMesesReceita: tcvMesesReceita
+                tcvMesesReceita: tcvMesesReceita,
+                // Projeção MRR
+                projetarMRR: document.getElementById('clientProjetarMRR')?.checked || false,
+                projecaoValorMRR: parseFloat(document.getElementById('clientProjecaoValorMRR')?.value) || null,
+                projecaoDuracao: parseInt(document.getElementById('clientProjecaoDuracao')?.value) || null,
+                projecaoInicio: document.getElementById('clientProjecaoInicio')?.value || null
             };
 
             if (isEditing) {
@@ -4337,6 +4381,54 @@
                                 <option value="2026-02">Fevereiro 2026</option>
                                 <option value="2026-03">Março 2026</option>
                             </select>
+                        </div>
+
+                        <!-- Projeção MRR (só para TCV) -->
+                        <div style="margin-top: 16px; padding: 12px; background: #eff6ff; border: 2px dashed #3b82f6; border-radius: 8px;">
+                            <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <input type="checkbox" id="clientProjetarMRR" style="width: auto; margin-right: 8px;" onchange="toggleProjecaoMRR()">
+                                <span style="font-size: 13px; font-weight: 600; color: #1e40af;">📊 Projetar Renovação em MRR</span>
+                            </label>
+                            <small style="color: #1e40af; font-size: 11px; display: block; margin-bottom: 12px;">
+                                Projete a possível renovação deste projeto em modelo recorrente
+                            </small>
+
+                            <div id="camposProjecaoMRR" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="clientProjecaoValorMRR">💰 Valor MRR Projetado</label>
+                                        <input type="number" id="clientProjecaoValorMRR" placeholder="2000" min="0" step="0.01">
+                                        <small style="color: #6b7280; font-size: 10px;">Valor mensal estimado</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="clientProjecaoDuracao">📅 Duração Projeção</label>
+                                        <select id="clientProjecaoDuracao">
+                                            <option value="12">12 meses</option>
+                                            <option value="6">6 meses</option>
+                                            <option value="3">3 meses</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="clientProjecaoInicio">🚀 Início Projeção</label>
+                                        <select id="clientProjecaoInicio">
+                                            <option value="2026-02">Fevereiro 2026</option>
+                                            <option value="2026-03">Março 2026</option>
+                                            <option value="2026-04">Abril 2026</option>
+                                            <option value="2026-05">Maio 2026</option>
+                                            <option value="2026-06">Junho 2026</option>
+                                        </select>
+                                        <small style="color: #6b7280; font-size: 10px;">Quando projeção começa</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="color: #6b7280; font-size: 12px;">Término Calculado:</label>
+                                        <div id="projecaoTerminoCalc" style="padding: 8px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; font-weight: 600; color: #374151;">
+                                            -
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
