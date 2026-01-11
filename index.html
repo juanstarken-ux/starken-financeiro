@@ -2625,11 +2625,16 @@
                 // IMPORTANTE: Excluir cards de renovação e projeção (não contam na receita)
                 const clientes = todosClientes
                     .filter(c => c.empresa === 'alpha')
-                    .filter(c => c.mesInicio <= mesChave)
                     .filter(c => !deletedIds.includes(c.id))
                     .filter(c => !c.statusRenovacao) // NÃO contar renovações
                     .filter(c => !c.isProjecao) // NÃO contar projeções
                     .filter(c => {
+                        // 🎯 PRIORIDADE: Se tem MESES PERSONALIZADOS, usar eles!
+                        if (c.mesesPersonalizados && c.mesesPersonalizados.length > 0) {
+                            return c.mesesPersonalizados.includes(mesChave);
+                        }
+
+                        // Senão, usar lógica automática
                         // TCV: apenas no mês de pagamento
                         if (c.tipoValor === 'tcv') {
                             const mesPagamento = (c.dataPagamentoTCV || c.mesInicio || '').substring(0, 7);
@@ -2637,6 +2642,8 @@
                         }
                         // MRR: aparece de mesInicio até 12 meses depois
                         if (c.tipoValor === 'mrr') {
+                            if (!c.mesInicio) return false;
+
                             const [anoInicio, mesInicio] = c.mesInicio.split('-').map(Number);
                             const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
                             const dataFim = new Date(dataInicio);
@@ -2647,17 +2654,32 @@
 
                             return dataMes >= dataInicio && dataMes < dataFim;
                         }
-                        return true;
+                        return false;
                     })
-                    .map(c => ({
-                        nome: c.nome,
-                        modelo: c.origem || c.categoria,
-                        tipoValor: c.tipoValor,
-                        mrr: c.tipoValor === 'mrr' ? (c.valorLiquido || c.valor) : 0,
-                        tcv: c.tipoValor === 'tcv' ? (c.valorLiquido || c.valor) : 0,
-                        status: c.mesInicio === mesChave ? 'novo' : 'active',
-                        isContratoFechado: c.isContratoFechado
-                    }));
+                    .map(c => {
+                        // Para TCV com meses personalizados, verificar se é mês de receita
+                        let valorTCV = 0;
+                        if (c.tipoValor === 'tcv') {
+                            // Se tem meses personalizados E lista de meses de receita
+                            if (c.tcvMesesReceita && c.tcvMesesReceita.length > 0) {
+                                // Mostrar valor APENAS se o mês atual está na lista de receita
+                                valorTCV = c.tcvMesesReceita.includes(mesChave) ? (c.valorLiquido || c.valor) : 0;
+                            } else {
+                                // Lógica antiga: mostra sempre
+                                valorTCV = (c.valorLiquido || c.valor);
+                            }
+                        }
+
+                        return {
+                            nome: c.nome,
+                            modelo: c.origem || c.categoria,
+                            tipoValor: c.tipoValor,
+                            mrr: c.tipoValor === 'mrr' ? (c.valorLiquido || c.valor) : 0,
+                            tcv: valorTCV,
+                            status: c.mesInicio === mesChave ? 'novo' : 'active',
+                            isContratoFechado: c.isContratoFechado
+                        };
+                    });
 
                 return this.calcularTotais(clientes);
             },
@@ -3664,32 +3686,33 @@
             } */
             console.log('✅ Cliente salvo no localStorage');
 
-            // Salvar aba ativa antes de recarregar
-            localStorage.setItem('starken_aba_ativa', abaAtiva);
-
+            // Fechar modal
             closeClientModal();
 
-            // Forçar reload da página para atualizar tudo
-            console.log('🔄 Recarregando página para atualizar visualização...');
-            window.location.reload();
+            // Atualizar interface SEM reload (mais rápido e profissional)
+            console.log('🔄 Atualizando visualização...');
 
-            // Sincronizar dados
-            if (window.stark) {
-                window.stark.sincronizar(true);
+            // 1. Renderizar cards
+            renderManualClients();
+
+            // 2. Atualizar contadores
+            updateClientCounters();
+
+            // 3. Atualizar tabelas
+            if (typeof StarkenTableManager !== 'undefined') {
+                StarkenTableManager.renderTabela(DashboardState.mesAtual);
+            }
+            if (typeof AlphaTableManager !== 'undefined') {
+                AlphaTableManager.renderTabela(DashboardState.mesAtual);
             }
 
             // Toast de sucesso
-            if (window.starkRealTime) {
-                const acao = isEditing ? 'atualizado' : 'adicionado';
-                const icone = isEditing ? '✏️' : '🎉';
-                const titulo = isEditing ? 'Cliente Atualizado' : 'Novo Cliente';
+            const acao = isEditing ? 'atualizado' : 'adicionado';
+            console.log(`✅ Cliente ${acao} com sucesso:`, nome);
 
-                window.starkRealTime.toast(`Cliente ${nome} ${acao} com sucesso!`, {
-                    tipo: 'success',
-                    titulo: titulo,
-                    icone: icone,
-                    duracao: 4000
-                });
+            // Sincronizar dados (se disponível)
+            if (window.stark) {
+                window.stark.sincronizar(true);
             }
         }
 
@@ -4144,6 +4167,14 @@
 
             // Adicionar drag and drop
             addDragAndDropToCards();
+
+            // Atualizar tabelas em tempo real
+            if (typeof StarkenTableManager !== 'undefined') {
+                StarkenTableManager.renderTabela(DashboardState.mesAtual);
+            }
+            if (typeof AlphaTableManager !== 'undefined') {
+                AlphaTableManager.renderTabela(DashboardState.mesAtual);
+            }
         }
 
         // Implementar Drag and Drop para reorganizar cards
