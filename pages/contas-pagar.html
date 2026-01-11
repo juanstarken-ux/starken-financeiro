@@ -2572,7 +2572,12 @@
     <script src="../gestao-financeira.js"></script>
     <script>
         // Estado global
-        let currentMonth = '2025-12';
+        // Calcular mês atual automaticamente
+        const hoje = new Date();
+        const anoAtual = hoje.getFullYear();
+        const mesAtual = String(hoje.getMonth() + 1).padStart(2, '0');
+        let currentMonth = `${anoAtual}-${mesAtual}`;
+
         let currentFilter = 'todos';
         let currentCategory = 'todas';
         let pendingDelete = null;
@@ -4486,8 +4491,15 @@
         // Inicializar
         window.addEventListener('DOMContentLoaded', function() {
             GestaoFinanceira.init(); // Não bloqueia mais
-            const defaultMonth = document.getElementById('monthSelect').value;
-            loadMonthData(defaultMonth);
+
+            // SEMPRE usar o mês atual ao carregar a página
+            const monthSelect = document.getElementById('monthSelect');
+            if (monthSelect) {
+                monthSelect.value = currentMonth; // Força para o mês atual
+            }
+
+            console.log('📅 Carregando Contas a Pagar para o mês:', currentMonth);
+            loadMonthData(currentMonth);
 
             // Restaurar view salva
             const savedView = localStorage.getItem('contas_pagar_view');
