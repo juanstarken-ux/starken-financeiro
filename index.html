@@ -1566,6 +1566,30 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Indicadores Alpha -->
+                        <div id="alpha-indicators" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; padding: 0 20px;">
+                            <!-- Indicador 1: Valor Bruto Total -->
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">💰 Valor Bruto Total</div>
+                                <div id="alpha-valor-bruto" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">MRR + TCV (sem descontos)</div>
+                            </div>
+
+                            <!-- Indicador 2: Valor Líquido Total -->
+                            <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">💵 Valor Líquido Total</div>
+                                <div id="alpha-valor-liquido" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">Receita real após royalties</div>
+                            </div>
+
+                            <!-- Indicador 3: Projeção MRR Anual -->
+                            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">📈 Projeção MRR Anual</div>
+                                <div id="alpha-projecao-mrr" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">MRR × 12 meses</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2658,15 +2682,18 @@
                     })
                     .map(c => {
                         // Para TCV com meses personalizados, verificar se é mês de receita
-                        let valorTCV = 0;
+                        let valorTCVBruto = 0;
+                        let valorTCVLiquido = 0;
                         if (c.tipoValor === 'tcv') {
                             // Se tem meses personalizados E lista de meses de receita
                             if (c.tcvMesesReceita && c.tcvMesesReceita.length > 0) {
-                                // Mostrar valor BRUTO se o mês atual está na lista de receita
-                                valorTCV = c.tcvMesesReceita.includes(mesChave) ? (c.valor || 0) : 0;
+                                // Mostrar valor se o mês atual está na lista de receita
+                                valorTCVBruto = c.tcvMesesReceita.includes(mesChave) ? (c.valor || 0) : 0;
+                                valorTCVLiquido = c.tcvMesesReceita.includes(mesChave) ? (c.valorLiquido || 0) : 0;
                             } else {
-                                // Lógica antiga: mostra sempre VALOR BRUTO
-                                valorTCV = (c.valor || 0);
+                                // Lógica antiga: mostra sempre
+                                valorTCVBruto = (c.valor || 0);
+                                valorTCVLiquido = (c.valorLiquido || 0);
                             }
                         }
 
@@ -2674,8 +2701,12 @@
                             nome: c.nome,
                             modelo: c.origem || c.categoria,
                             tipoValor: c.tipoValor,
+                            valorBruto: c.valor || 0,
+                            valorLiquido: c.valorLiquido || 0,
                             mrr: c.tipoValor === 'mrr' ? (c.valorLiquido || c.valor || 0) : 0,
-                            tcv: valorTCV,
+                            mrrBruto: c.tipoValor === 'mrr' ? (c.valor || 0) : 0,
+                            tcv: valorTCVBruto,
+                            tcvLiquido: valorTCVLiquido,
                             status: c.mesInicio === mesChave ? 'novo' : 'active',
                             isContratoFechado: c.isContratoFechado
                         };
@@ -2686,9 +2717,34 @@
 
             calcularTotais: function(clientes) {
                 const totalMRR = clientes.reduce((sum, c) => sum + (c.mrr || 0), 0);
-                const totalTCV = clientes.reduce((sum, c) => sum + (c.tcv || 0), 0);
+                const totalMRRBruto = clientes.reduce((sum, c) => sum + (c.mrrBruto || 0), 0);
+                const totalTCVBruto = clientes.reduce((sum, c) => sum + (c.tcv || 0), 0);
+                const totalTCVLiquido = clientes.reduce((sum, c) => sum + (c.tcvLiquido || 0), 0);
                 const totalClientes = clientes.length;
-                return { clientes, totalMRR, totalTCV, totalClientes };
+
+                // Total da tabela: MRR Líquido + TCV Líquido
+                const totalTabela = totalMRR + totalTCVLiquido;
+
+                // Valor Bruto Total: MRR Bruto + TCV Bruto
+                const valorBrutoTotal = totalMRRBruto + totalTCVBruto;
+
+                // Valor Líquido Total: MRR Líquido + TCV Líquido (mesmo que totalTabela)
+                const valorLiquidoTotal = totalMRR + totalTCVLiquido;
+
+                // Projeção MRR Anual: MRR Líquido × 12
+                const projecaoMRRAnual = totalMRR * 12;
+
+                return {
+                    clientes,
+                    totalMRR,
+                    totalTCVBruto,
+                    totalTCVLiquido,
+                    totalClientes,
+                    totalTabela,
+                    valorBrutoTotal,
+                    valorLiquidoTotal,
+                    projecaoMRRAnual
+                };
             },
 
             renderBadge: function(modelo) {
@@ -2870,8 +2926,8 @@
 
             renderTabela: function(mesChave) {
                 console.log('📋 AlphaTableManager.renderTabela chamado para:', mesChave);
-                const { clientes, totalMRR, totalTCV, totalClientes } = this.getClientesAlpha(mesChave);
-                console.log('📋 Clientes Alpha:', totalClientes, '| MRR:', totalMRR, '| TCV:', totalTCV);
+                const { clientes, totalMRR, totalTCVBruto, totalTCVLiquido, totalClientes, totalTabela, valorBrutoTotal, valorLiquidoTotal, projecaoMRRAnual } = this.getClientesAlpha(mesChave);
+                console.log('📋 Clientes Alpha:', totalClientes, '| MRR:', totalMRR, '| TCV Bruto:', totalTCVBruto, '| TCV Líquido:', totalTCVLiquido);
 
                 const tbody = document.getElementById('alpha-table-body');
 
@@ -2921,12 +2977,11 @@
                 });
 
                 // Linha de totais
-                const totalGeral = totalMRR + totalTCV;
                 html += `<tr style="background: #f0f4f1; font-weight: 700;">`;
                 html += `<td colspan="3" style="text-align: right;">TOTAIS:</td>`;
                 html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
-                html += `<td style="color: #FFC107;">R$ ${totalTCV.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
-                html += `<td style="color: #2c3e50;">R$ ${totalGeral.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                html += `<td style="color: #FFC107;">R$ ${totalTCVBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                html += `<td style="color: #2c3e50;">R$ ${totalTabela.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
                 html += '</tr>';
 
                 tbody.innerHTML = html;
@@ -2940,10 +2995,20 @@
 
                 if (labelEl) labelEl.textContent = `Projeto Nichado · ${totalClientes} Clientes`;
                 if (mrrEl) mrrEl.textContent = 'R$ ' + totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                if (tcvEl) tcvEl.textContent = 'R$ ' + totalTCV.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                if (totalEl) totalEl.textContent = 'R$ ' + totalGeral.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (tcvEl) tcvEl.textContent = 'R$ ' + totalTCVBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (totalEl) totalEl.textContent = 'R$ ' + totalTabela.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-                console.log('✅ Header Alpha atualizado: ', totalClientes, 'clientes, MRR:', totalMRR, ', TCV:', totalTCV);
+                // Atualizar indicadores
+                const valorBrutoEl = document.getElementById('alpha-valor-bruto');
+                const valorLiquidoEl = document.getElementById('alpha-valor-liquido');
+                const projecaoMRREl = document.getElementById('alpha-projecao-mrr');
+
+                if (valorBrutoEl) valorBrutoEl.textContent = 'R$ ' + valorBrutoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (valorLiquidoEl) valorLiquidoEl.textContent = 'R$ ' + valorLiquidoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (projecaoMRREl) projecaoMRREl.textContent = 'R$ ' + projecaoMRRAnual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                console.log('✅ Header Alpha atualizado: ', totalClientes, 'clientes, MRR:', totalMRR, ', TCV Bruto:', totalTCVBruto);
+                console.log('✅ Indicadores atualizados: Bruto:', valorBrutoTotal, ', Líquido:', valorLiquidoTotal, ', Projeção:', projecaoMRRAnual);
             }
         };
 
