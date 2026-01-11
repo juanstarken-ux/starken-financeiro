@@ -3565,6 +3565,9 @@
                 liquido = liquido - taxaCartao;
             }
 
+            // 🎯 Verificar se há valor líquido MANUAL (TCV apenas)
+            const valorLiquidoManual = tipo === 'tcv' ? (parseFloat(document.getElementById('clientValorLiquidoManual')?.value) || null) : null;
+
             // Cálculo específico APENAS para Repasse Matriz TCV
             let liquidoFinal = liquido;
             let explicacao = '';
@@ -3574,9 +3577,9 @@
                 liquidoFinal = liquido;
                 explicacao = ` (projeto de ${mesesTrabalho} meses - recebido integralmente)`;
             } else if (tipo === 'tcv') {
-                // OUTROS TCV: Apenas royalty + taxa (sem divisão por meses)
-                liquidoFinal = liquido;
-                explicacao = ' (pagamento único)';
+                // OUTROS TCV: Usar manual se fornecido, senão usar calculado
+                liquidoFinal = valorLiquidoManual || liquido;
+                explicacao = valorLiquidoManual ? ' (valor manual)' : ' (pagamento único)';
             }
 
             // Atualizar preview
@@ -3735,6 +3738,9 @@
                 }
             }
 
+            // Capturar valor líquido manual (TCV apenas)
+            const valorLiquidoManual = tipoValor === 'tcv' ? (parseFloat(document.getElementById('clientValorLiquidoManual')?.value) || null) : null;
+
             let clienteData = {
                 nome,
                 empresa,
@@ -3754,6 +3760,7 @@
                 dataPagamentoTCV: dataPagamentoTCV,
                 dataPagamentoMRR: dataPagamentoMRR,
                 formaPagamento: formaPagamento,
+                valorLiquidoManual: valorLiquidoManual,
                 gateway: gateway,
                 parcelasCartao: parcelasCartao,
                 isContratoFechado: isContratoFechado,
@@ -4152,6 +4159,11 @@
             // Preencher taxa de juros se existir
             if (cliente.taxaJuros) {
                 document.getElementById('clientTaxaJuros').value = cliente.taxaJuros;
+            }
+
+            // Preencher valor líquido manual se existir (TCV)
+            if (cliente.tipoValor === 'tcv' && cliente.valorLiquidoManual) {
+                document.getElementById('clientValorLiquidoManual').value = cliente.valorLiquidoManual;
             }
 
             // Preencher checkbox de projeção se existir
@@ -4557,19 +4569,24 @@
                     valorBruto = 0;
                     valorLiquido = 0;
                 } else {
-                    // REPASSE MATRIZ: Cálculo especial (50% do valor)
-                    if (cliente.origem === 'repasse-matriz' && cliente.empresa === 'alpha') {
-                        // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% líquido
-                        // Valor recebido integralmente no mês (não dividido pelos meses de trabalho)
-                        valorLiquido = valorBruto * 0.50; // Líquido é 50% do bruto
+                    // 🎯 Verificar se tem valor líquido MANUAL
+                    if (cliente.valorLiquidoManual) {
+                        valorLiquido = cliente.valorLiquidoManual;
                     } else {
-                        // OUTROS CASOS: Aplicar royalty e taxa normalmente
-                        valorLiquido = valorBruto;
-                        if (cliente.empresa === 'alpha') {
-                            valorLiquido = valorBruto * 0.85; // - 15% royalty
-                        }
-                        if (cliente.taxaJuros > 0) {
-                            valorLiquido = valorLiquido * (1 - cliente.taxaJuros / 100);
+                        // REPASSE MATRIZ: Cálculo especial (50% do valor)
+                        if (cliente.origem === 'repasse-matriz' && cliente.empresa === 'alpha') {
+                            // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% líquido
+                            // Valor recebido integralmente no mês (não dividido pelos meses de trabalho)
+                            valorLiquido = valorBruto * 0.50; // Líquido é 50% do bruto
+                        } else {
+                            // OUTROS CASOS: Aplicar royalty e taxa normalmente
+                            valorLiquido = valorBruto;
+                            if (cliente.empresa === 'alpha') {
+                                valorLiquido = valorBruto * 0.85; // - 15% royalty
+                            }
+                            if (cliente.taxaJuros > 0) {
+                                valorLiquido = valorLiquido * (1 - cliente.taxaJuros / 100);
+                            }
                         }
                     }
                 }
@@ -4990,6 +5007,17 @@
                                 <option value="2026-05">Maio 2026</option>
                                 <option value="2026-06">Junho 2026</option>
                             </select>
+                        </div>
+
+                        <!-- Ajuste Manual Valor Líquido -->
+                        <div class="form-group" style="margin-top: 16px; padding: 12px; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px;">
+                            <label for="clientValorLiquidoManual" style="font-size: 13px; font-weight: 600; color: #92400e; display: flex; align-items: center; margin-bottom: 8px;">
+                                💰 Valor Líquido Manual (Opcional)
+                            </label>
+                            <input type="number" id="clientValorLiquidoManual" placeholder="Ex: 5500" min="0" step="0.01" oninput="atualizarPreviewContrato()" style="margin-bottom: 8px;">
+                            <small style="color: #92400e; font-size: 11px; display: block;">
+                                ⚠️ Deixe vazio para cálculo automático (royalty + taxa). Preencha apenas se precisar ajustar manualmente o valor líquido.
+                            </small>
                         </div>
 
                         <!-- Projeção MRR (só para TCV) -->
