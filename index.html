@@ -2601,14 +2601,21 @@
                         }
                         return true; // MRR sempre conta
                     })
-                    .map(c => ({
-                        nome: c.nome,
-                        cidade: c.categoria,
-                        mrr: c.valor,
-                        valorBruto: c.valor || 0,
-                        valorLiquido: c.valor || 0, // Starken não tem desconto, bruto = líquido
-                        status: c.mesInicio === mesChave ? 'novo' : 'active'
-                    }));
+                    .map(c => {
+                        // 🎯 Verificar se há ajuste mensal para este mês
+                        const ajusteMensal = c.ajustesMensais && c.ajustesMensais[mesChave];
+                        const valorAtual = ajusteMensal ? ajusteMensal.valor : c.valor;
+
+                        return {
+                            nome: c.nome,
+                            cidade: c.categoria,
+                            mrr: valorAtual,
+                            valorBruto: valorAtual || 0,
+                            valorLiquido: valorAtual || 0, // Starken não tem desconto, bruto = líquido
+                            status: c.mesInicio === mesChave ? 'novo' : 'active',
+                            ajusteMensal: ajusteMensal
+                        };
+                    });
 
                 const totalMRR = clientes.reduce((sum, c) => sum + (c.mrr || 0), 0);
                 const valorBrutoTotal = clientes.reduce((sum, c) => sum + (c.valorBruto || 0), 0);
@@ -2729,6 +2736,21 @@
                         return false;
                     })
                     .map(c => {
+                        // 🎯 Verificar se há ajuste mensal para este mês (APENAS MRR)
+                        const ajusteMensal = c.tipoValor === 'mrr' && c.ajustesMensais && c.ajustesMensais[mesChave];
+
+                        // Usar valor ajustado se existir, senão usar valor padrão
+                        let valorBase = ajusteMensal ? ajusteMensal.valor : c.valor;
+                        let valorLiquidoBase = c.valorLiquido;
+
+                        // Se tem ajuste mensal MRR, recalcular o líquido
+                        if (ajusteMensal) {
+                            valorLiquidoBase = valorBase * 0.85; // 15% royalty Alpha
+                            if (c.taxaJuros > 0) {
+                                valorLiquidoBase = valorLiquidoBase * (1 - c.taxaJuros / 100);
+                            }
+                        }
+
                         // Para TCV com meses personalizados, verificar se é mês de receita
                         let valorTCVBruto = 0;
                         let valorTCVLiquido = 0;
@@ -2749,14 +2771,15 @@
                             nome: c.nome,
                             modelo: c.origem || c.categoria,
                             tipoValor: c.tipoValor,
-                            valorBruto: c.valor || 0,
-                            valorLiquido: c.valorLiquido || 0,
-                            mrr: c.tipoValor === 'mrr' ? (c.valorLiquido || c.valor || 0) : 0,
-                            mrrBruto: c.tipoValor === 'mrr' ? (c.valor || 0) : 0,
+                            valorBruto: valorBase || 0,
+                            valorLiquido: valorLiquidoBase || 0,
+                            mrr: c.tipoValor === 'mrr' ? (valorLiquidoBase || 0) : 0,
+                            mrrBruto: c.tipoValor === 'mrr' ? (valorBase || 0) : 0,
                             tcv: valorTCVBruto,
                             tcvLiquido: valorTCVLiquido,
                             status: c.mesInicio === mesChave ? 'novo' : 'active',
-                            isContratoFechado: c.isContratoFechado
+                            isContratoFechado: c.isContratoFechado,
+                            ajusteMensal: ajusteMensal
                         };
                     });
 
@@ -3872,6 +3895,96 @@
             console.log('🗑️ Cliente excluído - cards e tabelas atualizados:', id);
         }
 
+        // Ajustar valor mensal de um cliente MRR
+        function ajustarValorMensal(clienteId, mes) {
+            const clientes = getManualClients();
+            const cliente = clientes.find(c => c.id === clienteId);
+
+            if (!cliente || cliente.tipoValor !== 'mrr') {
+                alert('Apenas clientes MRR podem ter valores ajustados mensalmente.');
+                return;
+            }
+
+            const valorAtual = cliente.valor || 0;
+            const ajusteExistente = cliente.ajustesMensais && cliente.ajustesMensais[mes];
+
+            // Formatar mês para exibição
+            const [ano, mesNum] = mes.split('-');
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const mesFormatado = `${meses[parseInt(mesNum)-1]}/${ano}`;
+
+            let mensagem = `📊 Ajustar valor de ${cliente.nome} em ${mesFormatado}\n\n`;
+            mensagem += `Valor padrão: R$ ${valorAtual.toFixed(2)}\n`;
+
+            if (ajusteExistente) {
+                mensagem += `Valor atual ajustado: R$ ${ajusteExistente.valor.toFixed(2)}\n`;
+                mensagem += `Motivo: ${ajusteExistente.motivo}\n\n`;
+                mensagem += `Digite o novo valor (ou deixe vazio para remover o ajuste):`;
+            } else {
+                mensagem += `\nDigite o novo valor para este mês:`;
+            }
+
+            const novoValorStr = prompt(mensagem, ajusteExistente ? ajusteExistente.valor : valorAtual);
+
+            // Cancelou ou deixou vazio para remover ajuste
+            if (novoValorStr === null) return;
+
+            // Remover ajuste se deixou vazio
+            if (novoValorStr.trim() === '') {
+                if (confirm('Deseja remover o ajuste e voltar ao valor padrão?')) {
+                    if (!cliente.ajustesMensais) cliente.ajustesMensais = {};
+                    delete cliente.ajustesMensais[mes];
+
+                    // Salvar
+                    const index = clientes.findIndex(c => c.id === clienteId);
+                    clientes[index] = cliente;
+                    saveManualClients(clientes);
+
+                    renderManualClients();
+                    alert(`✅ Ajuste removido! Voltou ao valor padrão: R$ ${valorAtual.toFixed(2)}`);
+                }
+                return;
+            }
+
+            const novoValor = parseFloat(novoValorStr.replace(',', '.'));
+
+            if (isNaN(novoValor) || novoValor < 0) {
+                alert('❌ Valor inválido! Digite um número válido.');
+                return;
+            }
+
+            // Pedir motivo
+            const motivo = prompt('📝 Motivo do ajuste:\n\n(Ex: Desconto 50% - fim de ano sem tráfego pago)', ajusteExistente ? ajusteExistente.motivo : '');
+
+            if (!motivo || motivo.trim() === '') {
+                alert('❌ Você precisa informar o motivo do ajuste.');
+                return;
+            }
+
+            // Salvar ajuste
+            if (!cliente.ajustesMensais) {
+                cliente.ajustesMensais = {};
+            }
+
+            cliente.ajustesMensais[mes] = {
+                valor: novoValor,
+                motivo: motivo.trim(),
+                dataAjuste: new Date().toISOString()
+            };
+
+            // Atualizar cliente no array
+            const index = clientes.findIndex(c => c.id === clienteId);
+            clientes[index] = cliente;
+            saveManualClients(clientes);
+
+            renderManualClients();
+
+            const diferenca = novoValor - valorAtual;
+            const diferencaTexto = diferenca >= 0 ? `+R$ ${diferenca.toFixed(2)}` : `-R$ ${Math.abs(diferenca).toFixed(2)}`;
+
+            alert(`✅ Valor ajustado com sucesso!\n\nValor padrão: R$ ${valorAtual.toFixed(2)}\nNovo valor (${mesFormatado}): R$ ${novoValor.toFixed(2)}\nDiferença: ${diferencaTexto}\n\nMotivo: ${motivo}`);
+        }
+
         // Função genérica para excluir qualquer card de cliente
         function deleteClientCard(cardElement) {
             if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
@@ -4375,9 +4488,24 @@
             // Verificar se é card de renovação (não conta na receita)
             const isRenovacao = cliente.statusRenovacao && cliente.mesRenovacao === DashboardState.mesAtual;
 
+            // 🎯 Verificar se há ajuste mensal para este mês (APENAS MRR)
+            const mesAtual = DashboardState.mesAtual;
+            const ajusteMensal = cliente.tipoValor === 'mrr' && cliente.ajustesMensais && cliente.ajustesMensais[mesAtual];
+
             // Calcular valor bruto e líquido
-            let valorBruto = cliente.valor;
+            let valorBruto = ajusteMensal ? ajusteMensal.valor : cliente.valor;
             let valorLiquido = cliente.valorLiquido || cliente.valor;
+
+            // Se tem ajuste mensal, recalcular o líquido com base no valor ajustado
+            if (ajusteMensal) {
+                valorLiquido = valorBruto;
+                if (cliente.empresa === 'alpha') {
+                    valorLiquido = valorBruto * 0.85; // - 15% royalty
+                }
+                if (cliente.taxaJuros > 0) {
+                    valorLiquido = valorLiquido * (1 - cliente.taxaJuros / 100);
+                }
+            }
 
             // Para TCV, usar o valor total (não por parcela)
             if (cliente.tipoValor === 'tcv' && cliente.tcvTotal) {
@@ -4432,6 +4560,13 @@
                 if (valorBruto !== valorLiquido) {
                     valorDisplay = `
                         <div>
+                            ${ajusteMensal ? `
+                                <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:6px 10px;border-radius:6px;margin-bottom:10px;text-align:center;">
+                                    <div style="font-size:10px;font-weight:600;opacity:0.9;">📝 VALOR AJUSTADO ESTE MÊS</div>
+                                    <div style="font-size:9px;opacity:0.8;margin-top:2px;">Padrão: R$ ${cliente.valor.toFixed(2)}</div>
+                                    <div style="font-size:9px;opacity:0.8;margin-top:2px;font-style:italic;">${ajusteMensal.motivo}</div>
+                                </div>
+                            ` : ''}
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                                 <span style="font-size:11px;color:#6b7280;font-weight:500;">Bruto/mês:</span>
                                 <span style="font-size:15px;color:#374151;font-weight:600;">R$ ${brutoFormatado}</span>
@@ -4445,6 +4580,13 @@
                 } else {
                     valorDisplay = `
                         <div style="text-align:center;">
+                            ${ajusteMensal ? `
+                                <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:6px 10px;border-radius:6px;margin-bottom:10px;">
+                                    <div style="font-size:10px;font-weight:600;opacity:0.9;">📝 VALOR AJUSTADO ESTE MÊS</div>
+                                    <div style="font-size:9px;opacity:0.8;margin-top:2px;">Padrão: R$ ${cliente.valor.toFixed(2)}</div>
+                                    <div style="font-size:9px;opacity:0.8;margin-top:2px;font-style:italic;">${ajusteMensal.motivo}</div>
+                                </div>
+                            ` : ''}
                             <div style="font-size: 11px; color: #059669; margin-bottom: 4px; font-weight: 600;">Valor Mensal</div>
                             <div style="font-size: 22px; font-weight: 700; color: #059669;">R$ ${brutoFormatado}</div>
                         </div>
@@ -4619,6 +4761,15 @@
                     <!-- VALORES -->
                     <div style="padding:16px;background:#fafafa;border-bottom:1px solid #f3f4f6;">
                         ${valorDisplay}
+                        ${cliente.tipoValor === 'mrr' ? `
+                            <button onclick="ajustarValorMensal(${cliente.id}, '${DashboardState.mesAtual}')"
+                                style="width:100%;margin-top:12px;padding:8px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:opacity 0.2s;"
+                                onmouseover="this.style.opacity='0.9'"
+                                onmouseout="this.style.opacity='1'"
+                                title="Ajustar valor apenas para este mês">
+                                📝 Ajustar Valor deste Mês
+                            </button>
+                        ` : ''}
                     </div>
 
                     <!-- INFORMAÇÕES -->
