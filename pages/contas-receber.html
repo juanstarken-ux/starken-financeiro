@@ -3131,7 +3131,7 @@
                     </td>
                     <td class="text-center">
                         <div class="row-actions">
-                            <button class="action-btn edit" onclick="openEditReceitaModal('${cliente.nome.replace(/'/g, "\\'")}', '${cliente.empresa || 'Starken'}', ${cliente.valor}, '${cliente.isRecebido ? 'Recebido' : 'A Receber'}', ${cliente.isCustom || false}, '${cliente.tipo || 'TCV'}', '${(cliente.origem || 'Prospecção').replace(/'/g, "\\'")}', ${cliente.novo || false}, ${cliente.renovacao || false}, '${(cliente.categoria || '').replace(/'/g, "\\'")}')" title="Editar">
+                            <button class="action-btn edit" onclick="openEditReceitaModal('${cliente.nome.replace(/'/g, "\\'")}', '${cliente.empresa || 'Starken'}', ${cliente.valor}, '${cliente.isRecebido ? 'Recebido' : 'A Receber'}', ${cliente.isCustom || false}, '${cliente.tipo || 'TCV'}', '${(cliente.origem || 'Prospecção').replace(/'/g, "\\'")}', ${cliente.novo || false}, ${cliente.renovacao || false}, '${(cliente.categoria || '').replace(/'/g, "\\'")}', '${cliente.dataPagamento || ''}', '${(cliente.observacao || '').replace(/'/g, "\\'")}', '${cliente.dataVencimento || ''}', '${cliente.formaPagamento || ''}', '${cliente.gateway || ''}', '${cliente.parcelasCartao || ''}')" title="Editar">
                                 ✏️
                             </button>
                             <button class="action-btn delete" onclick="excluirReceita('${cliente.nome.replace(/'/g, "\\'")}')" title="Excluir">
@@ -4660,34 +4660,89 @@
                         </div>
                     </div>
 
-                    <div class="form-row" style="margin-top: 15px;">
-                        <div class="form-group">
-                            <label class="form-label">Status</label>
-                            <select class="form-select" id="editReceitaStatus" onchange="toggleEditDataRecebimento()">
-                                <option value="A Receber">A Receber</option>
-                                <option value="Recebido">Recebido</option>
-                            </select>
+                    <!-- Separador: Status e Datas -->
+                    <div style="border-top: 2px solid var(--border-color); margin: 20px 0; padding-top: 20px;">
+                        <div style="font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            📅 Status e Datas
                         </div>
-                        <div class="form-group" id="editReceitaDataGroup" style="display: none;">
-                            <label class="form-label">Data de Recebimento</label>
-                            <input type="date" class="form-input" id="editReceitaData">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="editReceitaStatus">
+                                    <option value="A Receber">📋 A Receber</option>
+                                    <option value="Recebido">✅ Recebido</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Data de Recebimento</label>
+                                <input type="date" class="form-input" id="editReceitaData" placeholder="dd/mm/aaaa">
+                                <div style="font-size: 11px; color: var(--text-light); margin-top: 4px;">
+                                    💡 Data em que o pagamento foi/será recebido
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Data de Vencimento</label>
+                                <input type="date" class="form-input" id="editReceitaDataVencimento" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Forma de Pagamento</label>
+                                <select class="form-select" id="editReceitaFormaPagamento">
+                                    <option value="">Selecione...</option>
+                                    <option value="PIX">💸 PIX</option>
+                                    <option value="Cartão">💳 Cartão de Crédito</option>
+                                    <option value="Boleto">📄 Boleto</option>
+                                    <option value="Transferência">🏦 Transferência</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row" id="editReceitaGatewayRow" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">Gateway</label>
+                                <select class="form-select" id="editReceitaGateway">
+                                    <option value="">Selecione...</option>
+                                    <option value="Asaas">Asaas</option>
+                                    <option value="Infinity Pay">Infinity Pay</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Parcelamento</label>
+                                <input type="text" class="form-input" id="editReceitaParcelamento" placeholder="Ex: 3x, 1+2">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="checkbox-group">
-                        <label class="checkbox-item">
-                            <input type="checkbox" id="editReceitaNovo">
-                            <span>✨ Novo Cliente</span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" id="editReceitaRenovacao">
-                            <span>🔄 Renovação</span>
-                        </label>
-                    </div>
+                    <!-- Separador: Informações Adicionais -->
+                    <div style="border-top: 2px solid var(--border-color); margin: 20px 0; padding-top: 20px;">
+                        <div style="font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            📝 Informações Adicionais
+                        </div>
 
-                    <div class="form-group" style="margin-top: 15px;">
-                        <label class="form-label">Categoria</label>
-                        <input type="text" class="form-input" id="editReceitaCategoria" placeholder="Ex: Gastronomia, Automotivo...">
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="editReceitaNovo">
+                                <span>✨ Novo Cliente</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="editReceitaRenovacao">
+                                <span>🔄 Renovação</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label class="form-label">Categoria</label>
+                            <input type="text" class="form-input" id="editReceitaCategoria" placeholder="Ex: Gastronomia, Automotivo...">
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-input" id="editReceitaObservacao" rows="3" placeholder="Adicione notas, observações ou informações importantes..."></textarea>
+                        </div>
                     </div>
                 </div>
 
@@ -4707,7 +4762,7 @@
 
         let editTipoContrato = 'tcv';
 
-        function openEditReceitaModal(nome, empresa, valor, status, isCustom, tipo, origem, novo, renovacao, categoria) {
+        function openEditReceitaModal(nome, empresa, valor, status, isCustom, tipo, origem, novo, renovacao, categoria, dataPagamento, observacao, dataVencimento, formaPagamento, gateway, parcelasCartao) {
             document.getElementById('editReceitaNomeOriginal').value = nome;
             document.getElementById('editReceitaIsCustom').value = isCustom;
             document.getElementById('editReceitaTipoOriginal').value = tipo || 'TCV';
@@ -4718,6 +4773,14 @@
             document.getElementById('editReceitaNovo').checked = novo || false;
             document.getElementById('editReceitaRenovacao').checked = renovacao || false;
             document.getElementById('editReceitaCategoria').value = categoria || '';
+            document.getElementById('editReceitaData').value = dataPagamento || '';
+            document.getElementById('editReceitaObservacao').value = observacao || '';
+
+            // Preencher campos adicionais
+            if (dataVencimento) document.getElementById('editReceitaDataVencimento').value = dataVencimento;
+            if (formaPagamento) document.getElementById('editReceitaFormaPagamento').value = formaPagamento;
+            if (gateway) document.getElementById('editReceitaGateway').value = gateway;
+            if (parcelasCartao) document.getElementById('editReceitaParcelas').value = parcelasCartao;
 
             // Configurar campos baseado na empresa
             toggleEditAlphaFields();
@@ -4735,9 +4798,6 @@
             } else {
                 document.getElementById('editReceitaValorSimples').value = valor;
             }
-
-            // Mostrar campo de data se status for Recebido
-            toggleEditDataRecebimento();
 
             document.getElementById('editReceitaModal').classList.add('active');
         }
@@ -4760,18 +4820,7 @@
             }
         }
 
-        function toggleEditDataRecebimento() {
-            const status = document.getElementById('editReceitaStatus').value;
-            const dataGroup = document.getElementById('editReceitaDataGroup');
-            if (status === 'Recebido') {
-                dataGroup.style.display = 'block';
-                if (!document.getElementById('editReceitaData').value) {
-                    document.getElementById('editReceitaData').value = new Date().toISOString().split('T')[0];
-                }
-            } else {
-                dataGroup.style.display = 'none';
-            }
-        }
+        // Removida toggleEditDataRecebimento - campo de data sempre visível
 
         function setEditTipoContrato(tipo) {
             editTipoContrato = tipo;
@@ -4845,6 +4894,11 @@
             const novo = document.getElementById('editReceitaNovo').checked;
             const renovacao = document.getElementById('editReceitaRenovacao').checked;
             const categoria = document.getElementById('editReceitaCategoria').value;
+            const observacao = document.getElementById('editReceitaObservacao').value;
+            const dataVencimento = document.getElementById('editReceitaDataVencimento').value;
+            const formaPagamento = document.getElementById('editReceitaFormaPagamento').value;
+            const gateway = document.getElementById('editReceitaGateway').value;
+            const parcelamento = document.getElementById('editReceitaParcelamento').value;
 
             // Determinar valor baseado na empresa
             let valor = 0;
@@ -4866,12 +4920,22 @@
                     GestaoFinanceira.editReceita(currentMonth, nomeOriginal, {
                         nome: novoNome,
                         valor: valor,
-                        empresa: empresa
+                        empresa: empresa,
+                        origem: origem,
+                        tipo: tipo,
+                        novo: novo,
+                        renovacao: renovacao,
+                        categoria: categoria,
+                        observacao: observacao,
+                        dataVencimento: dataVencimento,
+                        formaPagamento: formaPagamento,
+                        gateway: gateway,
+                        parcelamento: parcelamento
                     });
                 }
 
-                // Atualizar status
-                await GestaoFinanceira.updateStatus(currentMonth, 'receita', novoNome || nomeOriginal, status, status === 'Recebido' ? dataRecebimento : null);
+                // Atualizar status (com data de recebimento)
+                await GestaoFinanceira.updateStatus(currentMonth, 'receita', novoNome || nomeOriginal, status, dataRecebimento || null);
 
                 // Sincronizar
                 await GestaoFinanceira.syncToServer();
