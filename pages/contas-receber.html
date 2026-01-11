@@ -4919,9 +4919,12 @@
                 valor = parseFloat(document.getElementById('editReceitaValorSimples').value) || 0;
             }
 
+            console.log('💾 Salvando receita:', { nomeOriginal, novoNome, valor, isCustom, empresa, tipo });
+
             try {
-                // Atualizar via GestaoFinanceira
-                if (novoNome !== nomeOriginal || valor) {
+                // Se for customItem (receita manual ou parcial), atualizar via GestaoFinanceira
+                if (isCustom) {
+                    console.log('📦 Atualizando customItem via GestaoFinanceira');
                     GestaoFinanceira.editReceita(currentMonth, nomeOriginal, {
                         nome: novoNome,
                         valor: valor,
@@ -4937,6 +4940,49 @@
                         gateway: gateway,
                         parcelamento: parcelamento
                     });
+                } else {
+                    // Cliente do localStorage - atualizar diretamente
+                    console.log('🗂️ Atualizando cliente do localStorage');
+                    const todosClientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
+                    const clienteIndex = todosClientes.findIndex(c => c.nome === nomeOriginal);
+
+                    if (clienteIndex !== -1) {
+                        const cliente = todosClientes[clienteIndex];
+                        console.log('✏️ Cliente encontrado:', cliente);
+
+                        // Atualizar dados do cliente
+                        cliente.nome = novoNome;
+                        cliente.valor = valor;
+                        cliente.categoria = categoria;
+                        cliente.origem = origem;
+                        cliente.observacao = observacao;
+                        cliente.dataVencimento = dataVencimento;
+                        cliente.formaPagamento = formaPagamento;
+                        cliente.gateway = gateway;
+                        cliente.parcelasCartao = parcelamento;
+
+                        // Salvar no localStorage
+                        localStorage.setItem('starken_manual_clients', JSON.stringify(todosClientes));
+                        console.log('✅ Cliente atualizado no localStorage');
+                    } else {
+                        console.warn('⚠️ Cliente não encontrado no localStorage, tentando GestaoFinanceira');
+                        // Fallback: tentar via GestaoFinanceira
+                        GestaoFinanceira.editReceita(currentMonth, nomeOriginal, {
+                            nome: novoNome,
+                            valor: valor,
+                            empresa: empresa,
+                            origem: origem,
+                            tipo: tipo,
+                            novo: novo,
+                            renovacao: renovacao,
+                            categoria: categoria,
+                            observacao: observacao,
+                            dataVencimento: dataVencimento,
+                            formaPagamento: formaPagamento,
+                            gateway: gateway,
+                            parcelamento: parcelamento
+                        });
+                    }
                 }
 
                 // Atualizar status (com data de recebimento)
