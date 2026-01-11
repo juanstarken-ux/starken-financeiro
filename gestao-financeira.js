@@ -51,22 +51,42 @@ const GestaoFinanceira = {
 
     // Mesclar dados do servidor com localStorage
     mergeServerData(serverData) {
-        // Se servidor tem dados, usar como base
+        // PRIORIDADE: dados locais são mais recentes que dados do servidor
+        // Ordem correta: servidor primeiro, depois local (local sobrescreve)
+
         if (serverData.statusData && Object.keys(serverData.statusData).length > 0) {
-            this.statusData = { ...this.statusData, ...serverData.statusData };
+            // Dados do servidor primeiro, depois sobrescreve com locais
+            this.statusData = { ...serverData.statusData, ...this.statusData };
         }
         if (serverData.customItems && Object.keys(serverData.customItems).length > 0) {
-            this.customItems = { ...this.customItems, ...serverData.customItems };
+            // Mesclar por mês para preservar dados locais
+            const merged = { ...serverData.customItems };
+            Object.keys(this.customItems).forEach(mes => {
+                if (!merged[mes]) {
+                    merged[mes] = this.customItems[mes];
+                } else {
+                    // Mesclar despesas e receitas do mês
+                    merged[mes] = {
+                        despesas: [...(merged[mes].despesas || []), ...(this.customItems[mes].despesas || [])],
+                        receitas: [...(merged[mes].receitas || []), ...(this.customItems[mes].receitas || [])]
+                    };
+                    // Remover duplicatas por nome
+                    merged[mes].despesas = Array.from(new Map(merged[mes].despesas.map(d => [d.nome, d])).values());
+                    merged[mes].receitas = Array.from(new Map(merged[mes].receitas.map(r => [r.nome, r])).values());
+                }
+            });
+            this.customItems = merged;
         }
         if (serverData.deletedItems && Object.keys(serverData.deletedItems).length > 0) {
-            this.deletedItems = { ...this.deletedItems, ...serverData.deletedItems };
+            this.deletedItems = { ...serverData.deletedItems, ...this.deletedItems };
         }
         if (serverData.editedItems && Object.keys(serverData.editedItems).length > 0) {
-            this.editedItems = { ...this.editedItems, ...serverData.editedItems };
+            this.editedItems = { ...serverData.editedItems, ...this.editedItems };
         }
 
         // Salvar no localStorage
         this.saveToStorage();
+        console.log('🔄 Dados mesclados - localStorage tem prioridade');
     },
 
     // Sincronizar com servidor
