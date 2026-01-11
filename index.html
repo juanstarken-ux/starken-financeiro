@@ -1521,6 +1521,30 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Indicadores Starken -->
+                        <div id="starken-indicators" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; padding: 0 20px;">
+                            <!-- Indicador 1: Valor Bruto Total -->
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">💰 Valor Bruto Total</div>
+                                <div id="starken-valor-bruto" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">MRR + TCV (sem descontos)</div>
+                            </div>
+
+                            <!-- Indicador 2: Valor Líquido Total -->
+                            <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">💵 Valor Líquido Total</div>
+                                <div id="starken-valor-liquido" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">Receita real (100% Starken)</div>
+                            </div>
+
+                            <!-- Indicador 3: Projeção MRR Anual -->
+                            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">📈 Projeção MRR Anual</div>
+                                <div id="starken-projecao-mrr" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">MRR × 12 meses</div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- ALPHA TABLE - Dinâmica por mês -->
@@ -2581,15 +2605,28 @@
                         nome: c.nome,
                         cidade: c.categoria,
                         mrr: c.valor,
+                        valorBruto: c.valor || 0,
+                        valorLiquido: c.valor || 0, // Starken não tem desconto, bruto = líquido
                         status: c.mesInicio === mesChave ? 'novo' : 'active'
                     }));
 
                 const totalMRR = clientes.reduce((sum, c) => sum + (c.mrr || 0), 0);
-                return { clientes, totalMRR, totalClientes: clientes.length };
+                const valorBrutoTotal = clientes.reduce((sum, c) => sum + (c.valorBruto || 0), 0);
+                const valorLiquidoTotal = clientes.reduce((sum, c) => sum + (c.valorLiquido || 0), 0);
+                const projecaoMRRAnual = totalMRR * 12;
+
+                return {
+                    clientes,
+                    totalMRR,
+                    totalClientes: clientes.length,
+                    valorBrutoTotal,
+                    valorLiquidoTotal,
+                    projecaoMRRAnual
+                };
             },
 
             renderTabela: function(mesChave) {
-                const { clientes, totalMRR, totalClientes } = this.getClientesStarken(mesChave);
+                const { clientes, totalMRR, totalClientes, valorBrutoTotal, valorLiquidoTotal, projecaoMRRAnual } = this.getClientesStarken(mesChave);
                 const tbody = document.getElementById('starken-table-body');
 
                 if (!tbody) return;
@@ -2604,9 +2641,9 @@
                     if (cliente.status === 'bonus') {
                         html += '<td><span class="badge-bonus">Bônus</span></td>';
                     } else if (cliente.mrrExtra) {
-                        html += `<td>R$ ${cliente.mrr.toLocaleString('pt-BR')} ${cliente.mrrExtra}</td>`;
+                        html += `<td>R$ ${cliente.mrr.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${cliente.mrrExtra}</td>`;
                     } else {
-                        html += `<td>R$ ${cliente.mrr.toLocaleString('pt-BR')}</td>`;
+                        html += `<td>R$ ${cliente.mrr.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
                     }
 
                     // Badge de status
@@ -2623,7 +2660,7 @@
                 // Linha de totais
                 html += `<tr style="background: #f0f4f1; font-weight: 700;">`;
                 html += `<td colspan="2" style="text-align: right;">TOTAL MRR:</td>`;
-                html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR')}</td>`;
+                html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
                 html += `<td></td>`;
                 html += '</tr>';
 
@@ -2631,7 +2668,18 @@
 
                 // Atualizar header
                 document.getElementById('starken-clientes-label').textContent = `Empresa Matriz · ${totalClientes} Clientes`;
-                document.getElementById('starken-mrr-total').textContent = 'R$ ' + totalMRR.toLocaleString('pt-BR');
+                document.getElementById('starken-mrr-total').textContent = 'R$ ' + totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                // Atualizar indicadores
+                const valorBrutoEl = document.getElementById('starken-valor-bruto');
+                const valorLiquidoEl = document.getElementById('starken-valor-liquido');
+                const projecaoMRREl = document.getElementById('starken-projecao-mrr');
+
+                if (valorBrutoEl) valorBrutoEl.textContent = 'R$ ' + valorBrutoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (valorLiquidoEl) valorLiquidoEl.textContent = 'R$ ' + valorLiquidoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (projecaoMRREl) projecaoMRREl.textContent = 'R$ ' + projecaoMRRAnual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                console.log('✅ Indicadores Starken atualizados: Bruto:', valorBrutoTotal, ', Líquido:', valorLiquidoTotal, ', Projeção:', projecaoMRRAnual);
             }
         };
 
