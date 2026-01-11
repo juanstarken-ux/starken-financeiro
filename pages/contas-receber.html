@@ -2468,12 +2468,13 @@
                             <th class="checkbox-cell" style="width: 5%;">
                                 <div class="custom-checkbox" id="selectAll" onclick="toggleSelectAll()"></div>
                             </th>
-                            <th style="width: 25%;">Cliente</th>
-                            <th style="width: 12%;">Empresa</th>
-                            <th class="text-right" style="width: 12%;">Valor</th>
-                            <th class="text-center" style="width: 12%;">Recebimento</th>
-                            <th class="text-center" style="width: 14%;">Status</th>
-                            <th class="text-center" style="width: 10%;">Ações</th>
+                            <th style="width: 22%;">Cliente</th>
+                            <th style="width: 10%;">Empresa</th>
+                            <th class="text-right" style="width: 11%;">Valor Bruto</th>
+                            <th class="text-right" style="width: 11%;">Valor Líquido</th>
+                            <th class="text-center" style="width: 11%;">Recebimento</th>
+                            <th class="text-center" style="width: 12%;">Status</th>
+                            <th class="text-center" style="width: 8%;">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -2554,22 +2555,171 @@
             return status === 'TCV' || status === 'Bônus';
         }
 
+        // ========================================
+        // GERAR CONTAS A RECEBER DOS CLIENTES
+        // ========================================
+        function gerarContasReceberDosClientes(mesChave) {
+            console.log('📊 Gerando contas a receber para:', mesChave);
+
+            // Buscar clientes do localStorage (mesma fonte dos cards)
+            const todosClientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
+            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]');
+
+            // Filtrar clientes ativos no mês
+            const clientesAtivos = todosClientes.filter(c => {
+                if (deletedIds.includes(c.id)) return false;
+                if (c.isProjecao) return false; // Não incluir projeções
+                if (c.statusRenovacao) return false; // Não incluir renovações
+
+                // Meses personalizados
+                if (c.mesesPersonalizados && c.mesesPersonalizados.length > 0) {
+                    return c.mesesPersonalizados.includes(mesChave);
+                }
+
+                // TCV: apenas no mês de pagamento
+                if (c.tipoValor === 'tcv') {
+                    const mesPagamento = (c.dataPagamentoTCV || c.mesInicio || '').substring(0, 7);
+                    return mesPagamento === mesChave;
+                }
+
+                // MRR: aparece de mesInicio até 12 meses depois
+                if (c.tipoValor === 'mrr') {
+                    if (!c.mesInicio) return false;
+
+                    const [anoInicio, mesInicio] = c.mesInicio.split('-').map(Number);
+                    const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
+                    const dataFim = new Date(dataInicio);
+                    dataFim.setMonth(dataFim.getMonth() + 12);
+
+                    const [anoMes, mesMes] = mesChave.split('-').map(Number);
+                    const dataMes = new Date(anoMes, mesMes - 1, 1);
+
+                    return dataMes >= dataInicio && dataMes < dataFim;
+                }
+
+                return false;
+            });
+
+            console.log('📋 Clientes ativos no mês:', clientesAtivos.length);
+
+            // Transformar clientes em contas a receber
+            const contasReceber = clientesAtivos.map(c => {
+                // Calcular valores (mesma lógica dos cards)
+                const ajusteMensal = c.tipoValor === 'mrr' && c.ajustesMensais && c.ajustesMensais[mesChave];
+
+                let valorBruto = ajusteMensal ? ajusteMensal.valor : c.valor;
+                let valorLiquido = c.valorLiquido || c.valor;
+
+                // MRR
+                if (c.tipoValor === 'mrr') {
+                    // Verificar primeiro vencimento
+                    if (c.dataPagamentoMRR) {
+                        const mesPrimeiroVencimento = c.dataPagamentoMRR.substring(0, 7);
+                        if (mesChave < mesPrimeiroVencimento) {
+                            valorBruto = 0;
+                            valorLiquido = 0;
+                        }
+                    }
+
+                    // Recalcular líquido
+                    if (valorBruto > 0) {
+                        valorLiquido = valorBruto;
+                        if (c.empresa === 'alpha') {
+                            valorLiquido = valorBruto * 0.85;
+                        }
+                        if (c.taxaJuros > 0) {
+                            valorLiquido = valorLiquido * (1 - c.taxaJuros / 100);
+                        }
+                    }
+                }
+
+                // TCV
+                if (c.tipoValor === 'tcv') {
+                    valorBruto = c.tcvTotal || c.valor || 0;
+
+                    // Verificar meses de receita
+                    const temReceitaNestesMes = c.tcvMesesReceita && c.tcvMesesReceita.length > 0
+                        ? c.tcvMesesReceita.includes(mesChave)
+                        : true;
+
+                    if (!temReceitaNestesMes) {
+                        valorBruto = 0;
+                        valorLiquido = 0;
+                    } else {
+                        if (c.valorLiquidoManual) {
+                            valorLiquido = c.valorLiquidoManual;
+                        } else if (c.origem === 'repasse-matriz' && c.empresa === 'alpha') {
+                            valorLiquido = valorBruto * 0.50;
+                        } else {
+                            valorLiquido = valorBruto;
+                            if (c.empresa === 'alpha') {
+                                valorLiquido = valorBruto * 0.85;
+                            }
+                            if (c.taxaJuros > 0) {
+                                valorLiquido = valorLiquido * (1 - c.taxaJuros / 100);
+                            }
+                        }
+                    }
+                }
+
+                // Determinar se é cliente novo (primeiro mês)
+                const isClienteNovo = c.mesInicio === mesChave;
+
+                // Data de vencimento
+                let dataVencimento = '';
+                if (c.tipoValor === 'tcv' && c.dataPagamentoTCV) {
+                    dataVencimento = c.dataPagamentoTCV;
+                } else if (c.tipoValor === 'mrr' && c.dataPagamentoMRR) {
+                    dataVencimento = c.dataPagamentoMRR;
+                }
+
+                return {
+                    nome: c.nome,
+                    empresa: c.empresa === 'alpha' ? 'Alpha' : 'Starken',
+                    valor: valorLiquido, // Tabela mostra líquido como principal
+                    valorBruto: valorBruto,
+                    valorLiquido: valorLiquido,
+                    status: 'A Receber', // Padrão: pendente
+                    categoria: c.categoria,
+                    origem: c.origem,
+                    tipoValor: c.tipoValor,
+                    isClienteNovo: isClienteNovo,
+                    dataVencimento: dataVencimento,
+                    formaPagamento: c.formaPagamento,
+                    gateway: c.gateway,
+                    parcelasCartao: c.parcelasCartao,
+                    isRecebido: false,
+                    isEspecial: valorBruto === 0 || valorLiquido === 0
+                };
+            });
+
+            console.log('💰 Contas a receber geradas:', contasReceber.length);
+            console.log('📊 Total bruto:', contasReceber.reduce((sum, c) => sum + (c.valorBruto || 0), 0));
+            console.log('📊 Total líquido:', contasReceber.reduce((sum, c) => sum + (c.valorLiquido || 0), 0));
+
+            return contasReceber;
+        }
+
         // Carregar dados do mês
         function loadMonthData(mes) {
             currentMonth = mes;
+
+            // 🎯 NOVO: Gerar contas a receber dos clientes do localStorage
+            const contasReceberDosClientes = gerarContasReceberDosClientes(mes);
+
+            // Ainda buscar dados do GestaoFinanceira para manter compatibilidade (período)
             const dados = GestaoFinanceira.getDadosMesComStatus(mes);
 
-            if (!dados) {
-                console.error('Dados não encontrados para o mês:', mes);
-                return;
-            }
-
             // Atualizar subtítulo
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                          'Jul ho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const [ano, mesNum] = mes.split('-');
+            const periodo = `${meses[parseInt(mesNum) - 1]}/${ano}`;
             document.getElementById('pageSubtitle').textContent =
-                `Gestão completa de receitas e recebimentos - ${dados.periodo}`;
+                `Gestão completa de receitas e recebimentos - ${periodo}`;
 
-            // Processar clientes
-            const clientes = dados.receitas.clientes || [];
+            // 🎯 USAR CLIENTES DO LOCALSTORAGE (gerados automaticamente)
+            const clientes = contasReceberDosClientes;
             let totalReal = 0;
             let recebido = 0;
             let pendente = 0;
@@ -2880,8 +3030,7 @@
                     <td>
                         <div class="client-name">${cliente.nome}</div>
                         ${cliente.origem ? `<div class="client-info">${cliente.origem}</div>` : ''}
-                        ${cliente.novo ? `<div class="client-info" style="color: #27ae60;">✨ Novo cliente</div>` : ''}
-                        ${cliente.renovacao ? `<div class="client-info" style="color: #3498db;">🔄 Renovação</div>` : ''}
+                        ${cliente.isClienteNovo ? `<div class="client-info" style="color: #27ae60; font-weight: 600;">✨ Novo Cliente</div>` : `<div class="client-info" style="color: #3498db;">📊 Base Existente</div>`}
                     </td>
                     <td>
                         <span class="empresa-badge empresa-${(cliente.empresa || 'starken').toLowerCase()}">
@@ -2889,8 +3038,11 @@
                         </span>
                     </td>
                     <td class="text-right">
-                        <span class="amount">${cliente.valor > 0 ? formatMoney(cliente.valor) : '-'}</span>
-                        ${cliente.empresa === 'Alpha' && cliente.valor > 0 ? `<div style="font-size: 11px; color: #7A9B84; margin-top: 2px;">Líq: ${formatMoney(cliente.valor * 0.85)}</div>` : ''}
+                        <span class="amount" style="color: #667eea; font-weight: 600;">${cliente.valorBruto > 0 ? formatMoney(cliente.valorBruto) : '-'}</span>
+                    </td>
+                    <td class="text-right">
+                        <span class="amount" style="color: #10b981; font-weight: 700;">${cliente.valorLiquido > 0 ? formatMoney(cliente.valorLiquido) : '-'}</span>
+                        ${cliente.empresa === 'Alpha' && cliente.valor > 0 ? `<div style="font-size: 10px; color: #6b7280; margin-top: 2px;">85% do bruto</div>` : ''}
                     </td>
                     <td class="text-center">
                         ${dataRecebimentoHtml}
