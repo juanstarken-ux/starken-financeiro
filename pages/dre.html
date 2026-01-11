@@ -510,23 +510,164 @@
 
 
         function loadMonthData(mes) {
-            // 🔄 BUSCAR DADOS DINÂMICOS DO GESTAOFINANCEIRA
-            let dados;
-            if (typeof GestaoFinanceira !== 'undefined' && GestaoFinanceira.getDadosMesComStatus) {
-                dados = GestaoFinanceira.getDadosMesComStatus(mes);
-                console.log('📊 Carregando dados dinâmicos do GestaoFinanceira para', mes);
+            console.log('🔄 Carregando DRE para', mes);
+
+            // ========================================
+            // BUSCAR RECEITAS REAIS (localStorage + customItems)
+            // ========================================
+
+            let totalReceitas = 0;
+            let recebidoReceitas = 0;
+            let pendenteReceitas = 0;
+            let clientesReceitas = [];
+
+            // 1. Buscar clientes do localStorage (mesma lógica do Contas a Receber)
+            const todosClientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
+            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]');
+            const deletedReceitas = GestaoFinanceira.getDeletedItems(mes).receitas || [];
+
+            const clientesAtivos = todosClientes.filter(c => {
+                if (deletedIds.includes(c.id)) return false;
+                if (c.isProjecao) return false;
+                if (c.statusRenovacao) return false;
+                if (deletedReceitas.includes(c.nome)) return false;
+
+                // Verificar se aparece neste mês
+                if (c.mesesPersonalizados && c.mesesPersonalizados.length > 0) {
+                    return c.mesesPersonalizados.includes(mes);
+                }
+
+                if (c.tipoValor === 'tcv') {
+                    const mesPagamento = (c.dataPagamentoTCV || c.mesInicio || '').substring(0, 7);
+                    return mesPagamento === mes;
+                }
+
+                if (c.tipoValor === 'mrr') {
+                    if (!c.mesInicio) return false;
+                    const [anoInicio, mesInicio] = c.mesInicio.split('-').map(Number);
+                    const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
+                    const dataFim = new Date(dataInicio);
+                    dataFim.setMonth(dataFim.getMonth() + 12);
+                    const [anoMes, mesMes] = mes.split('-').map(Number);
+                    const dataMes = new Date(anoMes, mesMes - 1, 1);
+                    return dataMes >= dataInicio && dataMes < dataFim;
+                }
+
+                return false;
+            });
+
+            // Processar clientes e calcular valores
+            clientesAtivos.forEach(c => {
+                let valorLiquido = c.valorLiquido || c.valor || 0;
+
+                // TCV: verificar meses de receita
+                if (c.tipoValor === 'tcv' && c.tcvMesesReceita && c.tcvMesesReceita.length > 0) {
+                    if (!c.tcvMesesReceita.includes(mes)) {
+                        valorLiquido = 0;
+                    }
+                }
+
+                // MRR: verificar primeiro vencimento
+                if (c.tipoValor === 'mrr' && c.dataPagamentoMRR) {
+                    const mesPrimeiroVencimento = c.dataPagamentoMRR.substring(0, 7);
+                    if (mes < mesPrimeiroVencimento) {
+                        valorLiquido = 0;
+                    }
+                }
+
+                if (valorLiquido > 0) {
+                    const statusSalvo = GestaoFinanceira.getStatus(mes, 'receita', c.nome);
+                    const status = statusSalvo ? statusSalvo.status : 'A Receber';
+                    const isRecebido = status === 'Recebido' || status === 'Feito';
+
+                    clientesReceitas.push({
+                        nome: c.nome,
+                        valor: valorLiquido,
+                        status: status,
+                        isRecebido: isRecebido
+                    });
+
+                    totalReceitas += valorLiquido;
+                    if (isRecebido) {
+                        recebidoReceitas += valorLiquido;
+                    } else {
+                        pendenteReceitas += valorLiquido;
+                    }
+                }
+            });
+
+            // 2. Adicionar customItems (receitas parciais, manuais)
+            if (GestaoFinanceira.customItems && GestaoFinanceira.customItems[mes]) {
+                const receitasCustom = GestaoFinanceira.customItems[mes].receitas || [];
+                receitasCustom.forEach(receita => {
+                    const statusSalvo = GestaoFinanceira.getStatus(mes, 'receita', receita.nome);
+                    const status = statusSalvo ? statusSalvo.status : receita.status;
+                    const isRecebido = status === 'Recebido' || status === 'Feito';
+                    const valor = receita.valor || 0;
+
+                    clientesReceitas.push({
+                        nome: receita.nome,
+                        valor: valor,
+                        status: status,
+                        isRecebido: isRecebido
+                    });
+
+                    totalReceitas += valor;
+                    if (isRecebido) {
+                        recebidoReceitas += valor;
+                    } else {
+                        pendenteReceitas += valor;
+                    }
+                });
             }
 
-            // Fallback para dados estáticos se não houver dados dinâmicos
-            if (!dados && typeof dadosMensais !== 'undefined') {
-                dados = dadosMensais[mes];
-                console.log('📦 Usando dados estáticos do dadosMensais para', mes);
+            // ========================================
+            // BUSCAR DESPESAS REAIS (GestaoFinanceira)
+            // ========================================
+
+            let totalDespesas = 0;
+            let pagoDespesas = 0;
+            let pendenteDespesas = 0;
+
+            // Buscar do GestaoFinanceira (dadosMensais + customItems)
+            const dadosGestao = GestaoFinanceira.getDadosMesComStatus(mes);
+            if (dadosGestao && dadosGestao.despesas) {
+                totalDespesas = dadosGestao.despesas.total || 0;
+                pagoDespesas = dadosGestao.despesas.pago || 0;
+                pendenteDespesas = dadosGestao.despesas.pendente || 0;
             }
 
-            if (!dados) {
-                console.warn('⚠️ Nenhum dado disponível para o mês', mes);
-                return;
-            }
+            // ========================================
+            // MONTAR OBJETO DE DADOS
+            // ========================================
+
+            const taxaRecebimento = totalReceitas > 0 ? ((recebidoReceitas / totalReceitas) * 100).toFixed(1) : 0;
+            const taxaPagamento = totalDespesas > 0 ? ((pagoDespesas / totalDespesas) * 100).toFixed(1) : 0;
+
+            const dados = {
+                periodo: mes,
+                receitas: {
+                    total: totalReceitas,
+                    recebido: recebidoReceitas,
+                    pendente: pendenteReceitas,
+                    taxa_recebimento: taxaRecebimento,
+                    clientes: clientesReceitas
+                },
+                despesas: {
+                    total: totalDespesas,
+                    pago: pagoDespesas,
+                    pendente: pendenteDespesas,
+                    categorias: dadosGestao && dadosGestao.despesas ? dadosGestao.despesas.categorias : {}
+                }
+            };
+
+            console.log('✅ Dados DRE carregados:', {
+                receitas: totalReceitas,
+                recebido: recebidoReceitas,
+                despesas: totalDespesas,
+                pago: pagoDespesas,
+                clientes: clientesReceitas.length
+            });
 
             document.getElementById('pageSubtitle').textContent = 
                 `Análise de receitas, despesas e resultado - ${dados.periodo}`;
