@@ -3028,9 +3028,13 @@
                              onclick="${canSelect ? `toggleItemSelection('${cliente.nome}', this)` : ''}"></div>
                     </td>
                     <td>
-                        <div class="client-name">${cliente.nome}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="client-name">${cliente.nome}</div>
+                            ${cliente.origemParcial ? `<span style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;" title="Origem: ${cliente.origemParcial}${cliente.valorOriginal ? ' - Original: R$ ' + cliente.valorOriginal.toFixed(2) : ''}">⚡ Parcial</span>` : ''}
+                        </div>
                         ${cliente.origem ? `<div class="client-info">${cliente.origem}</div>` : ''}
                         ${cliente.isClienteNovo ? `<div class="client-info" style="color: #27ae60; font-weight: 600;">✨ Novo Cliente</div>` : `<div class="client-info" style="color: #3498db;">📊 Base Existente</div>`}
+                        ${cliente.observacao ? `<div class="client-info" style="font-style: italic; color: #7f8c8d;">📝 ${cliente.observacao}</div>` : ''}
                     </td>
                     <td>
                         <span class="empresa-badge empresa-${(cliente.empresa || 'starken').toLowerCase()}">
@@ -3777,7 +3781,7 @@
             kanbanTargetStatus = targetStatus;
 
             document.getElementById('kanbanItemName').textContent = item.nome;
-            document.getElementById('kanbanItemValue').textContent = formatMoney(item.valor || 0);
+            document.getElementById('kanbanItemValue').textContent = formatMoney(item.valorLiquido || item.valor || 0);
             document.getElementById('kanbanItemEmpresa').textContent = item.empresa || 'Starken';
 
             const currentStatus = item.isRecebido ? 'recebido' : 'pendente';
@@ -3785,7 +3789,13 @@
 
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('kanbanReceiveDate').value = item.dataPagamento || today;
-            document.getElementById('kanbanObservations').value = item.observacoes || '';
+            document.getElementById('kanbanObservations').value = item.observacao || '';
+
+            // Reset recebimento parcial
+            document.querySelector('input[name="receiveType"][value="full"]').checked = true;
+            document.getElementById('partialReceiveGroup').style.display = 'none';
+            document.getElementById('partialReceiveValue').value = '';
+            document.getElementById('remainingReceiveValue').textContent = 'R$ 0,00';
 
             document.getElementById('kanbanReceiveModal').classList.add('active');
         }
@@ -3802,6 +3812,15 @@
             });
             const el = document.querySelector(`.kanban-status-option[data-status="${status}"]`);
             if (el) el.classList.add('selected');
+
+            // Mostrar opções de tipo de recebimento apenas quando "recebido" for selecionado
+            const receiveTypeGroup = document.getElementById('receiveTypeGroup');
+            if (status === 'recebido') {
+                receiveTypeGroup.style.display = 'block';
+            } else {
+                receiveTypeGroup.style.display = 'none';
+                document.getElementById('partialReceiveGroup').style.display = 'none';
+            }
         }
 
         function getSelectedKanbanStatus() {
@@ -3809,18 +3828,136 @@
             return selected ? selected.dataset.status : 'pendente';
         }
 
+        // Toggle recebimento parcial
+        function togglePartialReceive() {
+            const isPartial = document.querySelector('input[name="receiveType"]:checked')?.value === 'partial';
+            const partialGroup = document.getElementById('partialReceiveGroup');
+            partialGroup.style.display = isPartial ? 'block' : 'none';
+
+            if (isPartial) {
+                document.getElementById('partialReceiveValue').focus();
+            }
+        }
+
+        // Atualizar valor restante do recebimento
+        function updateRemainingReceive() {
+            if (!kanbanSelectedItem) return;
+
+            const totalValor = kanbanSelectedItem.valorLiquido || kanbanSelectedItem.valor || 0;
+            const partialInput = document.getElementById('partialReceiveValue').value;
+            const partialValor = parseMoney(partialInput);
+
+            const remaining = totalValor - partialValor;
+            document.getElementById('remainingReceiveValue').textContent = formatMoney(Math.max(0, remaining));
+        }
+
+        // Máscara de dinheiro
+        function maskMoney(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = (parseInt(value) / 100).toFixed(2);
+            value = value.replace('.', ',');
+            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+            input.value = 'R$ ' + value;
+        }
+
+        // Parse de valor monetário
+        function parseMoney(value) {
+            if (!value) return 0;
+            return parseFloat(value.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+        }
+
         function saveKanbanReceive() {
             if (!kanbanSelectedItem) return;
 
             const status = getSelectedKanbanStatus();
             const date = document.getElementById('kanbanReceiveDate').value;
+            const observacao = document.getElementById('kanbanObservations').value;
 
-            const newStatus = status === 'recebido' ? 'Recebido' : 'A Receber';
-            GestaoFinanceira.updateStatus(currentMonth, 'receita', kanbanSelectedItem.nome, newStatus, date);
+            // Se não for recebido, apenas atualizar status
+            if (status !== 'recebido') {
+                const newStatus = 'A Receber';
+                GestaoFinanceira.updateStatus(currentMonth, 'receita', kanbanSelectedItem.nome, newStatus, date);
+                closeKanbanReceiveModal();
+                showToast('Status atualizado!', 'success');
+                loadMonthData(currentMonth);
+                return;
+            }
 
-            closeKanbanReceiveModal();
-            showToast(status === 'recebido' ? 'Recebimento registrado!' : 'Status atualizado!', 'success');
-            loadMonthData(currentMonth);
+            // Verificar se é recebimento parcial
+            const receiveType = document.querySelector('input[name="receiveType"]:checked')?.value || 'full';
+
+            if (receiveType === 'full') {
+                // Recebimento total
+                GestaoFinanceira.updateStatus(currentMonth, 'receita', kanbanSelectedItem.nome, 'Recebido', date);
+
+                if (observacao) {
+                    // Atualizar observação
+                    const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
+                    const cliente = dados.receitas.clientes.find(c => c.nome === kanbanSelectedItem.nome);
+                    if (cliente) {
+                        cliente.observacao = observacao;
+                        GestaoFinanceira.saveDados(currentMonth, dados);
+                    }
+                }
+
+                closeKanbanReceiveModal();
+                showToast('Recebimento total registrado!', 'success');
+                loadMonthData(currentMonth);
+            } else {
+                // Recebimento parcial
+                const partialInput = document.getElementById('partialReceiveValue').value;
+                const partialValor = parseMoney(partialInput);
+                const totalValor = kanbanSelectedItem.valorLiquido || kanbanSelectedItem.valor || 0;
+
+                if (partialValor <= 0) {
+                    showToast('Informe o valor do recebimento parcial', 'error');
+                    return;
+                }
+
+                if (partialValor >= totalValor) {
+                    showToast('Para recebimento total, selecione a opção "Recebimento Total"', 'error');
+                    return;
+                }
+
+                const remainingValor = totalValor - partialValor;
+                const nomeBase = kanbanSelectedItem.nome.replace(/ \(Restante.*\)$/, '').replace(/ \(Parcial\)$/, '').replace(/ \(Recebido.*\)$/, '');
+                const nomeOriginal = kanbanSelectedItem.origemParcial || kanbanSelectedItem.nome;
+                const valorOriginalTotal = kanbanSelectedItem.valorOriginal || totalValor;
+
+                // 1. Deletar item original
+                GestaoFinanceira.deleteReceita(currentMonth, kanbanSelectedItem.nome, kanbanSelectedItem.isCustom);
+
+                // 2. Criar item RECEBIDO com valor parcial
+                const nomeRecebido = nomeBase + ' (Recebido ' + formatMoney(partialValor) + ')';
+                GestaoFinanceira.addReceita(currentMonth, {
+                    nome: nomeRecebido,
+                    valor: partialValor,
+                    empresa: kanbanSelectedItem.empresa || 'Starken',
+                    status: 'Recebido',
+                    origemParcial: nomeOriginal,
+                    valorOriginal: valorOriginalTotal,
+                    isCustom: true,
+                    observacao: `Recebimento parcial de "${nomeOriginal}" - Original: ${formatMoney(valorOriginalTotal)}`
+                });
+                GestaoFinanceira.updateStatus(currentMonth, 'receita', nomeRecebido, 'Recebido', date);
+
+                // 3. Criar item PENDENTE com valor restante
+                const nomeRestante = nomeBase + ' (Restante de ' + formatMoney(valorOriginalTotal) + ')';
+                GestaoFinanceira.addReceita(currentMonth, {
+                    nome: nomeRestante,
+                    valor: remainingValor,
+                    empresa: kanbanSelectedItem.empresa || 'Starken',
+                    status: 'A Receber',
+                    origemParcial: nomeOriginal,
+                    valorOriginal: valorOriginalTotal,
+                    isCustom: true,
+                    observacao: `Saldo restante de "${nomeOriginal}" - Já recebido: ${formatMoney(valorOriginalTotal - remainingValor)}`
+                });
+
+                closeKanbanReceiveModal();
+                showToast(`Recebimento parcial registrado! Restante: ${formatMoney(remainingValor)}`, 'success');
+                loadMonthData(currentMonth);
+            }
         }
 
         document.addEventListener('keydown', function(e) {
@@ -4057,6 +4194,32 @@
                     <div class="kanban-status-option" data-status="recebido" onclick="selectKanbanStatus('recebido')">
                         <div class="status-icon">🟢</div>
                         <div class="status-label">Recebido</div>
+                    </div>
+                </div>
+
+                <div class="kanban-form-group" id="receiveTypeGroup" style="display: none;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 12px; display: block;">Tipo de Recebimento</label>
+                    <div style="display: flex; gap: 12px;">
+                        <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #27ae60; border-radius: 8px; cursor: pointer; background: #d4edda;">
+                            <input type="radio" name="receiveType" value="full" checked onchange="togglePartialReceive()">
+                            <span style="font-weight: 500;">Recebimento Total</span>
+                        </label>
+                        <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #e1e8ed; border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="receiveType" value="partial" onchange="togglePartialReceive()">
+                            <span style="font-weight: 500;">Recebimento Parcial</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="kanban-form-group" id="partialReceiveGroup" style="display: none;">
+                    <label for="partialReceiveValue">Valor a Receber Agora <span style="color: #e74c3c;">*</span></label>
+                    <input type="text" id="partialReceiveValue" placeholder="R$ 0,00" oninput="maskMoney(this); updateRemainingReceive()">
+                    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px;">
+                        <span style="color: #7f8c8d;">Valor restante:</span>
+                        <span style="color: #e74c3c; font-weight: 600;" id="remainingReceiveValue">R$ 0,00</span>
+                    </div>
+                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-top: 12px; font-size: 12px; color: #856404; border-radius: 4px;" id="partialReceiveNote">
+                        <strong>Atenção:</strong> Será criada uma nova conta com o valor restante marcada como "A Receber".
                     </div>
                 </div>
 
