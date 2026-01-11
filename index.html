@@ -2662,11 +2662,11 @@
                         if (c.tipoValor === 'tcv') {
                             // Se tem meses personalizados E lista de meses de receita
                             if (c.tcvMesesReceita && c.tcvMesesReceita.length > 0) {
-                                // Mostrar valor APENAS se o mês atual está na lista de receita
-                                valorTCV = c.tcvMesesReceita.includes(mesChave) ? (c.valorLiquido || c.valor) : 0;
+                                // Mostrar valor BRUTO se o mês atual está na lista de receita
+                                valorTCV = c.tcvMesesReceita.includes(mesChave) ? (c.valor || 0) : 0;
                             } else {
-                                // Lógica antiga: mostra sempre
-                                valorTCV = (c.valorLiquido || c.valor);
+                                // Lógica antiga: mostra sempre VALOR BRUTO
+                                valorTCV = (c.valor || 0);
                             }
                         }
 
@@ -2674,7 +2674,7 @@
                             nome: c.nome,
                             modelo: c.origem || c.categoria,
                             tipoValor: c.tipoValor,
-                            mrr: c.tipoValor === 'mrr' ? (c.valorLiquido || c.valor) : 0,
+                            mrr: c.tipoValor === 'mrr' ? (c.valorLiquido || c.valor || 0) : 0,
                             tcv: valorTCV,
                             status: c.mesInicio === mesChave ? 'novo' : 'active',
                             isContratoFechado: c.isContratoFechado
@@ -2914,8 +2914,8 @@
                     html += `<td>${this.renderBadge(cliente.modelo)}</td>`;
 
                     // Valores
-                    html += `<td>${cliente.mrr > 0 ? 'R$ ' + cliente.mrr.toLocaleString('pt-BR') : '-'}</td>`;
-                    html += `<td style="${cliente.tcv > 0 ? 'color: #FFC107; font-weight: 700;' : ''}">${cliente.tcv > 0 ? 'R$ ' + cliente.tcv.toLocaleString('pt-BR') : '-'}</td>`;
+                    html += `<td>${cliente.mrr > 0 ? 'R$ ' + cliente.mrr.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>`;
+                    html += `<td style="${cliente.tcv > 0 ? 'color: #FFC107; font-weight: 700;' : ''}">${cliente.tcv > 0 ? 'R$ ' + cliente.tcv.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>`;
                     html += `<td>${this.renderStatus(cliente)}</td>`;
                     html += '</tr>';
                 });
@@ -2924,9 +2924,9 @@
                 const totalGeral = totalMRR + totalTCV;
                 html += `<tr style="background: #f0f4f1; font-weight: 700;">`;
                 html += `<td colspan="3" style="text-align: right;">TOTAIS:</td>`;
-                html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR')}</td>`;
-                html += `<td style="color: #FFC107;">R$ ${totalTCV.toLocaleString('pt-BR')}</td>`;
-                html += `<td style="color: #2c3e50;">R$ ${totalGeral.toLocaleString('pt-BR')}</td>`;
+                html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                html += `<td style="color: #FFC107;">R$ ${totalTCV.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                html += `<td style="color: #2c3e50;">R$ ${totalGeral.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
                 html += '</tr>';
 
                 tbody.innerHTML = html;
@@ -2939,9 +2939,9 @@
                 const totalEl = document.getElementById('alpha-total-mes');
 
                 if (labelEl) labelEl.textContent = `Projeto Nichado · ${totalClientes} Clientes`;
-                if (mrrEl) mrrEl.textContent = 'R$ ' + totalMRR.toLocaleString('pt-BR');
-                if (tcvEl) tcvEl.textContent = 'R$ ' + totalTCV.toLocaleString('pt-BR');
-                if (totalEl) totalEl.textContent = 'R$ ' + totalGeral.toLocaleString('pt-BR');
+                if (mrrEl) mrrEl.textContent = 'R$ ' + totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (tcvEl) tcvEl.textContent = 'R$ ' + totalTCV.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (totalEl) totalEl.textContent = 'R$ ' + totalGeral.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
                 console.log('✅ Header Alpha atualizado: ', totalClientes, 'clientes, MRR:', totalMRR, ', TCV:', totalTCV);
             }
