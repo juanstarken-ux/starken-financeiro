@@ -3333,6 +3333,7 @@
             document.querySelector('#clientModal .modal-header h3').textContent = '➕ Adicionar Novo Cliente';
 
             toggleTCVFields();
+            updateOrigemOptions();
             atualizarPreviewContrato();
 
             console.log('✅ Modal aberto');
@@ -3628,6 +3629,53 @@
 
         function formatarMoeda(valor) {
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor || 0);
+        }
+
+        // Atualizar opções de origem baseado na empresa
+        function updateOrigemOptions() {
+            const empresa = document.getElementById('clientEmpresa').value;
+            const origemSelect = document.getElementById('clientOrigem');
+            const valorAtual = origemSelect.value;
+
+            // Limpar opções
+            origemSelect.innerHTML = '';
+
+            // Opções comuns para todas as empresas
+            const opcoesComuns = [
+                { value: 'growth-hub', text: '🌱 Growth Hub' },
+                { value: 'outbound', text: '📞 Outbound' },
+                { value: 'inbound', text: '🎁 Inbound' },
+                { value: 'outros', text: '📋 Outros' }
+            ];
+
+            // Adicionar "Repasse Matriz" APENAS para Alpha
+            if (empresa === 'alpha') {
+                const option = document.createElement('option');
+                option.value = 'repasse-matriz';
+                option.text = '📦 Repasse Matriz';
+                origemSelect.add(option);
+            }
+
+            // Adicionar opções comuns
+            opcoesComuns.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.text = opt.text;
+                origemSelect.add(option);
+            });
+
+            // Restaurar valor se ainda existir nas opções
+            if (valorAtual && Array.from(origemSelect.options).some(opt => opt.value === valorAtual)) {
+                origemSelect.value = valorAtual;
+            } else {
+                // Se valor anterior era "repasse-matriz" e mudou para Starken, selecionar "outros"
+                if (valorAtual === 'repasse-matriz' && empresa === 'starken') {
+                    origemSelect.value = 'outros';
+                }
+            }
+
+            // Atualizar preview
+            atualizarPreviewContrato();
         }
 
         // Fechar ao clicar fora do modal
@@ -4262,6 +4310,7 @@
 
             // Mostra campos corretos
             toggleTCVFields();
+            updateOrigemOptions();
             atualizarPreviewContrato();
 
             // Abre o modal
@@ -4919,7 +4968,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="clientEmpresa">Empresa</label>
-                            <select id="clientEmpresa" onchange="atualizarPreviewContrato()">
+                            <select id="clientEmpresa" onchange="updateOrigemOptions()">
                                 <option value="starken">🚀 Starken</option>
                                 <option value="alpha">⭐ Alpha</option>
                             </select>
