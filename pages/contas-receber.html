@@ -2678,13 +2678,20 @@
                     dataVencimento = c.dataPagamentoMRR;
                 }
 
+                // Buscar status salvo no GestaoFinanceira
+                const statusSalvo = GestaoFinanceira.getStatus(mesChave, 'receita', c.nome);
+                const status = statusSalvo ? statusSalvo.status : 'A Receber';
+                const dataPagamento = statusSalvo ? statusSalvo.dataPagamento : null;
+                const isRecebido = status === 'Recebido' || status === 'Feito';
+
                 return {
                     nome: c.nome,
                     empresa: c.empresa === 'alpha' ? 'Alpha' : 'Starken',
                     valor: valorLiquido, // Tabela mostra líquido como principal
                     valorBruto: valorBruto,
                     valorLiquido: valorLiquido,
-                    status: 'A Receber', // Padrão: pendente
+                    status: status,
+                    dataPagamento: dataPagamento,
                     categoria: c.categoria,
                     origem: c.origem,
                     tipoValor: c.tipoValor,
@@ -2693,7 +2700,7 @@
                     formaPagamento: c.formaPagamento,
                     gateway: c.gateway,
                     parcelasCartao: c.parcelasCartao,
-                    isRecebido: false,
+                    isRecebido: isRecebido,
                     isEspecial: valorBruto === 0 || valorLiquido === 0
                 };
             });
