@@ -2730,8 +2730,66 @@
             document.getElementById('pageSubtitle').textContent =
                 `Gestão completa de receitas e recebimentos - ${periodo}`;
 
-            // 🎯 USAR CLIENTES DO LOCALSTORAGE (gerados automaticamente)
-            const clientes = contasReceberDosClientes;
+            // 🎯 FILTRAR clientes deletados (recebimentos parciais deletam o cliente original)
+            const deletedReceitas = GestaoFinanceira.getDeletedItems(mes).receitas || [];
+            const clientesNaoDeletados = contasReceberDosClientes.filter(c => !deletedReceitas.includes(c.nome));
+
+            console.log('🗑️  Receitas deletadas:', deletedReceitas.length, deletedReceitas);
+            console.log('✅ Clientes não deletados:', clientesNaoDeletados.length);
+
+            // 🎯 MESCLAR contas dos clientes (não deletados) + customItems (recebimentos parciais, etc)
+            const contasMescladas = [...clientesNaoDeletados];
+
+            // Buscar customItems (receitas criadas manualmente ou por recebimento parcial)
+            if (GestaoFinanceira.customItems && GestaoFinanceira.customItems[mes]) {
+                const receitasCustom = GestaoFinanceira.customItems[mes].receitas || [];
+
+                receitasCustom.forEach(receita => {
+                    // Buscar status
+                    const statusSalvo = GestaoFinanceira.getStatus(mes, 'receita', receita.nome);
+                    const status = statusSalvo ? statusSalvo.status : receita.status;
+                    const dataPagamento = statusSalvo ? statusSalvo.dataPagamento : null;
+                    const isRecebido = status === 'Recebido' || status === 'Feito';
+
+                    contasMescladas.push({
+                        nome: receita.nome,
+                        empresa: receita.empresa || 'Starken',
+                        valor: receita.valor || 0,
+                        valorBruto: receita.valor || 0,
+                        valorLiquido: receita.valor || 0,
+                        status: status,
+                        dataPagamento: dataPagamento,
+                        categoria: receita.categoria || '',
+                        origem: receita.origem || '',
+                        tipoValor: receita.tipoValor || 'tcv',
+                        isClienteNovo: false,
+                        dataVencimento: receita.dataVencimento || '',
+                        formaPagamento: receita.formaPagamento || '',
+                        gateway: receita.gateway || '',
+                        parcelasCartao: receita.parcelasCartao || '',
+                        isRecebido: isRecebido,
+                        isEspecial: false,
+                        isCustom: true,
+                        origemParcial: receita.origemParcial || null,
+                        valorOriginal: receita.valorOriginal || null,
+                        observacao: receita.observacao || ''
+                    });
+                });
+
+                console.log('📦 Receitas customizadas adicionadas:', receitasCustom.length);
+            }
+
+            // Remover duplicatas (se um cliente foi deletado para criar parcial)
+            const nomesUnicos = new Set();
+            const clientes = contasMescladas.filter(c => {
+                if (nomesUnicos.has(c.nome)) {
+                    return false; // Já existe
+                }
+                nomesUnicos.add(c.nome);
+                return true;
+            });
+
+            console.log('📊 Total de contas (clientes + custom):', clientes.length);
             let totalReal = 0;
             let recebido = 0;
             let pendente = 0;
