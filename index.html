@@ -4317,6 +4317,148 @@
             document.getElementById('clientModal').style.display = 'flex';
         }
 
+        // Duplicar cliente
+        function duplicateClient(clientId) {
+            // Buscar dados completos do cliente no localStorage
+            const clientes = getManualClients();
+            const cliente = clientes.find(c => c.id == clientId);
+
+            if (!cliente) {
+                console.error('⚠️ Cliente não encontrado no localStorage:', clientId);
+                return;
+            }
+
+            console.log('📋 Duplicando cliente:', cliente);
+
+            // Limpar o modal primeiro
+            document.getElementById('clientForm').reset();
+            document.getElementById('clientForm').removeAttribute('data-editing-id');
+
+            // Preencher o modal com dados completos do cliente original
+            document.getElementById('clientNome').value = cliente.nome + ' (Cópia)';
+            document.getElementById('clientCategoria').value = cliente.categoria;
+            document.getElementById('clientEmpresa').value = cliente.empresa;
+            document.getElementById('clientTipoValor').value = cliente.tipoValor;
+
+            // Origem e meses de trabalho
+            if (cliente.origem) {
+                document.getElementById('clientOrigem').value = cliente.origem;
+            }
+            if (cliente.mesesTrabalho) {
+                document.getElementById('clientMesesTrabalho').value = cliente.mesesTrabalho;
+            }
+
+            if (cliente.tipoValor === 'mrr') {
+                document.getElementById('clientValor').value = cliente.valor;
+            } else {
+                document.getElementById('clientTCVTotal').value = cliente.tcvTotal || cliente.valor;
+                document.getElementById('clientTCVParcelas').value = cliente.parcelas || 1;
+            }
+
+            // Preencher taxa de juros se existir
+            if (cliente.taxaJuros) {
+                document.getElementById('clientTaxaJuros').value = cliente.taxaJuros;
+            }
+
+            // Preencher valor líquido manual se existir (TCV)
+            if (cliente.tipoValor === 'tcv' && cliente.valorLiquidoManual) {
+                document.getElementById('clientValorLiquidoManual').value = cliente.valorLiquidoManual;
+            }
+
+            // Preencher checkbox de projeção se existir
+            const checkboxProjecao = document.getElementById('clientIsProjecao');
+            if (checkboxProjecao) {
+                checkboxProjecao.checked = cliente.isProjecao || false;
+            }
+
+            // Preencher campos de data (DEIXAR VAZIOS - usuário vai definir novas datas)
+            // Não copiar: dataFechamento, dataPagamentoTCV, dataPagamentoMRR
+
+            // Copiar forma de pagamento
+            if (cliente.formaPagamento) {
+                document.getElementById('clientFormaPagamento').value = cliente.formaPagamento;
+                toggleCamposPagamento();
+            }
+            if (cliente.gateway) {
+                document.getElementById('clientGateway').value = cliente.gateway;
+            }
+            if (cliente.parcelasCartao) {
+                document.getElementById('clientParcelasCartao').value = cliente.parcelasCartao;
+            }
+            const checkboxContratoFechado = document.getElementById('clientIsContratoFechado');
+            if (checkboxContratoFechado) {
+                checkboxContratoFechado.checked = false; // Resetar para não fechado
+            }
+
+            // Carregar meses personalizados se existirem
+            if (cliente.mesesPersonalizados && cliente.mesesPersonalizados.length > 0) {
+                // Primeiro, mostra o painel de personalização
+                const painelMeses = document.getElementById('mesesPersonalizados');
+                const btnToggle = document.getElementById('btnToggleMeses');
+                if (painelMeses && btnToggle) {
+                    painelMeses.style.display = 'block';
+                    btnToggle.textContent = 'Usar Automático';
+                    btnToggle.style.background = '#dc2626';
+                }
+
+                // Marca os checkboxes dos meses selecionados
+                cliente.mesesPersonalizados.forEach(mes => {
+                    const checkbox = document.querySelector(`.mes-checkbox[data-mes="${mes}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+
+                // Se for TCV e tiver meses de receita, configurar os dropdowns
+                if (cliente.tipoValor === 'tcv' && cliente.tcvMesesReceita) {
+                    // Atualizar a config TCV
+                    atualizarTCVMesesConfig();
+
+                    // Aguardar DOM atualizar e então setar os valores
+                    setTimeout(() => {
+                        cliente.tcvMesesReceita.forEach(mes => {
+                            const select = document.querySelector(`.tcv-mes-tipo[data-mes="${mes}"]`);
+                            if (select) {
+                                select.value = 'receita';
+                            }
+                        });
+                    }, 100);
+                }
+            }
+
+            // Carregar projeção MRR se existir
+            if (cliente.projetarMRR) {
+                const checkboxProjetar = document.getElementById('clientProjetarMRR');
+                if (checkboxProjetar) {
+                    checkboxProjetar.checked = true;
+                    toggleProjecaoMRR(); // Mostrar campos
+                }
+
+                if (cliente.projecaoValorMRR) {
+                    document.getElementById('clientProjecaoValorMRR').value = cliente.projecaoValorMRR;
+                }
+                if (cliente.projecaoDuracao) {
+                    document.getElementById('clientProjecaoDuracao').value = cliente.projecaoDuracao;
+                }
+                if (cliente.projecaoInicio) {
+                    document.getElementById('clientProjecaoInicio').value = cliente.projecaoInicio;
+                    calcularTerminoProjecao(); // Calcular término
+                }
+            }
+
+            // NÃO armazena ID - vai criar um novo cliente
+            // Atualiza título do modal
+            document.querySelector('#clientModal .modal-header h3').textContent = '📋 Duplicar Cliente';
+
+            // Mostra campos corretos
+            toggleTCVFields();
+            updateOrigemOptions();
+            atualizarPreviewContrato();
+
+            // Abre o modal
+            document.getElementById('clientModal').style.display = 'flex';
+        }
+
         // Marcar clientes específicos como renovação em Janeiro
         function marcarRenovacoesJaneiro() {
             const clientes = getManualClients();
@@ -4878,7 +5020,8 @@
 
             return `
                 <div class="${cardClass}" data-client-id="${cliente.id}" draggable="true" style="border-left: 4px solid ${corBarra};">
-                    <button class="btn-delete-client" onclick="deleteManualClient(${cliente.id})" title="Excluir cliente" style="position:absolute;top:10px;right:10px;background:#ef4444;color:white;border:none;width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;z-index:10;opacity:0.7;transition:opacity 0.2s;">✕</button>
+                    <button class="btn-duplicate-client" onclick="duplicateClient(${cliente.id}); event.stopPropagation();" title="Duplicar cliente" style="position:absolute;top:10px;right:40px;background:#3b82f6;color:white;border:none;width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;z-index:10;opacity:0.7;transition:opacity 0.2s;">⎘</button>
+                    <button class="btn-delete-client" onclick="deleteManualClient(${cliente.id}); event.stopPropagation();" title="Excluir cliente" style="position:absolute;top:10px;right:10px;background:#ef4444;color:white;border:none;width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;z-index:10;opacity:0.7;transition:opacity 0.2s;">✕</button>
 
                     <!-- HEADER -->
                     <div style="padding:20px 16px 12px 16px;text-align:center;border-bottom:1px solid #f3f4f6;">
