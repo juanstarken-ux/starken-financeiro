@@ -345,8 +345,9 @@
                 <select class="month-select" id="monthSelect" onchange="changeMonth()">
                     <option value="2025-10">Outubro 2025</option>
                     <option value="2025-11">Novembro 2025</option>
-                    <option value="2025-12" selected>Dezembro 2025</option>
-                    <option value="2026-01">Janeiro 2026</option>
+                    <option value="2025-12">Dezembro 2025</option>
+                    <option value="2026-01" selected>Janeiro 2026</option>
+                    <option value="2026-02">Fevereiro 2026</option>
                 </select>
             </div>
 
@@ -662,11 +663,15 @@
             };
 
             console.log('✅ Dados DRE carregados:', {
+                mes: mes,
                 receitas: totalReceitas,
                 recebido: recebidoReceitas,
+                pendente: pendenteReceitas,
                 despesas: totalDespesas,
                 pago: pagoDespesas,
-                clientes: clientesReceitas.length
+                pendenteDespesas: pendenteDespesas,
+                clientes: clientesReceitas.length,
+                listaClientes: clientesReceitas.map(c => `${c.nome}: R$ ${c.valor}`)
             });
 
             document.getElementById('pageSubtitle').textContent = 
@@ -676,45 +681,21 @@
             const numClientes = dados.receitas.clientes.length;
             const ticketMedio = numClientes > 0 ? dados.receitas.total / numClientes : 0;
             
-            // Calcular despesas sem Alpha
-            let alphaTotal = 0;
-            let despesasSemAlpha = 0;
-            
-            Object.values(dados.despesas.categorias).forEach(cat => {
-                cat.itens.forEach(item => {
-                    if (item.nome.includes('Alpha') || item.nome.includes('alpha')) {
-                        alphaTotal += item.valor;
-                    } else {
-                        despesasSemAlpha += item.valor;
-                    }
-                });
+            // Calcular resultado e margem
+            const resultado = dados.receitas.recebido - dados.despesas.pago;
+            const margemLiquida = dados.receitas.total > 0 ? (resultado / dados.receitas.total * 100).toFixed(1) : 0;
+
+            console.log('💰 Cálculo de Resultado:', {
+                receitasRecebidas: dados.receitas.recebido,
+                despesasPagas: dados.despesas.pago,
+                resultado: resultado,
+                margemLiquida: margemLiquida + '%'
             });
-            
-            // PROJEÇÃO REALISTA: usar total de receitas como base para projeção
-            let receitaParaCalculo = dados.receitas.recebido;
-            let despesaParaCalculo = dados.despesas.pago;
-            let labelResultado = 'Receitas - Despesas Operacionais';
-            
-            // Se é mês futuro (sem recebimentos), usar projeção
-            if (mes === '2025-11') {
-                // Novembro: considerar recebido + projeção dos pendentes
-                receitaParaCalculo = dados.receitas.total; // 100% das receitas
-                despesaParaCalculo = despesasSemAlpha; // usar total de despesas previstas
-                labelResultado = 'Projeção: 100% das Receitas - Despesas Previstas';
-            } else if (mes === '2025-12') {
-                // Dezembro: usar 80% do total como projeção conservadora
-                receitaParaCalculo = dados.receitas.total; // 100% das receitas
-                despesaParaCalculo = despesasSemAlpha;
-                labelResultado = 'Projeção: 100% das Receitas - Despesas Previstas';
-            }
-            
-            const resultado = receitaParaCalculo - despesaParaCalculo;
-            const margemLiquida = receitaParaCalculo > 0 ? (resultado / receitaParaCalculo * 100).toFixed(1) : 0;
             
             document.getElementById('ticketMedio').textContent = formatMoney(ticketMedio);
             document.getElementById('totalClientes').textContent = numClientes;
             document.getElementById('margemLiquida').textContent = margemLiquida + '%';
-            document.getElementById('burnRate').textContent = formatMoney(despesaParaCalculo);
+            document.getElementById('burnRate').textContent = formatMoney(dados.despesas.pago);
 
             // Receitas
             document.getElementById('totalReceitas').textContent = formatMoney(dados.receitas.total);
@@ -731,42 +712,32 @@
                 </div>
             `;
             
-            // Adicionar projeção se for mês futuro
-            if (mes === '2025-11' || mes === '2025-12') {
-                receitasHTML += `
-                    <div class="dre-item highlight">
-                        <span class="dre-item-name">💡 Projeção Realista</span>
-                        <span class="dre-item-value">${formatMoney(receitaParaCalculo)}</span>
-                    </div>
-                `;
-            }
-            
             receitasHTML += `
                 <div class="dre-item">
                     <span class="dre-item-name">📊 Taxa de Recebimento</span>
                     <span class="dre-item-value">${dados.receitas.taxa_recebimento}%</span>
                 </div>
             `;
-            
+
             receitasItens.innerHTML = receitasHTML;
-            
-            // Despesas (sem Alpha)
-            document.getElementById('totalDespesasOperacionais').textContent = formatMoney(despesasSemAlpha);
+
+            // Despesas
+            document.getElementById('totalDespesasOperacionais').textContent = formatMoney(dados.despesas.total);
             const despesasItens = document.getElementById('despesasItens');
             let despesasHTML = '';
             
             Object.keys(dados.despesas.categorias).forEach(key => {
                 const categoria = dados.despesas.categorias[key];
+                if (!categoria || !categoria.itens) return;
+
                 const nome = key.replace(/_/g, ' ').toUpperCase();
-                
-                // Calcular total da categoria sem Alpha
+
+                // Calcular total da categoria
                 let totalCat = 0;
                 categoria.itens.forEach(item => {
-                    if (!item.nome.includes('Alpha') && !item.nome.includes('alpha')) {
-                        totalCat += item.valor;
-                    }
+                    totalCat += item.valor || 0;
                 });
-                
+
                 if (totalCat > 0) {
                     despesasHTML += `
                         <div class="dre-item">
@@ -776,34 +747,42 @@
                     `;
                 }
             });
-            
-            // Adicionar total previsto se for mês futuro
-            if (mes === '2025-11' || mes === '2025-12') {
-                despesasHTML += `
-                    <div class="dre-item highlight">
-                        <span class="dre-item-name">💡 Total Previsto</span>
-                        <span class="dre-item-value">${formatMoney(despesaParaCalculo)}</span>
-                    </div>
-                `;
-            }
-            
+
+            despesasHTML += `
+                <div class="dre-item">
+                    <span class="dre-item-name">✅ Pago</span>
+                    <span class="dre-item-value">${formatMoney(dados.despesas.pago)}</span>
+                </div>
+                <div class="dre-item">
+                    <span class="dre-item-name">⏳ Pendente</span>
+                    <span class="dre-item-value">${formatMoney(dados.despesas.pendente)}</span>
+                </div>
+            `;
+
             despesasItens.innerHTML = despesasHTML;
-            
-            // Alpha Card
-            document.getElementById('alphaValue').textContent = formatMoney(alphaTotal);
-            
+
+            // Calcular repasse Alpha (despesas com "Alpha" no nome)
+            let repasseAlpha = 0;
+            if (dados.despesas.categorias) {
+                Object.values(dados.despesas.categorias).forEach(cat => {
+                    if (cat && cat.itens) {
+                        cat.itens.forEach(item => {
+                            if (item.nome && (item.nome.includes('Alpha') || item.nome.includes('alpha'))) {
+                                repasseAlpha += item.valor || 0;
+                            }
+                        });
+                    }
+                });
+            }
+            document.getElementById('alphaValue').textContent = formatMoney(repasseAlpha);
+
             // Resultado
             const resultadoEl = document.getElementById('resultadoValue');
             resultadoEl.textContent = formatMoney(resultado);
-            
+
             const subtitleEl = document.getElementById('resultadoSubtitle');
-            
-            if (mes === '2025-10') {
-                subtitleEl.textContent = labelResultado;
-            } else {
-                subtitleEl.textContent = labelResultado + ' (Estimativa)';
-            }
-            
+            subtitleEl.textContent = 'Receitas Recebidas - Despesas Pagas';
+
             if (resultado >= 0) {
                 resultadoEl.style.color = '#d4edda';
             } else {
@@ -900,7 +879,7 @@
 
 
         // Variável para armazenar mês atual
-        let currentMonth = '2025-12';
+        let currentMonth = '2026-01';
 
         function changeMonth() {
             const selectedMonth = document.getElementById('monthSelect').value;
