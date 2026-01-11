@@ -3510,9 +3510,10 @@
                 royaltyRow.style.display = 'none';
             }
 
-            // Taxa de cartão (aplicada APÓS royalty) - NÃO APLICAR para Repasse Matriz
+            // Taxa de cartão/boleto (aplicada APÓS royalty)
+            // Cliente paga com taxa → Matriz recebe valor já descontado → Repassa via PIX
             const taxaJurosPercentual = parseFloat(document.getElementById('clientTaxaJuros')?.value) || 0;
-            if (taxaJurosPercentual > 0 && origem !== 'repasse-matriz') {
+            if (taxaJurosPercentual > 0) {
                 taxaCartao = liquido * (taxaJurosPercentual / 100);
                 liquido = liquido - taxaCartao;
             }
@@ -3652,10 +3653,10 @@
             const parcelasCartao = document.getElementById('clientParcelasCartao')?.value || null;
             const isContratoFechado = document.getElementById('clientIsContratoFechado')?.checked || false;
 
-            // Calcular líquido (15% royalty para Alpha + taxa de juros)
+            // Calcular líquido (15% royalty para Alpha - taxa de juros do cartão/boleto)
             valorLiquido = empresa === 'alpha' ? valor * 0.85 : valor;
             if (taxaJuros > 0) {
-                valorLiquido = valorLiquido * (1 + taxaJuros / 100);
+                valorLiquido = valorLiquido * (1 - taxaJuros / 100);
             }
 
             // Verificar se está editando ou criando novo
@@ -4898,9 +4899,9 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="clientTaxaJuros">📊 Taxa de Juros Cartão (%)</label>
-                                <input type="number" id="clientTaxaJuros" placeholder="Ex: 2.5" min="0" max="100" step="0.01" oninput="atualizarPreviewContrato()">
-                                <small style="color: #6b7280; font-size: 11px;">Taxa do parcelamento (se houver)</small>
+                                <label for="clientTaxaJuros">📊 Taxa de Juros/Boleto (%)</label>
+                                <input type="number" id="clientTaxaJuros" placeholder="Ex: 3.5" min="0" max="100" step="0.01" oninput="atualizarPreviewContrato()">
+                                <small style="color: #6b7280; font-size: 11px;">Taxa cobrada do cliente (cartão/boleto) - será descontada do líquido</small>
                             </div>
                         </div>
                     </div>
