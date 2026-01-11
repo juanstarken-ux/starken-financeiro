@@ -4507,23 +4507,34 @@
                 }
             }
 
+            // 🎯 Verificar se TCV tem receita neste mês (meses personalizados)
+            const temReceitaNestesMes = cliente.tipoValor === 'tcv' && cliente.tcvMesesReceita && cliente.tcvMesesReceita.length > 0
+                ? cliente.tcvMesesReceita.includes(mesAtual)
+                : true; // Se não tem configuração, assume que sim
+
             // Para TCV, usar o valor total (não por parcela)
             if (cliente.tipoValor === 'tcv' && cliente.tcvTotal) {
                 valorBruto = cliente.tcvTotal;
 
-                // REPASSE MATRIZ: Cálculo especial (50% do valor)
-                if (cliente.origem === 'repasse-matriz' && cliente.empresa === 'alpha') {
-                    // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% líquido
-                    // Valor recebido integralmente no mês (não dividido pelos meses de trabalho)
-                    valorLiquido = valorBruto * 0.50; // Líquido é 50% do bruto
+                // Se NÃO tem receita neste mês, zerar valores
+                if (!temReceitaNestesMes) {
+                    valorBruto = 0;
+                    valorLiquido = 0;
                 } else {
-                    // OUTROS CASOS: Aplicar royalty e taxa normalmente
-                    valorLiquido = valorBruto;
-                    if (cliente.empresa === 'alpha') {
-                        valorLiquido = valorBruto * 0.85; // - 15% royalty
-                    }
-                    if (cliente.taxaJuros > 0) {
-                        valorLiquido = valorLiquido * (1 - cliente.taxaJuros / 100);
+                    // REPASSE MATRIZ: Cálculo especial (50% do valor)
+                    if (cliente.origem === 'repasse-matriz' && cliente.empresa === 'alpha') {
+                        // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% líquido
+                        // Valor recebido integralmente no mês (não dividido pelos meses de trabalho)
+                        valorLiquido = valorBruto * 0.50; // Líquido é 50% do bruto
+                    } else {
+                        // OUTROS CASOS: Aplicar royalty e taxa normalmente
+                        valorLiquido = valorBruto;
+                        if (cliente.empresa === 'alpha') {
+                            valorLiquido = valorBruto * 0.85; // - 15% royalty
+                        }
+                        if (cliente.taxaJuros > 0) {
+                            valorLiquido = valorLiquido * (1 - cliente.taxaJuros / 100);
+                        }
                     }
                 }
             }
@@ -4543,18 +4554,32 @@
                     </div>
                 `;
             } else if (cliente.tipoValor === 'tcv') {
-                valorDisplay = `
-                    <div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                            <span style="font-size:11px;color:#6b7280;font-weight:500;">Bruto:</span>
-                            <span style="font-size:15px;color:#374151;font-weight:600;">R$ ${brutoFormatado}</span>
+                // Se não tem receita neste mês, mostrar aviso
+                if (!temReceitaNestesMes) {
+                    valorDisplay = `
+                        <div style="text-align:center;">
+                            <div style="background:linear-gradient(135deg,#f59e0b 0%,#ea580c 100%);color:white;padding:8px 12px;border-radius:8px;margin-bottom:12px;">
+                                <div style="font-size:11px;font-weight:600;opacity:0.95;margin-bottom:4px;">⚠️ MÊS SEM RECEITA</div>
+                                <div style="font-size:10px;opacity:0.9;line-height:1.4;">Este é um contrato TCV. A receita foi recebida em outro(s) mês(es).</div>
+                            </div>
+                            <div style="font-size:18px;font-weight:700;color:#6b7280;">R$ 0,00</div>
+                            <div style="font-size:10px;color:#9ca3af;margin-top:6px;">Receita apenas na renovação</div>
                         </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #e5e7eb;">
-                            <span style="font-size:11px;color:#059669;font-weight:600;">Líquido:</span>
-                            <span style="font-size:20px;color:#059669;font-weight:700;">R$ ${liquidoFormatado}</span>
+                    `;
+                } else {
+                    valorDisplay = `
+                        <div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                <span style="font-size:11px;color:#6b7280;font-weight:500;">Bruto:</span>
+                                <span style="font-size:15px;color:#374151;font-weight:600;">R$ ${brutoFormatado}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #e5e7eb;">
+                                <span style="font-size:11px;color:#059669;font-weight:600;">Líquido:</span>
+                                <span style="font-size:20px;color:#059669;font-weight:700;">R$ ${liquidoFormatado}</span>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             } else {
                 // MRR: mostrar bruto e líquido
                 if (valorBruto !== valorLiquido) {
