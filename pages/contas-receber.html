@@ -2537,6 +2537,7 @@
         let selectedItems = new Set();
         let pendingPayment = null;
         let statusChart = null;
+        let currentClientes = []; // Armazena todos os clientes carregados
         let top5Chart = null;
 
         // Formatar valor em BRL
@@ -2870,6 +2871,9 @@
             // Atualizar gráficos
             updateStatusChart(recebido, pendente);
             updateTop5Chart(clientes.filter(c => c.valor > 0));
+
+            // Salvar clientes globalmente para uso em toggleItemStatus
+            currentClientes = clientesParaTabela;
 
             // Renderizar tabela
             renderTable(clientesParaTabela);
@@ -3234,12 +3238,12 @@
 
         // Toggle status de um item
         function toggleItemStatus(nome, valor) {
-            // Buscar o cliente completo para abrir o modal correto
-            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
-            const cliente = dados.receitas.clientes.find(c => c.nome === nome);
+            // Buscar o cliente da lista global (inclui clientes do localStorage + customItems)
+            const cliente = currentClientes.find(c => c.nome === nome);
 
             if (!cliente) {
                 console.error('Cliente não encontrado:', nome);
+                console.log('Clientes disponíveis:', currentClientes.map(c => c.nome));
                 return;
             }
 
