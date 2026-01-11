@@ -3841,6 +3841,12 @@
             const parcelasCartao = document.getElementById('clientParcelasCartao')?.value || null;
             const isContratoFechado = document.getElementById('clientIsContratoFechado')?.checked || false;
 
+            // Capturar closers selecionados
+            const closers = [];
+            document.querySelectorAll('.closer-checkbox:checked').forEach(cb => {
+                closers.push(cb.value);
+            });
+
             // Calcular líquido (15% royalty para Alpha - taxa de juros do cartão/boleto)
             valorLiquido = empresa === 'alpha' ? valor * 0.85 : valor;
             if (taxaJuros > 0) {
@@ -3902,6 +3908,8 @@
                 gateway: gateway,
                 parcelasCartao: parcelasCartao,
                 isContratoFechado: isContratoFechado,
+                // Closers responsáveis
+                closers: closers,
                 // Meses personalizados
                 mesesPersonalizados: mesesPersonalizados,
                 tcvMesesReceita: tcvMesesReceita,
@@ -4334,6 +4342,17 @@
             const checkboxContratoFechado = document.getElementById('clientIsContratoFechado');
             if (checkboxContratoFechado) {
                 checkboxContratoFechado.checked = cliente.isContratoFechado || false;
+            }
+
+            // Carregar closers
+            document.querySelectorAll('.closer-checkbox').forEach(cb => cb.checked = false); // Desmarcar todos
+            if (cliente.closers && cliente.closers.length > 0) {
+                cliente.closers.forEach(closer => {
+                    const checkbox = document.querySelector(`.closer-checkbox[value="${closer}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
             }
 
             // Carregar meses personalizados se existirem
@@ -5354,6 +5373,34 @@
                     <div class="form-group">
                         <label for="clientCategoria">Categoria/Segmento *</label>
                         <input type="text" id="clientCategoria" placeholder="Ex: Gastronomia, Automotivo..." required>
+                    </div>
+
+                    <!-- Closers -->
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 8px;">🎯 Closer(s) Responsável(is)</label>
+                        <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;">
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
+                                    <input type="checkbox" class="closer-checkbox" value="Juan" style="cursor: pointer;">
+                                    <span>Juan Minni</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
+                                    <input type="checkbox" class="closer-checkbox" value="Dante" style="cursor: pointer;">
+                                    <span>Dante Martins</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
+                                    <input type="checkbox" class="closer-checkbox" value="João" style="cursor: pointer;">
+                                    <span>João Silva</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
+                                    <input type="checkbox" class="closer-checkbox" value="Gabriel" style="cursor: pointer;">
+                                    <span>Gabriel Anibelli</span>
+                                </label>
+                            </div>
+                            <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 8px;">
+                                💡 Selecione um ou mais closers que participaram do fechamento
+                            </small>
+                        </div>
                     </div>
 
                     <!-- Datas do Contrato -->
