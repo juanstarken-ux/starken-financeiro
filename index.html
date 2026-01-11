@@ -1600,14 +1600,35 @@
                                 <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">MRR bruto + TCV bruto</div>
                             </div>
 
-                            <!-- Indicador 2: Valor Líquido Total -->
+                            <!-- Indicador 2: Royalties Alpha (15%) -->
+                            <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(250, 112, 154, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">👑 Royalties Alpha (15%)</div>
+                                <div id="alpha-royalties" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">15% sobre valor bruto</div>
+                            </div>
+
+                            <!-- Indicador 3: Taxas de Cartão -->
+                            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">💳 Taxas de Cartão</div>
+                                <div id="alpha-taxas-cartao" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">Juros de parcelamento</div>
+                            </div>
+
+                            <!-- Indicador 4: Valor Líquido Total -->
                             <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);">
                                 <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">💵 Valor Líquido Total</div>
                                 <div id="alpha-valor-liquido" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
-                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">MRR líquido + TCV líquido</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">Bruto - Royalties - Taxas</div>
                             </div>
 
-                            <!-- Indicador 3: Projeção MRR Anual -->
+                            <!-- Indicador 5: Lucro Final Starken -->
+                            <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);">
+                                <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">🎯 Lucro Final Starken</div>
+                                <div id="alpha-lucro-final" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 11px; opacity: 0.8; margin-top: 6px;">Valor que fica na Starken</div>
+                            </div>
+
+                            <!-- Indicador 6: Projeção MRR Anual -->
                             <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);">
                                 <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">📈 Projeção MRR Anual</div>
                                 <div id="alpha-projecao-mrr" style="font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
@@ -2823,8 +2844,29 @@
                 // Valor Bruto Total: MRR Bruto + TCV Bruto
                 const valorBrutoTotal = totalMRRBruto + totalTCVBruto;
 
+                // 👑 Royalties Alpha: 15% sobre valor bruto
+                const royaltiesAlpha = valorBrutoTotal * 0.15;
+
+                // 💳 Calcular Taxas de Cartão com base nos clientes
+                let taxasCartaoTotal = 0;
+                clientes.forEach(c => {
+                    // Buscar dados completos do cliente no localStorage para pegar taxaJuros
+                    const todosClientes = getManualClients();
+                    const clienteCompleto = todosClientes.find(cli => cli.nome === c.nome && cli.empresa === 'alpha');
+
+                    if (clienteCompleto && clienteCompleto.taxaJuros > 0) {
+                        // Calcular taxa de cartão sobre o valor bruto
+                        const valorBase = c.tipoValor === 'mrr' ? c.mrrBruto : c.tcv;
+                        const taxaValor = valorBase * (clienteCompleto.taxaJuros / 100);
+                        taxasCartaoTotal += taxaValor;
+                    }
+                });
+
                 // Valor Líquido Total: MRR Líquido + TCV Líquido (mesmo que totalTabela)
                 const valorLiquidoTotal = totalMRR + totalTCVLiquido;
+
+                // 🎯 Lucro Final Starken: Valor Líquido (que já desconta royalties e taxas)
+                const lucroFinalStarken = valorLiquidoTotal;
 
                 // Projeção MRR Anual: MRR Líquido × 12
                 const projecaoMRRAnual = totalMRR * 12;
@@ -2837,7 +2879,10 @@
                     totalClientes,
                     totalTabela,
                     valorBrutoTotal,
+                    royaltiesAlpha,
+                    taxasCartaoTotal,
                     valorLiquidoTotal,
+                    lucroFinalStarken,
                     projecaoMRRAnual
                 };
             },
@@ -3021,8 +3066,9 @@
 
             renderTabela: function(mesChave) {
                 console.log('📋 AlphaTableManager.renderTabela chamado para:', mesChave);
-                const { clientes, totalMRR, totalTCVBruto, totalTCVLiquido, totalClientes, totalTabela, valorBrutoTotal, valorLiquidoTotal, projecaoMRRAnual } = this.getClientesAlpha(mesChave);
+                const { clientes, totalMRR, totalTCVBruto, totalTCVLiquido, totalClientes, totalTabela, valorBrutoTotal, royaltiesAlpha, taxasCartaoTotal, valorLiquidoTotal, lucroFinalStarken, projecaoMRRAnual } = this.getClientesAlpha(mesChave);
                 console.log('📋 Clientes Alpha:', totalClientes, '| MRR:', totalMRR, '| TCV Bruto:', totalTCVBruto, '| TCV Líquido:', totalTCVLiquido);
+                console.log('💰 Financeiro Alpha - Bruto:', valorBrutoTotal, '| Royalties:', royaltiesAlpha, '| Taxas:', taxasCartaoTotal, '| Líquido:', valorLiquidoTotal);
 
                 const tbody = document.getElementById('alpha-table-body');
 
@@ -3095,15 +3141,21 @@
 
                 // Atualizar indicadores
                 const valorBrutoEl = document.getElementById('alpha-valor-bruto');
+                const royaltiesEl = document.getElementById('alpha-royalties');
+                const taxasCartaoEl = document.getElementById('alpha-taxas-cartao');
                 const valorLiquidoEl = document.getElementById('alpha-valor-liquido');
+                const lucroFinalEl = document.getElementById('alpha-lucro-final');
                 const projecaoMRREl = document.getElementById('alpha-projecao-mrr');
 
                 if (valorBrutoEl) valorBrutoEl.textContent = 'R$ ' + valorBrutoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (royaltiesEl) royaltiesEl.textContent = 'R$ ' + royaltiesAlpha.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (taxasCartaoEl) taxasCartaoEl.textContent = 'R$ ' + taxasCartaoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 if (valorLiquidoEl) valorLiquidoEl.textContent = 'R$ ' + valorLiquidoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (lucroFinalEl) lucroFinalEl.textContent = 'R$ ' + lucroFinalStarken.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 if (projecaoMRREl) projecaoMRREl.textContent = 'R$ ' + projecaoMRRAnual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
                 console.log('✅ Header Alpha atualizado: ', totalClientes, 'clientes, MRR:', totalMRR, ', TCV Bruto:', totalTCVBruto);
-                console.log('✅ Indicadores atualizados: Bruto:', valorBrutoTotal, ', Líquido:', valorLiquidoTotal, ', Projeção:', projecaoMRRAnual);
+                console.log('✅ Indicadores atualizados: Bruto:', valorBrutoTotal, ', Royalties:', royaltiesAlpha, ', Taxas:', taxasCartaoTotal, ', Líquido:', valorLiquidoTotal, ', Lucro Final:', lucroFinalStarken, ', Projeção:', projecaoMRRAnual);
             }
         };
 
