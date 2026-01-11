@@ -3,12 +3,12 @@ const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
-// Senhas geradas aleatoriamente para cada sócio
+// Senhas atualizadas para cada sócio
 const socios = [
   { username: 'juan', nome: 'Juan Minni', email: 'juan@starkentecnologia.com.br', senha: 'Juan@Fin2025' },
-  { username: 'dante', nome: 'Dante Martins', email: 'dante@starkentecnologia.com.br', senha: 'Dante@Fin2025' },
-  { username: 'gabriel', nome: 'Gabriel Anibelli', email: 'gabriel@starkentecnologia.com.br', senha: 'Gabriel@Fin2025' },
-  { username: 'victor', nome: 'Victor Lapegna', email: 'victor@starkentecnologia.com.br', senha: 'Victor@Fin2025' }
+  { username: 'dante', nome: 'Dante Martins', email: 'dante@starkentecnologia.com.br', senha: 'DanteStarken@2025' },
+  { username: 'gabriel', nome: 'Gabriel Anibelli', email: 'gabriel@starkentecnologia.com.br', senha: 'GabrielStarken@2025' },
+  { username: 'victor', nome: 'Victor Lapegna', email: 'victor@starkentecnologia.com.br', senha: 'VictorStarken@2025' }
 ];
 
 async function main() {
