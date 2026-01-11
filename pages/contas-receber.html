@@ -3164,21 +3164,27 @@
 
         // Toggle status de um item
         function toggleItemStatus(nome, valor) {
+            // Buscar o cliente completo para abrir o modal correto
+            const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
+            const cliente = dados.receitas.clientes.find(c => c.nome === nome);
+
+            if (!cliente) {
+                console.error('Cliente não encontrado:', nome);
+                return;
+            }
+
             const currentStatus = GestaoFinanceira.getStatus(currentMonth, 'receita', nome);
             const isRecebido = currentStatus && (currentStatus.status === 'Recebido' || currentStatus.status === 'Feito');
 
             if (isRecebido) {
+                // Se já está recebido, marcar como pendente
                 GestaoFinanceira.updateStatus(currentMonth, 'receita', nome, 'A Receber', null);
                 showToast('Receita marcada como pendente', 'warning');
+                loadMonthData(currentMonth);
             } else {
-                pendingPayment = { nome, valor, tipo: 'receita' };
-                document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('paymentNote').value = '';
-                document.getElementById('modalTitle').textContent = `Confirmar Recebimento - ${nome}`;
-                document.getElementById('modalOverlay').classList.add('show');
+                // Abrir modal com opções de recebimento parcial
+                openKanbanReceiveModal(cliente, 'recebido');
             }
-
-            loadMonthData(currentMonth);
         }
 
         // Confirmar recebimento
