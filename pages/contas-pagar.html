@@ -4541,7 +4541,13 @@
             document.getElementById('kanbanPaymentDate').value = item.dataPagamento || today;
 
             // Preencher observações
-            document.getElementById('kanbanObservations').value = item.observacoes || '';
+            document.getElementById('kanbanObservations').value = item.observacao || '';
+
+            // Reset campos de pagamento parcial
+            document.querySelector('input[name="kanbanPaymentType"][value="full"]').checked = true;
+            document.getElementById('kanbanPartialValueGroup').style.display = 'none';
+            document.getElementById('kanbanPartialValue').value = '';
+            document.getElementById('kanbanRemainingValue').textContent = 'R$ 0,00';
 
             // Mostrar modal
             document.getElementById('kanbanPaymentModal').classList.add('active');
@@ -4560,6 +4566,15 @@
                 opt.classList.remove('selected');
             });
             document.querySelector(`.kanban-status-option[data-status="${status}"]`).classList.add('selected');
+
+            // Mostrar opções de tipo de pagamento apenas quando "pago" for selecionado
+            const paymentTypeGroup = document.getElementById('kanbanPaymentTypeGroup');
+            if (status === 'pago') {
+                paymentTypeGroup.style.display = 'block';
+            } else {
+                paymentTypeGroup.style.display = 'none';
+                document.getElementById('kanbanPartialValueGroup').style.display = 'none';
+            }
         }
 
         // Obter status selecionado
@@ -4568,30 +4583,134 @@
             return selected ? selected.dataset.status : 'pendente';
         }
 
+        // Toggle pagamento parcial no Kanban
+        function toggleKanbanPartialPayment() {
+            const isPartial = document.querySelector('input[name="kanbanPaymentType"]:checked')?.value === 'partial';
+            const partialGroup = document.getElementById('kanbanPartialValueGroup');
+            partialGroup.style.display = isPartial ? 'block' : 'none';
+
+            if (isPartial) {
+                document.getElementById('kanbanPartialValue').focus();
+            }
+        }
+
+        // Atualizar valor restante do pagamento no Kanban
+        function updateKanbanRemainingValue() {
+            if (!kanbanSelectedItem) return;
+
+            const totalValor = kanbanSelectedItem.valor || 0;
+            const partialInput = document.getElementById('kanbanPartialValue').value;
+            const partialValor = parseMoney(partialInput);
+
+            const remaining = totalValor - partialValor;
+            document.getElementById('kanbanRemainingValue').textContent = formatMoney(Math.max(0, remaining));
+        }
+
         // Salvar alterações do modal
         function saveKanbanPayment() {
             if (!kanbanSelectedItem) return;
 
             const status = getSelectedKanbanStatus();
             const date = document.getElementById('kanbanPaymentDate').value;
-            const observations = document.getElementById('kanbanObservations').value;
+            const observacao = document.getElementById('kanbanObservations').value;
 
-            let newStatus;
-            if (status === 'pago') {
-                newStatus = 'Pago';
-            } else if (status === 'parcial') {
-                newStatus = 'Parcial';
-            } else {
-                newStatus = 'A Pagar';
+            // Se não for pago, apenas atualizar status
+            if (status !== 'pago') {
+                const newStatus = status === 'parcial' ? 'Parcial' : 'A Pagar';
+                GestaoFinanceira.updateStatus(currentMonth, 'despesa', kanbanSelectedItem.nome, newStatus, null);
+
+                // Salvar observação se houver
+                if (observacao) {
+                    const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
+                    const despesa = dados.despesas.find(d => d.nome === kanbanSelectedItem.nome);
+                    if (despesa) {
+                        despesa.observacao = observacao;
+                        GestaoFinanceira.saveDados(currentMonth, dados);
+                    }
+                }
+
+                closeKanbanPaymentModal();
+                showToast('Status atualizado!', 'success');
+                loadMonthData(currentMonth);
+                return;
             }
 
-            // Atualizar no sistema
-            GestaoFinanceira.updateStatus(currentMonth, 'despesa', kanbanSelectedItem.nome, newStatus, date);
+            // Verificar se é pagamento parcial
+            const paymentType = document.querySelector('input[name="kanbanPaymentType"]:checked')?.value || 'full';
 
-            // Fechar modal e recarregar
-            closeKanbanPaymentModal();
-            showToast(status === 'pago' ? 'Pagamento registrado!' : 'Status atualizado!', 'success');
-            loadMonthData(currentMonth);
+            if (paymentType === 'full') {
+                // Pagamento total
+                GestaoFinanceira.updateStatus(currentMonth, 'despesa', kanbanSelectedItem.nome, 'Pago', date);
+
+                // Salvar observação
+                if (observacao) {
+                    const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
+                    const despesa = dados.despesas.find(d => d.nome === kanbanSelectedItem.nome);
+                    if (despesa) {
+                        despesa.observacao = observacao;
+                        GestaoFinanceira.saveDados(currentMonth, dados);
+                    }
+                }
+
+                closeKanbanPaymentModal();
+                showToast('Pagamento total registrado!', 'success');
+                loadMonthData(currentMonth);
+            } else {
+                // Pagamento parcial
+                const partialInput = document.getElementById('kanbanPartialValue').value;
+                const partialValor = parseMoney(partialInput);
+                const totalValor = kanbanSelectedItem.valor || 0;
+
+                // Validações
+                if (partialValor <= 0) {
+                    showToast('Informe o valor do pagamento parcial', 'error');
+                    return;
+                }
+
+                if (partialValor >= totalValor) {
+                    showToast('Para pagamento total, selecione a opção "Pagamento Total"', 'error');
+                    return;
+                }
+
+                const remainingValor = totalValor - partialValor;
+                const nomeBase = kanbanSelectedItem.nome.replace(/ \(Restante.*\)$/, '').replace(/ \(Parcial\)$/, '').replace(/ \(Pago.*\)$/, '');
+                const nomeOriginal = kanbanSelectedItem.origemParcial || kanbanSelectedItem.nome;
+                const valorOriginalTotal = kanbanSelectedItem.valorOriginal || totalValor;
+
+                // 1. Deletar item original
+                GestaoFinanceira.deleteDespesa(currentMonth, kanbanSelectedItem.nome, kanbanSelectedItem.isCustom);
+
+                // 2. Criar item PAGO com valor parcial
+                const nomePago = nomeBase + ' (Pago ' + formatMoney(partialValor) + ')';
+                GestaoFinanceira.addDespesa(currentMonth, {
+                    nome: nomePago,
+                    valor: partialValor,
+                    categoria: kanbanSelectedItem.categoria || 'outros',
+                    tipo: kanbanSelectedItem.tipo || '',
+                    status: 'Pago',
+                    origemParcial: nomeOriginal,
+                    valorOriginal: valorOriginalTotal,
+                    observacao: `Pagamento parcial de "${nomeOriginal}" - Original: ${formatMoney(valorOriginalTotal)}${observacao ? ' - ' + observacao : ''}`
+                });
+                GestaoFinanceira.updateStatus(currentMonth, 'despesa', nomePago, 'Pago', date);
+
+                // 3. Criar item PENDENTE com valor restante
+                const nomeRestante = nomeBase + ' (Restante de ' + formatMoney(valorOriginalTotal) + ')';
+                GestaoFinanceira.addDespesa(currentMonth, {
+                    nome: nomeRestante,
+                    valor: remainingValor,
+                    categoria: kanbanSelectedItem.categoria || 'outros',
+                    tipo: kanbanSelectedItem.tipo || '',
+                    status: 'A Pagar',
+                    origemParcial: nomeOriginal,
+                    valorOriginal: valorOriginalTotal,
+                    observacao: `Saldo restante de "${nomeOriginal}" - Já pago: ${formatMoney(valorOriginalTotal - remainingValor)}`
+                });
+
+                closeKanbanPaymentModal();
+                showToast(`Pago ${formatMoney(partialValor)}. Restam ${formatMoney(remainingValor)} a pagar.`, 'success');
+                loadMonthData(currentMonth);
+            }
         }
 
         // Obter label da categoria
@@ -4651,6 +4770,32 @@
                     <div class="kanban-status-option" data-status="pago" onclick="selectKanbanStatus('pago')">
                         <div class="status-icon">🟢</div>
                         <div class="status-label">Pago</div>
+                    </div>
+                </div>
+
+                <div class="kanban-form-group" id="kanbanPaymentTypeGroup" style="display: none;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 12px; display: block;">Tipo de Pagamento</label>
+                    <div style="display: flex; gap: 12px;">
+                        <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #27ae60; border-radius: 8px; cursor: pointer; background: #d4edda;">
+                            <input type="radio" name="kanbanPaymentType" value="full" checked onchange="toggleKanbanPartialPayment()">
+                            <span style="font-weight: 500;">Pagamento Total</span>
+                        </label>
+                        <label style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #e1e8ed; border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="kanbanPaymentType" value="partial" onchange="toggleKanbanPartialPayment()">
+                            <span style="font-weight: 500;">Pagamento Parcial</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="kanban-form-group" id="kanbanPartialValueGroup" style="display: none;">
+                    <label for="kanbanPartialValue">Valor a Pagar Agora <span style="color: #e74c3c;">*</span></label>
+                    <input type="text" id="kanbanPartialValue" placeholder="R$ 0,00" oninput="maskMoney(this); updateKanbanRemainingValue()">
+                    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px;">
+                        <span style="color: #7f8c8d;">Valor restante:</span>
+                        <span style="color: #e74c3c; font-weight: 600;" id="kanbanRemainingValue">R$ 0,00</span>
+                    </div>
+                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-top: 12px; font-size: 12px; color: #856404; border-radius: 4px;" id="kanbanPartialNote">
+                        <strong>Atenção:</strong> Será criada uma nova despesa com o valor restante marcada como "A Pagar".
                     </div>
                 </div>
 
