@@ -2604,7 +2604,20 @@
                     .map(c => {
                         // 🎯 Verificar se há ajuste mensal para este mês
                         const ajusteMensal = c.ajustesMensais && c.ajustesMensais[mesChave];
-                        const valorAtual = ajusteMensal ? ajusteMensal.valor : c.valor;
+
+                        // 🎯 Verificar se MRR já chegou no mês do primeiro vencimento
+                        let mrrTemReceita = true;
+                        if (c.tipoValor === 'mrr' && c.dataPagamentoMRR) {
+                            const mesPrimeiroVencimento = c.dataPagamentoMRR.substring(0, 7); // YYYY-MM
+                            mrrTemReceita = mesChave >= mesPrimeiroVencimento;
+                        }
+
+                        let valorAtual = ajusteMensal ? ajusteMensal.valor : c.valor;
+
+                        // Se MRR ainda não chegou no primeiro vencimento, zerar
+                        if (!mrrTemReceita) {
+                            valorAtual = 0;
+                        }
 
                         return {
                             nome: c.nome,
@@ -2739,12 +2752,23 @@
                         // 🎯 Verificar se há ajuste mensal para este mês (APENAS MRR)
                         const ajusteMensal = c.tipoValor === 'mrr' && c.ajustesMensais && c.ajustesMensais[mesChave];
 
+                        // 🎯 Verificar se MRR já chegou no mês do primeiro vencimento
+                        let mrrTemReceita = true;
+                        if (c.tipoValor === 'mrr' && c.dataPagamentoMRR) {
+                            const mesPrimeiroVencimento = c.dataPagamentoMRR.substring(0, 7); // YYYY-MM
+                            mrrTemReceita = mesChave >= mesPrimeiroVencimento;
+                        }
+
                         // Usar valor ajustado se existir, senão usar valor padrão
                         let valorBase = ajusteMensal ? ajusteMensal.valor : c.valor;
                         let valorLiquidoBase = c.valorLiquido;
 
-                        // Se tem ajuste mensal MRR, recalcular o líquido
-                        if (ajusteMensal) {
+                        // Se MRR ainda não chegou no primeiro vencimento, zerar
+                        if (c.tipoValor === 'mrr' && !mrrTemReceita) {
+                            valorBase = 0;
+                            valorLiquidoBase = 0;
+                        } else if (ajusteMensal) {
+                            // Se tem ajuste mensal MRR, recalcular o líquido
                             valorLiquidoBase = valorBase * 0.85; // 15% royalty Alpha
                             if (c.taxaJuros > 0) {
                                 valorLiquidoBase = valorLiquidoBase * (1 - c.taxaJuros / 100);
@@ -4492,12 +4516,24 @@
             const mesAtual = DashboardState.mesAtual;
             const ajusteMensal = cliente.tipoValor === 'mrr' && cliente.ajustesMensais && cliente.ajustesMensais[mesAtual];
 
+            // 🎯 Verificar se MRR já chegou no mês do primeiro vencimento/pagamento
+            let mrrTemReceitaNestesMes = true;
+            if (cliente.tipoValor === 'mrr' && cliente.dataPagamentoMRR) {
+                const mesPrimeiroVencimento = cliente.dataPagamentoMRR.substring(0, 7); // YYYY-MM
+                // Se o mês atual for ANTES do mês do primeiro vencimento, não tem receita ainda
+                mrrTemReceitaNestesMes = mesAtual >= mesPrimeiroVencimento;
+            }
+
             // Calcular valor bruto e líquido
             let valorBruto = ajusteMensal ? ajusteMensal.valor : cliente.valor;
             let valorLiquido = cliente.valorLiquido || cliente.valor;
 
-            // Se tem ajuste mensal, recalcular o líquido com base no valor ajustado
-            if (ajusteMensal) {
+            // Se MRR ainda não chegou no mês de pagamento, zerar valores
+            if (cliente.tipoValor === 'mrr' && !mrrTemReceitaNestesMes) {
+                valorBruto = 0;
+                valorLiquido = 0;
+            } else if (ajusteMensal) {
+                // Se tem ajuste mensal, recalcular o líquido com base no valor ajustado
                 valorLiquido = valorBruto;
                 if (cliente.empresa === 'alpha') {
                     valorLiquido = valorBruto * 0.85; // - 15% royalty
@@ -4582,7 +4618,20 @@
                 }
             } else {
                 // MRR: mostrar bruto e líquido
-                if (valorBruto !== valorLiquido) {
+                // Se não tem receita ainda (antes do primeiro vencimento), mostrar aviso
+                if (!mrrTemReceitaNestesMes) {
+                    const dataVencimento = cliente.dataPagamentoMRR ? new Date(cliente.dataPagamentoMRR + 'T00:00:00').toLocaleDateString('pt-BR') : 'não definida';
+                    valorDisplay = `
+                        <div style="text-align:center;">
+                            <div style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:white;padding:8px 12px;border-radius:8px;margin-bottom:12px;">
+                                <div style="font-size:11px;font-weight:600;opacity:0.95;margin-bottom:4px;">⏳ AGUARDANDO PRIMEIRO VENCIMENTO</div>
+                                <div style="font-size:10px;opacity:0.9;line-height:1.4;">Contrato iniciado. Receita a partir de ${dataVencimento}</div>
+                            </div>
+                            <div style="font-size:18px;font-weight:700;color:#6b7280;">R$ 0,00</div>
+                            <div style="font-size:10px;color:#9ca3af;margin-top:6px;">Sem receita neste mês</div>
+                        </div>
+                    `;
+                } else if (valorBruto !== valorLiquido) {
                     valorDisplay = `
                         <div>
                             ${ajusteMensal ? `
