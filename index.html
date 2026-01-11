@@ -2780,35 +2780,73 @@
                             mrrTemReceita = mesChave >= mesPrimeiroVencimento;
                         }
 
-                        // Usar valor ajustado se existir, senão usar valor padrão
-                        let valorBase = ajusteMensal ? ajusteMensal.valor : c.valor;
-                        let valorLiquidoBase = c.valorLiquido;
+                        // Calcular valores bruto e líquido (MESMA LÓGICA DOS CARDS)
+                        let valorBruto = ajusteMensal ? ajusteMensal.valor : c.valor;
+                        let valorLiquido = c.valorLiquido || c.valor;
 
-                        // Se MRR ainda não chegou no primeiro vencimento, zerar
-                        if (c.tipoValor === 'mrr' && !mrrTemReceita) {
-                            valorBase = 0;
-                            valorLiquidoBase = 0;
-                        } else if (ajusteMensal) {
-                            // Se tem ajuste mensal MRR, recalcular o líquido
-                            valorLiquidoBase = valorBase * 0.85; // 15% royalty Alpha
-                            if (c.taxaJuros > 0) {
-                                valorLiquidoBase = valorLiquidoBase * (1 - c.taxaJuros / 100);
+                        // ===== MRR =====
+                        if (c.tipoValor === 'mrr') {
+                            // Se MRR ainda não chegou no primeiro vencimento, zerar
+                            if (!mrrTemReceita) {
+                                valorBruto = 0;
+                                valorLiquido = 0;
+                            } else if (ajusteMensal) {
+                                // Se tem ajuste mensal, recalcular o líquido
+                                valorLiquido = valorBruto;
+                                if (c.empresa === 'alpha') {
+                                    valorLiquido = valorBruto * 0.85; // - 15% royalty
+                                }
+                                if (c.taxaJuros > 0) {
+                                    valorLiquido = valorLiquido * (1 - c.taxaJuros / 100);
+                                }
+                            } else {
+                                // Recalcular líquido mesmo sem ajuste para garantir consistência
+                                valorLiquido = valorBruto;
+                                if (c.empresa === 'alpha') {
+                                    valorLiquido = valorBruto * 0.85;
+                                }
+                                if (c.taxaJuros > 0) {
+                                    valorLiquido = valorLiquido * (1 - c.taxaJuros / 100);
+                                }
                             }
                         }
 
-                        // Para TCV com meses personalizados, verificar se é mês de receita
+                        // ===== TCV =====
                         let valorTCVBruto = 0;
                         let valorTCVLiquido = 0;
                         if (c.tipoValor === 'tcv') {
-                            // Se tem meses personalizados E lista de meses de receita
-                            if (c.tcvMesesReceita && c.tcvMesesReceita.length > 0) {
-                                // Mostrar valor se o mês atual está na lista de receita
-                                valorTCVBruto = c.tcvMesesReceita.includes(mesChave) ? (c.valor || 0) : 0;
-                                valorTCVLiquido = c.tcvMesesReceita.includes(mesChave) ? (c.valorLiquido || 0) : 0;
+                            // Usar tcvTotal se existir
+                            valorBruto = c.tcvTotal || c.valor || 0;
+
+                            // Verificar se tem receita neste mês
+                            const temReceitaNestesMes = c.tcvMesesReceita && c.tcvMesesReceita.length > 0
+                                ? c.tcvMesesReceita.includes(mesChave)
+                                : true;
+
+                            if (!temReceitaNestesMes) {
+                                // Sem receita neste mês
+                                valorTCVBruto = 0;
+                                valorTCVLiquido = 0;
                             } else {
-                                // Lógica antiga: mostra sempre
-                                valorTCVBruto = (c.valor || 0);
-                                valorTCVLiquido = (c.valorLiquido || 0);
+                                valorTCVBruto = valorBruto;
+
+                                // Calcular líquido (MESMA LÓGICA DOS CARDS)
+                                if (c.valorLiquidoManual) {
+                                    // Usar valor líquido manual se configurado
+                                    valorTCVLiquido = c.valorLiquidoManual;
+                                } else if (c.origem === 'repasse-matriz' && c.empresa === 'alpha') {
+                                    // REPASSE MATRIZ: 50% do bruto
+                                    valorTCVLiquido = valorBruto * 0.50;
+                                } else {
+                                    // OUTROS CASOS: Aplicar royalty + taxa
+                                    valorTCVLiquido = valorBruto;
+                                    if (c.empresa === 'alpha') {
+                                        valorTCVLiquido = valorBruto * 0.85; // - 15% royalty
+                                    }
+                                    if (c.taxaJuros > 0) {
+                                        valorTCVLiquido = valorTCVLiquido * (1 - c.taxaJuros / 100);
+                                    }
+                                }
                             }
                         }
 
@@ -2816,10 +2854,10 @@
                             nome: c.nome,
                             modelo: c.origem || c.categoria,
                             tipoValor: c.tipoValor,
-                            valorBruto: valorBase || 0,
-                            valorLiquido: valorLiquidoBase || 0,
-                            mrr: c.tipoValor === 'mrr' ? (valorLiquidoBase || 0) : 0,
-                            mrrBruto: c.tipoValor === 'mrr' ? (valorBase || 0) : 0,
+                            valorBruto: c.tipoValor === 'mrr' ? valorBruto : valorTCVBruto,
+                            valorLiquido: c.tipoValor === 'mrr' ? valorLiquido : valorTCVLiquido,
+                            mrr: c.tipoValor === 'mrr' ? valorLiquido : 0,
+                            mrrBruto: c.tipoValor === 'mrr' ? valorBruto : 0,
                             tcv: valorTCVBruto,
                             tcvLiquido: valorTCVLiquido,
                             status: c.mesInicio === mesChave ? 'novo' : 'active',
