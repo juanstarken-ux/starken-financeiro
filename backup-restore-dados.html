@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup & Restore - Starken Performance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+        }
+        .section h2 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            resize: vertical;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #004080;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            color: #212529;
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Backup & Restore dos Dados</h1>
+        <p class="subtitle">Transfira seus dados do Starken Performance entre computadores</p>
+
+        <!-- Seção 1: Exportar Dados -->
+        <div class="section">
+            <h2>📤 1. EXPORTAR Dados (Use no PC onde está configurado)</h2>
+
+            <div class="info-box">
+                💡 <strong>No PC onde você configurou tudo:</strong> Clique no botão abaixo para gerar um backup de todos os clientes e configurações.
+            </div>
+
+            <button class="btn" onclick="exportarDados()">📤 Gerar Backup dos Dados</button>
+
+            <div id="statsExport" style="display: none;">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total de Clientes</div>
+                        <div class="stat-value" id="totalClientes">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Clientes Alpha</div>
+                        <div class="stat-value" id="clientesAlpha">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Com Meses Config.</div>
+                        <div class="stat-value" id="comMeses">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <textarea id="backupData" placeholder="O backup aparecerá aqui..." readonly></textarea>
+
+            <button class="btn btn-success" onclick="copiarBackup()" style="display: none;" id="btnCopiar">
+                📋 Copiar Backup
+            </button>
+
+            <div id="successCopy" class="success" style="display: none;">
+                ✅ Backup copiado! Agora cole no Mac na seção de IMPORTAR abaixo.
+            </div>
+        </div>
+
+        <!-- Seção 2: Importar Dados -->
+        <div class="section">
+            <h2>📥 2. IMPORTAR Dados (Use no Mac)</h2>
+
+            <div class="info-box">
+                💡 <strong>No Mac:</strong> Cole o backup gerado acima e clique em "Restaurar Dados".
+            </div>
+
+            <textarea id="restoreData" placeholder="Cole aqui o backup copiado do outro PC..."></textarea>
+
+            <button class="btn btn-success" onclick="importarDados()">📥 Restaurar Dados no Mac</button>
+
+            <div id="successRestore" class="success" style="display: none;"></div>
+            <div id="errorRestore" class="error" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function exportarDados() {
+            try {
+                // Buscar todos os dados do localStorage
+                const clientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
+                const deletedCards = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]');
+                const gestaoData = localStorage.getItem('gestao_financeira');
+
+                const backup = {
+                    version: '1.0',
+                    date: new Date().toISOString(),
+                    data: {
+                        starken_manual_clients: clientes,
+                        starken_deleted_cards: deletedCards,
+                        gestao_financeira: gestaoData ? JSON.parse(gestaoData) : null
+                    }
+                };
+
+                // Mostrar estatísticas
+                const totalClientes = clientes.length;
+                const clientesAlpha = clientes.filter(c => c.empresa === 'alpha').length;
+                const comMeses = clientes.filter(c => c.mesesPersonalizados && c.mesesPersonalizados.length > 0).length;
+
+                document.getElementById('totalClientes').textContent = totalClientes;
+                document.getElementById('clientesAlpha').textContent = clientesAlpha;
+                document.getElementById('comMeses').textContent = comMeses;
+                document.getElementById('statsExport').style.display = 'block';
+
+                // Converter para JSON formatado
+                const backupJson = JSON.stringify(backup, null, 2);
+                document.getElementById('backupData').value = backupJson;
+                document.getElementById('btnCopiar').style.display = 'block';
+
+            } catch (error) {
+                alert('Erro ao exportar dados: ' + error.message);
+            }
+        }
+
+        function copiarBackup() {
+            const textarea = document.getElementById('backupData');
+            textarea.select();
+            document.execCommand('copy');
+
+            document.getElementById('successCopy').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successCopy').style.display = 'none';
+            }, 5000);
+        }
+
+        function importarDados() {
+            try {
+                const backupText = document.getElementById('restoreData').value;
+
+                if (!backupText.trim()) {
+                    throw new Error('Cole o backup primeiro!');
+                }
+
+                const backup = JSON.parse(backupText);
+
+                if (!backup.data) {
+                    throw new Error('Formato de backup inválido!');
+                }
+
+                // Restaurar dados
+                if (backup.data.starken_manual_clients) {
+                    localStorage.setItem('starken_manual_clients', JSON.stringify(backup.data.starken_manual_clients));
+                }
+
+                if (backup.data.starken_deleted_cards) {
+                    localStorage.setItem('starken_deleted_cards', JSON.stringify(backup.data.starken_deleted_cards));
+                }
+
+                if (backup.data.gestao_financeira) {
+                    localStorage.setItem('gestao_financeira', JSON.stringify(backup.data.gestao_financeira));
+                }
+
+                const totalClientes = backup.data.starken_manual_clients.length;
+                const clientesAlpha = backup.data.starken_manual_clients.filter(c => c.empresa === 'alpha').length;
+                const comMeses = backup.data.starken_manual_clients.filter(c => c.mesesPersonalizados && c.mesesPersonalizados.length > 0).length;
+
+                document.getElementById('successRestore').innerHTML = `
+                    <strong>✅ Dados Restaurados com Sucesso!</strong><br><br>
+                    📊 Total de Clientes: <strong>${totalClientes}</strong><br>
+                    ⭐ Clientes Alpha: <strong>${clientesAlpha}</strong><br>
+                    📅 Com Meses Configurados: <strong>${comMeses}</strong><br><br>
+                    🔄 Agora recarregue a página do dashboard para ver os dados!
+                `;
+                document.getElementById('successRestore').style.display = 'block';
+                document.getElementById('errorRestore').style.display = 'none';
+
+            } catch (error) {
+                document.getElementById('errorRestore').innerHTML = `
+                    <strong>❌ Erro ao Restaurar:</strong><br>
+                    ${error.message}
+                `;
+                document.getElementById('errorRestore').style.display = 'block';
+                document.getElementById('successRestore').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
