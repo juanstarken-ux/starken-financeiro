@@ -1482,7 +1482,125 @@
                 <div id="matriz-clients-container" class="clients-grid" style="display: none; margin-top: 20px;"></div>
             </div>
 
-            
+            <!-- Dashboard de Indicadores - Entre Cards e Tabelas -->
+            <div class="client-tables-container" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="client-table-header" style="margin-bottom: 25px;">
+                    <h2 class="section-title">📊 Indicadores Financeiros</h2>
+                    <p class="section-subtitle" id="dashboard-indicators-subtitle">Análise detalhada de receitas e lucros do mês</p>
+                </div>
+
+                <div class="tables-grid">
+                    <!-- INDICADORES STARKEN -->
+                    <div class="company-table-card starken-card">
+                        <div class="company-table-header" style="margin-bottom: 20px;">
+                            <div class="company-icon">🚀</div>
+                            <div class="company-info">
+                                <h3 class="company-name">Starken</h3>
+                                <p class="company-label">Indicadores da Matriz</p>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0 20px;">
+                            <!-- Indicador: MRR Total -->
+                            <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💰 MRR Total</div>
+                                <div id="dash-starken-mrr" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">Receita Mensal Recorrente</div>
+                            </div>
+
+                            <!-- Indicador: Valor Bruto -->
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">📊 Valor Bruto</div>
+                                <div id="dash-starken-bruto" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">MRR Bruto + TCV Bruto</div>
+                            </div>
+
+                            <!-- Indicador: Valor Líquido -->
+                            <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💵 Valor Líquido</div>
+                                <div id="dash-starken-liquido" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">MRR Líquido + TCV Líquido</div>
+                            </div>
+
+                            <!-- Indicador: Projeção Anual -->
+                            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">📈 Projeção Anual</div>
+                                <div id="dash-starken-projecao" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">MRR × 12 meses</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADORES ALPHA -->
+                    <div class="company-table-card alpha-card">
+                        <div class="company-table-header" style="margin-bottom: 20px;">
+                            <div class="company-icon alpha-icon">⭐</div>
+                            <div class="company-info">
+                                <h3 class="company-name">Alpha</h3>
+                                <p class="company-label">Indicadores do Projeto</p>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0 20px;">
+                            <!-- Indicador: MRR Total -->
+                            <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💰 MRR Total</div>
+                                <div id="dash-alpha-mrr" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">Receita Mensal Recorrente</div>
+                            </div>
+
+                            <!-- Indicador: TCV Bruto -->
+                            <div style="background: linear-gradient(135deg, #FFC107 0%, #FFB300 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">📊 TCV Bruto</div>
+                                <div id="dash-alpha-tcv-bruto" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">Total Contract Value Bruto</div>
+                            </div>
+
+                            <!-- Indicador: TCV Líquido (Contas a Receber) -->
+                            <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💵 TCV Líquido</div>
+                                <div id="dash-alpha-tcv-liquido" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">Entrada para Contas a Receber</div>
+                            </div>
+
+                            <!-- Indicador: Valor Bruto Total -->
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">📊 Valor Bruto</div>
+                                <div id="dash-alpha-bruto" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">MRR Bruto + TCV Bruto</div>
+                            </div>
+
+                            <!-- Indicador: Royalties Alpha -->
+                            <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(250, 112, 154, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">👑 Royalties (15%)</div>
+                                <div id="dash-alpha-royalties" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">15% sobre valor bruto</div>
+                            </div>
+
+                            <!-- Indicador: Taxas de Cartão -->
+                            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💳 Taxas Cartão</div>
+                                <div id="dash-alpha-taxas" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">Juros de parcelamento</div>
+                            </div>
+
+                            <!-- Indicador: Valor Líquido Total -->
+                            <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💵 Valor Líquido</div>
+                                <div id="dash-alpha-liquido" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">Lucro Final Starken</div>
+                            </div>
+
+                            <!-- Indicador: Projeção Anual -->
+                            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">📈 Projeção Anual</div>
+                                <div id="dash-alpha-projecao" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">MRR × 12 meses</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Two Column Client Tables -->
             <div class="client-tables-container">
@@ -1581,7 +1699,8 @@
                                         <th>Tipo</th>
                                         <th>Origem</th>
                                         <th>MRR</th>
-                                        <th>TCV</th>
+                                        <th>TCV Bruto</th>
+                                        <th>TCV Líquido</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -2523,6 +2642,9 @@
 
                 AlphaTableManager.renderTabela(mesChave);
                 AlphaTableManager.renderMatrizCards(mesChave);
+
+                // Atualizar dashboard de indicadores
+                DashboardIndicatorsManager.render(mesChave);
             }
 
             // Atualizar cards visuais Alpha
@@ -3151,6 +3273,7 @@
                     // Valores
                     html += `<td>${cliente.mrr > 0 ? 'R$ ' + cliente.mrr.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>`;
                     html += `<td style="${cliente.tcv > 0 ? 'color: #FFC107; font-weight: 700;' : ''}">${cliente.tcv > 0 ? 'R$ ' + cliente.tcv.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>`;
+                    html += `<td style="${cliente.tcvLiquido > 0 ? 'color: #11998e; font-weight: 700;' : ''}">${cliente.tcvLiquido > 0 ? 'R$ ' + cliente.tcvLiquido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>`;
                     html += `<td>${this.renderStatus(cliente)}</td>`;
                     html += '</tr>';
                 });
@@ -3160,6 +3283,7 @@
                 html += `<td colspan="3" style="text-align: right;">TOTAIS:</td>`;
                 html += `<td style="color: #4A6B54;">R$ ${totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
                 html += `<td style="color: #FFC107;">R$ ${totalTCVBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
+                html += `<td style="color: #11998e;">R$ ${totalTCVLiquido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
                 html += `<td style="color: #2c3e50;">R$ ${totalTabela.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>`;
                 html += '</tr>';
 
@@ -3197,6 +3321,54 @@
             }
         };
 
+        // ==========================================
+        // DASHBOARD DE INDICADORES - ENTRE CARDS E TABELAS
+        // ==========================================
+
+        const DashboardIndicatorsManager = {
+            render: function(mesChave) {
+                console.log('📊 DashboardIndicatorsManager.render chamado para:', mesChave);
+
+                // Buscar dados das duas empresas
+                const dadosStarken = StarkenTableManager.getClientesStarken(mesChave);
+                const dadosAlpha = AlphaTableManager.getClientesAlpha(mesChave);
+
+                // ===== INDICADORES STARKEN =====
+                const dashStarkenMrr = document.getElementById('dash-starken-mrr');
+                const dashStarkenBruto = document.getElementById('dash-starken-bruto');
+                const dashStarkenLiquido = document.getElementById('dash-starken-liquido');
+                const dashStarkenProjecao = document.getElementById('dash-starken-projecao');
+
+                if (dashStarkenMrr) dashStarkenMrr.textContent = 'R$ ' + dadosStarken.totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashStarkenBruto) dashStarkenBruto.textContent = 'R$ ' + dadosStarken.valorBrutoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashStarkenLiquido) dashStarkenLiquido.textContent = 'R$ ' + dadosStarken.valorLiquidoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashStarkenProjecao) dashStarkenProjecao.textContent = 'R$ ' + dadosStarken.projecaoMRRAnual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                // ===== INDICADORES ALPHA =====
+                const dashAlphaMrr = document.getElementById('dash-alpha-mrr');
+                const dashAlphaTcvBruto = document.getElementById('dash-alpha-tcv-bruto');
+                const dashAlphaTcvLiquido = document.getElementById('dash-alpha-tcv-liquido');
+                const dashAlphaBruto = document.getElementById('dash-alpha-bruto');
+                const dashAlphaRoyalties = document.getElementById('dash-alpha-royalties');
+                const dashAlphaTaxas = document.getElementById('dash-alpha-taxas');
+                const dashAlphaLiquido = document.getElementById('dash-alpha-liquido');
+                const dashAlphaProjecao = document.getElementById('dash-alpha-projecao');
+
+                if (dashAlphaMrr) dashAlphaMrr.textContent = 'R$ ' + dadosAlpha.totalMRR.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashAlphaTcvBruto) dashAlphaTcvBruto.textContent = 'R$ ' + dadosAlpha.totalTCVBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashAlphaTcvLiquido) dashAlphaTcvLiquido.textContent = 'R$ ' + dadosAlpha.totalTCVLiquido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashAlphaBruto) dashAlphaBruto.textContent = 'R$ ' + dadosAlpha.valorBrutoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashAlphaRoyalties) dashAlphaRoyalties.textContent = 'R$ ' + dadosAlpha.royaltiesAlpha.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashAlphaTaxas) dashAlphaTaxas.textContent = 'R$ ' + dadosAlpha.taxasCartaoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashAlphaLiquido) dashAlphaLiquido.textContent = 'R$ ' + dadosAlpha.valorLiquidoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashAlphaProjecao) dashAlphaProjecao.textContent = 'R$ ' + dadosAlpha.projecaoMRRAnual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                console.log('✅ Dashboard de Indicadores atualizado com sucesso!');
+                console.log('📊 Starken - MRR:', dadosStarken.totalMRR, '| Bruto:', dadosStarken.valorBrutoTotal, '| Líquido:', dadosStarken.valorLiquidoTotal);
+                console.log('📊 Alpha - MRR:', dadosAlpha.totalMRR, '| TCV Bruto:', dadosAlpha.totalTCVBruto, '| TCV Líquido:', dadosAlpha.totalTCVLiquido, '| Bruto:', dadosAlpha.valorBrutoTotal, '| Líquido:', dadosAlpha.valorLiquidoTotal);
+            }
+        };
+
         // Inicialização do dashboard
         window.addEventListener('load', function() {
             console.log('Inicializando Dashboard Financeiro...');
@@ -3217,6 +3389,9 @@
             StarkenTableManager.renderTabela(DashboardState.mesAtual);
             AlphaTableManager.renderTabela(DashboardState.mesAtual);
             AlphaTableManager.renderMatrizCards(DashboardState.mesAtual);
+
+            // Renderizar dashboard de indicadores
+            DashboardIndicatorsManager.render(DashboardState.mesAtual);
 
             // Atualizar contadores das tabs
             atualizarContadoresClientes(DashboardState.mesAtual);
@@ -3279,6 +3454,7 @@
                         ChartManager.atualizarTodos(mes);
                         StarkenTableManager.renderTabela(mes);
                         AlphaTableManager.renderTabela(mes);
+                        DashboardIndicatorsManager.render(mes);
                         atualizarContadoresClientes(mes);
 
                         // Notifica visualmente
@@ -4020,6 +4196,11 @@
                 AlphaTableManager.renderTabela(DashboardState.mesAtual);
             }
 
+            // 4. Atualizar dashboard de indicadores
+            if (typeof DashboardIndicatorsManager !== 'undefined') {
+                DashboardIndicatorsManager.render(DashboardState.mesAtual);
+            }
+
             // Toast de sucesso
             const acao = isEditing ? 'atualizado' : 'adicionado';
             console.log(`✅ Cliente ${acao} com sucesso:`, nome);
@@ -4067,6 +4248,11 @@
             }
             if (typeof AlphaTableManager !== 'undefined') {
                 AlphaTableManager.renderTabela(DashboardState.mesAtual);
+            }
+
+            // Atualizar dashboard de indicadores
+            if (typeof DashboardIndicatorsManager !== 'undefined') {
+                DashboardIndicatorsManager.render(DashboardState.mesAtual);
             }
 
             console.log('🗑️ Cliente excluído - cards e tabelas atualizados:', id);
@@ -4737,6 +4923,11 @@
             }
             if (typeof AlphaTableManager !== 'undefined') {
                 AlphaTableManager.renderTabela(DashboardState.mesAtual);
+            }
+
+            // Atualizar dashboard de indicadores
+            if (typeof DashboardIndicatorsManager !== 'undefined') {
+                DashboardIndicatorsManager.render(DashboardState.mesAtual);
             }
         }
 
