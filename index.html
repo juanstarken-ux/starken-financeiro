@@ -3032,19 +3032,42 @@
                 // 💼 Calcular Comissão de Repasse (apenas para TCV)
                 // Fórmula: Comissão = Valor do Contrato ÷ Duração (meses)
                 let comissaoRepasseTotal = 0;
+                const todosClientesComissao = getManualClients();
+
+                console.log('🔍 DEBUG Comissão - Total de clientes na tabela:', clientes.length);
+
                 clientes.forEach(c => {
                     if (c.tipoValor === 'tcv' && c.tcv > 0) {
-                        // Buscar dados completos para pegar duração
-                        const todosClientes = getManualClients();
-                        const clienteCompleto = todosClientes.find(cli => cli.nome === c.nome && cli.empresa === 'alpha');
+                        console.log('🔍 Cliente TCV encontrado:', c.nome, '| TCV:', c.tcv);
 
-                        if (clienteCompleto && clienteCompleto.duracao > 0) {
-                            // Comissão = Valor do Contrato ÷ Duração
-                            const comissao = (clienteCompleto.tcvTotal || clienteCompleto.valor || 0) / clienteCompleto.duracao;
-                            comissaoRepasseTotal += comissao;
+                        // Buscar dados completos para pegar duração
+                        const clienteCompleto = todosClientesComissao.find(cli => cli.nome === c.nome && cli.empresa === 'alpha');
+
+                        if (clienteCompleto) {
+                            console.log('🔍 Cliente completo:', clienteCompleto.nome);
+                            console.log('🔍 Duracao:', clienteCompleto.duracao);
+                            console.log('🔍 duracaoMeses:', clienteCompleto.duracaoMeses);
+                            console.log('🔍 tcvTotal:', clienteCompleto.tcvTotal);
+                            console.log('🔍 valor:', clienteCompleto.valor);
+
+                            // Tentar múltiplos campos de duração
+                            const duracao = clienteCompleto.duracao || clienteCompleto.duracaoMeses || 0;
+                            const valorContrato = clienteCompleto.tcvTotal || clienteCompleto.valor || 0;
+
+                            if (duracao > 0 && valorContrato > 0) {
+                                const comissao = valorContrato / duracao;
+                                console.log('✅ Comissão calculada:', comissao, '=', valorContrato, '÷', duracao);
+                                comissaoRepasseTotal += comissao;
+                            } else {
+                                console.log('⚠️ Não pode calcular - duracao:', duracao, 'valor:', valorContrato);
+                            }
+                        } else {
+                            console.log('❌ Cliente completo não encontrado para:', c.nome);
                         }
                     }
                 });
+
+                console.log('💼 Total Comissão Repasse:', comissaoRepasseTotal);
 
                 // Valor Líquido Total: MRR Líquido + TCV Líquido (mesmo que totalTabela)
                 const valorLiquidoTotal = totalMRR + totalTCVLiquido;
