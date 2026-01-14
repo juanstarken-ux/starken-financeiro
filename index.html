@@ -1584,6 +1584,13 @@
                                 <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">Juros de parcelamento</div>
                             </div>
 
+                            <!-- Indicador: Comissão de Repasse -->
+                            <div style="background: linear-gradient(135deg, #FF6F00 0%, #FFA726 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(255, 111, 0, 0.3);">
+                                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💼 Comissão Repasse</div>
+                                <div id="dash-alpha-comissao" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">R$ 0,00</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">Valor ÷ Duração (meses)</div>
+                            </div>
+
                             <!-- Indicador: Valor Líquido Total -->
                             <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);">
                                 <div style="font-size: 12px; opacity: 0.9; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">💵 Valor Líquido</div>
@@ -3022,6 +3029,23 @@
                     }
                 });
 
+                // 💼 Calcular Comissão de Repasse (apenas para TCV)
+                // Fórmula: Comissão = Valor do Contrato ÷ Duração (meses)
+                let comissaoRepasseTotal = 0;
+                clientes.forEach(c => {
+                    if (c.tipoValor === 'tcv' && c.tcv > 0) {
+                        // Buscar dados completos para pegar duração
+                        const todosClientes = getManualClients();
+                        const clienteCompleto = todosClientes.find(cli => cli.nome === c.nome && cli.empresa === 'alpha');
+
+                        if (clienteCompleto && clienteCompleto.duracao > 0) {
+                            // Comissão = Valor do Contrato ÷ Duração
+                            const comissao = (clienteCompleto.tcvTotal || clienteCompleto.valor || 0) / clienteCompleto.duracao;
+                            comissaoRepasseTotal += comissao;
+                        }
+                    }
+                });
+
                 // Valor Líquido Total: MRR Líquido + TCV Líquido (mesmo que totalTabela)
                 const valorLiquidoTotal = totalMRR + totalTCVLiquido;
 
@@ -3041,6 +3065,7 @@
                     valorBrutoTotal,
                     royaltiesAlpha,
                     taxasCartaoTotal,
+                    comissaoRepasseTotal,
                     valorLiquidoTotal,
                     lucroFinalStarken,
                     projecaoMRRAnual
@@ -3226,9 +3251,9 @@
 
             renderTabela: function(mesChave) {
                 console.log('📋 AlphaTableManager.renderTabela chamado para:', mesChave);
-                const { clientes, totalMRR, totalTCVBruto, totalTCVLiquido, totalClientes, totalTabela, valorBrutoTotal, royaltiesAlpha, taxasCartaoTotal, valorLiquidoTotal, lucroFinalStarken, projecaoMRRAnual } = this.getClientesAlpha(mesChave);
+                const { clientes, totalMRR, totalTCVBruto, totalTCVLiquido, totalClientes, totalTabela, valorBrutoTotal, royaltiesAlpha, taxasCartaoTotal, comissaoRepasseTotal, valorLiquidoTotal, lucroFinalStarken, projecaoMRRAnual } = this.getClientesAlpha(mesChave);
                 console.log('📋 Clientes Alpha:', totalClientes, '| MRR:', totalMRR, '| TCV Bruto:', totalTCVBruto, '| TCV Líquido:', totalTCVLiquido);
-                console.log('💰 Financeiro Alpha - Bruto:', valorBrutoTotal, '| Royalties:', royaltiesAlpha, '| Taxas:', taxasCartaoTotal, '| Líquido:', valorLiquidoTotal);
+                console.log('💰 Financeiro Alpha - Bruto:', valorBrutoTotal, '| Royalties:', royaltiesAlpha, '| Taxas:', taxasCartaoTotal, '| Comissão Repasse:', comissaoRepasseTotal, '| Líquido:', valorLiquidoTotal);
 
                 const tbody = document.getElementById('alpha-table-body');
 
@@ -3351,6 +3376,7 @@
                 const dashAlphaBruto = document.getElementById('dash-alpha-bruto');
                 const dashAlphaRoyalties = document.getElementById('dash-alpha-royalties');
                 const dashAlphaTaxas = document.getElementById('dash-alpha-taxas');
+                const dashAlphaComissao = document.getElementById('dash-alpha-comissao');
                 const dashAlphaLiquido = document.getElementById('dash-alpha-liquido');
                 const dashAlphaProjecao = document.getElementById('dash-alpha-projecao');
 
@@ -3360,12 +3386,13 @@
                 if (dashAlphaBruto) dashAlphaBruto.textContent = 'R$ ' + dadosAlpha.valorBrutoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 if (dashAlphaRoyalties) dashAlphaRoyalties.textContent = 'R$ ' + dadosAlpha.royaltiesAlpha.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 if (dashAlphaTaxas) dashAlphaTaxas.textContent = 'R$ ' + dadosAlpha.taxasCartaoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                if (dashAlphaComissao) dashAlphaComissao.textContent = 'R$ ' + dadosAlpha.comissaoRepasseTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 if (dashAlphaLiquido) dashAlphaLiquido.textContent = 'R$ ' + dadosAlpha.valorLiquidoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 if (dashAlphaProjecao) dashAlphaProjecao.textContent = 'R$ ' + dadosAlpha.projecaoMRRAnual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
                 console.log('✅ Dashboard de Indicadores atualizado com sucesso!');
                 console.log('📊 Starken - MRR:', dadosStarken.totalMRR, '| Bruto:', dadosStarken.valorBrutoTotal, '| Líquido:', dadosStarken.valorLiquidoTotal);
-                console.log('📊 Alpha - MRR:', dadosAlpha.totalMRR, '| TCV Bruto:', dadosAlpha.totalTCVBruto, '| TCV Líquido:', dadosAlpha.totalTCVLiquido, '| Bruto:', dadosAlpha.valorBrutoTotal, '| Líquido:', dadosAlpha.valorLiquidoTotal);
+                console.log('📊 Alpha - MRR:', dadosAlpha.totalMRR, '| TCV Bruto:', dadosAlpha.totalTCVBruto, '| TCV Líquido:', dadosAlpha.totalTCVLiquido, '| Bruto:', dadosAlpha.valorBrutoTotal, '| Comissão:', dadosAlpha.comissaoRepasseTotal, '| Líquido:', dadosAlpha.valorLiquidoTotal);
             }
         };
 
