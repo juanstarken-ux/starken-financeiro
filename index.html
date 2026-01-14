@@ -3044,19 +3044,33 @@
                         const clienteCompleto = todosClientesComissao.find(cli => cli.nome === c.nome && cli.empresa === 'alpha');
 
                         if (clienteCompleto) {
-                            console.log('🔍 Cliente completo:', clienteCompleto.nome);
-                            console.log('🔍 Duracao:', clienteCompleto.duracao);
-                            console.log('🔍 duracaoMeses:', clienteCompleto.duracaoMeses);
-                            console.log('🔍 tcvTotal:', clienteCompleto.tcvTotal);
-                            console.log('🔍 valor:', clienteCompleto.valor);
+                            // Tentar múltiplos campos de duração com prioridade
+                            // 1. duracao (campo novo específico)
+                            // 2. mesesTrabalho (campo antigo)
+                            // 3. Calcular baseado nas datas se existirem
+                            // 4. Padrão: 3 meses
+                            let duracao = clienteCompleto.duracao || clienteCompleto.mesesTrabalho;
 
-                            // Tentar múltiplos campos de duração
-                            const duracao = clienteCompleto.duracao || clienteCompleto.duracaoMeses || 0;
+                            // Se ainda não tem duração, tentar calcular pelas datas
+                            if (!duracao && clienteCompleto.dataPagamentoTCV && clienteCompleto.mesInicio) {
+                                const dataInicio = new Date(clienteCompleto.mesInicio + '-01');
+                                const dataPagamento = new Date(clienteCompleto.dataPagamentoTCV);
+                                const mesesDiff = (dataPagamento.getFullYear() - dataInicio.getFullYear()) * 12 +
+                                                 (dataPagamento.getMonth() - dataInicio.getMonth());
+                                duracao = Math.max(1, mesesDiff);
+                                console.log('📅 Duração calculada por datas:', duracao, 'meses');
+                            }
+
+                            // Fallback final: 3 meses
+                            duracao = duracao || 3;
+
                             const valorContrato = clienteCompleto.tcvTotal || clienteCompleto.valor || 0;
+
+                            console.log('🔍 Cliente:', clienteCompleto.nome, '| Duração:', duracao, 'meses | Valor:', valorContrato);
 
                             if (duracao > 0 && valorContrato > 0) {
                                 const comissao = valorContrato / duracao;
-                                console.log('✅ Comissão calculada:', comissao, '=', valorContrato, '÷', duracao);
+                                console.log('✅ Comissão:', comissao.toFixed(2), '=', valorContrato, '÷', duracao);
                                 comissaoRepasseTotal += comissao;
                             } else {
                                 console.log('⚠️ Não pode calcular - duracao:', duracao, 'valor:', valorContrato);
@@ -3067,7 +3081,7 @@
                     }
                 });
 
-                console.log('💼 Total Comissão Repasse:', comissaoRepasseTotal);
+                console.log('💼 Total Comissão Repasse:', comissaoRepasseTotal.toFixed(2));
 
                 // Valor Líquido Total: MRR Líquido + TCV Líquido (mesmo que totalTabela)
                 const valorLiquidoTotal = totalMRR + totalTCVLiquido;
@@ -3929,6 +3943,16 @@
 
             document.getElementById('previewLiquido').textContent = liquidoTexto;
 
+            // Atualizar preview de comissão (apenas para TCV)
+            if (tipo === 'tcv') {
+                const duracao = parseInt(document.getElementById('clientDuracao')?.value) || 3;
+                const comissao = tcvTotal / duracao;
+                const comissaoPreview = document.getElementById('comissaoPreview');
+                if (comissaoPreview) {
+                    comissaoPreview.textContent = formatarMoeda(comissao);
+                }
+            }
+
             // Log para debug
             console.log('📊 Cálculo:', {
                 tipo,
@@ -4111,6 +4135,9 @@
             // Capturar valor líquido manual (TCV apenas)
             const valorLiquidoManual = tipoValor === 'tcv' ? (parseFloat(document.getElementById('clientValorLiquidoManual')?.value) || null) : null;
 
+            // Capturar duração do contrato (campo específico para TCV)
+            const duracao = tipoValor === 'tcv' ? (parseInt(document.getElementById('clientDuracao')?.value) || 3) : null;
+
             let clienteData = {
                 nome,
                 empresa,
@@ -4124,6 +4151,7 @@
                 taxaJuros: taxaJuros || 0,
                 origem: origem,
                 mesesTrabalho: tipoValor === 'tcv' ? mesesTrabalho : null,
+                duracao: duracao, // Campo de duração para cálculo de comissão
                 isProjecao: isProjecao,
                 // Novos campos
                 dataFechamento: dataFechamento,
@@ -5525,6 +5553,13 @@
                                 <input type="number" id="clientTCVTotal" placeholder="12000" min="0" step="0.01" oninput="atualizarPreviewContrato()">
                             </div>
                             <div class="form-group">
+                                <label for="clientDuracao">⏱️ Duração do Contrato (meses) *</label>
+                                <input type="number" id="clientDuracao" placeholder="3" min="1" max="24" step="1" value="3" oninput="atualizarPreviewContrato()">
+                                <small style="color: #6b7280; font-size: 11px;">Para cálculo de comissão</small>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
                                 <label for="clientTCVParcelas">Nº de Parcelas</label>
                                 <select id="clientTCVParcelas" onchange="atualizarPreviewContrato()">
                                     <option value="1">1x (À vista)</option>
@@ -5534,6 +5569,13 @@
                                     <option value="6">6x</option>
                                     <option value="12">12x</option>
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="comissaoPreview" style="color: #F97316; font-weight: 600;">💼 Comissão Repasse</label>
+                                <div id="comissaoPreview" style="padding: 8px; background: #FFF7ED; border: 2px solid #FB923C; border-radius: 6px; font-size: 14px; font-weight: 700; color: #EA580C;">
+                                    R$ 0,00
+                                </div>
+                                <small style="color: #6b7280; font-size: 11px;">Valor ÷ Duração</small>
                             </div>
                         </div>
                         <div class="form-group">
