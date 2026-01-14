@@ -3035,8 +3035,9 @@
                 const todosClientesComissao = getManualClients();
 
                 console.log('🔍 DEBUG Comissão - Total de clientes na tabela:', clientes.length);
+                console.log('🔍 Clientes TCV nesta lista:', clientes.filter(c => c.tipoValor === 'tcv').map(c => c.nome));
 
-                clientes.forEach(c => {
+                clientes.forEach((c, index) => {
                     if (c.tipoValor === 'tcv' && c.tcv > 0) {
                         console.log('🔍 Cliente TCV encontrado:', c.nome, '| TCV:', c.tcv);
 
@@ -3072,6 +3073,7 @@
                                 const comissao = valorContrato / duracao;
                                 console.log('✅ Comissão:', comissao.toFixed(2), '=', valorContrato, '÷', duracao);
                                 comissaoRepasseTotal += comissao;
+                                console.log('📊 Total acumulado até agora:', comissaoRepasseTotal.toFixed(2));
                             } else {
                                 console.log('⚠️ Não pode calcular - duracao:', duracao, 'valor:', valorContrato);
                             }
@@ -3081,7 +3083,10 @@
                     }
                 });
 
-                console.log('💼 Total Comissão Repasse:', comissaoRepasseTotal.toFixed(2));
+                const totalClientesTCVProcessados = clientes.filter(c => c.tipoValor === 'tcv' && c.tcv > 0).length;
+                console.log('📊 RESUMO COMISSÃO:');
+                console.log('   - Clientes TCV processados:', totalClientesTCVProcessados);
+                console.log('   - Total Comissão Repasse:', comissaoRepasseTotal.toFixed(2));
 
                 // Valor Líquido Total: MRR Líquido + TCV Líquido (mesmo que totalTabela)
                 const valorLiquidoTotal = totalMRR + totalTCVLiquido;
