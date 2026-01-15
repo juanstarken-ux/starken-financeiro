@@ -2863,6 +2863,21 @@
                 const todosClientes = getManualClients();
                 const deletedIds = getDeletedCards();
 
+                // LOG: Todos os clientes Alpha
+                const todosAlpha = todosClientes.filter(c => c.empresa === 'alpha');
+                console.log('📊 TOTAL clientes Alpha no localStorage:', todosAlpha.length);
+                console.log('   Nomes:', todosAlpha.map(c => c.nome));
+
+                // LOG: Clientes deletados
+                const alphaDeletados = todosAlpha.filter(c => deletedIds.includes(c.id));
+                console.log('🗑️ Clientes Alpha DELETADOS:', alphaDeletados.length, alphaDeletados.map(c => c.nome));
+
+                // LOG: Renovações e Projeções
+                const renovacoes = todosAlpha.filter(c => c.statusRenovacao);
+                const projecoes = todosAlpha.filter(c => c.isProjecao);
+                console.log('🔄 Renovações (excluídas da tabela):', renovacoes.length, renovacoes.map(c => c.nome));
+                console.log('📊 Projeções (excluídas da tabela):', projecoes.length, projecoes.map(c => c.nome));
+
                 // Filtrar apenas Alpha, ativos no mês e não deletados
                 // IMPORTANTE: Excluir cards de renovação e projeção (não contam na receita)
                 const clientes = todosClientes
