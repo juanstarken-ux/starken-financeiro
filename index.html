@@ -2875,16 +2875,15 @@
                 // LOG: Renovações e Projeções
                 const renovacoes = todosAlpha.filter(c => c.statusRenovacao);
                 const projecoes = todosAlpha.filter(c => c.isProjecao);
-                console.log('🔄 Renovações (excluídas da tabela):', renovacoes.length, renovacoes.map(c => c.nome));
-                console.log('📊 Projeções (excluídas da tabela):', projecoes.length, projecoes.map(c => c.nome));
+                console.log('🔄 Renovações (agora INCLUÍDAS na tabela):', renovacoes.length, renovacoes.map(c => c.nome));
+                console.log('📊 Projeções (agora INCLUÍDAS na tabela):', projecoes.length, projecoes.map(c => c.nome));
 
                 // Filtrar apenas Alpha, ativos no mês e não deletados
-                // IMPORTANTE: Excluir cards de renovação e projeção (não contam na receita)
+                // MUDANÇA: Agora INCLUI renovações e projeções na tabela (para mostrar todos os 23 clientes)
                 const clientes = todosClientes
                     .filter(c => c.empresa === 'alpha')
                     .filter(c => !deletedIds.includes(c.id))
-                    .filter(c => !c.statusRenovacao) // NÃO contar renovações
-                    .filter(c => !c.isProjecao) // NÃO contar projeções
+                    // Removido filtro de renovações e projeções - todos aparecem agora!
                     .filter(c => {
                         // 🎯 PRIORIDADE: Se tem MESES PERSONALIZADOS, usar eles!
                         if (c.mesesPersonalizados && c.mesesPersonalizados.length > 0) {
@@ -3053,7 +3052,8 @@
                 console.log('🔍 Clientes TCV nesta lista:', clientes.filter(c => c.tipoValor === 'tcv').map(c => c.nome));
 
                 clientes.forEach((c, index) => {
-                    if (c.tipoValor === 'tcv' && c.tcv > 0) {
+                    // Só calcular comissão para TCV que NÃO são projeções ou renovações
+                    if (c.tipoValor === 'tcv' && c.tcv > 0 && !c.isProjecao && !c.statusRenovacao) {
                         console.log('🔍 Cliente TCV encontrado:', c.nome, '| TCV:', c.tcv);
 
                         // Buscar dados completos para pegar duração
