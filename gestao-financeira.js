@@ -15,7 +15,7 @@ const GestaoFinanceira = {
     API_URL: '/.netlify/functions/sync-data',
 
     // URL do backend Railway (produção)
-    RAILWAY_API_URL: 'https://starken-financeiro-api-production.up.railway.app',
+    RAILWAY_API_URL: 'https://starken-financeiro-production.up.railway.app',
     // Para desenvolvimento local, use: 'http://localhost:3000'
 
     // Flag para controlar sincronização
