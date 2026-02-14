@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "pages/*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "js/*.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "css/*.css",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/contas-pagar",
+      "dest": "/pages/contas-pagar.html"
+    },
+    {
+      "src": "/contas-receber",
+      "dest": "/pages/contas-receber.html"
+    },
+    {
+      "src": "/dre",
+      "dest": "/pages/dre.html"
+    },
+    {
+      "src": "/analiticos",
+      "dest": "/pages/analiticos.html"
+    },
+    {
+      "src": "/relatorios",
+      "dest": "/pages/relatorios.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
