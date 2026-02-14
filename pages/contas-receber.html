@@ -3841,12 +3841,34 @@
             if (savedView) {
                 setView(savedView);
             }
+
+            // 🔄 ATIVAR SINCRONIZAÇÃO EM TEMPO REAL
+            if (typeof GestaoFinanceira.startPolling === 'function') {
+                GestaoFinanceira.startPolling(currentMonth);
+                console.log('✅ Sincronização em tempo real ativada!');
+            }
         });
 
         // Atualizar dados quando sync completar (background)
         window.addEventListener('gestao-sync-complete', function() {
             console.log('🔄 Sync completo, atualizando dados...');
             loadMonthData(currentMonth);
+        });
+
+        // Atualizar dados quando Railway sync completar
+        window.addEventListener('gestao-railway-sync', function(event) {
+            console.log('🔄 Railway sync completo:', event.detail);
+            loadMonthData(currentMonth);
+
+            // Mostrar notificação discreta
+            const indicator = document.getElementById('sync-indicator');
+            if (indicator) {
+                indicator.innerHTML = '✅ Sincronizado';
+                indicator.style.background = '#27ae60';
+                setTimeout(() => {
+                    indicator.remove();
+                }, 2000);
+            }
         });
 
         // Fechar modal ao clicar fora

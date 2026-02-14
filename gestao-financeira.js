@@ -14,9 +14,17 @@ const GestaoFinanceira = {
     // URL da API
     API_URL: '/.netlify/functions/sync-data',
 
+    // URL do backend Railway (produção)
+    RAILWAY_API_URL: 'https://starken-financeiro-api-production.up.railway.app',
+    // Para desenvolvimento local, use: 'http://localhost:3000'
+
     // Flag para controlar sincronização
     syncEnabled: true,
     syncInProgress: false,
+
+    // Polling interval (30 segundos)
+    pollingInterval: null,
+    POLLING_TIME: 30000, // 30s
 
     // Inicializar sistema
     init() {
@@ -845,6 +853,204 @@ const GestaoFinanceira = {
             customItems: customCount,
             hasData: statusCount > 0 || customCount > 0
         };
+    },
+
+    // ============================================
+    // SINCRONIZAÇÃO EM TEMPO REAL (Railway API)
+    // ============================================
+
+    // Sincronizar dados de um mês específico com o servidor
+    async syncMesWithServer(mes) {
+        if (this.syncInProgress) {
+            console.log('⏳ Sincronização já em andamento...');
+            return;
+        }
+
+        this.syncInProgress = true;
+
+        try {
+            // Buscar dados do servidor
+            const response = await fetch(`${this.RAILWAY_API_URL}/api/dados/${mes}`);
+
+            if (!response.ok) {
+                throw new Error('Falha na sincronização');
+            }
+
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                // Mesclar dados do servidor com localStorage
+                this.mergeRailwayData(mes, result.data);
+
+                // Salvar no localStorage
+                this.saveToStorage();
+
+                // Disparar evento de sincronização completa
+                window.dispatchEvent(new CustomEvent('gestao-railway-sync', {
+                    detail: { mes, timestamp: new Date() }
+                }));
+
+                console.log(`✅ Dados de ${mes} sincronizados com o servidor`);
+                return true;
+            }
+        } catch (error) {
+            console.warn('⚠️ Erro na sincronização:', error.message);
+            return false;
+        } finally {
+            this.syncInProgress = false;
+        }
+    },
+
+    // Mesclar dados do Railway com localStorage
+    mergeRailwayData(mes, serverData) {
+        // Aplicar customItems
+        if (serverData.customItems) {
+            this.customItems[mes] = {
+                despesas: serverData.customItems.despesas || [],
+                receitas: serverData.customItems.receitas || []
+            };
+        }
+
+        // Aplicar deletedItems
+        if (serverData.deletedItems) {
+            this.deletedItems[mes] = {
+                despesas: serverData.deletedItems.despesas || [],
+                receitas: serverData.deletedItems.receitas || []
+            };
+        }
+
+        // Aplicar editedItems
+        if (serverData.editedItems) {
+            this.editedItems[mes] = {
+                despesas: serverData.editedItems.despesas || {},
+                receitas: serverData.editedItems.receitas || {}
+            };
+        }
+
+        // Aplicar statusData
+        if (serverData.statusData) {
+            Object.assign(this.statusData, serverData.statusData);
+        }
+    },
+
+    // Enviar mudança local para o servidor
+    async pushToServer(tipo, acao, dados) {
+        try {
+            let endpoint, method, body;
+
+            switch (acao) {
+                case 'criar_despesa':
+                    endpoint = '/api/despesas';
+                    method = 'POST';
+                    body = dados;
+                    break;
+
+                case 'atualizar_despesa':
+                    endpoint = `/api/despesas/${dados.id}`;
+                    method = 'PUT';
+                    body = dados;
+                    break;
+
+                case 'deletar_despesa':
+                    endpoint = `/api/despesas/${dados.id}`;
+                    method = 'DELETE';
+                    break;
+
+                case 'atualizar_status':
+                    endpoint = '/api/status';
+                    method = 'PUT';
+                    body = dados;
+                    break;
+
+                case 'deletar_item':
+                    endpoint = '/api/itens/deletar';
+                    method = 'POST';
+                    body = dados;
+                    break;
+
+                case 'editar_item':
+                    endpoint = '/api/itens/editar';
+                    method = 'PUT';
+                    body = dados;
+                    break;
+
+                default:
+                    console.warn('Ação não reconhecida:', acao);
+                    return false;
+            }
+
+            const response = await fetch(`${this.RAILWAY_API_URL}${endpoint}`, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: body ? JSON.stringify(body) : undefined
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao enviar dados');
+            }
+
+            const result = await response.json();
+            console.log(`✅ ${acao} enviado para o servidor`);
+            return result.success;
+
+        } catch (error) {
+            console.warn('⚠️ Erro ao enviar para servidor:', error.message);
+            return false;
+        }
+    },
+
+    // Iniciar polling automático
+    startPolling(mes) {
+        if (this.pollingInterval) {
+            this.stopPolling();
+        }
+
+        console.log(`🔄 Polling iniciado para ${mes} (a cada ${this.POLLING_TIME/1000}s)`);
+
+        // Primeira sincronização imediata
+        this.syncMesWithServer(mes);
+
+        // Polling periódico
+        this.pollingInterval = setInterval(() => {
+            this.syncMesWithServer(mes);
+        }, this.POLLING_TIME);
+    },
+
+    // Parar polling
+    stopPolling() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+            console.log('⏹️ Polling parado');
+        }
+    },
+
+    // Mostrar indicador de sincronização
+    showSyncIndicator(show = true) {
+        let indicator = document.getElementById('sync-indicator');
+
+        if (!indicator && show) {
+            indicator = document.createElement('div');
+            indicator.id = 'sync-indicator';
+            indicator.innerHTML = '🔄 Sincronizando...';
+            indicator.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #4A6B54;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: fadeIn 0.3s ease;
+            `;
+            document.body.appendChild(indicator);
+        } else if (indicator && !show) {
+            indicator.remove();
+        }
     }
 };
 
