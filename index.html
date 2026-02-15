@@ -1538,6 +1538,15 @@
                             ✕ Limpar
                         </button>
                         <button
+                            onclick="syncClientsNow()"
+                            id="btnSyncClients"
+                            style="padding: 12px 20px; background: #0ea5e9; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s ease;"
+                            onmouseover="this.style.background='#0284c7'"
+                            onmouseout="this.style.background='#0ea5e9'"
+                        >
+                            🔄 Sincronizar agora
+                        </button>
+                        <button
                             onclick="togglePainelMeses()"
                             id="btnPainelMeses"
                             style="padding: 12px 20px; background: #4A6B54; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s ease;"
@@ -3850,8 +3859,7 @@
                 migrado: true
             }));
 
-            // Salvar no localStorage
-            localStorage.setItem('starken_manual_clients', JSON.stringify(manualCards));
+            saveManualClients(manualCards);
             localStorage.setItem(migrationKey, 'true');
 
             console.log(`✅ Migração concluída! ${manualCards.length} cards migrados para localStorage`);
@@ -3863,8 +3871,20 @@
             return stored ? JSON.parse(stored) : [];
         }
 
-        function saveManualClients(clients) {
+        function getClientsSyncMeta() {
+            const stored = localStorage.getItem('starken_clients_sync_meta');
+            return stored ? JSON.parse(stored) : { updatedAt: null };
+        }
+
+        function setClientsSyncMeta(updatedAt) {
+            localStorage.setItem('starken_clients_sync_meta', JSON.stringify({ updatedAt }));
+        }
+
+        function saveManualClients(clients, options = {}) {
             localStorage.setItem('starken_manual_clients', JSON.stringify(clients));
+            if (!options.skipMeta) {
+                setClientsSyncMeta(new Date().toISOString());
+            }
         }
 
         // Gerenciar cards deletados (para persistir exclusões)
@@ -3873,11 +3893,114 @@
             return stored ? JSON.parse(stored) : [];
         }
 
+        function saveDeletedCards(ids, options = {}) {
+            localStorage.setItem('starken_deleted_cards', JSON.stringify(ids));
+            if (!options.skipMeta) {
+                setClientsSyncMeta(new Date().toISOString());
+            }
+        }
+
         function markCardAsDeleted(clientId) {
             const deleted = getDeletedCards();
             if (!deleted.includes(clientId)) {
                 deleted.push(clientId);
-                localStorage.setItem('starken_deleted_cards', JSON.stringify(deleted));
+                saveDeletedCards(deleted);
+            }
+        }
+
+        let clientsSyncInProgress = false;
+
+        async function syncClientsWithServer(forcePush = false) {
+            if (clientsSyncInProgress) {
+                return { action: 'busy' };
+            }
+            clientsSyncInProgress = true;
+            const apiBase = (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
+                ? GestaoFinanceira.RAILWAY_API_URL
+                : 'https://starken-financeiro-production.up.railway.app';
+            try {
+                let serverPayload = null;
+                try {
+                    const response = await fetch(`${apiBase}/api/clientes`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result && result.success) {
+                            serverPayload = result.data || null;
+                        }
+                    }
+                } catch (error) {}
+
+                const localClients = getManualClients();
+                const localDeleted = getDeletedCards();
+                const localMeta = getClientsSyncMeta();
+                const localUpdatedAt = localMeta && localMeta.updatedAt ? new Date(localMeta.updatedAt) : null;
+
+                const serverClients = serverPayload && Array.isArray(serverPayload.clients) ? serverPayload.clients : [];
+                const serverDeleted = serverPayload && Array.isArray(serverPayload.deleted) ? serverPayload.deleted : [];
+                const serverUpdatedAt = serverPayload && serverPayload.updatedAt ? new Date(serverPayload.updatedAt) : null;
+
+                let shouldPull = false;
+                let shouldPush = false;
+
+                if (forcePush) {
+                    shouldPush = true;
+                } else if (serverUpdatedAt && (!localUpdatedAt || serverUpdatedAt > localUpdatedAt)) {
+                    shouldPull = true;
+                } else if (localUpdatedAt && (!serverUpdatedAt || localUpdatedAt > serverUpdatedAt)) {
+                    shouldPush = true;
+                } else if (serverClients.length > 0 && localClients.length === 0) {
+                    shouldPull = true;
+                } else if (serverClients.length === 0 && localClients.length > 0) {
+                    shouldPush = true;
+                }
+
+                if (shouldPull && serverClients.length > 0) {
+                    saveManualClients(serverClients, { skipMeta: true });
+                    saveDeletedCards(serverDeleted, { skipMeta: true });
+                    const nextUpdatedAt = serverPayload.updatedAt || new Date().toISOString();
+                    setClientsSyncMeta(nextUpdatedAt);
+                    localStorage.setItem('starken_cards_migrated_v2', 'true');
+                    return { action: 'pull' };
+                }
+
+                if (shouldPush) {
+                    const payload = {
+                        clients: localClients,
+                        deleted: localDeleted,
+                        updatedAt: localUpdatedAt ? localUpdatedAt.toISOString() : new Date().toISOString()
+                    };
+                    try {
+                        await fetch(`${apiBase}/api/clientes`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        return { action: 'push' };
+                    } catch (error) {}
+                }
+
+                return { action: 'none' };
+            } finally {
+                clientsSyncInProgress = false;
+            }
+        }
+
+        async function syncClientsNow() {
+            const btn = document.getElementById('btnSyncClients');
+            const originalText = btn ? btn.textContent : null;
+            if (btn) {
+                btn.textContent = '🔄 Sincronizando...';
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'not-allowed';
+            }
+            await syncClientsWithServer(true);
+            await syncClientsWithServer();
+            if (btn) {
+                btn.textContent = originalText || '🔄 Sincronizar agora';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
             }
         }
 
@@ -4623,7 +4746,7 @@
                     const projId = clientesAtualizados[projecaoIndex].id;
                     if (deletedIds.includes(projId)) {
                         const newDeletedIds = deletedIds.filter(id => id != projId);
-                        localStorage.setItem('starken_deleted_cards', JSON.stringify(newDeletedIds));
+                        saveDeletedCards(newDeletedIds);
                         wasDeleted = true;
                         console.log('♻️ Projeção recuperada da lixeira:', projId);
                     }
@@ -4640,6 +4763,8 @@
                 // Salvar novamente com a projeção incluída
                 saveManualClients(clientesAtualizados);
             }
+
+            await syncClientsWithServer(true);
 
             // Sincronizar dados (se disponível)
             if (window.stark) {
@@ -4690,6 +4815,8 @@
             if (typeof DashboardIndicatorsManager !== 'undefined') {
                 DashboardIndicatorsManager.render(DashboardState.mesAtual);
             }
+
+            syncClientsWithServer(true);
 
             console.log('🗑️ Cliente excluído - cards e tabelas atualizados:', id);
         }
@@ -5268,29 +5395,46 @@
 
         // Executar quando a página carregar
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Migrar cards estáticos para localStorage (só executa na primeira vez)
-            migrateStaticCardsToLocalStorage();
+            (async () => {
+                const params = new URLSearchParams(window.location.search);
+                const forcePushParam = params.get('syncClients') === 'push';
+                const forcePushFlag = localStorage.getItem('starken_force_clients_push') === 'true';
 
-            // 2. Marcar renovações de Janeiro
-            marcarRenovacoesJaneiro();
+                await syncClientsWithServer(forcePushParam || forcePushFlag);
 
-            // 3. Limpar clientes de projeção
-            limparClientesProjecao();
+                if (getManualClients().length === 0) {
+                    migrateStaticCardsToLocalStorage();
+                }
 
-            // 4. Renderizar todos os clientes
-            renderManualClients();
+                marcarRenovacoesJaneiro();
+                limparClientesProjecao();
 
-            // 5. Atualizar contadores
-            updateClientCounters();
+                renderManualClients();
+                updateClientCounters();
 
-            // 6. Restaurar aba ativa após reload
-            const abaGuardada = localStorage.getItem('starken_aba_ativa');
-            if (abaGuardada && abaGuardada !== 'starken') {
-                // Restaurar aba
-                showClientTab(abaGuardada);
-                localStorage.removeItem('starken_aba_ativa');
-                console.log('✅ Aba restaurada:', abaGuardada);
-            }
+                const abaGuardada = localStorage.getItem('starken_aba_ativa');
+                if (abaGuardada && abaGuardada !== 'starken') {
+                    showClientTab(abaGuardada);
+                    localStorage.removeItem('starken_aba_ativa');
+                    console.log('✅ Aba restaurada:', abaGuardada);
+                }
+
+                syncClientsWithServer();
+
+                if (forcePushParam) {
+                    localStorage.setItem('starken_force_clients_push', 'true');
+                }
+
+                setInterval(() => {
+                    syncClientsWithServer();
+                }, 10000);
+
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        syncClientsWithServer();
+                    }
+                });
+            })();
         });
 
         // Re-adicionar botões quando mudar de aba

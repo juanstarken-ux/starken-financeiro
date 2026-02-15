@@ -251,6 +251,69 @@ app.get('/api/dados/:mes', async (req, res) => {
   }
 });
 
+app.get('/api/clientes', async (req, res) => {
+  try {
+    const registro = await prisma.starkMemory.findFirst({
+      where: { tipo: 'clientes_manual', mes: 'global' },
+      orderBy: { updatedAt: 'desc' }
+    });
+
+    if (!registro) {
+      return res.json({ success: true, data: { clients: [], deleted: [], updatedAt: null } });
+    }
+
+    let parsed = {};
+    try {
+      parsed = JSON.parse(registro.conteudo || '{}');
+    } catch (e) {
+      parsed = {};
+    }
+
+    const clients = Array.isArray(parsed.clients) ? parsed.clients : [];
+    const deleted = Array.isArray(parsed.deleted) ? parsed.deleted : [];
+    const updatedAt = parsed.updatedAt || registro.updatedAt.toISOString();
+
+    res.json({ success: true, data: { clients, deleted, updatedAt } });
+  } catch (error) {
+    console.error('Erro ao buscar clientes:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/clientes', async (req, res) => {
+  try {
+    const { clients, deleted, updatedAt } = req.body || {};
+    const payload = {
+      clients: Array.isArray(clients) ? clients : [],
+      deleted: Array.isArray(deleted) ? deleted : [],
+      updatedAt: updatedAt || new Date().toISOString()
+    };
+    const conteudo = JSON.stringify(payload);
+
+    const registro = await prisma.starkMemory.findFirst({
+      where: { tipo: 'clientes_manual', mes: 'global' },
+      orderBy: { updatedAt: 'desc' }
+    });
+
+    let saved = null;
+    if (registro) {
+      saved = await prisma.starkMemory.update({
+        where: { id: registro.id },
+        data: { conteudo, relevancia: 10, mes: 'global', tipo: 'clientes_manual' }
+      });
+    } else {
+      saved = await prisma.starkMemory.create({
+        data: { conteudo, relevancia: 10, mes: 'global', tipo: 'clientes_manual' }
+      });
+    }
+
+    res.json({ success: true, data: { id: saved.id, updatedAt: saved.updatedAt } });
+  } catch (error) {
+    console.error('Erro ao salvar clientes:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.post('/api/acao', async (req, res) => {
   try {
     const { acao, dados } = req.body || {};
