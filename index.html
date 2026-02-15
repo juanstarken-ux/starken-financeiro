@@ -3915,9 +3915,12 @@
                 return { action: 'busy' };
             }
             clientsSyncInProgress = true;
-            const apiBase = (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
-                ? GestaoFinanceira.RAILWAY_API_URL
-                : 'https://starken-financeiro-production.up.railway.app';
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const apiBase = isLocal
+                ? ''
+                : (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
+                    ? GestaoFinanceira.RAILWAY_API_URL
+                    : 'https://starken-financeiro-production.up.railway.app';
             try {
                 let serverPayload = null;
                 try {
@@ -3970,12 +3973,22 @@
                         updatedAt: localUpdatedAt ? localUpdatedAt.toISOString() : new Date().toISOString()
                     };
                     try {
-                        await fetch(`${apiBase}/api/clientes`, {
+                        const response = await fetch(`${apiBase}/api/clientes`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-                        return { action: 'push' };
+                        let nextUpdatedAt = null;
+                        if (response.ok) {
+                            const result = await response.json();
+                            if (result && result.success && result.data && result.data.updatedAt) {
+                                nextUpdatedAt = result.data.updatedAt;
+                            }
+                        }
+                        if (nextUpdatedAt) {
+                            setClientsSyncMeta(nextUpdatedAt);
+                        }
+                        return { action: 'push', updatedAt: nextUpdatedAt };
                     } catch (error) {}
                 }
 
@@ -3995,6 +4008,7 @@
                 btn.style.cursor = 'not-allowed';
             }
             await syncClientsWithServer(true);
+            await syncClientsWithServer();
             await syncClientsWithServer();
             if (btn) {
                 btn.textContent = originalText || '🔄 Sincronizar agora';
@@ -4598,9 +4612,12 @@
             }
 
             try {
-                const apiBase = (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
-                    ? GestaoFinanceira.RAILWAY_API_URL
-                    : 'https://starken-financeiro-production.up.railway.app';
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const apiBase = isLocal
+                    ? ''
+                    : (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
+                        ? GestaoFinanceira.RAILWAY_API_URL
+                        : 'https://starken-financeiro-production.up.railway.app';
                 if (tipoValor === 'mrr' || tipoValor === 'bonus') {
                     await fetch(`${apiBase}/api/acao`, {
                         method: 'POST',
@@ -6809,7 +6826,7 @@
     <!-- Sistema de Notificações - DESABILITADO -->
     <!-- <script src="notifications.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
     <script>
         // Limpar cache específico de clientes customizados com data errada
         document.addEventListener('DOMContentLoaded', () => {

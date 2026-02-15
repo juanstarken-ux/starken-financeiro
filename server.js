@@ -1,8 +1,10 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
+const RAILWAY_API_BASE = process.env.RAILWAY_API_BASE || 'https://starken-financeiro-production.up.railway.app';
 
 // MIME types for different file extensions
 const mimeTypes = {
@@ -24,6 +26,11 @@ const mimeTypes = {
 
 const server = http.createServer((req, res) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+
+    if (req.url.startsWith('/api/')) {
+        proxyApiRequest(req, res);
+        return;
+    }
 
     // Handle root path
     let filePath = req.url === '/' ? '/index.html' : req.url;
@@ -128,6 +135,35 @@ const server = http.createServer((req, res) => {
         });
     });
 });
+
+function proxyApiRequest(req, res) {
+    let targetUrl;
+    try {
+        targetUrl = new URL(req.url, RAILWAY_API_BASE);
+    } catch (error) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Invalid URL' }));
+        return;
+    }
+
+    const headers = { ...req.headers, host: targetUrl.host };
+    const options = {
+        method: req.method,
+        headers
+    };
+
+    const proxyReq = https.request(targetUrl, options, (proxyRes) => {
+        res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+        proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (error) => {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Proxy error' }));
+    });
+
+    req.pipe(proxyReq);
+}
 
 function serveFile(filePath, contentType, res) {
     fs.readFile(filePath, (err, content) => {
