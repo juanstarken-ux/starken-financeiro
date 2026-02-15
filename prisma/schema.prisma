@@ -117,7 +117,7 @@ model StarkMemory {
 // Sócios com autenticação separada
 model Socio {
   id            String   @id @default(cuid())
-  username      String   @unique  // juan, dante, gabriel, victor
+  username      String   @unique  // juan, gabriel
   nome          String
   senhaHash     String   // bcrypt hash da senha pessoal
   email         String?

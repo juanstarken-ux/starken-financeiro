@@ -84,7 +84,8 @@ class StarkCore {
     this.dados.carregando = true;
 
     try {
-      const response = await fetch('/.netlify/functions/sync-data', {
+      // Vercel Serverless Function
+      const response = await fetch('/api/sync-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -177,7 +178,8 @@ class StarkCore {
 
   async executarAcao(acao, dados) {
     try {
-      const response = await fetch('/.netlify/functions/sync-data', {
+      // Vercel Serverless Function
+      const response = await fetch('/api/sync-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

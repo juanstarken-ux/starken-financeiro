@@ -2,11 +2,19 @@
   "version": 2,
   "builds": [
     {
+      "src": "netlify/functions/*.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "**/*",
       "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/api/sync-data",
+      "dest": "/netlify/functions/sync-data.js"
+    },
     {
       "src": "/contas-pagar",
       "dest": "/pages/contas-pagar.html"

@@ -979,6 +979,88 @@
             justify-content: flex-end;
         }
 
+        /* Import Modal Styles */
+        .import-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-gray);
+        }
+
+        .import-area:hover {
+            border-color: var(--primary-green);
+            background: rgba(74, 107, 84, 0.05);
+        }
+
+        .import-icon {
+            font-size: 48px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .reconciliation-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .reconciliation-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            background: white;
+            gap: 15px;
+        }
+
+        .reconciliation-item:last-child {
+            border-bottom: none;
+        }
+
+        .reconciliation-item.matched {
+            background: #f0fff4;
+        }
+
+        .rec-date {
+            font-size: 12px;
+            color: var(--text-light);
+            width: 80px;
+        }
+
+        .rec-desc {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .rec-amount {
+            font-weight: 700;
+            width: 100px;
+            text-align: right;
+        }
+
+        .rec-amount.positive { color: var(--success); }
+        .rec-amount.negative { color: var(--danger); }
+
+        .rec-action {
+            width: 150px;
+            text-align: right;
+        }
+
+        .match-badge {
+            background: var(--success);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .summary-grid {
@@ -2208,9 +2290,12 @@
                         💾 Backup
                     </button>
                     <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" title="Restaurar dados de backup">
-                        📂 Restaurar
-                    </button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarBackup(this)">
+            📂 Restaurar
+        </button>
+        <button class="btn btn-primary" onclick="openImportModal()" title="Importar Extrato Bancário">
+            🏦 Importar Extrato
+        </button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarBackup(this)">
                 </div>
             </div>
 
@@ -2445,6 +2530,7 @@
                         <span id="selectedTotal">R$ 0,00</span>
                     </div>
                     <div class="bulk-buttons">
+                        <button class="bulk-btn" onclick="openBulkDatesModal()" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">📅 Ajustar Datas</button>
                         <button class="bulk-btn success" onclick="marcarSelecionadosRecebidos()">✓ Marcar como Recebido</button>
                         <button class="bulk-btn danger" onclick="excluirSelecionados()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">🗑️ Excluir Selecionados</button>
                         <button class="bulk-btn cancel" onclick="limparSelecao()">Cancelar</button>
@@ -2519,6 +2605,82 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
                 <button class="btn btn-primary" id="confirmBtn" onclick="confirmPayment()">Confirmar Recebimento</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Importação -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Importar Extrato Bancário</h3>
+                <button class="modal-close" onclick="closeModal('importModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Passo 1: Upload -->
+                <div id="importStep1">
+                    <div class="import-area" id="dropZone" onclick="document.getElementById('bankFile').click()">
+                        <div class="import-icon">📄</div>
+                        <h4 style="margin-bottom: 10px;">Arraste seu extrato aqui</h4>
+                        <p style="color: var(--text-light); font-size: 13px;">Suporta arquivos OFX e CSV</p>
+                        <input type="file" id="bankFile" accept=".ofx,.csv" style="display: none" onchange="handleBankFile(this)">
+                    </div>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <p class="small" style="color: var(--text-light);">
+                            Recomendamos usar o formato <strong>OFX</strong> para maior precisão.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Passo 2: Conciliação -->
+                <div id="importStep2" style="display: none;">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0;">Conciliação de Transações</h4>
+                        <div class="summary-badges">
+                            <span class="date-badge date-badge-recebido" id="foundCount">0 Encontrados</span>
+                            <span class="date-badge date-badge-empty" id="newCount">0 Novos</span>
+                        </div>
+                    </div>
+                    <div class="reconciliation-list" id="reconciliationList">
+                        <!-- Lista de transações gerada via JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">Cancelar</button>
+                <button class="btn btn-primary" id="btnProcessImport" onclick="processReconciliation()" style="display: none;">
+                    Confirmar Importação
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ajuste de Datas em Massa -->
+    <div class="modal-overlay" id="bulkDatesModal">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Ajuste de Datas em Massa</h3>
+                <button class="modal-close" onclick="closeBulkDatesModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 12px; color: var(--text-light);">
+                    <span id="bulkDatesCount">0 selecionados</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nova Data de Vencimento</label>
+                    <input type="date" class="form-input" id="bulkDueDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data de Pagamento (marcar como Recebido)</label>
+                    <input type="date" class="form-input" id="bulkPaymentDate">
+                </div>
+                <p class="small" style="color: var(--text-light); margin-top: 6px;">
+                    Se informar a data de pagamento, os itens serão marcados como Recebidos com essa data.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeBulkDatesModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="applyBulkReceitaDates()">Aplicar</button>
             </div>
         </div>
     </div>
@@ -3401,6 +3563,61 @@
             updateBulkActions();
         }
 
+        // Modal de ajuste de datas em massa
+        function openBulkDatesModal() {
+            if (selectedItems.size === 0) return;
+            document.getElementById('bulkDatesCount').textContent = `${selectedItems.size} selecionados`;
+            document.getElementById('bulkDueDate').value = '';
+            document.getElementById('bulkPaymentDate').value = '';
+            document.getElementById('bulkDatesModal').classList.add('show');
+        }
+
+        function closeBulkDatesModal() {
+            document.getElementById('bulkDatesModal').classList.remove('show');
+        }
+
+        async function applyBulkReceitaDates() {
+            const novaVenc = document.getElementById('bulkDueDate').value;
+            const novaPag = document.getElementById('bulkPaymentDate').value;
+
+            if (!novaVenc && !novaPag) {
+                alert('Informe pelo menos uma das datas');
+                return;
+            }
+
+            closeBulkDatesModal();
+
+            if (selectedItems.size === 0) return;
+
+            let updated = 0;
+
+            // Atualizar dados no GestaoFinanceira
+            for (const nome of selectedItems) {
+                try {
+                    if (novaVenc) {
+                        // Atualiza edição da receita com novo vencimento
+                        GestaoFinanceira.editReceita(currentMonth, nome, { dataVencimento: novaVenc });
+                    }
+                    if (novaPag) {
+                        // Marca como recebido com a data informada
+                        GestaoFinanceira.updateStatus(currentMonth, 'receita', nome, 'Recebido', novaPag);
+                    }
+                    updated++;
+                } catch (e) {
+                    console.error('Erro ao atualizar datas para', nome, e);
+                }
+            }
+
+            // Sincronizar se disponível
+            if (GestaoFinanceira.syncToServer) {
+                await GestaoFinanceira.syncToServer();
+            }
+
+            loadMonthData(currentMonth);
+            limparSelecao();
+            showToast(`Datas atualizadas para ${updated} item(s)`, 'success');
+        }
+
         // Marcar todos como recebidos
         function marcarTodosRecebidos() {
             if (!confirm('Deseja marcar TODAS as receitas como recebidas?')) return;
@@ -3877,6 +4094,237 @@
                 closeModal();
             }
         });
+
+        // ========================================
+        // IMPORTAÇÃO DE EXTRATO BANCÁRIO
+        // ========================================
+        let importedTransactions = [];
+
+        function openImportModal() {
+            const modal = document.getElementById('importModal');
+            if(modal) {
+                modal.classList.add('show');
+                document.getElementById('importStep1').style.display = 'block';
+                document.getElementById('importStep2').style.display = 'none';
+                document.getElementById('btnProcessImport').style.display = 'none';
+                document.getElementById('bankFile').value = '';
+                importedTransactions = [];
+            }
+        }
+
+        function handleBankFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const ext = file.name.split('.').pop().toLowerCase();
+
+                if (ext === 'ofx') {
+                    parseOFX(content);
+                } else if (ext === 'csv') {
+                    parseCSV(content);
+                } else {
+                    alert('Formato não suportado. Use OFX ou CSV.');
+                    return;
+                }
+
+                showReconciliation();
+            };
+            reader.readAsText(file);
+        }
+
+        function parseOFX(content) {
+            const transactions = [];
+            const lines = content.split('\n');
+            let currentTrans = {};
+            let inTrans = false;
+
+            for (const line of lines) {
+                if (line.includes('<STMTTRN>')) {
+                    inTrans = true;
+                    currentTrans = {};
+                } else if (line.includes('</STMTTRN>')) {
+                    inTrans = false;
+                    // Para Contas a Receber, queremos valores positivos
+                    if (currentTrans.amount && parseFloat(currentTrans.amount) > 0) {
+                        transactions.push(currentTrans);
+                    }
+                } else if (inTrans) {
+                    if (line.includes('<TRNAMT>')) {
+                        currentTrans.amount = line.split('<TRNAMT>')[1].split('<')[0].trim();
+                    } else if (line.includes('<DTPOSTED>')) {
+                        const dateStr = line.split('<DTPOSTED>')[1].split('<')[0].trim();
+                        if (dateStr && dateStr.length >= 8) {
+                            const y = dateStr.substring(0, 4);
+                            const m = dateStr.substring(4, 6);
+                            const d = dateStr.substring(6, 8);
+                            currentTrans.date = `${y}-${m}-${d}`;
+                        }
+                    } else if (line.includes('<MEMO>')) {
+                        currentTrans.memo = line.split('<MEMO>')[1].split('<')[0].trim();
+                    }
+                }
+            }
+            importedTransactions = transactions;
+        }
+
+        function parseCSV(content) {
+            const transactions = [];
+            const lines = content.split('\n');
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Tentar separar por ; ou ,
+                const parts = line.includes(';') ? line.split(';') : line.split(',');
+                
+                if (parts.length >= 3) {
+                    // Lógica simplificada: Data, Descrição, Valor
+                    // Tentativa de identificar colunas (pode precisar de ajustes conforme o banco)
+                    let date = parts[0].trim();
+                    let desc = parts[1].trim();
+                    let amountStr = parts[2].trim();
+                    
+                    // Tratamento de data DD/MM/AAAA
+                    if (date.includes('/')) {
+                        const [d, m, y] = date.split('/');
+                        date = `${y}-${m}-${d}`;
+                    }
+                    
+                    // Tratamento de valor
+                    let amount = parseFloat(amountStr.replace('.', '').replace(',', '.'));
+                    
+                    if (!isNaN(amount) && amount > 0) {
+                        transactions.push({
+                            date: date,
+                            memo: desc,
+                            amount: amount
+                        });
+                    }
+                }
+            }
+            importedTransactions = transactions;
+        }
+
+        function showReconciliation() {
+            document.getElementById('importStep1').style.display = 'none';
+            document.getElementById('importStep2').style.display = 'block';
+            document.getElementById('btnProcessImport').style.display = 'block';
+
+            const list = document.getElementById('reconciliationList');
+            list.innerHTML = '';
+
+            let foundCount = 0;
+            let newCount = 0;
+
+            // Buscar pendentes
+            const pendentes = currentClientes.filter(c => !c.isRecebido);
+
+            importedTransactions.forEach((trans, index) => {
+                const amount = parseFloat(trans.amount);
+                
+                // Match por valor (margem 0.05)
+                const match = pendentes.find(p => Math.abs((p.valorLiquido || p.valor) - amount) < 0.05);
+                
+                const div = document.createElement('div');
+                div.className = `reconciliation-item ${match ? 'matched' : ''}`;
+                
+                let actionHtml = '';
+                if (match) {
+                    foundCount++;
+                    actionHtml = `
+                        <div class="match-badge">
+                            <span>🔗 Conciliar:</span>
+                            <strong>${match.nome}</strong>
+                        </div>
+                        <input type="checkbox" class="import-check" checked data-index="${index}" data-match="${match.nome}" data-type="match">
+                    `;
+                } else {
+                    newCount++;
+                    actionHtml = `
+                        <span style="font-size: 11px; color: #7f8c8d; margin-right: 10px;">Novo</span>
+                        <input type="checkbox" class="import-check" data-index="${index}" data-type="new">
+                    `;
+                }
+
+                div.innerHTML = `
+                    <div class="rec-date">${formatDate(trans.date)}</div>
+                    <div class="rec-desc">${trans.memo || 'Sem descrição'}</div>
+                    <div class="rec-amount positive">
+                        ${formatMoney(amount)}
+                    </div>
+                    <div class="rec-action">
+                        ${actionHtml}
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+
+            document.getElementById('foundCount').textContent = `${foundCount} Encontrados`;
+            document.getElementById('newCount').textContent = `${newCount} Novos`;
+        }
+
+        async function processReconciliation() {
+            const checks = document.querySelectorAll('.import-check:checked');
+            let processed = 0;
+            const btn = document.getElementById('btnProcessImport');
+            const originalText = btn.textContent;
+            btn.textContent = 'Processando...';
+            btn.disabled = true;
+
+            try {
+                for (const check of checks) {
+                    const index = check.dataset.index;
+                    const type = check.dataset.type;
+                    const trans = importedTransactions[index];
+
+                    if (type === 'match') {
+                        const nome = check.dataset.match;
+                        GestaoFinanceira.updateStatus(currentMonth, 'receita', nome, 'Recebido', trans.date);
+                    } else if (type === 'new') {
+                        // Adicionar ao customItems
+                        if (!GestaoFinanceira.customItems[currentMonth]) {
+                            GestaoFinanceira.customItems[currentMonth] = { despesas: [], receitas: [] };
+                        }
+                        if (!GestaoFinanceira.customItems[currentMonth].receitas) {
+                            GestaoFinanceira.customItems[currentMonth].receitas = [];
+                        }
+                        
+                        const newItem = {
+                            nome: trans.memo || 'Receita Importada',
+                            valor: parseFloat(trans.amount),
+                            categoria: 'outros',
+                            status: 'Recebido',
+                            dataPagamento: trans.date,
+                            isCustom: true,
+                            observacao: 'Importado via OFX/CSV'
+                        };
+                        
+                        GestaoFinanceira.customItems[currentMonth].receitas.push(newItem);
+                        GestaoFinanceira.saveToStorage();
+                    }
+                    processed++;
+                }
+
+                // Sync
+                if (GestaoFinanceira.syncToServer) {
+                    await GestaoFinanceira.syncToServer();
+                }
+
+                loadMonthData(currentMonth);
+                closeModal('importModal');
+                showToast(`${processed} transações importadas!`);
+            } catch (error) {
+                console.error('Erro na importação:', error);
+                showToast('Erro ao processar importação', 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
 
         // ========================================
         // MODAL DE RECEBIMENTO KANBAN

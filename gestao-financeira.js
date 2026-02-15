@@ -11,8 +11,8 @@ const GestaoFinanceira = {
     DELETED_ITEMS_KEY: 'starken_financeiro_deleted_items',
     EDITED_ITEMS_KEY: 'starken_financeiro_edited_items',
 
-    // URL da API
-    API_URL: '/.netlify/functions/sync-data',
+    // URL da API Vercel
+    API_URL: '/api/sync-data',
 
     // URL do backend Railway (produção)
     RAILWAY_API_URL: 'https://starken-financeiro-production.up.railway.app',

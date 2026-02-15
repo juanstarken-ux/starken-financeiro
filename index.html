@@ -9,7 +9,18 @@
     <script src="theme.js"></script>
     <script src="js/stark-core.js"></script>
     <script src="js/stark-realtime.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
+        .client-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+            border: 2px dashed #3b82f6;
+        }
+        
+        .clients-grid {
+            min-height: 100px; /* Permitir drop em grid vazia */
+        }
+
         /* Ocultar menu Gestão por padrão - será mostrado apenas para CEO */
         #menu-gestao-financeira {
             display: none !important;
@@ -161,61 +172,116 @@
         }
 
         /* KPI Cards */
+        .kpi-sections-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .kpi-section {
+            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 16px;
+        }
+
+        .kpi-section-title {
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-dark);
+        }
+
+        .kpi-section.total {
+            --kpi-accent: #1f7a5f;
+            --kpi-soft: #eef7f3;
+        }
+
+        .kpi-section.starken {
+            --kpi-accent: #1f6e43;
+            --kpi-soft: #ecf7f1;
+        }
+
+        .kpi-section.alpha {
+            --kpi-accent: #9a6b00;
+            --kpi-soft: #fff6db;
+        }
+
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-section .kpi-grid {
+            margin-bottom: 0;
         }
 
         .kpi-card {
-            background: var(--white);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: linear-gradient(145deg, #ffffff 0%, var(--kpi-soft, #f6f8fa) 100%);
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(15,23,42,0.08);
+            border: 1px solid #e5ebf0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--kpi-accent, #4A6B54);
         }
 
         .kpi-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            box-shadow: 0 12px 26px rgba(15,23,42,0.12);
         }
 
         .kpi-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .kpi-title {
-            font-size: 13px;
-            color: var(--text-light);
+            font-size: 11px;
+            color: #6b7280;
             text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-weight: 700;
+            letter-spacing: 0.7px;
         }
 
         .kpi-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
         }
 
         .kpi-value {
-            font-size: 32px;
+            font-size: 26px;
             font-weight: 700;
             color: var(--text-dark);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .kpi-change {
-            font-size: 13px;
+            font-size: 12px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -959,6 +1025,12 @@
             transform: translateY(0);
         }
 
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
         /* Modal de Novo Cliente */
         .client-modal-overlay {
             position: fixed;
@@ -978,16 +1050,17 @@
             display: flex;
         }
 
-        .client-modal {
-            background: white;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.3s ease;
-        }
+    .client-modal {
+        background: white;
+        border-radius: 16px;
+        width: 95%; /* Aumentado de 90% para 95% */
+        max-width: 1000px; /* Aumentado de 900px para 1000px */
+        max-height: 95vh; /* Aumentado de 90vh para 95vh */
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease;
+        margin: 20px;
+    }
 
         @keyframes modalSlideIn {
             from {
@@ -1040,12 +1113,12 @@
         }
 
         .modal-body {
-            padding: 24px;
-        }
+        padding: 40px 60px; /* Aumentado padding interno (mais espaço nas laterais) */
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    .form-group {
+        margin-bottom: 32px; /* Mais espaço entre campos */
+    }
 
         .form-group label {
             display: block;
@@ -1060,13 +1133,14 @@
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 12px 16px;
+            padding: 8px 12px; /* Reduzido de 12px 16px */
             border: 2px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 8px; /* Reduzido de 10px */
+            font-size: 13px; /* Reduzido de 14px */
             color: var(--text-dark);
             background: white;
             transition: all 0.2s ease;
+            height: 38px; /* Altura fixa controlada */
         }
 
         .form-group input:focus,
@@ -1307,55 +1381,91 @@
                 </div>
             </div>
 
-            <!-- KPI Cards -->
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-title">MRR Atual</div>
-                        <div class="kpi-icon bg-success">💰</div>
-                    </div>
-                    <div class="kpi-value" id="kpi-mrr">R$ 35.768</div>
-                    <div class="kpi-change" id="kpi-mrr-change">Mês atual
-                    </div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-title">Clientes Ativos</div>
-                        <div class="kpi-icon bg-primary">👥</div>
-                    </div>
-                    <div class="kpi-value" id="kpi-clientes">30</div>
-                    <div class="kpi-change" id="kpi-clientes-change">14 Starken + 16 Alpha
-                    </div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-title">Despesas Mês</div>
-                        <div class="kpi-icon bg-warning">💸</div>
-                    </div>
-                    <div class="kpi-value" id="kpi-despesas">R$ 20.370</div>
-                    <div class="kpi-change" id="kpi-despesas-change">Operacional sem Alpha
-                    </div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-header">
-                        <div class="kpi-title">Resultado Projetado</div>
-                        <div class="kpi-icon bg-success">📊</div>
-                    </div>
-                    <div class="kpi-value" id="kpi-resultado">R$ 15.398</div>
-                    <div class="kpi-change positive" id="kpi-resultado-margem">43,1% de margem
+            <!-- KPI Sections -->
+            <div class="kpi-sections-container">
+                
+                <!-- TOTAL Section -->
+                <div class="kpi-section total">
+                    <h3 class="kpi-section-title">📊 Total Consolidado</h3>
+                    <div class="kpi-grid">
+                        <!-- MRR Total -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Receita Total</div><div class="kpi-icon bg-success">💰</div></div>
+                            <div class="kpi-value" id="kpi-total-mrr">R$ 0</div>
+                            <div class="kpi-change" id="kpi-total-mrr-change">Starken + Alpha</div>
+                        </div>
+                        <!-- Clientes Total -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Clientes Ativos</div><div class="kpi-icon bg-primary">👥</div></div>
+                            <div class="kpi-value" id="kpi-total-clientes">0</div>
+                            <div class="kpi-change" id="kpi-total-clientes-breakdown">0 Starken + 0 Alpha</div>
+                        </div>
+                        <!-- Despesas Total -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Despesas Totais</div><div class="kpi-icon bg-warning">💸</div></div>
+                            <div class="kpi-value" id="kpi-total-despesas">R$ 0</div>
+                            <div class="kpi-change">Operacional + Royalties</div>
+                        </div>
+                        <!-- Resultado Total -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Resultado Líquido</div><div class="kpi-icon bg-success">💎</div></div>
+                            <div class="kpi-value" id="kpi-total-resultado">R$ 0</div>
+                            <div class="kpi-change" id="kpi-total-margem">0% de margem</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="kpi-card" style="background: linear-gradient(135deg, rgba(74, 107, 84, 0.1), rgba(122, 155, 132, 0.05)); border: 1px solid rgba(74, 107, 84, 0.2);">
-                    <div class="kpi-header">
-                        <div class="kpi-title">Receita Líquida</div>
-                        <div class="kpi-icon" style="background: linear-gradient(135deg, #4A6B54, #7A9B84);">💎</div>
+                <!-- STARKEN Section -->
+                <div class="kpi-section starken">
+                    <h3 class="kpi-section-title">🚀 Starken (Operação)</h3>
+                    <div class="kpi-grid">
+                         <!-- MRR Starken -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Receita Starken</div><div class="kpi-icon bg-success">💰</div></div>
+                            <div class="kpi-value" id="kpi-starken-mrr">R$ 0</div>
+                        </div>
+                         <!-- Clientes Starken -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Clientes Ativos</div><div class="kpi-icon bg-primary">👥</div></div>
+                            <div class="kpi-value" id="kpi-starken-clientes">0</div>
+                        </div>
+                         <!-- Despesas Starken -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Despesas Operacionais</div><div class="kpi-icon bg-warning">💸</div></div>
+                            <div class="kpi-value" id="kpi-starken-despesas">R$ 0</div>
+                        </div>
+                         <!-- Resultado Starken -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Resultado Starken</div><div class="kpi-icon bg-success">📊</div></div>
+                            <div class="kpi-value" id="kpi-starken-resultado">R$ 0</div>
+                        </div>
                     </div>
-                    <div class="kpi-value" id="kpi-liquido" style="color: #4A6B54;">R$ 47.360</div>
-                    <div class="kpi-change" id="kpi-liquido-change">Bruto - Royalties Alpha (15%)
+                </div>
+
+                <!-- ALPHA Section -->
+                <div class="kpi-section alpha">
+                    <h3 class="kpi-section-title">⭐ Alpha (Projeto)</h3>
+                    <div class="kpi-grid">
+                         <!-- MRR Alpha -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Receita Alpha</div><div class="kpi-icon bg-success">💰</div></div>
+                            <div class="kpi-value" id="kpi-alpha-mrr">R$ 0</div>
+                        </div>
+                         <!-- Clientes Alpha -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Clientes Ativos</div><div class="kpi-icon bg-primary">👥</div></div>
+                            <div class="kpi-value" id="kpi-alpha-clientes">0</div>
+                        </div>
+                         <!-- Royalties/Despesas Alpha -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Royalties & Taxas</div><div class="kpi-icon bg-warning">💸</div></div>
+                            <div class="kpi-value" id="kpi-alpha-despesas">R$ 0</div>
+                        </div>
+                         <!-- Resultado Alpha -->
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Resultado Alpha</div><div class="kpi-icon bg-success">📊</div></div>
+                            <div class="kpi-value" id="kpi-alpha-resultado">R$ 0</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1386,7 +1496,7 @@
                 <div class="section-header-clients" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
                     <div>
                         <h2 class="section-title-clients">Clientes Ativos</h2>
-                        <p class="section-subtitle-clients">Portfólio atual de 34 clientes da Starken e Alpha</p>
+                        <p class="section-subtitle-clients">Portfólio atual de 0 clientes da Starken e Alpha</p>
                     </div>
                     <button class="btn-add-client" onclick="openClientModal()">
                         <span>➕</span> Novo Cliente
@@ -1396,11 +1506,11 @@
                 <div class="clients-tabs">
                     <button class="client-tab active" onclick="showClientTab('starken')" id="tab-starken">
                         <span class="tab-icon">🚀</span>
-                        <span class="tab-label" id="starken-tab-label">Starken (14)</span>
+                        <span class="tab-label" id="starken-tab-label">Starken (0)</span>
                     </button>
                     <button class="client-tab" onclick="showClientTab('alpha')" id="tab-alpha">
                         <span class="tab-icon">⭐</span>
-                        <span class="tab-label" id="alpha-tab-label">Alpha (16)</span>
+                        <span class="tab-label" id="alpha-tab-label">Alpha (0)</span>
                     </button>
                 </div>
 
@@ -1612,7 +1722,7 @@
             <!-- Two Column Client Tables -->
             <div class="client-tables-container">
                 <div class="client-table-header">
-                    <h2 class="section-title" id="carteira-clientes-titulo">Carteira de Clientes (34 Ativos)</h2>
+                    <h2 class="section-title" id="carteira-clientes-titulo">Carteira de Clientes (0 Ativos)</h2>
                     <p class="section-subtitle">Distribuição entre Starken (Matriz) e Alpha (Projeto)</p>
                 </div>
 
@@ -1623,7 +1733,7 @@
                             <div class="company-icon">🚀</div>
                             <div class="company-info">
                                 <h3 class="company-name">Starken</h3>
-                                <p class="company-label" id="starken-clientes-label">Empresa Matriz · 14 Clientes</p>
+                                <p class="company-label" id="starken-clientes-label">Empresa Matriz · 0 Clientes</p>
                             </div>
                             <div class="company-stats">
                                 <div class="stat-value" id="starken-mrr-total">R$ 19.833</div>
@@ -1678,7 +1788,7 @@
                             <div class="company-icon alpha-icon">⭐</div>
                             <div class="company-info">
                                 <h3 class="company-name">Alpha</h3>
-                                <p class="company-label" id="alpha-clientes-label">Projeto Nichado · 16 Clientes</p>
+                                <p class="company-label" id="alpha-clientes-label">Projeto Nichado · 0 Clientes</p>
                             </div>
                             <div class="company-stats" style="text-align: right;">
                                 <div style="display: flex; gap: 20px;">
@@ -2385,113 +2495,216 @@
             }
         };
 
-        // Gerenciador de KPIs
+        // Helper para obter despesas totais (Dados Mensais + Custom)
+        function getDespesasTotal(mes) {
+            let total = 0;
+            // 1. Dados Estáticos
+            if (typeof dadosMensais !== 'undefined' && dadosMensais[mes] && dadosMensais[mes].despesas) {
+                total += (dadosMensais[mes].despesas.total || 0);
+            }
+            // 2. Dados Customizados
+            try {
+                const customItems = JSON.parse(localStorage.getItem('starken_financeiro_custom_items') || '{}');
+                if (customItems[mes] && customItems[mes].despesas) {
+                    customItems[mes].despesas.forEach(d => total += parseFloat(d.valor || 0));
+                }
+            } catch (e) { console.error(e); }
+            return total;
+        }
+
+        function getActiveClientCountsForMonth(mesChave) {
+            const clientes = getManualClients();
+            const deletedIds = getDeletedCards();
+            let totalStarkenAtivos = 0;
+            let totalAlphaAtivos = 0;
+
+            clientes.forEach(c => {
+                if (deletedIds.includes(c.id)) return;
+
+                let isActive = false;
+
+                if (c.isProjecao && !c.mesInicio) return;
+
+                if (c.mesesPersonalizados && c.mesesPersonalizados.length > 0) {
+                    isActive = c.mesesPersonalizados.includes(mesChave);
+                } else if (c.statusRenovacao && c.mesRenovacao === mesChave) {
+                    isActive = true;
+                } else if (c.tipoValor === 'tcv') {
+                    const mesPagamento = (c.dataPagamentoTCV || c.mesInicio || '').substring(0, 7);
+                    isActive = mesPagamento === mesChave;
+                } else if (c.tipoValor === 'mrr' || c.tipoValor === 'bonus') {
+                    if (!c.mesInicio) return;
+
+                    const [anoInicio, mesInicio] = c.mesInicio.split('-').map(Number);
+                    const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
+                    const [anoAtual, mesAtualNum] = mesChave.split('-').map(Number);
+                    const dataAtual = new Date(anoAtual, mesAtualNum - 1, 1);
+
+                    if (c.isProjecao) {
+                        const duracao = c.projecaoDuracao ? (parseInt(c.projecaoDuracao) || 12) : 12;
+                        const dataFim = new Date(dataInicio);
+                        dataFim.setMonth(dataFim.getMonth() + duracao);
+                        isActive = dataAtual >= dataInicio && dataAtual < dataFim;
+                    } else {
+                        const dataFim = new Date(dataInicio);
+                        dataFim.setMonth(dataFim.getMonth() + 60);
+                        isActive = dataAtual >= dataInicio && dataAtual < dataFim;
+                    }
+                }
+
+                if (!isActive) return;
+
+                if (c.empresa === 'starken') {
+                    totalStarkenAtivos += 1;
+                } else if (c.empresa === 'alpha') {
+                    totalAlphaAtivos += 1;
+                }
+            });
+
+            return {
+                totalStarkenAtivos,
+                totalAlphaAtivos,
+                totalClientes: totalStarkenAtivos + totalAlphaAtivos
+            };
+        }
+
+        // Gerenciador de KPIs - Atualizado para Tempo Real e Multi-Operação
         const KPIManager = {
-            elementos: {
-                mrr: null,
-                mrrChange: null,
-                clientes: null,
-                clientesChange: null,
-                despesas: null,
-                despesasChange: null,
-                resultado: null,
-                resultadoMargem: null,
-                periodoAtual: null
-            },
-
-            // Configuração de clientes por mês
-            clientesPorMes: {
-                '2025-10': { starken: 14, alpha: 12, total: 26 },
-                '2025-11': { starken: 14, alpha: 16, total: 30 },
-                '2025-12': { starken: 14, alpha: 20, total: 34 },
-                '2026-01': { starken: 14, alpha: 23, total: 37 },
-                '2026-02': { starken: 14, alpha: 26, total: 40 },
-                '2026-03': { starken: 14, alpha: 29, total: 43 },
-                '2026-04': { starken: 14, alpha: 32, total: 46 },
-                '2026-05': { starken: 14, alpha: 35, total: 49 },
-                '2026-06': { starken: 14, alpha: 38, total: 52 },
-                '2026-07': { starken: 14, alpha: 41, total: 55 },
-                '2026-08': { starken: 14, alpha: 44, total: 58 },
-                '2026-09': { starken: 14, alpha: 47, total: 61 },
-                '2026-10': { starken: 14, alpha: 50, total: 64 },
-                '2026-11': { starken: 14, alpha: 53, total: 67 },
-                '2026-12': { starken: 14, alpha: 56, total: 70 }
-            },
-
             init: function() {
-                // Cache de elementos do DOM
-                this.elementos.mrr = document.getElementById('kpi-mrr');
-                this.elementos.mrrChange = document.getElementById('kpi-mrr-change');
-                this.elementos.clientes = document.getElementById('kpi-clientes');
-                this.elementos.clientesChange = document.getElementById('kpi-clientes-change');
-                this.elementos.despesas = document.getElementById('kpi-despesas');
-                this.elementos.despesasChange = document.getElementById('kpi-despesas-change');
-                this.elementos.resultado = document.getElementById('kpi-resultado');
-                this.elementos.resultadoMargem = document.getElementById('kpi-resultado-margem');
-                this.elementos.periodoAtual = document.getElementById('periodo-atual');
+                // Inicialização se necessário
             },
 
             atualizar: function(mesChave) {
-                console.log('=== Atualizando KPIs para:', mesChave);
-                const dados = dadosMensais[mesChave];
-                if (!dados) {
-                    console.error('Dados não encontrados para o mês:', mesChave);
-                    return;
+                console.log('=== Atualizando KPIs em Tempo Real para:', mesChave);
+                
+                // 1. Obter clientes e dados
+                const clientes = getManualClients();
+                const deletedIds = getDeletedCards();
+                const { totalStarkenAtivos, totalAlphaAtivos } = getActiveClientCountsForMonth(mesChave);
+                
+                // 2. Filtrar ativos e calcular receitas
+                let starkenRevenue = 0;
+                let alphaRevenue = 0;
+                let alphaRoyalties = 0; // 15% sobre Alpha
+
+                clientes.forEach(c => {
+                    // Ignorar deletados e projeções
+                    if (deletedIds.includes(c.id)) return;
+                    if (c.isProjecao) return;
+
+                    // Verificar se está ativo no mês
+                    let isActive = false;
+                    let revenue = 0;
+
+                    // Lógica MRR / Bônus
+                    if (c.tipoValor === 'mrr' || c.tipoValor === 'bonus') {
+                        // Verificar ajuste mensal (prioridade)
+                        if (c.ajustesMensais && c.ajustesMensais[mesChave]) {
+                            revenue = parseFloat(c.ajustesMensais[mesChave].valor || 0);
+                            isActive = true;
+                        } else {
+                            // Verificar data de início/pagamento
+                            const dataInicio = c.dataPagamentoMRR || c.mesInicio;
+                            if (dataInicio) {
+                                const mesInicio = dataInicio.substring(0, 7);
+                                // Para MRR, consideramos ativo se mesChave >= mesInicio
+                                if (mesChave >= mesInicio) {
+                                    revenue = parseFloat(c.valor || 0);
+                                    isActive = true;
+                                }
+                            }
+                        }
+                    }
+                    // Lógica TCV
+                    else if (c.tipoValor === 'tcv') {
+                        // Verificar meses personalizados (prioridade)
+                        if (c.tcvMesesReceita && c.tcvMesesReceita.length > 0) {
+                            if (c.tcvMesesReceita.includes(mesChave)) {
+                                revenue = parseFloat(c.tcvTotal || 0);
+                                isActive = true;
+                            }
+                        } else {
+                            // Fallback: Verificar data pagamento única
+                            const mesPagamento = (c.dataPagamentoTCV || c.mesInicio || '').substring(0, 7);
+                            if (mesPagamento === mesChave) {
+                                revenue = parseFloat(c.tcvTotal || 0);
+                                isActive = true;
+                            }
+                        }
+                    }
+
+                    if (isActive) {
+                        if (c.empresa === 'starken') {
+                            starkenRevenue += revenue;
+                        } else if (c.empresa === 'alpha') {
+                            alphaRevenue += revenue;
+                            alphaRoyalties += (revenue * 0.15);
+                        }
+                    }
+                });
+
+                // 3. Calcular Despesas Operacionais (Starken)
+                // Usando helper que soma dadosMensais + Custom
+                const despesasTotaisBrutas = getDespesasTotal(mesChave);
+                
+                // Tentar identificar despesas Alpha fixas (repasse antigo) para remover se necessário
+                // Na lógica antiga: const despesasSemAlpha = dados.despesas.total - 7500;
+                // Vamos assumir que despesasTotaisBrutas são TODAS operacionais da Starken, EXCETO o que for explicitamente Alpha
+                // Mas como estamos calculando Royalties dinamicamente, vamos considerar:
+                // Despesas Starken = despesasTotaisBrutas (que vem do JSON/Storage)
+                // Despesas Alpha = alphaRoyalties (calculado agora)
+                
+                // Se houver "repasse alpha" fixo no JSON, deveríamos subtrair para não duplicar?
+                // O JSON tem 'alpha_franquia'. Vamos tentar subtrair se existir para usar o cálculo dinâmico
+                let repasseFixoAlpha = 0;
+                if (typeof dadosMensais !== 'undefined' && dadosMensais[mesChave] && dadosMensais[mesChave].despesas && dadosMensais[mesChave].despesas.categorias && dadosMensais[mesChave].despesas.categorias.alpha_franquia) {
+                     repasseFixoAlpha = dadosMensais[mesChave].despesas.categorias.alpha_franquia.total || 0;
                 }
-                console.log('Dados do mês:', dados);
+                
+                const despesasOperacionaisStarken = despesasTotaisBrutas - repasseFixoAlpha;
 
-                // Calcular valores
-                const despesasSemAlpha = dados.despesas.total - 7500;
-                const resultado = dados.receitas.total - despesasSemAlpha;
-                const margem = ((resultado / dados.receitas.total) * 100).toFixed(1);
+                // 4. Calcular Totais e Resultados
+                const totalRevenue = starkenRevenue + alphaRevenue;
+                
+                // Total Despesas = Operacional Starken + Royalties Alpha
+                const totalDespesas = despesasOperacionaisStarken + alphaRoyalties;
 
-                // Atualizar MRR
-                this.elementos.mrr.textContent = Utils.formatarReais(dados.receitas.total);
-                this.elementos.periodoAtual.textContent = dados.periodo;
+                const starkenResultado = starkenRevenue - despesasOperacionaisStarken;
+                const alphaResultado = alphaRevenue - alphaRoyalties;
+                const totalResultado = totalRevenue - totalDespesas;
 
-                // Obter dados de clientes para o mês atual
-                const clientesInfo = this.clientesPorMes[mesChave] || { starken: 14, alpha: 20, total: 34 };
+                // 5. Atualizar DOM com formatação
+                const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+                const updateText = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = text;
+                };
 
-                // Atualizar KPI de clientes
-                if (this.elementos.clientes) {
-                    this.elementos.clientes.textContent = clientesInfo.total;
+                // Starken
+                updateText('kpi-starken-mrr', fmt(starkenRevenue));
+                updateText('kpi-starken-clientes', totalStarkenAtivos);
+                updateText('kpi-starken-despesas', fmt(despesasOperacionaisStarken));
+                updateText('kpi-starken-resultado', fmt(starkenResultado));
+
+                // Alpha
+                updateText('kpi-alpha-mrr', fmt(alphaRevenue));
+                updateText('kpi-alpha-clientes', totalAlphaAtivos);
+                updateText('kpi-alpha-despesas', fmt(alphaRoyalties));
+                updateText('kpi-alpha-resultado', fmt(alphaResultado));
+
+                // Total
+                updateText('kpi-total-mrr', fmt(totalRevenue));
+                updateText('kpi-total-clientes', totalStarkenAtivos + totalAlphaAtivos);
+                if (document.getElementById('kpi-total-clientes-breakdown')) {
+                    document.getElementById('kpi-total-clientes-breakdown').textContent = `${totalStarkenAtivos} Starken + ${totalAlphaAtivos} Alpha`;
                 }
-                this.elementos.clientesChange.textContent = `${clientesInfo.starken} Starken + ${clientesInfo.alpha} Alpha`;
-
-                // Obter mês anterior para comparação
-                const mesesOrdenados = Object.keys(dadosMensais).sort();
-                const indexAtual = mesesOrdenados.indexOf(mesChave);
-                const mesAnterior = indexAtual > 0 ? mesesOrdenados[indexAtual - 1] : null;
-
-                if (mesAnterior && dadosMensais[mesAnterior]) {
-                    const dadosAnterior = dadosMensais[mesAnterior];
-                    const nomeMesAnterior = dadosAnterior.periodo.split(' ')[0].toLowerCase();
-
-                    // MRR comparação
-                    const variacaoMRR = Utils.calcularVariacao(dados.receitas.total, dadosAnterior.receitas.total);
-                    const simbolo = variacaoMRR >= 0 ? '↑' : '↓';
-                    this.elementos.mrrChange.textContent = `${simbolo} ${Math.abs(variacaoMRR)}% vs ${nomeMesAnterior}`;
-                    this.elementos.mrrChange.className = variacaoMRR >= 0 ? 'kpi-change positive' : 'kpi-change negative';
-
-                    // Despesas comparação
-                    const despesasAntSemAlpha = dadosAnterior.despesas.total - 7500;
-                    const variacaoDespesas = Utils.calcularVariacao(despesasSemAlpha, despesasAntSemAlpha);
-                    const simboloDespesas = variacaoDespesas >= 0 ? '↑' : '↓';
-                    this.elementos.despesasChange.textContent = `${simboloDespesas} ${Math.abs(variacaoDespesas)}% vs ${nomeMesAnterior}`;
-                    this.elementos.despesasChange.className = variacaoDespesas >= 0 ? 'kpi-change negative' : 'kpi-change positive';
-                } else {
-                    this.elementos.mrrChange.textContent = 'Mês base';
-                    this.elementos.mrrChange.className = 'kpi-change';
-                    this.elementos.despesasChange.textContent = 'Operacional sem Alpha';
-                    this.elementos.despesasChange.className = 'kpi-change';
-                }
-
-                // Atualizar valores de despesas e resultado
-                this.elementos.despesas.textContent = Utils.formatarReais(despesasSemAlpha);
-                this.elementos.resultado.textContent = Utils.formatarReais(resultado);
-                this.elementos.resultadoMargem.textContent = `${margem}% de margem`;
-
-                console.log('KPIs atualizados para:', mesChave, '- Clientes:', clientesInfo);
+                updateText('kpi-total-despesas', fmt(totalDespesas));
+                updateText('kpi-total-resultado', fmt(totalResultado));
+                
+                const margem = totalRevenue > 0 ? ((totalResultado / totalRevenue) * 100).toFixed(1) : 0;
+                updateText('kpi-total-margem', `${margem}% de margem`);
+                
+                console.log('KPIs Realtime Atualizados:', { starkenRevenue, alphaRevenue, totalRevenue });
             }
         };
 
@@ -3674,6 +3887,12 @@
             modal.style.display = 'flex';
             modal.classList.add('active');
 
+            // Resetar scroll do modal para o topo
+            const modalBody = modal.querySelector('.client-modal');
+            if (modalBody) {
+                modalBody.scrollTop = 0;
+            }
+
             document.getElementById('clientForm').reset();
             document.getElementById('clientForm').removeAttribute('data-editing-id');
             document.getElementById('clientMesInicio').value = DashboardState.mesAtual;
@@ -3893,25 +4112,36 @@
                 // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% total
                 royalty = valorBruto * 0.15;
                 custoComercial = valorBruto * 0.35;
-                liquido = valorBruto * 0.50; // Líquido é 50% do bruto
-
+                
+                // Líquido é 50% do bruto, mas a taxa incide sobre esse líquido
+                // Se a taxa é aplicada no pagamento, e a Starken repassa, a taxa já foi descontada?
+                // Se o cliente paga 100%, desconta taxa X%, sobra Y. Starken repassa 50% de Y?
+                // Ou a taxa incide sobre a parte da Alpha?
+                // Vamos seguir a lógica inversa: 
+                // Valor Bruto - (Royalty + Custo) = Valor Base
+                // Valor Base - Taxa = Líquido
+                
+                const valorBase = valorBruto * 0.50; // 50% restante
+                liquido = valorBase; // A taxa será descontada deste valor
+                
                 royaltyRow.style.display = 'block';
-                document.getElementById('previewRoyalty').textContent = `- ${formatarMoeda(royalty)} (royalty + ${formatarMoeda(custoComercial)} custo comercial)`;
+                document.getElementById('previewRoyalty').innerHTML = `<span style="color: #ef4444;">- ${formatarMoeda(royalty)} (royalty)</span> <br> <span style="color: #ef4444;">- ${formatarMoeda(custoComercial)} (custo comercial)</span>`;
             }
             // Royalty 15% para Alpha (outros casos)
             else if (empresa === 'alpha') {
                 royalty = valorBruto * 0.15;
                 liquido = valorBruto - royalty;
                 royaltyRow.style.display = 'block';
-                document.getElementById('previewRoyalty').textContent = '- ' + formatarMoeda(royalty);
+                document.getElementById('previewRoyalty').textContent = '- ' + formatarMoeda(royalty) + ' (royalty)';
             } else {
                 royaltyRow.style.display = 'none';
             }
 
-            // Taxa de cartão/boleto (aplicada APÓS royalty)
-            // Cliente paga com taxa → Matriz recebe valor já descontado → Repassa via PIX
+            // Taxa de cartão/boleto (aplicada APÓS royalty ou sobre o líquido da Alpha)
             const taxaJurosPercentual = parseFloat(document.getElementById('clientTaxaJuros')?.value) || 0;
             if (taxaJurosPercentual > 0) {
+                // Se for Repasse Matriz, a taxa incide sobre a parte da Alpha (o líquido calculado acima)
+                // 2992.93 = 3250 * (1 - 0.0791)
                 taxaCartao = liquido * (taxaJurosPercentual / 100);
                 liquido = liquido - taxaCartao;
             }
@@ -3996,6 +4226,16 @@
             const empresa = document.getElementById('clientEmpresa').value;
             const origemSelect = document.getElementById('clientOrigem');
             const valorAtual = origemSelect.value;
+            
+            // Controle de visibilidade do campo "Meses de Trabalho"
+            const groupMesesTrabalho = document.getElementById('groupMesesTrabalho');
+            if (groupMesesTrabalho) {
+                if (empresa === 'starken') {
+                    groupMesesTrabalho.style.display = 'none';
+                } else {
+                    groupMesesTrabalho.style.display = 'block';
+                }
+            }
 
             // Limpar opções
             origemSelect.innerHTML = '';
@@ -4038,14 +4278,14 @@
             atualizarPreviewContrato();
         }
 
-        // Fechar ao clicar fora do modal
-        document.addEventListener('click', function(e) {
+        // Fechar ao clicar fora do modal (DESATIVADO)
+        /* document.addEventListener('click', function(e) {
             const modal = document.getElementById('clientModal');
             if (e.target === modal && modal.style.display === 'flex') {
                 console.log('🖱️ Clique fora do modal - fechando');
                 closeClientModal();
             }
-        });
+        }); */
 
         // Fechar com tecla ESC
         document.addEventListener('keydown', function(e) {
@@ -4074,11 +4314,11 @@
             let parcelas = 1;
             let valorLiquido = 0;
 
-            if (tipoValor === 'mrr') {
+            if (tipoValor === 'mrr' || tipoValor === 'bonus') {
                 valor = parseFloat(document.getElementById('clientValor').value) || 0;
                 mesInicio = document.getElementById('clientMesInicio').value;
 
-                if (!valor) {
+                if (!valor && tipoValor !== 'bonus') {
                     alert('Por favor, informe o valor mensal.');
                     return;
                 }
@@ -4158,6 +4398,12 @@
             // Capturar duração do contrato (campo específico para TCV)
             const duracao = tipoValor === 'tcv' ? (parseInt(document.getElementById('clientDuracao')?.value) || 3) : null;
 
+            // Ajuste para Bônus: valor mensal pode ser 0
+            if (tipoValor === 'bonus' && isNaN(valor)) {
+                valor = 0;
+                valorLiquido = 0;
+            }
+
             let clienteData = {
                 nome,
                 empresa,
@@ -4191,7 +4437,10 @@
                 projetarMRR: document.getElementById('clientProjetarMRR')?.checked || false,
                 projecaoValorMRR: parseFloat(document.getElementById('clientProjecaoValorMRR')?.value) || null,
                 projecaoDuracao: parseInt(document.getElementById('clientProjecaoDuracao')?.value) || null,
-                projecaoInicio: document.getElementById('clientProjecaoInicio')?.value || null
+                projecaoInicio: document.getElementById('clientProjecaoInicio')?.value || null,
+                projecaoDiaVencimento: parseInt(document.getElementById('clientProjecaoDiaVencimento')?.value) || null,
+                // Status de Renovação TCV
+                statusRenovacaoTCV: document.getElementById('clientStatusRenovacaoTCV')?.value || null
             };
 
             if (isEditing) {
@@ -4302,6 +4551,94 @@
             // Toast de sucesso
             const acao = isEditing ? 'atualizado' : 'adicionado';
             console.log(`✅ Cliente ${acao} com sucesso:`, nome);
+
+            // ---------------------------------------------------------
+            // LÓGICA DE PROJEÇÃO AUTOMÁTICA (Gerar Card Filho)
+            // ---------------------------------------------------------
+            if (clienteData.projetarMRR && clienteData.projecaoValorMRR && clienteData.projecaoInicio) {
+                console.log('🔮 Processando projeção automática...');
+                
+                // Recarregar lista atualizada
+                const clientesAtualizados = getManualClients();
+                
+                // Verificar se já existe projeção vinculada a este cliente
+                // Busca por parentClientId igual ao ID do cliente atual
+                // E garante que a projeção NÃO seja o próprio cliente sendo editado
+                let projecaoIndex = clientesAtualizados.findIndex(c => c.parentClientId == clienteData.id && c.isProjecao && c.id !== clienteData.id);
+                
+                // Calcular data de vencimento completa (YYYY-MM-DD)
+                let dataVencimentoProjecao = null;
+                if (clienteData.projecaoDiaVencimento) {
+                    const dia = String(clienteData.projecaoDiaVencimento).padStart(2, '0');
+                    dataVencimentoProjecao = `${clienteData.projecaoInicio}-${dia}`;
+                } else {
+                    // Default dia 05 se não informado
+                    dataVencimentoProjecao = `${clienteData.projecaoInicio}-05`;
+                }
+
+                // Objeto da Projeção
+                const cardProjecao = {
+                    // Se já existe, mantém o ID. Se não, gera um novo (com offset para não colidir)
+                    id: projecaoIndex !== -1 ? clientesAtualizados[projecaoIndex].id : (Date.now() + 500),
+                    criadoEm: new Date().toISOString(),
+                    atualizadoEm: new Date().toISOString(),
+                    
+                    // Herança de dados
+                    nome: clienteData.nome,
+                    empresa: clienteData.empresa,
+                    categoria: clienteData.categoria,
+                    closers: clienteData.closers,
+                    
+                    // Configuração Específica da Projeção
+                    tipoValor: 'mrr', // Renovação vira MRR
+                    valor: clienteData.projecaoValorMRR,
+                    mesInicio: clienteData.projecaoInicio, // Mês que começa a aparecer
+                    dataPagamentoMRR: dataVencimentoProjecao, // Data do vencimento
+                    
+                    // Dados para controle de visibilidade da projeção
+                    projecaoDuracao: clienteData.projecaoDuracao, // Salvar duração para controle de exibição
+                    
+                    // Identificadores
+                    isProjecao: true, // É uma projeção
+                    origem: 'renovacao', // Origem forçada
+                    parentClientId: clienteData.id, // Link com o pai
+                    
+                    // Limpeza de campos TCV antigos
+                    tcvTotal: null,
+                    parcelas: null,
+                    mesesTrabalho: null,
+                    isContratoFechado: false, // Projeção ainda não foi fechada
+                    
+                    // Manter dados de projeção vazios no filho para evitar recursão infinita
+                    projetarMRR: false,
+                    mesesPersonalizados: null // Garantir que não herde restrições de meses
+                };
+
+                // Garantir que a projeção não esteja na lista de excluídos (undelete)
+                const deletedIds = getDeletedCards();
+                let wasDeleted = false;
+                
+                if (projecaoIndex !== -1) {
+                    const projId = clientesAtualizados[projecaoIndex].id;
+                    if (deletedIds.includes(projId)) {
+                        const newDeletedIds = deletedIds.filter(id => id != projId);
+                        localStorage.setItem('starken_deleted_cards', JSON.stringify(newDeletedIds));
+                        wasDeleted = true;
+                        console.log('♻️ Projeção recuperada da lixeira:', projId);
+                    }
+                    
+                    // Atualizar projeção existente
+                    clientesAtualizados[projecaoIndex] = { ...clientesAtualizados[projecaoIndex], ...cardProjecao };
+                    console.log('🔄 Card de projeção atualizado:', cardProjecao);
+                } else {
+                    // Criar nova projeção
+                    clientesAtualizados.push(cardProjecao);
+                    console.log('✨ Novo card de projeção criado:', cardProjecao);
+                }
+
+                // Salvar novamente com a projeção incluída
+                saveManualClients(clientesAtualizados);
+            }
 
             // Sincronizar dados (se disponível)
             if (window.stark) {
@@ -4469,16 +4806,14 @@
 
             if (!starkenGrid || !alphaGrid) return;
 
-            // Conta apenas cards visíveis (não deletados)
-            const qtdStarken = starkenGrid.querySelectorAll('.client-card:not(.deleting)').length;
-            const qtdAlpha = alphaGrid.querySelectorAll('.client-card:not(.deleting)').length;
-            const totalClientes = qtdStarken + qtdAlpha;
+            const mesChave = (DashboardState && DashboardState.mesAtual) ? DashboardState.mesAtual : new Date().toISOString().substring(0, 7);
+            const { totalStarkenAtivos, totalAlphaAtivos, totalClientes } = getActiveClientCountsForMonth(mesChave);
 
             // Atualizar tabs
             const starkenTab = document.getElementById('starken-tab-label');
             const alphaTab = document.getElementById('alpha-tab-label');
-            if (starkenTab) starkenTab.textContent = `Starken (${qtdStarken})`;
-            if (alphaTab) alphaTab.textContent = `Alpha (${qtdAlpha})`;
+            if (starkenTab) starkenTab.textContent = `Starken (${totalStarkenAtivos})`;
+            if (alphaTab) alphaTab.textContent = `Alpha (${totalAlphaAtivos})`;
 
             // Atualizar título da carteira
             const tituloCarteira = document.getElementById('carteira-clientes-titulo');
@@ -4498,7 +4833,32 @@
                 kpiClientesAtivos.textContent = totalClientes;
             }
 
-            console.log('✅ Contadores atualizados: Starken:', qtdStarken, '| Alpha:', qtdAlpha, '| Total:', totalClientes);
+            const kpiTotalBreakdown = document.getElementById('kpi-total-clientes-breakdown');
+            if (kpiTotalBreakdown) {
+                kpiTotalBreakdown.textContent = `${totalStarkenAtivos} Starken + ${totalAlphaAtivos} Alpha`;
+            }
+
+            const starkenLabel = document.getElementById('starken-clientes-label');
+            if (starkenLabel) {
+                starkenLabel.textContent = `Empresa Matriz · ${totalStarkenAtivos} Clientes`;
+            }
+
+            const alphaLabel = document.getElementById('alpha-clientes-label');
+            if (alphaLabel) {
+                alphaLabel.textContent = `Projeto Nichado · ${totalAlphaAtivos} Clientes`;
+            }
+
+            const kpiStarkenClientes = document.getElementById('kpi-starken-clientes');
+            if (kpiStarkenClientes) {
+                kpiStarkenClientes.textContent = totalStarkenAtivos;
+            }
+
+            const kpiAlphaClientes = document.getElementById('kpi-alpha-clientes');
+            if (kpiAlphaClientes) {
+                kpiAlphaClientes.textContent = totalAlphaAtivos;
+            }
+
+            console.log('✅ Contadores atualizados: Starken:', totalStarkenAtivos, '| Alpha:', totalAlphaAtivos, '| Total:', totalClientes);
         }
 
         // Adicionar botões de delete em todos os cards existentes
@@ -4602,16 +4962,26 @@
                 checkboxProjecao.checked = cliente.isProjecao || false;
             }
 
-            // Preencher novos campos adicionados
+            // Preencher novos campos adicionados (Datas com Flatpickr)
+            const setFlatpickrDate = (id, dateValue) => {
+                const input = document.getElementById(id);
+                if (input && input._flatpickr) {
+                    input._flatpickr.setDate(dateValue || '', true); // true = trigger change events
+                } else if (input) {
+                    input.value = dateValue || '';
+                }
+            };
+
             if (cliente.dataFechamento) {
-                document.getElementById('clientDataFechamento').value = cliente.dataFechamento;
+                setFlatpickrDate('clientDataFechamento', cliente.dataFechamento);
             }
             if (cliente.dataPagamentoTCV) {
-                document.getElementById('clientDataPagamentoTCV').value = cliente.dataPagamentoTCV;
+                setFlatpickrDate('clientDataPagamentoTCV', cliente.dataPagamentoTCV);
             }
             if (cliente.dataPagamentoMRR) {
-                document.getElementById('clientDataPagamentoMRR').value = cliente.dataPagamentoMRR;
+                setFlatpickrDate('clientDataPagamentoMRR', cliente.dataPagamentoMRR);
             }
+
             if (cliente.formaPagamento) {
                 document.getElementById('clientFormaPagamento').value = cliente.formaPagamento;
                 // Chamar toggle para mostrar/esconder campos de cartão
@@ -4692,6 +5062,12 @@
                 if (cliente.projecaoInicio) {
                     document.getElementById('clientProjecaoInicio').value = cliente.projecaoInicio;
                     calcularTerminoProjecao(); // Calcular término
+                }
+                if (cliente.projecaoDiaVencimento) {
+                    document.getElementById('clientProjecaoDiaVencimento').value = cliente.projecaoDiaVencimento;
+                }
+                if (cliente.projecaoDiaVencimento) {
+                    document.getElementById('clientProjecaoDiaVencimento').value = cliente.projecaoDiaVencimento;
                 }
             }
 
@@ -4837,6 +5213,9 @@
                     document.getElementById('clientProjecaoInicio').value = cliente.projecaoInicio;
                     calcularTerminoProjecao(); // Calcular término
                 }
+                if (cliente.projecaoDiaVencimento) {
+                    document.getElementById('clientProjecaoDiaVencimento').value = cliente.projecaoDiaVencimento;
+                }
             }
 
             // NÃO armazena ID - vai criar um novo cliente
@@ -4935,8 +5314,9 @@
             const clientesAtivos = clientes.filter(c => {
                 const isDeleted = deletedIds.includes(c.id);
 
-                // NÃO mostrar cards de projeção
-                if (c.isProjecao) {
+                // NÃO mostrar cards de projeção SE não tiver data de início definida (antigos)
+                // Se tiver data de início (novo modelo), deve passar pela lógica de MRR
+                if (c.isProjecao && !c.mesInicio) {
                     return false;
                 }
 
@@ -4956,17 +5336,30 @@
                     return mesPagamento === mesAtual && !isDeleted;
                 }
 
-                // Para MRR: aparecer de mesInicio até 12 meses depois
+                // Para MRR: aparecer de mesInicio até fim
                 if (c.tipoValor === 'mrr') {
                     if (!c.mesInicio) return false;
 
                     const [anoInicio, mesInicio] = c.mesInicio.split('-').map(Number);
                     const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
-                    const dataFim = new Date(dataInicio);
-                    dataFim.setMonth(dataFim.getMonth() + 12);
-
+                    
                     const [anoAtual, mesAtualNum] = mesAtual.split('-').map(Number);
                     const dataAtual = new Date(anoAtual, mesAtualNum - 1, 1);
+
+                    // Se for projeção, verificar se tem duração definida
+                    if (c.isProjecao) {
+                         const duracao = c.projecaoDuracao ? (parseInt(c.projecaoDuracao) || 12) : 12;
+                         const dataFim = new Date(dataInicio);
+                         dataFim.setMonth(dataFim.getMonth() + duracao);
+                         
+                         const isActive = dataAtual >= dataInicio && dataAtual < dataFim;
+                         return isActive && !isDeleted;
+                    }
+
+                    // MRR padrão (sem fim definido ou 12 meses default)
+                    const dataFim = new Date(dataInicio);
+                    // MRR padrão: 5 anos de visibilidade (60 meses)
+                    dataFim.setMonth(dataFim.getMonth() + 60);
 
                     const isActive = dataAtual >= dataInicio && dataAtual < dataFim;
                     return isActive && !isDeleted;
@@ -4976,8 +5369,33 @@
             });
 
             // Separar por empresa
-            const clientesStarken = clientesAtivos.filter(c => c.empresa === 'starken');
-            const clientesAlpha = clientesAtivos.filter(c => c.empresa === 'alpha');
+            let clientesStarken = clientesAtivos.filter(c => c.empresa === 'starken');
+            let clientesAlpha = clientesAtivos.filter(c => c.empresa === 'alpha');
+
+            // 🎯 APLICAR ORDEM SALVA
+            const starkenOrder = JSON.parse(localStorage.getItem('starken_cards_order') || '[]');
+            const alphaOrder = JSON.parse(localStorage.getItem('alpha_cards_order') || '[]');
+
+            if (starkenOrder.length > 0) {
+                clientesStarken.sort((a, b) => {
+                    const indexA = starkenOrder.indexOf(a.id.toString());
+                    const indexB = starkenOrder.indexOf(b.id.toString());
+                    // Se não estiver na lista salva, joga pro final
+                    const valA = indexA === -1 ? 9999 : indexA;
+                    const valB = indexB === -1 ? 9999 : indexB;
+                    return valA - valB;
+                });
+            }
+
+            if (alphaOrder.length > 0) {
+                clientesAlpha.sort((a, b) => {
+                    const indexA = alphaOrder.indexOf(a.id.toString());
+                    const indexB = alphaOrder.indexOf(b.id.toString());
+                    const valA = indexA === -1 ? 9999 : indexA;
+                    const valB = indexB === -1 ? 9999 : indexB;
+                    return valA - valB;
+                });
+            }
 
             // Limpar grids completamente
             const starkenGrid = document.getElementById('starken-clients');
@@ -5031,48 +5449,39 @@
 
         // Implementar Drag and Drop para reorganizar cards
         let draggedCard = null;
-        let draggedClientId = null;
 
         function addDragAndDropToCards() {
-            document.querySelectorAll('.client-card[draggable="true"]').forEach(card => {
-                // Drag start
+            const cards = document.querySelectorAll('.client-card[draggable="true"]');
+            const grids = document.querySelectorAll('.clients-grid');
+
+            cards.forEach(card => {
                 card.addEventListener('dragstart', (e) => {
                     draggedCard = card;
-                    draggedClientId = card.getAttribute('data-client-id');
-                    card.style.opacity = '0.5';
+                    card.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
+                    // Seta imagem fantasma transparente
+                    e.dataTransfer.setDragImage(new Image(), 0, 0); 
                 });
 
-                // Drag end
-                card.addEventListener('dragend', (e) => {
-                    card.style.opacity = '1';
+                card.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
                     draggedCard = null;
-                    draggedClientId = null;
-                });
-
-                // Drag over
-                card.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-
-                    const afterElement = getDragAfterElement(card.parentElement, e.clientY);
-                    if (afterElement == null) {
-                        card.parentElement.appendChild(draggedCard);
-                    } else {
-                        card.parentElement.insertBefore(draggedCard, afterElement);
-                    }
+                    saveCardsOrder(); // Salvar ordem ao soltar
                 });
             });
 
-            // Permitir drop nas grids
-            document.querySelectorAll('.clients-grid').forEach(grid => {
+            grids.forEach(grid => {
                 grid.addEventListener('dragover', (e) => {
                     e.preventDefault();
-                });
-
-                grid.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    saveCardsOrder();
+                    e.dataTransfer.dropEffect = 'move';
+                    
+                    const afterElement = getDragAfterElement(grid, e.clientY);
+                    const draggable = document.querySelector('.dragging');
+                    if (afterElement == null) {
+                        grid.appendChild(draggable);
+                    } else {
+                        grid.insertBefore(draggable, afterElement);
+                    }
                 });
             });
         }
@@ -5083,7 +5492,6 @@
             return draggableElements.reduce((closest, child) => {
                 const box = child.getBoundingClientRect();
                 const offset = y - box.top - box.height / 2;
-
                 if (offset < 0 && offset > closest.offset) {
                     return { offset: offset, element: child };
                 } else {
@@ -5093,15 +5501,18 @@
         }
 
         function saveCardsOrder() {
-            // Salvar ordem dos cards no localStorage
             const starkenGrid = document.getElementById('starken-clients');
             const alphaGrid = document.getElementById('alpha-clients');
-
-            const starkenOrder = [...starkenGrid.querySelectorAll('.client-card')].map(card => card.getAttribute('data-client-id'));
-            const alphaOrder = [...alphaGrid.querySelectorAll('.client-card')].map(card => card.getAttribute('data-client-id'));
-
-            localStorage.setItem('starken_cards_order', JSON.stringify(starkenOrder));
-            localStorage.setItem('alpha_cards_order', JSON.stringify(alphaOrder));
+            
+            if (starkenGrid) {
+                const starkenOrder = [...starkenGrid.querySelectorAll('.client-card')].map(card => card.getAttribute('data-client-id'));
+                localStorage.setItem('starken_cards_order', JSON.stringify(starkenOrder));
+            }
+            
+            if (alphaGrid) {
+                const alphaOrder = [...alphaGrid.querySelectorAll('.client-card')].map(card => card.getAttribute('data-client-id'));
+                localStorage.setItem('alpha_cards_order', JSON.stringify(alphaOrder));
+            }
 
             console.log('✅ Ordem dos cards salva');
         }
@@ -5123,6 +5534,200 @@
                 const mesPrimeiroVencimento = cliente.dataPagamentoMRR.substring(0, 7); // YYYY-MM
                 // Se o mês atual for ANTES do mês do primeiro vencimento, não tem receita ainda
                 mrrTemReceitaNestesMes = mesAtual >= mesPrimeiroVencimento;
+            }
+
+            // 🎯 LÓGICA DE ALERTA DE RENOVAÇÃO TCV
+            let isUltimoMesTCV = false;
+            let diasParaVencer = 0;
+
+            if (cliente.tipoValor === 'tcv') {
+                // Calcular data final com base na duração
+                let dataInicio = null;
+                let duracaoMeses = 0;
+
+                if (cliente.isProjecao) {
+                    if (cliente.projecaoInicio) {
+                        const [ano, mes] = cliente.projecaoInicio.split('-').map(Number);
+                        dataInicio = new Date(ano, mes - 1, 1);
+                        duracaoMeses = parseInt(cliente.projecaoDuracao, 10) || 12;
+                    }
+                } else {
+                    // MUDANÇA: Tentar usar dataFechamento PRIMEIRO para maior precisão (dia exato)
+                    // Isso resolve o caso de contratos que fecham dia 27 e vencem dia 27
+                if (cliente.dataFechamento) {
+                    if (cliente.dataFechamento.includes('/')) {
+                        const [dia, mes, ano] = cliente.dataFechamento.split('/').map(Number);
+                        dataInicio = new Date(ano, mes - 1, dia);
+                    } else if (cliente.dataFechamento.includes('-') && cliente.dataFechamento.split('-').length === 3) {
+                        const [ano, mes, dia] = cliente.dataFechamento.split('-').map(Number);
+                        dataInicio = new Date(ano, mes - 1, dia);
+                    }
+                }
+                if (!dataInicio && cliente.mesInicio && cliente.mesInicio.includes('-')) {
+                    const [ano, mes] = cliente.mesInicio.split('-').map(Number);
+                    dataInicio = new Date(ano, mes - 1, 1);
+                }
+                    
+                    // Prioriza 'duracao' (contrato), fallback para 'mesesTrabalho' (projeto)
+                duracaoMeses = parseInt(cliente.duracao, 10) || parseInt(cliente.mesesTrabalho, 10) || 3;
+            }
+
+            // CORREÇÃO CRÍTICA PARA PAIAGUAS:
+            // O Paiaguas está aparecendo como "Contrato Vencido" em Fevereiro, mas vence em 01/03.
+            // Isso acontece porque o cálculo de duração está errado.
+            // Se início = 01/12/2025 e Duração = 3 meses.
+            // Vencimento = 01/03/2026.
+            // Fevereiro é o mês ANTERIOR ao vencimento.
+            
+            // Vamos depurar especificamente o Paiaguas.
+            if (cliente.nome.includes('Paiaguas')) {
+                 console.log('🍖 DEBUG PAIAGUAS:', {
+                     inicio: dataInicio ? dataInicio.toISOString() : 'null',
+                     duracao: duracaoMeses,
+                     mesAtual: mesAtual
+                 });
+            }
+
+            if (dataInicio) {
+                    // Calcular data do último mês (Data Exata do Vencimento)
+                    const dataTerminoContrato = new Date(dataInicio);
+                    // Adiciona a duração em meses
+                    dataTerminoContrato.setMonth(dataTerminoContrato.getMonth() + duracaoMeses);
+                    
+                    const anoUltimo = dataTerminoContrato.getFullYear();
+                    const mesUltimo = String(dataTerminoContrato.getMonth() + 1).padStart(2, '0');
+                    const stringUltimoMes = `${anoUltimo}-${mesUltimo}`; // Ex: 2026-02
+
+                    // 1. Mês do Vencimento (Último Mês)
+                    if (mesAtual === stringUltimoMes) {
+                        isUltimoMesTCV = true;
+                        
+                        // Lógica de Vencimento baseada no Dashboard MENSAL
+                        // Se estamos vendo o dashboard de JANEIRO, e o contrato vence em FEVEREIRO.
+                        // Janeiro < Fevereiro -> OK, está vigente.
+                        
+                        // Se estamos vendo o dashboard de FEVEREIRO, e o contrato vence 04/02.
+                        // Fevereiro = Fevereiro -> É o mês de renovação.
+                        // MAS, se hoje (data real) for 15/02, então JÁ VENCEU.
+                        
+                        // PROBLEMA RELATADO:
+                        // O usuário está vendo JANEIRO.
+                        // Don Chevico vence 04/02 (Fevereiro).
+                        // Maki Toro vence 27/02 (Fevereiro).
+                        // Ambos aparecem com alerta "CONTRATO VENCIDO" em JANEIRO?
+                        // Isso está errado. Em Janeiro eles deveriam estar normais ou com aviso de "Próximo mês".
+                        
+                        // Análise do erro:
+                        // A variável `mesAtual` vem do `DashboardState.mesAtual` (ex: '2026-01').
+                        // `stringUltimoMes` é o vencimento calculado (ex: '2026-02').
+                        
+                        // Se mesAtual (Jan) === stringUltimoMes (Fev)? FALSO.
+                        // Então não entra no bloco 1.
+                        
+                        // Se mesAtual (Jan) === stringPenultimoMes (Jan)? VERDADEIRO.
+                        // Entra no bloco 2 (Antecipação). Deveria ser VERDE.
+                        
+                        // POR QUE ESTÁ VERMELHO?
+                        // Provavelmente está entrando no bloco 3 (Vencido).
+                        // mesAtual (Jan) === stringPosMes (Março)? Falso.
+                        
+                        // ESPERA! A lógica de cálculo do último mês pode estar errada.
+                        // Don Chevico: Início Out/2025 (04/11?). Duração 3 meses.
+                        // Se Início for NOVEMBRO (04/11):
+                        // Nov + 3 = Fev (Vencimento).
+                        // Jan é penúltimo. Deveria ser verde.
+                        
+                        // Se Início for OUTUBRO (Out/2025):
+                        // Out + 3 = Jan (Vencimento).
+                        // Se vence em JAN (27/01?), e hoje é 15/02 (Data Real).
+                        // Estamos vendo o dashboard de JANEIRO.
+                        // Mês Dashboard (Jan) == Mês Vencimento (Jan).
+                        // Hoje (15/02) > Vencimento (27/01)? SIM.
+                        // Então marca como VENCIDO.
+                        
+                        // O erro é usar "hoje" (data real) para julgar o status em um dashboard HISTÓRICO.
+                        // Se estou olhando o dashboard de JANEIRO, eu quero saber o status NAQUELA ÉPOCA?
+                        // Ou o status ATUAL do cliente?
+                        // Geralmente dashboards mostram o status "congelado" ou o status atual.
+                        
+                        // Se o contrato venceu em 27/01.
+                        // No dashboard de JANEIRO, dia 31/01, ele já estava vencido.
+                        // Então mostrar "Vencido" em Janeiro faz sentido SE já passou da data.
+                        
+                        // MAS o usuário disse: "Don Chevico venceu dia 04/02".
+                        // Se vence 04/02, em JANEIRO ele NÃO deveria estar vencido.
+                        
+                        // CÁLCULO DE DATA DE INÍCIO PODE ESTAR ERRADO.
+                        // O card diz: Início Out/2025. Fechamento 04/11/2025.
+                        // Minha lógica tenta usar Fechamento (04/11) se existir.
+                        // 04/11 + 3 meses = 04/02/2026.
+                        // Vencimento = Fevereiro.
+                        // Dashboard = Janeiro.
+                        
+                        // Jan (2026-01) != Fev (2026-02).
+                        // Não entra no bloco 1.
+                        
+                        // Penúltimo mês de Fev é JAN.
+                        // Jan == Jan. Entra no bloco 2. `diasParaVencer = 30`. (VERDE).
+                        
+                        // ENTÃO POR QUE ESTÁ VERMELHO?
+                        // Talvez `isUltimoMesTCV` esteja sendo setado como true em outro lugar?
+                        // Ou caiu no bloco 3?
+                        // Pós mês de Fev é MARÇO.
+                        // Jan != Março.
+                        
+                        // HIPÓTESE: O cálculo da data de início está pegando OUTUBRO em vez de Novembro.
+                        // Se pegar Outubro: Out + 3 = Janeiro (2026-01).
+                        // Vencimento = Janeiro.
+                        // Dashboard = Janeiro.
+                        // Hoje (15/02) > Vencimento (04/01 ou 27/01).
+                        // Entra na lógica de "hoje > vencimento" e marca vermelho.
+                        
+                        // O card mostra "Início: Out/2025".
+                        // Mas "Fechamento: 04/11/2025".
+                        // O sistema deve respeitar o MÊS DE INÍCIO selecionado no cadastro, que parece ser Outubro.
+                        // Se o usuário selecionou Outubro como início, a vigência conta de Outubro.
+                        // Out, Nov, Dez. (3 meses).
+                        // Vencimento em JANEIRO.
+                        
+                        // Se o usuário diz que vence em Fevereiro, então o Início deveria ser Novembro.
+                        // Mas no print está "Início: Out/2025".
+                        
+                        // SOLUÇÃO: Vou confiar na lógica de "Mês Início + Duração".
+                        // Se o usuário diz que vence em 04/02, mas o cadastro diz Início Outubro e Duração 3...
+                        // A conta matemática é Out+3 = Jan.
+                        // O usuário pode estar considerando a data de fechamento (Nov) para a vigência, mas o sistema salvou Outubro.
+                        
+                        // Vou ajustar para usar a data de fechamento APENAS se o mês de início não estiver explícito OU se a data de fechamento for posterior ao mês de início.
+                        // No caso: Mês Início = Outubro. Data Fechamento = Novembro.
+                        // Se o início foi Outubro, a cobrança conta de Outubro?
+                        // TCV geralmente conta da data de fechamento/assinatura.
+                        
+                        // Vou alterar a prioridade:
+                        // 1. Se tem Data de Fechamento, usa ela para o dia e mês.
+                        // 2. Se não, usa Mês de Início.
+                    }
+                    
+                    // 2. Mês Anterior (Antecipação)
+                    const dataPenultimoMes = new Date(dataTerminoContrato);
+                    dataPenultimoMes.setMonth(dataPenultimoMes.getMonth() - 1);
+                    const stringPenultimoMes = `${dataPenultimoMes.getFullYear()}-${String(dataPenultimoMes.getMonth() + 1).padStart(2, '0')}`;
+
+                    if (mesAtual === stringPenultimoMes) {
+                        isUltimoMesTCV = true; 
+                        diasParaVencer = 30; // Alerta Verde (Próximo)
+                    }
+
+                    // 3. Mês Seguinte (Vencido - Mês Passado)
+                    const dataPosMes = new Date(dataTerminoContrato);
+                    dataPosMes.setMonth(dataPosMes.getMonth() + 1);
+                    const stringPosMes = `${dataPosMes.getFullYear()}-${String(dataPosMes.getMonth() + 1).padStart(2, '0')}`;
+ 
+                    if (mesAtual === stringPosMes && (!cliente.statusRenovacaoTCV || cliente.statusRenovacaoTCV !== 'renovado')) {
+                        isUltimoMesTCV = true;
+                        diasParaVencer = -30; // Alerta Vermelho (Vencido)
+                    }
+                }
             }
 
             // Calcular valor bruto e líquido
@@ -5165,8 +5770,13 @@
                         // REPASSE MATRIZ: Cálculo especial (50% do valor)
                         if (cliente.origem === 'repasse-matriz' && cliente.empresa === 'alpha') {
                             // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% líquido
-                            // Valor recebido integralmente no mês (não dividido pelos meses de trabalho)
-                            valorLiquido = valorBruto * 0.50; // Líquido é 50% do bruto
+                            // Valor recebido integralmente no mês
+                            valorLiquido = valorBruto * 0.50; // Base de 50%
+
+                            // Aplicar taxa de juros se houver (sobre o líquido da Alpha)
+                            if (cliente.taxaJuros > 0) {
+                                valorLiquido = valorLiquido * (1 - cliente.taxaJuros / 100);
+                            }
                         } else {
                             // OUTROS CASOS: Aplicar royalty e taxa normalmente
                             valorLiquido = valorBruto;
@@ -5181,8 +5791,8 @@
                 }
             }
 
-            const brutoFormatado = valorBruto.toLocaleString('pt-BR', { minimumFractionDigits: 0 });
-            const liquidoFormatado = valorLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                const brutoFormatado = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(valorBruto);
+                const liquidoFormatado = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(valorLiquido);
 
             let valorDisplay = '';
 
@@ -5196,10 +5806,53 @@
                     </div>
                 `;
             } else if (cliente.tipoValor === 'tcv') {
+                // ALERTA DE RENOVAÇÃO NO ÚLTIMO MÊS (PRIORIDADE VISUAL)
+                let alertaRenovacaoHTML = '';
+                if (isUltimoMesTCV) {
+                    let titulo = '';
+                    let subtitulo = '';
+                    let corFundo = '#FFFBEB';
+                    let corBorda = '#F59E0B';
+                    let corTexto = '#B45309';
+
+                    if (diasParaVencer === 30) {
+                        titulo = '📅 PRÓXIMO DO VENCIMENTO';
+                        subtitulo = 'Contrato vence no próximo mês';
+                        corFundo = '#ecfccb';
+                        corBorda = '#84cc16';
+                        corTexto = '#3f6212';
+                    } else if (diasParaVencer === -30) {
+                        titulo = '🚨 CONTRATO VENCIDO';
+                        subtitulo = 'Atenção: Contrato expirado';
+                        corFundo = '#fef2f2';
+                        corBorda = '#ef4444';
+                        corTexto = '#991b1b';
+                    } else {
+                        // Caso padrão (Mês atual = Mês do Vencimento)
+                        titulo = '⚠️ MÊS DE RENOVAÇÃO';
+                        subtitulo = 'Contrato vence neste mês';
+                        corFundo = '#FFFBEB';
+                        corBorda = '#F59E0B';
+                        corTexto = '#B45309';
+                    }
+
+                    alertaRenovacaoHTML = `
+                        <div style="background: ${corFundo}; border: 2px solid ${corBorda}; color: ${corTexto}; padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                            <div style="font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                ${titulo}
+                            </div>
+                            <div style="font-size: 11px; font-weight: 500; margin-top: 4px;">
+                                ${subtitulo}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 // Se não tem receita neste mês, mostrar aviso
                 if (!temReceitaNestesMes) {
                     valorDisplay = `
                         <div style="text-align:center;">
+                            ${alertaRenovacaoHTML}
                             <div style="background:linear-gradient(135deg,#f59e0b 0%,#ea580c 100%);color:white;padding:8px 12px;border-radius:8px;margin-bottom:12px;">
                                 <div style="font-size:11px;font-weight:600;opacity:0.95;margin-bottom:4px;">⚠️ MÊS SEM RECEITA</div>
                                 <div style="font-size:10px;opacity:0.9;line-height:1.4;">Este é um contrato TCV. A receita foi recebida em outro(s) mês(es).</div>
@@ -5211,6 +5864,7 @@
                 } else {
                     valorDisplay = `
                         <div>
+                            ${alertaRenovacaoHTML}
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                                 <span style="font-size:11px;color:#6b7280;font-weight:500;">Bruto:</span>
                                 <span style="font-size:15px;color:#374151;font-weight:600;">R$ ${brutoFormatado}</span>
@@ -5268,7 +5922,7 @@
                                 </div>
                             ` : ''}
                             <div style="font-size: 11px; color: #059669; margin-bottom: 4px; font-weight: 600;">Valor Mensal</div>
-                            <div style="font-size: 22px; font-weight: 700; color: #059669;">R$ ${brutoFormatado}</div>
+                            <div style="font-size: 22px; font-weight: 700; color: #059669;">R$ ${liquidoFormatado}</div>
                         </div>
                     `;
                 }
@@ -5374,6 +6028,7 @@
                     'pix': '💰 PIX',
                     'cartao': '💳 Cartão',
                     'boleto': '📄 Boleto',
+                    'boleto_pix': '📄 Boleto/Pix',
                     'transferencia': '🏦 Transferência'
                 };
                 const formaNome = formaPagamentoNomes[cliente.formaPagamento];
@@ -5443,7 +6098,7 @@
                     <div style="padding:16px;background:#fafafa;border-bottom:1px solid #f3f4f6;">
                         ${valorDisplay}
                         ${cliente.tipoValor === 'mrr' ? `
-                            <button onclick="ajustarValorMensal(${cliente.id}, '${DashboardState.mesAtual}')"
+                            <button onclick="ajustarValorMensal(${cliente.id}, '${DashboardState.mesAtual}'); event.stopPropagation();"
                                 style="width:100%;margin-top:12px;padding:8px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:opacity 0.2s;"
                                 onmouseover="this.style.opacity='0.9'"
                                 onmouseout="this.style.opacity='1'"
@@ -5494,7 +6149,7 @@
 
     <!-- Modal Novo Cliente -->
     <div id="clientModal" class="client-modal-overlay">
-        <div class="client-modal" style="max-width: 550px;">
+        <div class="client-modal">
             <div class="modal-header">
                 <h3>➕ Adicionar Novo Cliente</h3>
                 <button class="modal-close" onclick="closeClientModal()">✕</button>
@@ -5532,9 +6187,10 @@
                             <select id="clientTipoValor" onchange="toggleTCVFields(); atualizarPreviewContrato()">
                                 <option value="mrr">MRR (Recorrente)</option>
                                 <option value="tcv">TCV (Projeto)</option>
+                                <option value="bonus">Bônus</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="groupMesesTrabalho">
                             <label for="clientMesesTrabalho">⏱️ Meses de Trabalho</label>
                             <input type="number" id="clientMesesTrabalho" placeholder="3" min="1" max="24" step="1" value="3" oninput="atualizarPreviewContrato()">
                             <small style="color: #6b7280; font-size: 11px;">Para TCV: duração do projeto</small>
@@ -5546,7 +6202,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="clientValor">Valor Mensal (R$) *</label>
-                                <input type="number" id="clientValor" placeholder="2000" min="0" step="0.01" required oninput="atualizarPreviewContrato()">
+                                <input type="number" id="clientValor" placeholder="2000" min="0" step="any" required oninput="atualizarPreviewContrato()">
                             </div>
                             <div class="form-group">
                                 <label for="clientMesInicio">Mês de Início *</label>
@@ -5570,7 +6226,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="clientTCVTotal">Valor Total Contrato (R$) *</label>
-                                <input type="number" id="clientTCVTotal" placeholder="12000" min="0" step="0.01" oninput="atualizarPreviewContrato()">
+                                <input type="number" id="clientTCVTotal" placeholder="12000" min="0" step="any" oninput="atualizarPreviewContrato()">
                             </div>
                             <div class="form-group">
                                 <label for="clientDuracao">⏱️ Duração do Contrato (meses) *</label>
@@ -5598,7 +6254,23 @@
                                 <small style="color: #6b7280; font-size: 11px;">Valor ÷ Duração</small>
                             </div>
                         </div>
-                        <div class="form-group">
+
+                        <!-- Status de Renovação (TCV) -->
+                        <div class="form-group" style="margin-top: 16px; padding: 12px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px;">
+                            <label for="clientStatusRenovacaoTCV" style="font-size: 13px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                                🔄 Status de Renovação (Pós-Contrato)
+                            </label>
+                            <select id="clientStatusRenovacaoTCV" onchange="atualizarPreviewContrato()">
+                                <option value="">⏳ Pendente / Em Aberto</option>
+                                <option value="renovado">✅ Renovado</option>
+                                <option value="nao_renovado">❌ Não Renovado</option>
+                            </select>
+                            <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 4px;">
+                                Defina o status após o término do contrato atual
+                            </small>
+                        </div>
+
+                        <div class="form-group" style="display: none;">
                             <label for="clientMesInicioTCV">Mês 1ª Parcela *</label>
                             <select id="clientMesInicioTCV">
                                 <option value="2025-10">Outubro 2025</option>
@@ -5618,7 +6290,17 @@
                             <label for="clientValorLiquidoManual" style="font-size: 13px; font-weight: 600; color: #92400e; display: flex; align-items: center; margin-bottom: 8px;">
                                 💰 Valor Líquido Manual (Opcional)
                             </label>
-                            <input type="number" id="clientValorLiquidoManual" placeholder="Ex: 5500" min="0" step="0.01" oninput="atualizarPreviewContrato()" style="margin-bottom: 8px;">
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <span style="position: absolute; left: 12px; top: 18px; transform: translateY(-50%); color: #6b7280; font-weight: 600; font-size: 14px; pointer-events: none; z-index: 10;">R$</span>
+                                <input type="number" 
+                                       id="clientValorLiquidoManual" 
+                                       placeholder="0,00" 
+                                       min="0" 
+                                       step="any" 
+                                       oninput="atualizarPreviewContrato()" 
+                                       onchange="if(this.value) this.value = parseFloat(this.value).toFixed(2)"
+                                       style="padding-left: 40px; text-align: left; width: 100%; height: 38px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 15px; color: #111827; margin-bottom: 8px; background: white;">
+                            </div>
                             <small style="color: #92400e; font-size: 11px; display: block;">
                                 ⚠️ Deixe vazio para cálculo automático (royalty + taxa). Preencha apenas se precisar ajustar manualmente o valor líquido.
                             </small>
@@ -5628,17 +6310,17 @@
                         <div style="margin-top: 16px; padding: 12px; background: #eff6ff; border: 2px dashed #3b82f6; border-radius: 8px;">
                             <label style="display: flex; align-items: center; margin-bottom: 8px;">
                                 <input type="checkbox" id="clientProjetarMRR" style="width: auto; margin-right: 8px;" onchange="toggleProjecaoMRR()">
-                                <span style="font-size: 13px; font-weight: 600; color: #1e40af;">📊 Projetar Renovação em MRR</span>
+                                <span style="font-size: 13px; font-weight: 600; color: #1e40af;">🔄 CONTRATO RENOVADO / PROJEÇÃO</span>
                             </label>
                             <small style="color: #1e40af; font-size: 11px; display: block; margin-bottom: 12px;">
-                                Projete a possível renovação deste projeto em modelo recorrente
+                                Cliente com contrato renovado para os próximos cards futuros (Projeção)
                             </small>
 
                             <div id="camposProjecaoMRR" style="display: none;">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="clientProjecaoValorMRR">💰 Valor MRR Projetado</label>
-                                        <input type="number" id="clientProjecaoValorMRR" placeholder="2000" min="0" step="0.01">
+                                        <input type="number" id="clientProjecaoValorMRR" placeholder="2000" min="0" step="any">
                                         <small style="color: #6b7280; font-size: 10px;">Valor mensal estimado</small>
                                     </div>
                                     <div class="form-group">
@@ -5661,6 +6343,11 @@
                                             <option value="2026-06">Junho 2026</option>
                                         </select>
                                         <small style="color: #6b7280; font-size: 10px;">Quando projeção começa</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="clientProjecaoDiaVencimento">📆 Dia Vencimento</label>
+                                        <input type="number" id="clientProjecaoDiaVencimento" placeholder="Ex: 10" min="1" max="31">
+                                        <small style="color: #6b7280; font-size: 10px;">Dia de vencimento mensal</small>
                                     </div>
                                     <div class="form-group">
                                         <label style="color: #6b7280; font-size: 12px;">Término Calculado:</label>
@@ -5710,17 +6397,17 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="clientDataFechamento">📅 Data de Fechamento</label>
-                            <input type="date" id="clientDataFechamento">
+                            <input type="text" id="clientDataFechamento" placeholder="dd/mm/aaaa">
                             <small style="color: #6b7280; font-size: 11px;">Quando o contrato foi fechado</small>
                         </div>
                         <div class="form-group" id="campoDataPagamentoTCV" style="display: none;">
                             <label for="clientDataPagamentoTCV">💰 Data de Pagamento (TCV)</label>
-                            <input type="date" id="clientDataPagamentoTCV">
+                            <input type="text" id="clientDataPagamentoTCV" placeholder="dd/mm/aaaa">
                             <small style="color: #6b7280; font-size: 11px;">Quando o TCV será pago</small>
                         </div>
                         <div class="form-group" id="campoDataVencimentoMRR">
                             <label for="clientDataPagamentoMRR">📆 1º Vencimento (MRR)</label>
-                            <input type="date" id="clientDataPagamentoMRR">
+                            <input type="text" id="clientDataPagamentoMRR" placeholder="dd/mm/aaaa">
                             <small style="color: #6b7280; font-size: 11px;">Primeiro vencimento mensal</small>
                         </div>
                     </div>
@@ -5734,6 +6421,7 @@
                                 <option value="pix">PIX</option>
                                 <option value="cartao">Cartão de Crédito</option>
                                 <option value="boleto">Boleto</option>
+                                <option value="boleto_pix">Boleto/Pix</option>
                                 <option value="transferencia">Transferência Bancária</option>
                             </select>
                             <small style="color: #6b7280; font-size: 11px;">Como o cliente irá pagar</small>
@@ -5975,5 +6663,83 @@
 
     <!-- Sistema de Notificações - DESABILITADO -->
     <!-- <script src="notifications.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+    <script>
+        // Limpar cache específico de clientes customizados com data errada
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const key = 'starken_financeiro_custom_items';
+                const data = localStorage.getItem(key);
+                if (data) {
+                    const customItems = JSON.parse(data);
+                    let alterado = false;
+
+                    // Percorrer meses
+                    Object.keys(customItems).forEach(mes => {
+                        const receitas = customItems[mes].receitas || [];
+                        receitas.forEach(cliente => {
+                            // Se tiver data de vencimento MRR igual a 22/12/2025, remover
+                            if (cliente.dataPagamentoMRR === '2025-12-22') {
+                                console.log('Limpando data MRR 22/12/2025 de:', cliente.nome);
+                                cliente.dataPagamentoMRR = null; // Resetar
+                                alterado = true;
+                            }
+                            // Se tiver data de pagamento TCV igual a 22/12/2025, remover
+                            if (cliente.dataPagamentoTCV === '2025-12-22') {
+                                console.log('Limpando data TCV 22/12/2025 de:', cliente.nome);
+                                cliente.dataPagamentoTCV = null; // Resetar
+                                alterado = true;
+                            }
+                        });
+                    });
+
+                    if (alterado) {
+                        localStorage.setItem(key, JSON.stringify(customItems));
+                        console.log('✅ Cache de datas limpo com sucesso!');
+                        
+                        // Forçar limpeza dos inputs também
+                        const inputs = document.querySelectorAll('input.flatpickr-input');
+                        inputs.forEach(input => input.value = '');
+                        
+                        // Recarregar para aplicar mudanças
+                        setTimeout(() => window.location.reload(), 500);
+                    } else {
+                        console.log('Nenhuma data 22/12/2025 encontrada para limpar.');
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao limpar cache:', e);
+            }
+        });
+
+        // Inicializar Flatpickr para datas brasileiras
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#clientDataFechamento", {
+                locale: "pt",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                allowInput: true,
+                defaultDate: new Date()
+            });
+            
+            flatpickr("#clientDataPagamentoMRR", {
+                locale: "pt",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                allowInput: true
+            });
+
+            flatpickr("#clientDataPagamentoTCV", {
+                locale: "pt",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                allowInput: true
+            });
+        });
+    </script>
 </body>
 </html>

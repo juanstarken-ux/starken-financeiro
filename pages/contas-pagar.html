@@ -886,7 +886,69 @@
             color: #999;
         }
 
-        /* Action Buttons in Table */
+        /* Import Area Styles */
+        .import-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-gray);
+        }
+
+        .import-area:hover, .import-area.dragover {
+            border-color: var(--primary-green);
+            background: rgba(74, 107, 84, 0.05);
+        }
+
+        .import-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .reconciliation-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .reconcile-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .reconcile-item.matched {
+            border-left: 4px solid var(--success);
+        }
+
+        .reconcile-item.unmatched {
+            border-left: 4px solid var(--warning);
+        }
+
+        .bank-transaction {
+            font-size: 13px;
+        }
+
+        .bank-desc { font-weight: 600; color: var(--text-dark); }
+        .bank-date { color: var(--text-light); font-size: 11px; }
+        .bank-amount { font-weight: 700; }
+
+        .match-suggestion {
+            font-size: 13px;
+            padding: 8px;
+            background: var(--bg-gray);
+            border-radius: 6px;
+        }
+
+        /* Action Buttons */in Table */
         .row-actions {
             display: flex;
             gap: 8px;
@@ -1923,24 +1985,11 @@
 
         /* Barra de ações flutuante */
         .bulk-actions-bar {
-            position: fixed;
-            bottom: -80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-radius: 16px;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            z-index: 1000;
-            transition: bottom 0.3s ease;
-            border: 1px solid rgba(74, 107, 84, 0.3);
+            display: none !important;
         }
 
         .bulk-actions-bar.visible {
-            bottom: 30px;
+            display: none !important;
         }
 
         .bulk-actions-bar .selected-count {
@@ -2209,6 +2258,9 @@
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="openAddModal()">
                         ➕ Nova Despesa
+                    </button>
+                    <button class="btn btn-primary" onclick="openImportModal()" style="background-color: #6610f2; border-color: #6610f2;" title="Importar Extrato Bancário (OFX/CSV)">
+                        📥 Importar
                     </button>
                     <button class="btn btn-primary" onclick="exportarBackup()" title="Salvar backup dos dados">
                         💾 Backup
@@ -2485,6 +2537,53 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('despesaModal')">Cancelar</button>
                 <button class="btn btn-primary" onclick="saveDespesa()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Importar Extrato -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Importar Extrato Bancário</h3>
+                <button class="modal-close" onclick="closeModal('importModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Passo 1: Upload -->
+                <div id="importStep1">
+                    <div class="import-area" id="dropZone" onclick="document.getElementById('bankFile').click()">
+                        <div class="import-icon">📄</div>
+                        <h4 style="margin-bottom: 10px;">Arraste seu extrato aqui</h4>
+                        <p style="color: var(--text-light); font-size: 13px;">Suporta arquivos OFX e CSV</p>
+                        <input type="file" id="bankFile" accept=".ofx,.csv" style="display: none" onchange="handleBankFile(this)">
+                    </div>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <p class="small" style="color: var(--text-light);">
+                            Recomendamos usar o formato <strong>OFX</strong> para maior precisão.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Passo 2: Conciliação -->
+                <div id="importStep2" style="display: none;">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0;">Conciliação de Transações</h4>
+                        <div class="summary-badges">
+                            <span class="date-badge date-badge-pago" id="foundCount">0 Encontrados</span>
+                            <span class="date-badge date-badge-empty" id="newCount">0 Novos</span>
+                        </div>
+                    </div>
+                    
+                    <div class="reconciliation-list" id="reconciliationList">
+                        <!-- Lista de transações gerada via JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">Cancelar</button>
+                <button class="btn btn-primary" id="btnProcessImport" onclick="processReconciliation()" style="display: none;">
+                    Confirmar Importação
+                </button>
             </div>
         </div>
     </div>
@@ -4406,14 +4505,12 @@
         }
 
         function updateBulkActionsBar() {
-            const bar = document.getElementById('bulkActionsBar');
             const countText = document.getElementById('selectedCountText');
             const totalText = document.getElementById('selectedTotalText');
             const btnSelecionados = document.getElementById('btnSelecionados');
             const countSelecionados = document.getElementById('countSelecionados');
 
             if (selectedItems.size > 0) {
-                bar.classList.add('visible');
                 btnSelecionados.style.display = 'inline-block';
 
                 // Calcular total selecionado
@@ -4426,7 +4523,6 @@
                 totalText.textContent = formatMoney(total);
                 countSelecionados.textContent = selectedItems.size;
             } else {
-                bar.classList.remove('visible');
                 btnSelecionados.style.display = 'none';
             }
         }
@@ -4764,6 +4860,208 @@
                 closeKanbanPaymentModal();
             }
         });
+        // ========================================
+        // IMPORTAÇÃO DE EXTRATO BANCÁRIO
+        // ========================================
+        let importedTransactions = [];
+
+        function openImportModal() {
+            document.getElementById('importModal').classList.add('show');
+            document.getElementById('importStep1').style.display = 'block';
+            document.getElementById('importStep2').style.display = 'none';
+            document.getElementById('btnProcessImport').style.display = 'none';
+            document.getElementById('bankFile').value = '';
+            importedTransactions = [];
+        }
+
+        function handleBankFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const ext = file.name.split('.').pop().toLowerCase();
+
+                if (ext === 'ofx') {
+                    parseOFX(content);
+                } else if (ext === 'csv') {
+                    parseCSV(content);
+                } else {
+                    alert('Formato não suportado. Use OFX ou CSV.');
+                    return;
+                }
+
+                showReconciliation();
+            };
+            reader.readAsText(file);
+        }
+
+        function parseOFX(content) {
+            // Simple OFX Parser
+            const transactions = [];
+            const lines = content.split('\n');
+            let currentTransaction = {};
+            let inTransaction = false;
+
+            lines.forEach(line => {
+                if (line.includes('<STMTTRN>')) {
+                    inTransaction = true;
+                    currentTransaction = {};
+                } else if (line.includes('</STMTTRN>')) {
+                    inTransaction = false;
+                    if (currentTransaction.amount && currentTransaction.date) {
+                        transactions.push(currentTransaction);
+                    }
+                } else if (inTransaction) {
+                    if (line.includes('<TRNAMT>')) currentTransaction.amount = parseFloat(line.split('<TRNAMT>')[1].split('<')[0]);
+                    if (line.includes('<DTPOSTED>')) {
+                        const dateStr = line.split('<DTPOSTED>')[1].split('<')[0];
+                        currentTransaction.date = `${dateStr.substring(0,4)}-${dateStr.substring(4,6)}-${dateStr.substring(6,8)}`;
+                    }
+                    if (line.includes('<MEMO>')) currentTransaction.memo = line.split('<MEMO>')[1].split('<')[0];
+                    if (line.includes('<NAME>')) currentTransaction.name = line.split('<NAME>')[1].split('<')[0];
+                }
+            });
+            importedTransactions = transactions;
+        }
+
+        function parseCSV(content) {
+            // Simple CSV Parser (assumes Date, Description, Amount)
+            const transactions = [];
+            const lines = content.split('\n');
+            // Try to detect separator
+            const separator = lines[0].includes(';') ? ';' : ',';
+
+            lines.forEach((line, index) => {
+                if (index === 0) return; // Skip header
+                const cols = line.split(separator);
+                if (cols.length >= 3) {
+                    const date = cols[0].trim(); // Assumes YYYY-MM-DD or DD/MM/YYYY
+                    const desc = cols[1].trim();
+                    const amount = parseFloat(cols[2].replace(',', '.').trim());
+
+                    if (date && !isNaN(amount)) {
+                        let formattedDate = date;
+                        if (date.includes('/')) {
+                            const parts = date.split('/');
+                            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                        }
+                        transactions.push({
+                            date: formattedDate,
+                            name: desc,
+                            amount: amount,
+                            memo: desc
+                        });
+                    }
+                }
+            });
+            importedTransactions = transactions;
+        }
+
+        function showReconciliation() {
+            document.getElementById('importStep1').style.display = 'none';
+            document.getElementById('importStep2').style.display = 'block';
+            document.getElementById('btnProcessImport').style.display = 'block';
+
+            const list = document.getElementById('reconciliationList');
+            list.innerHTML = '';
+
+            let foundCount = 0;
+            let newCount = 0;
+
+            importedTransactions.forEach((trans, index) => {
+                // Try to match with existing
+                const match = allItems.find(item => 
+                    Math.abs(item.valor - Math.abs(trans.amount)) < 0.05 &&
+                    (item.vencimento === trans.date || !item.vencimento)
+                );
+
+                const div = document.createElement('div');
+                div.className = 'reconcile-item';
+                div.innerHTML = `
+                    <div><strong>${trans.date}</strong><br>${trans.memo || trans.name}</div>
+                    <div style="color: ${trans.amount < 0 ? 'red' : 'green'}">${formatMoney(Math.abs(trans.amount))}</div>
+                    <div>
+                        ${match ? `<span class="date-badge date-badge-pago">Encontrado: ${match.nome}</span>` : '<span class="date-badge date-badge-empty">Novo</span>'}
+                    </div>
+                    <input type="checkbox" checked data-index="${index}" data-match="${match ? match.nome : ''}">
+                `;
+                list.appendChild(div);
+
+                if (match) foundCount++; else newCount++;
+            });
+
+            document.getElementById('foundCount').textContent = `${foundCount} Encontrados`;
+            document.getElementById('newCount').textContent = `${newCount} Novos`;
+        }
+
+        function processReconciliation() {
+            const checkboxes = document.querySelectorAll('#reconciliationList input:checked');
+            let processed = 0;
+
+            checkboxes.forEach(cb => {
+                const index = cb.dataset.index;
+                const trans = importedTransactions[index];
+                const matchName = cb.dataset.match;
+
+                if (matchName) {
+                    // Update existing
+                    GestaoFinanceira.updateStatus(currentMonth, 'despesa', matchName, 'Pago', trans.date);
+                } else {
+                    // Create new
+                    GestaoFinanceira.addDespesa(currentMonth, {
+                        nome: trans.memo || trans.name || 'Despesa Importada',
+                        valor: Math.abs(trans.amount),
+                        categoria: 'outros',
+                        vencimento: trans.date,
+                        status: 'Pago',
+                        dataPagamento: trans.date
+                    });
+                }
+                processed++;
+            });
+
+            closeModal('importModal');
+            showToast(`${processed} transações processadas!`, 'success');
+            loadMonthData(currentMonth);
+        }
+
+        // ========================================
+        // PAGAMENTO EM MASSA
+        // ========================================
+        function openBulkPaymentDateModal() {
+            if (selectedItems.size === 0) return;
+            document.getElementById('bulkPaymentDateCount').textContent = selectedItems.size;
+            document.getElementById('bulkPaymentDateInput').value = new Date().toISOString().split('T')[0];
+            document.getElementById('bulkPaymentDateModal').classList.add('show');
+        }
+
+        function closeBulkPaymentDateModal() {
+            document.getElementById('bulkPaymentDateModal').classList.remove('show');
+        }
+
+        async function applyBulkPaymentDate() {
+            const novaData = document.getElementById('bulkPaymentDateInput').value;
+            if (!novaData) {
+                alert('Selecione uma data');
+                return;
+            }
+            closeBulkPaymentDateModal();
+            if (selectedItems.size === 0) return;
+
+            let updated = 0;
+            for (const itemNome of selectedItems) {
+                // Update status to Pago with date
+                GestaoFinanceira.updateStatus(currentMonth, 'despesa', itemNome, 'Pago', novaData);
+                updated++;
+            }
+
+            if (updated > 0) {
+                loadMonthData(currentMonth);
+                showToast(`Data de pagamento atualizada para ${updated} itens`);
+            }
+        }
     </script>
 
     <!-- Modal de Pagamento Kanban -->
