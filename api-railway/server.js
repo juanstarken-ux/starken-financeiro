@@ -251,6 +251,42 @@ app.get('/api/dados/:mes', async (req, res) => {
   }
 });
 
+app.post('/api/acao', async (req, res) => {
+  try {
+    const { acao, dados } = req.body || {};
+
+    if (acao !== 'adicionar-receita' || !dados) {
+      return res.status(400).json({ success: false, error: 'Ação inválida' });
+    }
+
+    const { mes, nome, valor, categoria, status, vencimento, empresa, funcao, tipo } = dados;
+
+    if (!nome || valor == null) {
+      return res.status(400).json({ success: false, error: 'Dados inválidos' });
+    }
+
+    const item = await prisma.customItem.create({
+      data: {
+        mes: mes || new Date().toISOString().slice(0, 7),
+        tipo: 'receita',
+        nome,
+        valor: Number(valor),
+        categoria: categoria || empresa || 'Outros',
+        status: status || 'A Receber',
+        vencimento: vencimento || null,
+        empresa: empresa || null,
+        funcao: funcao || null,
+        tipoDetalhe: tipo || null
+      }
+    });
+
+    res.json({ success: true, item });
+  } catch (error) {
+    console.error('Erro ao adicionar receita:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 STARK API v3.1 running on port ${PORT}`);

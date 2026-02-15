@@ -4474,12 +4474,12 @@
                 console.log('✅ Cliente adicionado:', clienteData);
             }
 
-            // Salvar no banco via API (para integrar com Contas a Receber) - DESABILITADO
-            // Sistema funciona apenas com localStorage, sem necessidade de sync com banco
-            /* try {
-                if (tipoValor === 'mrr') {
-                    // MRR: adiciona uma única receita mensal
-                    await fetch('/.netlify/functions/sync-data', {
+            try {
+                const apiBase = (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
+                    ? GestaoFinanceira.RAILWAY_API_URL
+                    : 'https://starken-financeiro-production.up.railway.app';
+                if (tipoValor === 'mrr' || tipoValor === 'bonus') {
+                    await fetch(`${apiBase}/api/acao`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -4488,18 +4488,18 @@
                                 nome: nome,
                                 valor: valor,
                                 categoria: empresa,
-                                tipo: 'MRR',
+                                tipo: tipoValor.toUpperCase(),
                                 empresa: empresa,
                                 mes: mesInicio,
-                                status: 'A Receber'
+                                status: 'A Receber',
+                                vencimento: dataPagamentoMRR || null
                             }
                         })
                     });
                 } else {
-                    // TCV: adiciona parcelas em meses consecutivos
                     const mesesParcelas = gerarMesesConsecutivos(mesInicio, parcelas);
                     for (let i = 0; i < parcelas; i++) {
-                        await fetch('/.netlify/functions/sync-data', {
+                        await fetch(`${apiBase}/api/acao`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -4511,7 +4511,8 @@
                                     tipo: 'TCV',
                                     empresa: empresa,
                                     mes: mesesParcelas[i],
-                                    status: 'A Receber'
+                                    status: 'A Receber',
+                                    vencimento: dataPagamentoTCV || null
                                 }
                             })
                         });
@@ -4520,7 +4521,7 @@
                 console.log('✅ Cliente salvo no banco');
             } catch (error) {
                 console.error('Erro ao salvar no banco:', error);
-            } */
+            }
             console.log('✅ Cliente salvo no localStorage');
 
             // Fechar modal
