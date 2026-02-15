@@ -4,9 +4,9 @@
   "description": "STARK CFO Virtual - API Railway com autonomia total",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-  "postinstall": "prisma generate && prisma db push"
+    "start": "prisma db push && node server.js",
+    "dev": "prisma db push && node server.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
