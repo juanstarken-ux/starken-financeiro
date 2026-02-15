@@ -11,8 +11,8 @@ const GestaoFinanceira = {
     DELETED_ITEMS_KEY: 'starken_financeiro_deleted_items',
     EDITED_ITEMS_KEY: 'starken_financeiro_edited_items',
 
-    // URL da API Vercel
-    API_URL: '/api/sync-data',
+    // URL da API Vercel/Netlify (Produção)
+    API_URL: 'https://starkentecnologia-performance.netlify.app/.netlify/functions/sync-data',
 
     // URL do backend Railway (produção)
     RAILWAY_API_URL: 'https://starken-financeiro-production.up.railway.app',
@@ -33,7 +33,8 @@ const GestaoFinanceira = {
 
         // Carregar dados do servidor em background (não bloqueia)
         this.loadFromServer().then(() => {
-            // Disparar evento para atualizar UI após sync
+            console.log('🔄 Iniciando sincronização forçada com o servidor...');
+            this.syncToServer();
             window.dispatchEvent(new CustomEvent('gestao-sync-complete'));
         });
     },
