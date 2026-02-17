@@ -176,6 +176,11 @@ app.get('/restore', async (req, res) => {
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+function getMesAtual() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
 // Health check
 app.get('/', (req, res) => {
   res.json({
@@ -188,6 +193,405 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', database: 'connected' });
+});
+
+app.get('/api/sync-data', async (req, res) => {
+  try {
+    const [statusData, customItems, deletedItems, editedItems] = await Promise.all([
+      prisma.paymentStatus.findMany(),
+      prisma.customItem.findMany(),
+      prisma.deletedItem.findMany(),
+      prisma.editedItem.findMany()
+    ]);
+
+    const organizedStatus = {};
+    statusData.forEach(item => {
+      const key = `${item.mes}_${item.tipo}_${item.itemNome}`;
+      organizedStatus[key] = {
+        status: item.status,
+        dataPagamento: item.dataPagamento
+      };
+    });
+
+    const organizedCustom = {};
+    customItems.forEach(item => {
+      if (!organizedCustom[item.mes]) {
+        organizedCustom[item.mes] = { despesas: [], receitas: [] };
+      }
+      const tipo = item.tipo === 'despesa' ? 'despesas' : 'receitas';
+      organizedCustom[item.mes][tipo].push({
+        id: item.id,
+        nome: item.nome,
+        valor: item.valor,
+        categoria: item.categoria,
+        status: item.status,
+        vencimento: item.vencimento,
+        dataPagamento: item.dataPagamento,
+        funcao: item.funcao,
+        tipo: item.tipoDetalhe,
+        empresa: item.empresa,
+        isCustom: true
+      });
+    });
+
+    const organizedDeleted = {};
+    deletedItems.forEach(item => {
+      if (!organizedDeleted[item.mes]) {
+        organizedDeleted[item.mes] = { despesas: [], receitas: [] };
+      }
+      const tipo = item.tipo === 'despesa' ? 'despesas' : 'receitas';
+      if (!organizedDeleted[item.mes][tipo].includes(item.itemNome)) {
+        organizedDeleted[item.mes][tipo].push(item.itemNome);
+      }
+    });
+
+    const organizedEdited = {};
+    editedItems.forEach(item => {
+      if (!organizedEdited[item.mes]) {
+        organizedEdited[item.mes] = { despesas: {}, receitas: {} };
+      }
+      const tipo = item.tipo === 'despesa' ? 'despesas' : 'receitas';
+      organizedEdited[item.mes][tipo][item.itemNome] = {
+        nome: item.novoNome || item.itemNome,
+        valor: item.novoValor,
+        categoria: item.novaCategoria
+      };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        statusData: organizedStatus,
+        customItems: organizedCustom,
+        deletedItems: organizedDeleted,
+        editedItems: organizedEdited
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/sync-data/status', async (req, res) => {
+  try {
+    const { mes, tipo, itemNome, status, dataPagamento } = req.body || {};
+    if (!mes || !tipo || !itemNome || !status) {
+      return res.status(400).json({ success: false, error: 'Dados inválidos' });
+    }
+
+    const result = await prisma.paymentStatus.upsert({
+      where: { mes_tipo_itemNome: { mes, tipo, itemNome } },
+      update: { status, dataPagamento, updatedAt: new Date() },
+      create: { mes, tipo, itemNome, status, dataPagamento }
+    });
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/sync-data/sync', async (req, res) => {
+  try {
+    const { statusData, customItems, deletedItems, editedItems } = req.body || {};
+
+    await prisma.$transaction(async (tx) => {
+      if (statusData && Object.keys(statusData).length > 0) {
+        for (const [key, value] of Object.entries(statusData)) {
+          const [mes, tipo, ...nomeParts] = key.split('_');
+          const itemNome = nomeParts.join('_');
+          await tx.paymentStatus.upsert({
+            where: { mes_tipo_itemNome: { mes, tipo, itemNome } },
+            update: { status: value.status, dataPagamento: value.dataPagamento },
+            create: { mes, tipo, itemNome, status: value.status, dataPagamento: value.dataPagamento }
+          });
+        }
+      }
+
+      if (customItems && Object.keys(customItems).length > 0) {
+        for (const [mes, data] of Object.entries(customItems)) {
+          const despesas = data.despesas || [];
+          const receitas = data.receitas || [];
+
+          for (const item of despesas) {
+            if (!item || !item.nome) continue;
+            const existing = await tx.customItem.findFirst({
+              where: { mes, tipo: 'despesa', nome: item.nome }
+            });
+            const payload = {
+              mes,
+              tipo: 'despesa',
+              nome: item.nome,
+              valor: Number(item.valor || 0),
+              categoria: item.categoria || 'Outros',
+              status: item.status || 'A Pagar',
+              vencimento: item.vencimento || item.dataVencimento || null,
+              dataPagamento: item.dataPagamento || null,
+              funcao: item.funcao || null,
+              tipoDetalhe: item.tipo || null,
+              empresa: item.empresa || null
+            };
+            if (existing) {
+              await tx.customItem.update({ where: { id: existing.id }, data: payload });
+            } else {
+              await tx.customItem.create({ data: payload });
+            }
+          }
+
+          for (const item of receitas) {
+            if (!item || !item.nome) continue;
+            const existing = await tx.customItem.findFirst({
+              where: { mes, tipo: 'receita', nome: item.nome }
+            });
+            const payload = {
+              mes,
+              tipo: 'receita',
+              nome: item.nome,
+              valor: Number(item.valor || 0),
+              categoria: item.categoria || item.empresa || 'Outros',
+              status: item.status || 'A Receber',
+              vencimento: item.vencimento || item.dataVencimento || null,
+              dataPagamento: item.dataPagamento || null,
+              funcao: item.funcao || null,
+              tipoDetalhe: item.tipo || null,
+              empresa: item.empresa || null
+            };
+            if (existing) {
+              await tx.customItem.update({ where: { id: existing.id }, data: payload });
+            } else {
+              await tx.customItem.create({ data: payload });
+            }
+          }
+        }
+      }
+
+      if (deletedItems && Object.keys(deletedItems).length > 0) {
+        for (const [mes, data] of Object.entries(deletedItems)) {
+          const despesas = data.despesas || [];
+          const receitas = data.receitas || [];
+          for (const nome of despesas) {
+            if (!nome) continue;
+            await tx.deletedItem.upsert({
+              where: { mes_tipo_itemNome: { mes, tipo: 'despesa', itemNome: nome } },
+              update: {},
+              create: { mes, tipo: 'despesa', itemNome: nome }
+            });
+          }
+          for (const nome of receitas) {
+            if (!nome) continue;
+            await tx.deletedItem.upsert({
+              where: { mes_tipo_itemNome: { mes, tipo: 'receita', itemNome: nome } },
+              update: {},
+              create: { mes, tipo: 'receita', itemNome: nome }
+            });
+          }
+        }
+      }
+
+      if (editedItems && Object.keys(editedItems).length > 0) {
+        for (const [mes, data] of Object.entries(editedItems)) {
+          const despesas = data.despesas || {};
+          const receitas = data.receitas || {};
+
+          for (const [itemNome, values] of Object.entries(despesas)) {
+            await tx.editedItem.upsert({
+              where: { mes_tipo_itemNome: { mes, tipo: 'despesa', itemNome } },
+              update: {
+                novoNome: values.nome,
+                novoValor: values.valor,
+                novaCategoria: values.categoria
+              },
+              create: {
+                mes,
+                tipo: 'despesa',
+                itemNome,
+                novoNome: values.nome,
+                novoValor: values.valor,
+                novaCategoria: values.categoria
+              }
+            });
+          }
+
+          for (const [itemNome, values] of Object.entries(receitas)) {
+            await tx.editedItem.upsert({
+              where: { mes_tipo_itemNome: { mes, tipo: 'receita', itemNome } },
+              update: {
+                novoNome: values.nome,
+                novoValor: values.valor,
+                novaCategoria: values.categoria
+              },
+              create: {
+                mes,
+                tipo: 'receita',
+                itemNome,
+                novoNome: values.nome,
+                novoValor: values.valor,
+                novaCategoria: values.categoria
+              }
+            });
+          }
+        }
+      }
+    });
+
+    res.json({ success: true, message: 'Dados sincronizados com sucesso' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+async function executarAcaoSync(acao, dados) {
+  const mes = dados.mes || getMesAtual();
+
+  switch (acao) {
+    case 'adicionar-receita': {
+      const { nome, valor, categoria, status, vencimento, empresa, funcao, tipo, dataPagamento } = dados;
+      if (!nome || valor == null) {
+        throw new Error('Dados inválidos');
+      }
+      const item = await prisma.customItem.create({
+        data: {
+          mes,
+          tipo: 'receita',
+          nome,
+          valor: Number(valor),
+          categoria: categoria || empresa || 'Outros',
+          status: status || 'A Receber',
+          vencimento: vencimento || null,
+          dataPagamento: dataPagamento || null,
+          funcao: funcao || null,
+          tipoDetalhe: tipo || null,
+          empresa: empresa || null
+        }
+      });
+      return { success: true, item };
+    }
+    case 'adicionar-despesa': {
+      const { nome, valor, categoria, status, vencimento, empresa, funcao, tipo, dataPagamento } = dados;
+      if (!nome || valor == null) {
+        throw new Error('Dados inválidos');
+      }
+      const item = await prisma.customItem.create({
+        data: {
+          mes,
+          tipo: 'despesa',
+          nome,
+          valor: Number(valor),
+          categoria: categoria || 'Outros',
+          status: status || 'A Pagar',
+          vencimento: vencimento || null,
+          dataPagamento: dataPagamento || null,
+          funcao: funcao || null,
+          tipoDetalhe: tipo || null,
+          empresa: empresa || null
+        }
+      });
+      return { success: true, item };
+    }
+    case 'marcar-pago': {
+      const { nome } = dados;
+      if (!nome) {
+        throw new Error('Dados inválidos');
+      }
+      const dataPagamento = dados.data_pagamento || dados.dataPagamento || new Date().toISOString().split('T')[0];
+      const customItem = await prisma.customItem.findFirst({
+        where: { mes, tipo: 'despesa', nome: { contains: nome, mode: 'insensitive' } }
+      });
+      if (customItem) {
+        await prisma.customItem.update({
+          where: { id: customItem.id },
+          data: { status: 'Pago', dataPagamento }
+        });
+      } else {
+        await prisma.paymentStatus.upsert({
+          where: { mes_tipo_itemNome: { mes, tipo: 'despesa', itemNome: nome } },
+          update: { status: 'Pago', dataPagamento },
+          create: { mes, tipo: 'despesa', itemNome: nome, status: 'Pago', dataPagamento }
+        });
+      }
+      return { success: true, mensagem: `${nome} marcado como PAGO` };
+    }
+    case 'marcar-recebido': {
+      const { nome } = dados;
+      if (!nome) {
+        throw new Error('Dados inválidos');
+      }
+      const dataRecebimento = dados.data_recebimento || dados.dataPagamento || new Date().toISOString().split('T')[0];
+      const customItem = await prisma.customItem.findFirst({
+        where: { mes, tipo: 'receita', nome: { contains: nome, mode: 'insensitive' } }
+      });
+      if (customItem) {
+        await prisma.customItem.update({
+          where: { id: customItem.id },
+          data: { status: 'Recebido', dataPagamento: dataRecebimento }
+        });
+      } else {
+        await prisma.paymentStatus.upsert({
+          where: { mes_tipo_itemNome: { mes, tipo: 'receita', itemNome: nome } },
+          update: { status: 'Recebido', dataPagamento: dataRecebimento },
+          create: { mes, tipo: 'receita', itemNome: nome, status: 'Recebido', dataPagamento: dataRecebimento }
+        });
+      }
+      return { success: true, mensagem: `${nome} marcado como RECEBIDO` };
+    }
+    case 'editar-item': {
+      const { tipo, nomeAtual, novoNome, novoValor, novaCategoria } = dados;
+      if (!tipo || !nomeAtual) {
+        throw new Error('Dados inválidos');
+      }
+      await prisma.editedItem.upsert({
+        where: { mes_tipo_itemNome: { mes, tipo, itemNome: nomeAtual } },
+        update: {
+          novoNome: novoNome,
+          novoValor: novoValor,
+          novaCategoria: novaCategoria
+        },
+        create: {
+          mes,
+          tipo,
+          itemNome: nomeAtual,
+          novoNome: novoNome,
+          novoValor: novoValor,
+          novaCategoria: novaCategoria
+        }
+      });
+      return { success: true, mensagem: 'Item editado com sucesso' };
+    }
+    case 'remover-item': {
+      const { tipo, nome } = dados;
+      if (!tipo || !nome) {
+        throw new Error('Dados inválidos');
+      }
+      const customItem = await prisma.customItem.findFirst({
+        where: { mes, tipo, nome: { contains: nome, mode: 'insensitive' } }
+      });
+      if (customItem) {
+        await prisma.customItem.delete({ where: { id: customItem.id } });
+      } else {
+        await prisma.deletedItem.upsert({
+          where: { mes_tipo_itemNome: { mes, tipo, itemNome: nome } },
+          update: {},
+          create: { mes, tipo, itemNome: nome }
+        });
+      }
+      return { success: true, mensagem: `${nome} removido` };
+    }
+    default:
+      throw new Error(`Ação desconhecida: ${acao}`);
+  }
+}
+
+app.post('/api/sync-data', async (req, res) => {
+  try {
+    const { acao, dados } = req.body || {};
+    if (!acao) {
+      return res.status(400).json({ success: false, error: 'Ação inválida' });
+    }
+    const result = await executarAcaoSync(acao, dados || {});
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // ============================================
