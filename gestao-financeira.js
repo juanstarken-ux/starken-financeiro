@@ -388,6 +388,7 @@ const GestaoFinanceira = {
 
         // Sincronizar com servidor
         this.syncDeleteDespesaToServer(mes, nome);
+        this.syncToServer();
 
         this.dispatchEvent('despesaDeleted', { mes, nome });
         return true;
@@ -535,6 +536,7 @@ const GestaoFinanceira = {
 
         // Sincronizar com servidor
         this.syncDeleteReceitaToServer(mes, nome);
+        this.syncToServer();
 
         this.dispatchEvent('receitaDeleted', { mes, nome });
         return true;
