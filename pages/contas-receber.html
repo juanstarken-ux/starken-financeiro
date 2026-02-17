@@ -2659,6 +2659,9 @@
                     <button class="btn btn-primary" onclick="exportarBackup()" title="Salvar backup dos dados">
                         💾 Backup
                     </button>
+                    <button class="btn btn-secondary" onclick="exportarParaProducao()" title="Enviar dados locais para produção">
+                        🚀 Exportar Produção
+                    </button>
                     <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" title="Restaurar dados de backup">
             📂 Restaurar
         </button>
@@ -4632,6 +4635,19 @@
             } catch (error) {
                 console.error('Erro ao exportar:', error);
                 showToast('Erro ao salvar backup', 'error');
+            }
+        }
+
+        async function exportarParaProducao() {
+            try {
+                const sucesso = await GestaoFinanceira.exportToRailway();
+                if (sucesso) {
+                    showToast('Dados enviados para produção!', 'success');
+                } else {
+                    showToast('Falha ao enviar dados para produção', 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao enviar dados para produção', 'error');
             }
         }
 

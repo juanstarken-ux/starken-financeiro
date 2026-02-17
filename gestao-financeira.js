@@ -860,6 +860,29 @@ const GestaoFinanceira = {
         return true;
     },
 
+    async exportToRailway() {
+        try {
+            const response = await fetch(`${this.RAILWAY_API_URL}/api/sync-data/sync`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    statusData: this.statusData,
+                    customItems: this.customItems,
+                    deletedItems: this.deletedItems,
+                    editedItems: this.editedItems
+                })
+            });
+            if (!response.ok) {
+                throw new Error('Falha ao exportar');
+            }
+            const result = await response.json();
+            return !!result.success;
+        } catch (error) {
+            console.warn('⚠️ Erro ao exportar para produção:', error.message);
+            return false;
+        }
+    },
+
     // Importar dados de arquivo JSON
     importData(file) {
         return new Promise((resolve, reject) => {
