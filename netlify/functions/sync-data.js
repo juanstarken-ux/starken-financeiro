@@ -426,6 +426,7 @@ async function buscarTudo(mes) {
       valor: c.valor,
       categoria: c.categoria,
       funcao: c.funcao,
+      empresa: c.empresa,
       status: c.status,
       vencimento: c.vencimento,
       dataPagamento: c.dataPagamento,
@@ -573,7 +574,8 @@ async function adicionarDespesa(dados) {
       categoria,
       status: 'A Pagar',
       vencimento: vencimento || null,
-      funcao: dados.funcao || null
+      funcao: dados.funcao || null,
+      empresa: dados.empresa || null
     }
   });
 

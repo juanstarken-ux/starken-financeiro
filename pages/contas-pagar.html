@@ -53,6 +53,7 @@
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             z-index: 100;
+            transition: transform 0.2s ease;
         }
 
         .sidebar-header {
@@ -112,6 +113,40 @@
             flex: 1;
             margin-left: 260px;
             padding: 30px;
+            transition: margin-left 0.2s ease;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 90px;
+            left: 260px;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .sidebar-collapsed .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-collapsed .main-content {
+            margin-left: 0;
+        }
+
+        .sidebar-collapsed .sidebar-toggle {
+            left: 18px;
+            transform: none;
         }
 
         .page-header {
@@ -189,6 +224,94 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        .import-status {
+            display: flex;
+            align-items: stretch;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .import-status-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--bg-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 14px;
+            min-width: 220px;
+        }
+
+        .import-status-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .import-status-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 160px;
+        }
+
+        .import-status-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .import-status-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .diagnostic-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .diagnostic-table th,
+        .diagnostic-table td {
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 6px;
+            text-align: left;
+        }
+
+        .diagnostic-table th {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-light);
+        }
+
+        .diagnostic-section {
+            margin-top: 16px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-gray);
+        }
+
+        .diagnostic-section-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-dark);
+        }
+
+        .diagnostic-list {
+            font-size: 12px;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .btn {
@@ -382,6 +505,18 @@
             background: var(--primary-green);
             color: white;
             border-color: var(--primary-green);
+        }
+
+        .filter-badge {
+            background: var(--primary-green);
+            color: white;
+            border-radius: 999px;
+            font-size: 11px;
+            padding: 2px 6px;
+            margin-left: 6px;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1;
         }
 
         /* Campo de Pesquisa */
@@ -909,8 +1044,75 @@
         }
 
         .reconciliation-list {
-            max-height: 400px;
+            max-height: 640px;
             overflow-y: auto;
+        }
+
+        .group-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin: 15px 0 8px 0;
+        }
+
+        .group-card {
+            background: var(--bg-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .group-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .group-card.active {
+            border-color: var(--primary-green);
+            background: rgba(74, 107, 84, 0.08);
+            box-shadow: 0 2px 10px rgba(74, 107, 84, 0.15);
+        }
+
+        .group-card-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-dark);
+        }
+
+        .group-card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        .group-card-value {
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-top: 6px;
+            font-size: 14px;
+        }
+
+        .group-filter-info {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .import-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .import-summary strong {
+            color: var(--text-dark);
         }
 
         .reconcile-item {
@@ -920,7 +1122,7 @@
             padding: 15px;
             margin-bottom: 10px;
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
+            grid-template-columns: 1.2fr 0.6fr 1.4fr 0.6fr;
             gap: 15px;
             align-items: center;
         }
@@ -946,6 +1148,65 @@
             padding: 8px;
             background: var(--bg-gray);
             border-radius: 6px;
+        }
+
+        .import-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .import-selects {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .import-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .import-action-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .date-badge-imported {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+
+        .import-check {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .import-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .reconcile-item {
+                grid-template-columns: 1fr;
+                align-items: flex-start;
+            }
+
+            .import-selects {
+                grid-template-columns: 1fr;
+            }
+
+            .import-actions {
+                align-items: flex-start;
+            }
         }
 
         /* Action Buttons */in Table */
@@ -1017,6 +1278,11 @@
             animation: modalIn 0.3s ease;
             max-height: 90vh;
             overflow-y: auto;
+        }
+
+        .import-modal {
+            max-width: 1200px;
+            max-height: 97vh;
         }
 
         @keyframes modalIn {
@@ -2148,10 +2414,80 @@
             background: #4A6B54;
             color: white;
         }
+
+        .date-picker {
+            position: absolute;
+            background: #fff;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            width: 280px;
+            z-index: 4000;
+            display: none;
+            user-select: none;
+        }
+
+        .date-picker-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .date-picker-nav {
+            cursor: pointer;
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            padding: 2px 6px;
+            color: #4A6B54;
+        }
+
+        .date-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            padding: 8px 10px 12px;
+        }
+
+        .date-picker-day-name {
+            text-align: center;
+            font-size: 11px;
+            color: #7f8c8d;
+            padding: 4px 0;
+        }
+
+        .date-picker-day {
+            text-align: center;
+            font-size: 12px;
+            padding: 6px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .date-picker-day:hover {
+            background: #f0f4f1;
+        }
+
+        .date-picker-day.is-other {
+            color: #b8bfc6;
+        }
+
+        .date-picker-day.is-today {
+            border: 1px solid #4A6B54;
+        }
+
+        .date-picker-day.is-selected {
+            background: #4A6B54;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
+        <button class="sidebar-toggle" id="sidebarToggle" type="button">⟨</button>
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -2268,7 +2604,34 @@
                     <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" title="Restaurar dados de backup">
                         📂 Restaurar
                     </button>
+                    <button class="btn btn-secondary" onclick="openImportDiagnostics()" title="Diagnóstico das importações">
+                        🔍 Diagnóstico
+                    </button>
                     <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarBackup(this)">
+                </div>
+                <div class="import-status">
+                    <div class="import-status-card">
+                        <span class="import-status-title">Extratos do Asaas</span>
+                        <div class="import-status-item">
+                            <span class="import-status-label">Última importação</span>
+                            <span class="import-status-value" id="lastImportAsaas">-</span>
+                        </div>
+                        <div class="import-status-item">
+                            <span class="import-status-label">Última conciliação</span>
+                            <span class="import-status-value" id="lastReconcileAsaas">-</span>
+                        </div>
+                    </div>
+                    <div class="import-status-card">
+                        <span class="import-status-title">Extratos do Conta Simples</span>
+                        <div class="import-status-item">
+                            <span class="import-status-label">Última importação</span>
+                            <span class="import-status-value" id="lastImportContaSimples">-</span>
+                        </div>
+                        <div class="import-status-item">
+                            <span class="import-status-label">Última conciliação</span>
+                            <span class="import-status-value" id="lastReconcileContaSimples">-</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -2344,6 +2707,7 @@
                         <button class="filter-btn active" data-filter="todos" onclick="filtrarDespesas('todos')">Todos</button>
                         <button class="filter-btn" data-filter="pendente" onclick="filtrarDespesas('pendente')">Pendentes</button>
                         <button class="filter-btn" data-filter="pago" onclick="filtrarDespesas('pago')">Pagos</button>
+                        <button class="filter-btn" onclick="openAdvancedFilters()">Filtros avançados <span class="filter-badge" id="advancedFilterBadge" style="display: none;">0</span></button>
                         <span class="table-count" id="tableCount">0 registros</span>
                     </div>
                 </div>
@@ -2509,12 +2873,12 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Tipo/Detalhe</label>
-                            <input type="text" class="form-input" id="despesaTipo" placeholder="Ex: Salário, Serviço, etc.">
+                            <label class="form-label">Grupo</label>
+                            <input type="text" class="form-input" id="despesaTipo" placeholder="Ex: Mensageria/Cobrança, Taxas Bancárias">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Data de Vencimento</label>
-                            <input type="date" class="form-input" id="despesaVencimento">
+                            <input type="text" class="form-input js-date-input" id="despesaVencimento" placeholder="dd/mm/aaaa">
                         </div>
                     </div>
 
@@ -2528,7 +2892,7 @@
                         </div>
                         <div class="form-group" id="dataPagamentoGroup" style="display: none;">
                             <label class="form-label">Data do Pagamento</label>
-                            <input type="date" class="form-input" id="despesaDataPagamento">
+                            <input type="text" class="form-input js-date-input" id="despesaDataPagamento" placeholder="dd/mm/aaaa">
                         </div>
                     </div>
 
@@ -2543,7 +2907,7 @@
 
     <!-- Modal: Importar Extrato -->
     <div class="modal-overlay" id="importModal">
-        <div class="modal" style="max-width: 800px;">
+        <div class="modal import-modal">
             <div class="modal-header">
                 <h3 class="modal-title">Importar Extrato Bancário</h3>
                 <button class="modal-close" onclick="closeModal('importModal')">&times;</button>
@@ -2573,6 +2937,13 @@
                             <span class="date-badge date-badge-empty" id="newCount">0 Novos</span>
                         </div>
                     </div>
+                    <div class="import-summary">
+                        <div>Mês ativo: <strong id="importMonthLabel">-</strong></div>
+                        <div>Período OFX: <strong id="importOfxRange">-</strong></div>
+                    </div>
+                    <div class="import-hint">Edite descrição, grupo, categoria e status antes de confirmar. Clique em um grupo para filtrar.</div>
+                    <div class="group-summary" id="groupSummary"></div>
+                    <div class="group-filter-info" id="groupFilterInfo"></div>
                     
                     <div class="reconciliation-list" id="reconciliationList">
                         <!-- Lista de transações gerada via JS -->
@@ -2581,9 +2952,49 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('importModal')">Cancelar</button>
+                <button class="btn btn-secondary" id="btnRestoreImport" onclick="restoreLastImports(1)" style="display: none;">
+                    Restaurar último import
+                </button>
                 <button class="btn btn-primary" id="btnProcessImport" onclick="processReconciliation()" style="display: none;">
                     Confirmar Importação
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="diagnosticModal">
+        <div class="modal" style="max-width: 820px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Diagnóstico de Importações</h3>
+                <button class="modal-close" onclick="closeModal('diagnosticModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="diagnosticContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="refreshImportDiagnostics()">Atualizar</button>
+                <button class="btn btn-warning" onclick="clearBaseItemsForTargetMonths()">Limpar base Nov-Dez-Jan</button>
+                <button class="btn btn-danger" onclick="resetImportsForTargetMonths()">Resetar Nov-Dez-Jan</button>
+                <button class="btn btn-primary" onclick="closeModal('diagnosticModal')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customValueModal">
+        <div class="modal" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="customValueTitle">Criar</h3>
+                <button class="modal-close" onclick="closeCustomValueModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" id="customValueLabel">Nome</label>
+                    <input type="text" class="form-input" id="customValueInput" placeholder="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCustomValueModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmCustomValue()">Salvar</button>
             </div>
         </div>
     </div>
@@ -2647,7 +3058,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Data do Pagamento</label>
-                    <input type="date" class="form-input" id="paymentDate">
+                    <input type="text" class="form-input js-date-input" id="paymentDate" placeholder="dd/mm/aaaa">
                 </div>
 
                 <div id="partialNote" style="display: none; background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 8px; font-size: 13px; color: #856404;">
@@ -2657,6 +3068,51 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('paymentModal')">Cancelar</button>
                 <button class="btn btn-success" onclick="confirmPayment()">Confirmar Pagamento</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="advancedFilterModal">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Filtros Avançados</h3>
+                <button class="modal-close" onclick="closeModal('advancedFilterModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Vencimento (de)</label>
+                        <input type="text" class="form-input js-date-input" id="filterVencimentoMin" placeholder="dd/mm/aaaa">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vencimento (até)</label>
+                        <input type="text" class="form-input js-date-input" id="filterVencimentoMax" placeholder="dd/mm/aaaa">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Pagamento (de)</label>
+                        <input type="text" class="form-input js-date-input" id="filterPagamentoMin" placeholder="dd/mm/aaaa">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Pagamento (até)</label>
+                        <input type="text" class="form-input js-date-input" id="filterPagamentoMax" placeholder="dd/mm/aaaa">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Valor mínimo</label>
+                        <input type="text" class="form-input" id="filterValorMin" placeholder="R$ 0,00" oninput="maskMoney(this)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Valor máximo</label>
+                        <input type="text" class="form-input" id="filterValorMax" placeholder="R$ 0,00" oninput="maskMoney(this)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="clearAdvancedFilters()">Limpar</button>
+                <button class="btn btn-primary" onclick="applyAdvancedFilters()">Aplicar</button>
             </div>
         </div>
     </div>
@@ -2722,6 +3178,9 @@
 
         // Mapear categorias
         function getCategoryName(categoria) {
+            if (typeof categoriaLabels !== 'undefined' && categoriaLabels[categoria]) {
+                return categoriaLabels[categoria];
+            }
             const map = {
                 'pessoal': 'Pessoal',
                 'locacao_aluguel': 'Estrutura',
@@ -2738,6 +3197,13 @@
                 'servicos': 'Serviços'
             };
             return map[categoria] || categoria.charAt(0).toUpperCase() + categoria.slice(1);
+        }
+
+        function getGroupLabel(grupo) {
+            if (typeof grupoLabels !== 'undefined' && grupoLabels[grupo]) {
+                return grupoLabels[grupo];
+            }
+            return grupo;
         }
 
         // Obter classe da categoria
@@ -2761,9 +3227,325 @@
             return date.toLocaleDateString('pt-BR');
         }
 
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) return '-';
+            return date.toLocaleString('pt-BR');
+        }
+
+        function formatDateInput(dateStr) {
+            if (!dateStr) return '';
+            if (String(dateStr).includes('/')) return dateStr;
+            return formatDate(dateStr);
+        }
+
+        function parseDateInputToISO(value) {
+            const raw = String(value || '').trim();
+            if (!raw) return '';
+            if (raw.includes('/')) {
+                const [d, m, y] = raw.split('/');
+                if (!d || !m || !y) return '';
+                return `${y.padStart(4, '0')}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+            }
+            if (raw.includes('-')) return raw;
+            return '';
+        }
+
+        function parseInputToDate(value) {
+            const iso = parseDateInputToISO(value);
+            if (!iso) return null;
+            const date = new Date(iso + 'T00:00:00');
+            if (Number.isNaN(date.getTime())) return null;
+            return date;
+        }
+
+        function formatDateFromDate(date) {
+            const d = String(date.getDate()).padStart(2, '0');
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = date.getFullYear();
+            return `${d}/${m}/${y}`;
+        }
+
+        let datePickerEl = null;
+        const datePickerState = { year: 0, month: 0, selected: null, input: null };
+
+        function ensureDatePicker() {
+            if (datePickerEl) return;
+            datePickerEl = document.createElement('div');
+            datePickerEl.className = 'date-picker';
+            document.body.appendChild(datePickerEl);
+        }
+
+        function positionDatePicker(input) {
+            const rect = input.getBoundingClientRect();
+            const top = rect.bottom + window.scrollY + 6;
+            const left = rect.left + window.scrollX;
+            datePickerEl.style.top = `${top}px`;
+            datePickerEl.style.left = `${left}px`;
+        }
+
+        function isSameDate(a, b) {
+            return a && b && a.getFullYear() === b.getFullYear()
+                && a.getMonth() === b.getMonth()
+                && a.getDate() === b.getDate();
+        }
+
+        function renderDatePicker() {
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const dayNames = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+            const { year, month, selected } = datePickerState;
+            const firstOfMonth = new Date(year, month, 1);
+            const startDay = firstOfMonth.getDay();
+            const startDate = new Date(year, month, 1 - startDay);
+            const today = new Date();
+
+            let daysHtml = '';
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const isOther = date.getMonth() !== month;
+                const isToday = isSameDate(date, today);
+                const isSelected = selected && isSameDate(date, selected);
+                const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                const classes = [
+                    'date-picker-day',
+                    isOther ? 'is-other' : '',
+                    isToday ? 'is-today' : '',
+                    isSelected ? 'is-selected' : ''
+                ].filter(Boolean).join(' ');
+                daysHtml += `<div class="${classes}" data-date="${iso}">${date.getDate()}</div>`;
+            }
+
+            datePickerEl.innerHTML = `
+                <div class="date-picker-header">
+                    <span class="date-picker-nav" data-dir="-1">‹</span>
+                    <span>${monthNames[month]} ${year}</span>
+                    <span class="date-picker-nav" data-dir="1">›</span>
+                </div>
+                <div class="date-picker-grid">
+                    ${dayNames.map(name => `<div class="date-picker-day-name">${name}</div>`).join('')}
+                    ${daysHtml}
+                </div>
+            `;
+
+            datePickerEl.querySelectorAll('.date-picker-nav').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const dir = parseInt(btn.dataset.dir, 10);
+                    const next = new Date(datePickerState.year, datePickerState.month + dir, 1);
+                    datePickerState.year = next.getFullYear();
+                    datePickerState.month = next.getMonth();
+                    renderDatePicker();
+                });
+            });
+
+            datePickerEl.querySelectorAll('.date-picker-day').forEach(dayEl => {
+                dayEl.addEventListener('click', () => {
+                    const iso = dayEl.dataset.date;
+                    if (datePickerState.input) {
+                        datePickerState.input.value = formatDateInput(iso);
+                        datePickerState.input.dispatchEvent(new Event('change'));
+                    }
+                    datePickerState.selected = parseInputToDate(iso);
+                    closeDatePicker();
+                });
+            });
+        }
+
+        function openDatePicker(input) {
+            ensureDatePicker();
+            const current = parseInputToDate(input.value) || new Date();
+            datePickerState.year = current.getFullYear();
+            datePickerState.month = current.getMonth();
+            datePickerState.selected = current;
+            datePickerState.input = input;
+            renderDatePicker();
+            positionDatePicker(input);
+            datePickerEl.style.display = 'block';
+        }
+
+        function closeDatePicker() {
+            if (datePickerEl) {
+                datePickerEl.style.display = 'none';
+            }
+            datePickerState.input = null;
+        }
+
+        function initDateInputs() {
+            document.querySelectorAll('.js-date-input').forEach(input => {
+                input.addEventListener('focus', () => openDatePicker(input));
+                input.addEventListener('click', () => openDatePicker(input));
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeDatePicker();
+                });
+                input.addEventListener('blur', () => {
+                    if (!input.value) return;
+                    const date = parseInputToDate(input.value);
+                    if (date) {
+                        input.value = formatDateFromDate(date);
+                    }
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!datePickerEl || datePickerEl.style.display !== 'block') return;
+                if (datePickerEl.contains(e.target)) return;
+                if (e.target.classList && e.target.classList.contains('js-date-input')) return;
+                closeDatePicker();
+            });
+        }
+
+        function buildDateForMonth(mesBase, dia) {
+            const [ano, mes] = mesBase.split('-').map(Number);
+            const diaNum = parseInt(dia, 10);
+            if (!ano || !mes || !diaNum) return '';
+            const ultimoDia = new Date(ano, mes, 0).getDate();
+            const diaFinal = Math.min(diaNum, ultimoDia);
+            return `${ano}-${String(mes).padStart(2, '0')}-${String(diaFinal).padStart(2, '0')}`;
+        }
+
+        function getExistingDespesaNames(mesChave) {
+            const nomes = new Set();
+            if (typeof dadosMensais !== 'undefined' && dadosMensais[mesChave]?.despesas?.categorias) {
+                Object.values(dadosMensais[mesChave].despesas.categorias).forEach(cat => {
+                    if (cat && Array.isArray(cat.itens)) {
+                        cat.itens.forEach(item => {
+                            if (item && item.nome) nomes.add(item.nome);
+                        });
+                    }
+                });
+            }
+            if (GestaoFinanceira.customItems && GestaoFinanceira.customItems[mesChave]?.despesas) {
+                GestaoFinanceira.customItems[mesChave].despesas.forEach(item => {
+                    if (item && item.nome) nomes.add(item.nome);
+                });
+            }
+            return nomes;
+        }
+
+        function gerarLancamentosRoyaltiesAlpha(mesChave) {
+            const todosClientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
+            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]');
+            const deletedDespesas = new Set(GestaoFinanceira.getDeletedItems(mesChave).despesas || []);
+            const royaltiesDeleted = new Set(loadRoyaltiesDeleted());
+            const nomesExistentes = getExistingDespesaNames(mesChave);
+
+            const clientesAtivos = todosClientes.filter(c => {
+                if (deletedIds.includes(c.id)) return false;
+                if (c.isProjecao && !c.mesInicio) return false;
+                if (c.mesesPersonalizados && c.mesesPersonalizados.length > 0) {
+                    return c.mesesPersonalizados.includes(mesChave);
+                }
+                if (c.statusRenovacao && c.mesRenovacao === mesChave) {
+                    return true;
+                }
+                if (c.tipoValor === 'mrr') {
+                    if (!c.mesInicio) return false;
+                    const [anoInicio, mesInicio] = c.mesInicio.split('-').map(Number);
+                    const dataInicio = new Date(anoInicio, mesInicio - 1, 1);
+                    const [anoMes, mesMes] = mesChave.split('-').map(Number);
+                    const dataMes = new Date(anoMes, mesMes - 1, 1);
+                    if (c.isProjecao) {
+                        const duracao = c.projecaoDuracao ? (parseInt(c.projecaoDuracao) || 12) : 12;
+                        const dataFim = new Date(dataInicio);
+                        dataFim.setMonth(dataFim.getMonth() + duracao);
+                        return dataMes >= dataInicio && dataMes < dataFim;
+                    }
+                    const dataFim = new Date(dataInicio);
+                    dataFim.setMonth(dataFim.getMonth() + 60);
+                    return dataMes >= dataInicio && dataMes < dataFim;
+                }
+                return false;
+            });
+
+            clientesAtivos.forEach(c => {
+                if (c.empresa !== 'alpha' || c.tipoValor !== 'mrr') return;
+                if (!c.naoRepassarRoyalties) return;
+
+                const ajusteMensal = c.ajustesMensais && c.ajustesMensais[mesChave];
+                let valorBruto = ajusteMensal ? ajusteMensal.valor : c.valor;
+
+                const datasParcelasMRR = Array.isArray(c.datasParcelasMRR) ? c.datasParcelasMRR.filter(Boolean) : [];
+                const dataBaseMRR = c.dataPagamentoMRR || (datasParcelasMRR[0] || '');
+                if (dataBaseMRR) {
+                    const mesPrimeiroVencimento = dataBaseMRR.substring(0, 7);
+                    if (mesChave < mesPrimeiroVencimento) {
+                        valorBruto = 0;
+                    }
+                }
+
+                if (!valorBruto || valorBruto <= 0) return;
+
+                const parcelasMRR = parseInt(c.parcelasMRR) || 1;
+                let datasParcelaFinal = [];
+
+                if (parcelasMRR > 1 && datasParcelasMRR.length > 0) {
+                    const datasNoMes = datasParcelasMRR.filter(data => data && data.substring(0, 7) === mesChave);
+                    datasParcelaFinal = datasNoMes;
+                    if (datasParcelaFinal.length === 0) {
+                        const diasBase = datasParcelasMRR
+                            .map(data => (data.includes('-') ? data.split('-')[2] : ''))
+                            .filter(Boolean)
+                            .slice(0, parcelasMRR);
+                        datasParcelaFinal = diasBase.map(dia => buildDateForMonth(mesChave, dia)).filter(Boolean);
+                    }
+                }
+
+                if (parcelasMRR > 1 && datasParcelaFinal.length > 0) {
+                    const valorParcela = valorBruto / parcelasMRR;
+                    const valorRoyaltyParcela = valorParcela * 0.15;
+                    datasParcelaFinal.forEach((data, index) => {
+                        const nome = `Alpha Royalties - ${c.nome} (${index + 1}/${parcelasMRR})`;
+                        const blocked = isRoyaltiesName(nome) ? royaltiesDeleted.has(nome) : deletedDespesas.has(nome);
+                        if (nomesExistentes.has(nome) || blocked) return;
+                        GestaoFinanceira.addDespesa(mesChave, {
+                            nome: nome,
+                            valor: valorRoyaltyParcela,
+                            categoria: 'alpha_franquia',
+                            tipo: 'Royalties',
+                            vencimento: data,
+                            status: 'A Pagar',
+                            empresa: 'Alpha',
+                            importSource: 'royalties-alpha-smart',
+                            importRunId: `royalties-${mesChave}`,
+                            importedAt: new Date().toISOString()
+                        });
+                        nomesExistentes.add(nome);
+                    });
+                    return;
+                }
+
+                let vencimento = '';
+                if (dataBaseMRR) {
+                    const diaBase = dataBaseMRR.split('-')[2];
+                    vencimento = buildDateForMonth(mesChave, diaBase);
+                }
+
+                const nome = `Alpha Royalties - ${c.nome}`;
+                const blocked = isRoyaltiesName(nome) ? royaltiesDeleted.has(nome) : deletedDespesas.has(nome);
+                if (nomesExistentes.has(nome) || blocked) return;
+                const valorRoyalty = valorBruto * 0.15;
+                GestaoFinanceira.addDespesa(mesChave, {
+                    nome: nome,
+                    valor: valorRoyalty,
+                    categoria: 'alpha_franquia',
+                    tipo: 'Royalties',
+                    vencimento: vencimento,
+                    status: 'A Pagar',
+                    empresa: 'Alpha',
+                    importSource: 'royalties-alpha-smart',
+                    importRunId: `royalties-${mesChave}`,
+                    importedAt: new Date().toISOString()
+                });
+                nomesExistentes.add(nome);
+            });
+        }
+
         // Carregar dados do mês
         function loadMonthData(mes) {
             currentMonth = mes;
+            restoreCustomItemsFromDeleted(mes);
+            gerarLancamentosRoyaltiesAlpha(mes);
             const dados = GestaoFinanceira.getDadosMesComStatus(mes);
 
             if (!dados) {
@@ -2775,6 +3557,7 @@
             // Atualizar subtítulo
             document.getElementById('pageSubtitle').textContent =
                 `Gestão completa de despesas e pagamentos - ${dados.periodo}`;
+            updateImportInfo(mes);
 
             // Processar despesas
             const itensParaTabela = [];
@@ -2800,6 +3583,164 @@
             applyFiltersAndRender();
         }
 
+        function restoreCustomItemsFromDeleted(mes) {
+            const customData = GestaoFinanceira.customItems[mes];
+            const deleted = GestaoFinanceira.deletedItems[mes];
+            if (!deleted || !deleted.despesas || deleted.despesas.length === 0) {
+                return;
+            }
+            const customNames = new Set((customData?.despesas || []).map(item => item.nome));
+            const royaltiesDeleted = new Set(loadRoyaltiesDeleted());
+            const filtered = deleted.despesas.filter(nome => {
+                if (customNames.has(nome)) return false;
+                if (isRoyaltiesName(nome)) return royaltiesDeleted.has(nome);
+                if (isAlphaFeeName(nome)) return false;
+                return true;
+            });
+            if (filtered.length !== deleted.despesas.length) {
+                GestaoFinanceira.deletedItems[mes].despesas = filtered;
+                GestaoFinanceira.saveToStorage();
+            }
+        }
+
+        function updateImportInfo(mes) {
+            const importAsaasEl = document.getElementById('lastImportAsaas');
+            const reconcileAsaasEl = document.getElementById('lastReconcileAsaas');
+            const importContaEl = document.getElementById('lastImportContaSimples');
+            const reconcileContaEl = document.getElementById('lastReconcileContaSimples');
+            if (!importAsaasEl || !reconcileAsaasEl || !importContaEl || !reconcileContaEl) return;
+            ensureImportMetaSynced();
+            const latest = getLatestImportTimesForMonth(mes);
+            const asaas = latest.asaas;
+            const conta = latest.conta_simples;
+
+            importAsaasEl.textContent = formatDateTime(asaas.lastImportAt);
+            reconcileAsaasEl.textContent = formatDateTime(asaas.lastReconcileAt);
+            importContaEl.textContent = formatDateTime(conta.lastImportAt);
+            reconcileContaEl.textContent = formatDateTime(conta.lastReconcileAt);
+        }
+
+        let advancedFilters = {
+            vencimentoMin: '',
+            vencimentoMax: '',
+            pagamentoMin: '',
+            pagamentoMax: '',
+            valorMin: null,
+            valorMax: null
+        };
+
+        function getAdvancedFilterCount() {
+            const keys = ['vencimentoMin', 'vencimentoMax', 'pagamentoMin', 'pagamentoMax', 'valorMin', 'valorMax'];
+            return keys.reduce((acc, key) => {
+                const val = advancedFilters[key];
+                if (val === null || val === undefined || val === '') return acc;
+                return acc + 1;
+            }, 0);
+        }
+
+        function updateAdvancedFilterBadge() {
+            const badge = document.getElementById('advancedFilterBadge');
+            const count = getAdvancedFilterCount();
+            if (badge) {
+                badge.textContent = String(count);
+                badge.style.display = count > 0 ? 'inline-flex' : 'none';
+            }
+            const summary = document.getElementById('filtersSummary');
+            if (summary) {
+                const base = summary.dataset.base || summary.innerHTML;
+                summary.dataset.base = base;
+                summary.innerHTML = base;
+                if (count > 0) {
+                    summary.innerHTML += ` • <strong>${count} filtros avançados</strong>`;
+                }
+            }
+        }
+
+        function filterItemsByAdvanced(itens) {
+            let filtered = itens;
+            const vencimentoMin = advancedFilters.vencimentoMin ? new Date(advancedFilters.vencimentoMin + 'T00:00:00') : null;
+            const vencimentoMax = advancedFilters.vencimentoMax ? new Date(advancedFilters.vencimentoMax + 'T00:00:00') : null;
+            const pagamentoMin = advancedFilters.pagamentoMin ? new Date(advancedFilters.pagamentoMin + 'T00:00:00') : null;
+            const pagamentoMax = advancedFilters.pagamentoMax ? new Date(advancedFilters.pagamentoMax + 'T00:00:00') : null;
+            const valorMin = advancedFilters.valorMin;
+            const valorMax = advancedFilters.valorMax;
+
+            if (vencimentoMin) {
+                filtered = filtered.filter(item => item.vencimento && new Date(item.vencimento + 'T00:00:00') >= vencimentoMin);
+            }
+            if (vencimentoMax) {
+                filtered = filtered.filter(item => item.vencimento && new Date(item.vencimento + 'T00:00:00') <= vencimentoMax);
+            }
+            if (pagamentoMin) {
+                filtered = filtered.filter(item => item.dataPagamento && new Date(item.dataPagamento + 'T00:00:00') >= pagamentoMin);
+            }
+            if (pagamentoMax) {
+                filtered = filtered.filter(item => item.dataPagamento && new Date(item.dataPagamento + 'T00:00:00') <= pagamentoMax);
+            }
+            if (valorMin !== null && valorMin !== undefined) {
+                filtered = filtered.filter(item => item.valor >= valorMin);
+            }
+            if (valorMax !== null && valorMax !== undefined) {
+                filtered = filtered.filter(item => item.valor <= valorMax);
+            }
+            return filtered;
+        }
+
+        function openAdvancedFilters() {
+            const setValue = (id, value) => {
+                const input = document.getElementById(id);
+                if (input) input.value = value;
+            };
+            setValue('filterVencimentoMin', formatDateInput(advancedFilters.vencimentoMin));
+            setValue('filterVencimentoMax', formatDateInput(advancedFilters.vencimentoMax));
+            setValue('filterPagamentoMin', formatDateInput(advancedFilters.pagamentoMin));
+            setValue('filterPagamentoMax', formatDateInput(advancedFilters.pagamentoMax));
+            setValue('filterValorMin', advancedFilters.valorMin !== null && advancedFilters.valorMin !== undefined ? formatMoney(advancedFilters.valorMin) : '');
+            setValue('filterValorMax', advancedFilters.valorMax !== null && advancedFilters.valorMax !== undefined ? formatMoney(advancedFilters.valorMax) : '');
+            openModal('advancedFilterModal');
+        }
+
+        function applyAdvancedFilters() {
+            const vencimentoMin = parseDateInputToISO(document.getElementById('filterVencimentoMin').value);
+            const vencimentoMax = parseDateInputToISO(document.getElementById('filterVencimentoMax').value);
+            const pagamentoMin = parseDateInputToISO(document.getElementById('filterPagamentoMin').value);
+            const pagamentoMax = parseDateInputToISO(document.getElementById('filterPagamentoMax').value);
+            const valorMinRaw = document.getElementById('filterValorMin').value.trim();
+            const valorMaxRaw = document.getElementById('filterValorMax').value.trim();
+            const valorMin = valorMinRaw ? parseMoney(valorMinRaw) : null;
+            const valorMax = valorMaxRaw ? parseMoney(valorMaxRaw) : null;
+
+            advancedFilters = {
+                vencimentoMin,
+                vencimentoMax,
+                pagamentoMin,
+                pagamentoMax,
+                valorMin,
+                valorMax
+            };
+            updateAdvancedFilterBadge();
+            closeModal('advancedFilterModal');
+            applyFiltersAndRender();
+        }
+
+        function clearAdvancedFilters() {
+            advancedFilters = {
+                vencimentoMin: '',
+                vencimentoMax: '',
+                pagamentoMin: '',
+                pagamentoMax: '',
+                valorMin: null,
+                valorMax: null
+            };
+            ['filterVencimentoMin', 'filterVencimentoMax', 'filterPagamentoMin', 'filterPagamentoMax', 'filterValorMin', 'filterValorMax'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+            });
+            updateAdvancedFilterBadge();
+            closeModal('advancedFilterModal');
+            applyFiltersAndRender();
+        }
+
         // Aplicar filtros e renderizar
         function applyFiltersAndRender() {
             // Filtrar por categoria
@@ -2820,6 +3761,8 @@
                 const categoriasValidas = categoryMap[currentCategory] || [currentCategory];
                 itensFiltrados = allItems.filter(item => categoriasValidas.includes(item.categoria));
             }
+
+            itensFiltrados = filterItemsByAdvanced(itensFiltrados);
 
             // Calcular totais baseado nos itens filtrados
             let totalDespesas = 0;
@@ -2879,6 +3822,7 @@
             if (typeof currentView !== 'undefined' && currentView === 'kanban') {
                 renderKanban();
             }
+            updateAdvancedFilterBadge();
         }
 
         // Mudar categoria
@@ -3021,7 +3965,8 @@
                                     ${item.isCustom ? '<span class="custom-badge">Manual</span>' : ''}
                                     ${parcialBadge}
                                 </div>
-                                ${item.tipo ? `<div class="item-info">${item.tipo}</div>` : ''}
+                                ${item.tipo ? `<div class="item-info">${getGroupLabel(item.tipo)}</div>` : ''}
+                                ${item.empresa ? `<div class="item-info">Banco: ${item.empresa}</div>` : ''}
                                 ${item.funcao ? `<div class="item-info">${item.funcao}</div>` : ''}
                                 ${observacaoInfo}
                             </div>
@@ -3072,7 +4017,7 @@
 
                 const deleteBtn = tr.querySelector('.js-delete-btn');
                 deleteBtn.addEventListener('click', () => {
-                    openDeleteModal(item.nome, item.valor, item.isCustom || false);
+                    openDeleteModal(item);
                 });
 
                 // Category quick change
@@ -3664,6 +4609,7 @@
                     'alpha': 'Alpha'
                 };
                 summary.innerHTML = `Mostrando <strong>${labels[filtro] || filtro}</strong>`;
+                summary.dataset.base = summary.innerHTML;
             }
 
             applyFiltersAndRender();
@@ -3680,7 +4626,7 @@
                 loadMonthData(currentMonth);
             } else {
                 pendingPayment = { nome, isCustom, valor, categoria, tipo, vencimento };
-                document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('paymentDate').value = formatDateInput(new Date().toISOString().split('T')[0]);
                 document.getElementById('paymentModalTitle').textContent = `Confirmar Pagamento - ${nome}`;
                 document.getElementById('paymentTotalValue').textContent = formatMoney(valor);
 
@@ -3732,7 +4678,7 @@
             if (!pendingPayment) return;
 
             const isPartial = document.querySelector('input[name="paymentType"]:checked').value === 'partial';
-            const date = document.getElementById('paymentDate').value;
+            const date = parseDateInputToISO(document.getElementById('paymentDate').value);
 
             if (isPartial) {
                 const partialValor = parseMoney(document.getElementById('partialValue').value);
@@ -3819,7 +4765,7 @@
             document.getElementById('despesaValor').value = formatMoney(valor);
             document.getElementById('despesaCategoria').value = categoria;
             document.getElementById('despesaTipo').value = tipo;
-            document.getElementById('despesaVencimento').value = vencimento || '';
+            document.getElementById('despesaVencimento').value = formatDateInput(vencimento || '');
             document.getElementById('despesaStatus').value = status === 'Feito' ? 'Pago' : status;
 
             document.getElementById('dataPagamentoGroup').style.display =
@@ -3833,10 +4779,10 @@
             const nome = document.getElementById('despesaNome').value.trim();
             const valor = parseMoney(document.getElementById('despesaValor').value);
             const categoria = document.getElementById('despesaCategoria').value;
-            const tipo = document.getElementById('despesaTipo').value.trim();
-            const vencimento = document.getElementById('despesaVencimento').value;
+            let tipo = document.getElementById('despesaTipo').value.trim();
+            const vencimento = parseDateInputToISO(document.getElementById('despesaVencimento').value);
             const status = document.getElementById('despesaStatus').value;
-            const dataPagamento = document.getElementById('despesaDataPagamento').value;
+            const dataPagamento = parseDateInputToISO(document.getElementById('despesaDataPagamento').value);
 
             if (!nome) {
                 showToast('Informe a descrição da despesa', 'error');
@@ -3848,6 +4794,14 @@
                 showToast('Informe um valor válido', 'error');
                 document.getElementById('despesaValor').classList.add('error');
                 return;
+            }
+
+            if (!tipo) {
+                const sugerido = suggestGroup(nome);
+                if (sugerido) {
+                    tipo = sugerido;
+                    document.getElementById('despesaTipo').value = sugerido;
+                }
             }
 
             const editMode = document.getElementById('editMode').value;
@@ -3873,16 +4827,49 @@
             } else {
                 // Editar despesa existente
                 if (isCustom) {
-                    // Se for customizado, deletar e recriar
-                    GestaoFinanceira.deleteDespesa(currentMonth, originalName, true);
-                    GestaoFinanceira.addDespesa(currentMonth, {
-                        nome,
-                        valor,
-                        categoria,
-                        tipo,
-                        vencimento,
-                        status
-                    });
+                    const customData = GestaoFinanceira.customItems[currentMonth];
+                    if (customData && customData.despesas) {
+                        const idx = customData.despesas.findIndex(d => d.nome === originalName);
+                        if (idx !== -1) {
+                            const existing = customData.despesas[idx];
+                            customData.despesas[idx] = {
+                                ...existing,
+                                nome,
+                                valor,
+                                categoria,
+                                tipo,
+                                vencimento,
+                                status,
+                                isCustom: true
+                            };
+                        } else {
+                            GestaoFinanceira.addDespesa(currentMonth, {
+                                nome,
+                                valor,
+                                categoria,
+                                tipo,
+                                vencimento,
+                                status
+                            });
+                        }
+                    } else {
+                        GestaoFinanceira.addDespesa(currentMonth, {
+                            nome,
+                            valor,
+                            categoria,
+                            tipo,
+                            vencimento,
+                            status
+                        });
+                    }
+                    if (GestaoFinanceira.deletedItems[currentMonth]?.despesas?.length) {
+                        GestaoFinanceira.deletedItems[currentMonth].despesas = GestaoFinanceira.deletedItems[currentMonth].despesas.filter(n => n !== originalName && n !== nome);
+                    }
+                    if (isRoyaltiesName(nome) || isRoyaltiesName(originalName)) {
+                        const royaltiesDeleted = loadRoyaltiesDeleted().filter(n => n !== nome && n !== originalName);
+                        saveRoyaltiesDeleted(royaltiesDeleted);
+                    }
+                    GestaoFinanceira.saveToStorage();
                 } else {
                     // Editar item original
                     GestaoFinanceira.editDespesa(currentMonth, originalName, {
@@ -3905,8 +4892,18 @@
         }
 
         // Abrir modal de exclusão
-        function openDeleteModal(nome, valor, isCustom) {
-            pendingDelete = { nome, valor, isCustom };
+        function openDeleteModal(item) {
+            const nome = item?.nome || '';
+            const valor = item?.valor || 0;
+            const isCustom = item?.isCustom || false;
+            pendingDelete = {
+                nome,
+                valor,
+                isCustom,
+                importSource: item?.importSource || '',
+                categoria: item?.categoria || '',
+                tipo: item?.tipo || ''
+            };
             document.getElementById('deleteDetails').innerHTML = `
                 <strong>${nome}</strong><br>
                 Valor: ${formatMoney(valor)}
@@ -3919,6 +4916,11 @@
             if (pendingDelete) {
                 try {
                     console.log('Deletando:', pendingDelete);
+                    if (isRoyaltiesName(pendingDelete.nome) || pendingDelete.importSource === 'royalties-alpha-smart') {
+                        const royaltiesDeleted = new Set(loadRoyaltiesDeleted());
+                        royaltiesDeleted.add(pendingDelete.nome);
+                        saveRoyaltiesDeleted(Array.from(royaltiesDeleted));
+                    }
                     GestaoFinanceira.deleteDespesa(currentMonth, pendingDelete.nome, pendingDelete.isCustom);
                     closeModal('deleteModal');
                     showToast('Despesa excluída com sucesso!', 'success');
@@ -4019,12 +5021,12 @@
         function exportarDados() {
             const dados = GestaoFinanceira.getDadosMesComStatus(currentMonth);
 
-            let csv = 'Descrição,Categoria,Valor,Status,Data Pagamento,Tipo\n';
+            let csv = 'Descrição,Categoria,Valor,Status,Data Pagamento,Grupo\n';
 
             for (const [catKey, catData] of Object.entries(dados.despesas.categorias)) {
                 if (catData.itens) {
                     catData.itens.forEach(item => {
-                        csv += `"${item.nome}","${getCategoryName(catKey)}","${item.valor}","${item.status}","${item.dataPagamento || ''}","${item.tipo || ''}"\n`;
+                        csv += `"${item.nome}","${getCategoryName(catKey)}","${item.valor}","${item.status}","${item.dataPagamento || ''}","${item.tipo ? getGroupLabel(item.tipo) : ''}"\n`;
                     });
                 }
             }
@@ -4588,6 +5590,7 @@
         // Inicializar
         window.addEventListener('DOMContentLoaded', function() {
             GestaoFinanceira.init(); // Não bloqueia mais
+            initDateInputs();
 
             // SEMPRE usar o mês atual ao carregar a página
             const monthSelect = document.getElementById('monthSelect');
@@ -4608,6 +5611,11 @@
             if (typeof GestaoFinanceira.startPolling === 'function') {
                 GestaoFinanceira.startPolling(currentMonth);
                 console.log('✅ Sincronização em tempo real ativada!');
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('diagnostico') === '1') {
+                openImportDiagnostics();
             }
         });
 
@@ -4657,7 +5665,7 @@
 
             // Preencher data
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('kanbanPaymentDate').value = item.dataPagamento || today;
+            document.getElementById('kanbanPaymentDate').value = formatDateInput(item.dataPagamento || today);
 
             // Preencher observações
             document.getElementById('kanbanObservations').value = item.observacao || '';
@@ -4730,7 +5738,7 @@
             if (!kanbanSelectedItem) return;
 
             const status = getSelectedKanbanStatus();
-            const date = document.getElementById('kanbanPaymentDate').value;
+            const date = parseDateInputToISO(document.getElementById('kanbanPaymentDate').value);
             const observacao = document.getElementById('kanbanObservations').value;
 
             // Se não for pago, apenas atualizar status
@@ -4833,24 +5841,1113 @@
         }
 
         // Obter label da categoria
+        const categoriaLabels = {
+            'pessoal': 'Pessoal',
+            'comercial': 'Comercial',
+            'estrutura': 'Estrutura',
+            'ferramentas': 'Ferramentas',
+            'servicos': 'Serviços/Freelancers',
+            'alpha_franquia': 'Alpha Franquia',
+            'alimentacao': 'Alimentação',
+            'operacionais': 'Operacionais',
+            'taxas_bancarias': 'Taxas Bancárias',
+            'outros': 'Outros'
+        };
+        const baseCategoryKeys = new Set(Object.keys(categoriaLabels));
+
         function getCategoryLabel(categoria) {
-            const labels = {
-                'pessoal': 'Pessoal',
-                'comercial': 'Comercial',
-                'estrutura': 'Estrutura',
-                'ferramentas': 'Ferramentas',
-                'alpha_franquia': 'Alpha Franquia',
-                'alimentacao': 'Alimentação',
-                'operacionais': 'Operacionais',
-                'outros': 'Outros'
+            return categoriaLabels[categoria] || categoria || 'Outros';
+        }
+
+        function getCategoryOptionsHTML(selected) {
+            const options = Object.entries(categoriaLabels).map(([value, label]) => {
+                const isSelected = value === (selected || 'outros') ? 'selected' : '';
+                return `<option value="${value}" ${isSelected}>${label}</option>`;
+            }).join('');
+            return options + `<option value="__custom__">Criar categoria...</option>`;
+        }
+
+        function getStatusOptionsHTML(tipo, selected) {
+            const options = tipo === 'receita' ? ['Recebido', 'A Receber'] : ['Pago', 'A Pagar'];
+            return options.map(option => {
+                const isSelected = option === selected ? 'selected' : '';
+                return `<option value="${option}" ${isSelected}>${option}</option>`;
+            }).join('');
+        }
+
+        const categoriaRules = [
+            { categoria: 'operacionais', keywords: ['farmacia', 'farmácia', 'unibox', 'mercado juan'] },
+            { categoria: 'pessoal', keywords: ['juan fernando mello minni', 'juan f mello minni', 'juan f. mello minni', 'juan f minni', 'juan minni', 'adiantamento lucro', 'lucro socios', 'lucro sócios', 'adiantamento socios', 'adiantamento sócios', 'dante martins', 'dante liberato martins'] },
+            { categoria: 'operacionais', keywords: ['emilly laurindo'] },
+            { categoria: 'operacionais', keywords: ['one market', 'mkt one market', 'padaria', 'portus padaria', 'confeitaria'] },
+            { categoria: 'taxas_bancarias', keywords: ['taxa pix', 'taxa do pix', 'taxa pix fatura', 'taxa do pix fatura', 'taxa de pix fatura', 'tarifa pix', 'tarifa do pix', 'tarifa de pix', 'pix fee', 'fatura taxa pix', 'taxa mensageria', 'tarifa mensageria', 'mensageria', 'sms', 'whatsapp', 'notificacao', 'notificação', 'cobranca', 'cobrança', 'taxa boleto', 'taxa de boleto', 'tarifa boleto', 'taxa do boleto', 'taxa de cobrança', 'tarifa de cobrança'] },
+            { categoria: 'operacionais', keywords: ['restaurante', 'lanchonete', 'hamburgueria', 'pizza', 'sorveteria', 'mercado', 'supermercado', 'padaria', 'confeitaria', 'cafe', 'café', 'almoço', 'jantar', 'delivery', 'ifood', 'food'] },
+            { categoria: 'operacionais', keywords: ['posto', 'combustivel', 'combustível', 'gasolina', 'etanol', 'diesel', 'abastec', 'pedagio', 'pedágio', 'estacionamento', 'parking', 'rek parking', 'tarifa', 'taxa', 'boleto', 'pix'] },
+            { categoria: 'ferramentas', keywords: ['software', 'licenca', 'licença', 'assinatura', 'saas', 'adobe', 'google', 'microsoft', 'aws', 'netlify', 'hosting', 'hospedagem', 'dominio', 'domínio', 'notion', 'trello', 'slack'] },
+            { categoria: 'estrutura', keywords: ['aluguel', 'condominio', 'condomínio', 'energia', 'luz', 'agua', 'água', 'internet', 'telefone', 'celular', 'iptu', 'seguro'] },
+            { categoria: 'comercial', keywords: ['anuncio', 'anúncio', 'ads', 'google ads', 'facebook', 'instagram', 'meta', 'marketing', 'trafego', 'tráfego'] },
+            { categoria: 'pessoal', keywords: ['salario', 'salário', 'folha', 'prolabore', 'pró-labore', 'pro labore', 'funcionario', 'funcionário', 'colaborador', 'adiantamento', 'vale'] },
+            { categoria: 'servicos', keywords: ['freelancer', 'freela', 'freelance', 'prestador', 'prestador de servico', 'prestador de serviço', 'servico', 'serviço', 'consultoria'] },
+            { categoria: 'alpha_franquia', keywords: ['franquia', 'alpha'] }
+        ];
+
+        const grupoLabels = {
+            '': 'Sem grupo',
+            'adiantamento_lucro_socios': 'Adiantamento Lucro Sócios',
+            'mensageria_whatsapp': 'Mensageria/WhatsApp',
+            'mensageria_sms': 'Mensageria/SMS',
+            'mensageria_cobranca': 'Mensageria/Cobrança',
+            'taxa_pix': 'Taxa Pix',
+            'taxa_boleto': 'Taxa Boletos',
+            'taxas_asaas': 'Taxas Asaas',
+            'taxas_conta_simples': 'Tarifas Conta Simples',
+            'cartoes_conta_simples': 'Cartões Conta Simples',
+            'freelancers': 'Freelancers',
+            'colaboradores': 'Colaboradores',
+            'taxas_bancarias': 'Taxas Bancárias',
+            'combustivel_posto': 'Combustível/Posto',
+            'alimentacao': 'Alimentação',
+            'farmacia': 'Farmácia',
+            'mercado_juan': 'Mercado Juan',
+            'outros': 'Outros'
+        };
+        const baseGroupKeys = new Set(Object.keys(grupoLabels));
+
+        const grupoRules = [
+            { grupo: 'adiantamento_lucro_socios', keywords: ['juan fernando mello minni', 'juan minni', 'adiantamento lucro', 'lucro socios', 'lucro sócios', 'adiantamento socios', 'adiantamento sócios'] },
+            { grupo: 'taxa_pix', keywords: ['taxa pix', 'taxa do pix', 'taxa pix fatura', 'taxa do pix fatura', 'taxa de pix', 'taxa de pix fatura', 'taxa para pix', 'taxa para pix com chave', 'tarifa pix', 'tarifa do pix', 'tarifa de pix', 'pix fee', 'pix fatura'] },
+            { grupo: 'taxa_boleto', keywords: ['taxa boleto', 'taxa de boleto', 'tarifa boleto', 'taxa do boleto', 'boleto fee', 'taxa de cobrança', 'tarifa de cobrança'] },
+            { grupo: 'mensageria_whatsapp', keywords: ['whatsapp', 'wpp', 'zap'] },
+            { grupo: 'mensageria_sms', keywords: ['sms'] },
+            { grupo: 'mensageria_cobranca', keywords: ['mensageria', 'cobranca', 'cobrança', 'mensagem', 'notificacao', 'notificação', 'disparo'] },
+            { grupo: 'taxas_asaas', keywords: ['taxa asaas', 'tarifa asaas', 'asaas fee', 'taxa de intermediacao', 'taxa de intermediação', 'taxa de antecipacao', 'taxa de antecipação', 'taxa boleto asaas', 'tarifa boleto asaas', 'taxa pix asaas', 'tarifa pix asaas', 'fatura asaas', 'mensalidade asaas'] },
+            { grupo: 'taxas_conta_simples', keywords: ['conta simples', 'conta-simples', 'cs bank', 'tarifa conta simples', 'mensalidade conta simples', 'taxa conta simples'] },
+            { grupo: 'cartoes_conta_simples', keywords: ['cartao conta simples', 'cartão conta simples', 'cartoes conta simples', 'cartões conta simples', 'fatura conta simples', 'fatura cartao conta simples', 'fatura cartão conta simples'] },
+            { grupo: 'freelancers', keywords: ['emilly laurindo', 'freelancer', 'freela', 'freelance', 'prestador', 'prestador de servico', 'prestador de serviço', 'servico', 'serviço', 'consultoria'] },
+            { grupo: 'colaboradores', keywords: ['dante martins', 'dante liberato martins', 'colaborador', 'colaboradores', 'funcionario', 'funcionário', 'salario', 'salário', 'folha', 'prolabore', 'pró-labore', 'pro labore', 'admissao', 'admissão'] },
+            { grupo: 'taxas_bancarias', keywords: ['tarifa', 'taxa', 'tac', 'iof', 'juros', 'multa', 'anuidade', 'manutencao', 'manutenção', 'ted', 'doc', 'pix', 'boleto', 'banco'] },
+            { grupo: 'combustivel_posto', keywords: ['posto', 'combustivel', 'combustível', 'gasolina', 'etanol', 'diesel', 'abastec', 'ipiranga', 'shell', 'petrobras', 'br', 'estacionamento', 'parking', 'rek parking'] },
+            { grupo: 'farmacia', keywords: ['farmacia', 'farmácia', 'droga', 'drogaria'] },
+            { grupo: 'mercado_juan', keywords: ['unibox', 'mercado juan'] },
+            { grupo: 'alimentacao', keywords: ['one market', 'mkt one market', 'padaria', 'portus padaria', 'confeitaria', 'restaurante', 'lanchonete', 'hamburgueria', 'pizza', 'sorveteria', 'mercado', 'supermercado', 'cafe', 'café', 'almoço', 'jantar', 'delivery', 'ifood', 'food'] }
+        ];
+
+        const bancoLabels = {
+            'asaas': 'Asaas',
+            'conta_simples': 'Conta Simples'
+        };
+
+        const bancoRules = [
+            { banco: 'asaas', keywords: ['asaas'] },
+            { banco: 'conta_simples', keywords: ['conta simples', 'conta-simples', 'cs bank', 'contasimples'] }
+        ];
+
+        function normalizeBankKey(banco) {
+            const normalized = normalizeText(banco || '');
+            if (normalized.includes('conta simples') || normalized.includes('conta-simples') || normalized.includes('contasimples') || normalized.includes('conta_simples') || normalized.includes('cs bank')) {
+                return 'conta_simples';
+            }
+            if (normalized.includes('asaas')) return 'asaas';
+            if (bancoLabels[banco]) return banco;
+            return 'asaas';
+        }
+
+        function normalizeText(text) {
+            return (text || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        const CUSTOM_GROUPS_KEY = 'starken_financeiro_custom_groups';
+        const CUSTOM_CATEGORIES_KEY = 'starken_financeiro_custom_categories';
+        const IMPORTED_KEYS_KEY = 'starken_financeiro_imported_transactions';
+        const LEARNED_RULES_KEY = 'starken_financeiro_learned_rules';
+        const PAGAR_IMPORT_HISTORY_KEY = 'starken_contas_pagar_import_history';
+        const PAGAR_IMPORT_META_KEY = 'starken_contas_pagar_import_meta';
+        const PAGAR_MONTH_SNAPSHOT_KEY = 'starken_contas_pagar_month_snapshots';
+        const ROYALTIES_DELETED_KEY = 'starken_contas_pagar_royalties_deleted';
+
+        function slugifyLabel(label) {
+            return normalizeText(label)
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_+|_+$/g, '');
+        }
+
+        function loadCustomCategories() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(CUSTOM_CATEGORIES_KEY) || '[]');
+                saved.forEach(item => {
+                    if (item?.id && item?.label && !categoriaLabels[item.id]) {
+                        categoriaLabels[item.id] = item.label;
+                    }
+                });
+            } catch (error) {
+                localStorage.removeItem(CUSTOM_CATEGORIES_KEY);
+            }
+        }
+
+        function loadCustomGroups() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(CUSTOM_GROUPS_KEY) || '[]');
+                saved.forEach(item => {
+                    if (item?.id && item?.label && !grupoLabels[item.id]) {
+                        grupoLabels[item.id] = item.label;
+                    }
+                });
+            } catch (error) {
+                localStorage.removeItem(CUSTOM_GROUPS_KEY);
+            }
+        }
+
+        function isRoyaltiesName(nome) {
+            return String(nome || '').startsWith('Alpha Royalties -');
+        }
+
+        function isAlphaFeeName(nome) {
+            return String(nome || '').startsWith('Taxa de Franquia Alpha');
+        }
+
+        function loadRoyaltiesDeleted() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(ROYALTIES_DELETED_KEY) || '[]');
+                return Array.isArray(saved) ? saved : [];
+            } catch (error) {
+                localStorage.removeItem(ROYALTIES_DELETED_KEY);
+                return [];
+            }
+        }
+
+        function saveRoyaltiesDeleted(list) {
+            localStorage.setItem(ROYALTIES_DELETED_KEY, JSON.stringify(Array.from(new Set(list))));
+        }
+
+        function saveCustomCategories() {
+            const custom = Object.entries(categoriaLabels)
+                .filter(([key]) => !baseCategoryKeys.has(key))
+                .map(([id, label]) => ({ id, label }));
+            localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(custom));
+        }
+
+        function saveCustomGroups() {
+            const custom = Object.entries(grupoLabels)
+                .filter(([key]) => !baseGroupKeys.has(key))
+                .map(([id, label]) => ({ id, label }));
+            localStorage.setItem(CUSTOM_GROUPS_KEY, JSON.stringify(custom));
+        }
+
+        function addCustomCategory(label) {
+            const normalized = label.trim();
+            if (!normalized) return null;
+            const id = slugifyLabel(normalized);
+            if (!id) return null;
+            if (!categoriaLabels[id]) {
+                categoriaLabels[id] = normalized;
+                saveCustomCategories();
+            }
+            return id;
+        }
+
+        function addCustomGroup(label) {
+            const normalized = label.trim();
+            if (!normalized) return null;
+            const id = slugifyLabel(normalized);
+            if (!id) return null;
+            if (!grupoLabels[id]) {
+                grupoLabels[id] = normalized;
+                saveCustomGroups();
+            }
+            return id;
+        }
+
+        let customValueContext = null;
+
+        function openCustomValueModal({ title, label, placeholder, onConfirm, onCancel }) {
+            const modal = document.getElementById('customValueModal');
+            const titleEl = document.getElementById('customValueTitle');
+            const labelEl = document.getElementById('customValueLabel');
+            const inputEl = document.getElementById('customValueInput');
+            if (!modal || !titleEl || !labelEl || !inputEl) return;
+            customValueContext = { onConfirm, onCancel };
+            titleEl.textContent = title || 'Criar';
+            labelEl.textContent = label || 'Nome';
+            inputEl.placeholder = placeholder || '';
+            inputEl.value = '';
+            modal.classList.add('show');
+            setTimeout(() => inputEl.focus(), 0);
+        }
+
+        function closeCustomValueModal() {
+            const modal = document.getElementById('customValueModal');
+            if (modal) modal.classList.remove('show');
+            if (customValueContext?.onCancel) {
+                const cancelFn = customValueContext.onCancel;
+                customValueContext = null;
+                cancelFn();
+            } else {
+                customValueContext = null;
+            }
+        }
+
+        function confirmCustomValue() {
+            const inputEl = document.getElementById('customValueInput');
+            if (!inputEl) return;
+            const value = inputEl.value.trim();
+            if (!value) {
+                inputEl.focus();
+                return;
+            }
+            const ctx = customValueContext;
+            customValueContext = null;
+            const modal = document.getElementById('customValueModal');
+            if (modal) modal.classList.remove('show');
+            if (ctx?.onConfirm) ctx.onConfirm(value);
+        }
+
+        loadCustomCategories();
+        loadCustomGroups();
+
+        let importedKeySet = new Set();
+        let learnedRules = [];
+        let importHistoryCache = null;
+
+        function loadImportedKeys() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(IMPORTED_KEYS_KEY) || '[]');
+                importedKeySet = new Set(saved);
+            } catch (error) {
+                importedKeySet = new Set();
+                localStorage.removeItem(IMPORTED_KEYS_KEY);
+            }
+        }
+
+        function saveImportedKeys() {
+            localStorage.setItem(IMPORTED_KEYS_KEY, JSON.stringify(Array.from(importedKeySet)));
+        }
+
+        function buildImportKey(trans) {
+            if (!trans) return '';
+            const amount = Math.abs(parseFloat(trans.amount || 0)).toFixed(2);
+            const date = trans.date || '';
+            const desc = normalizeText(trans.sourceDescricao || trans.descricao || trans.memo || trans.name || '');
+            const banco = trans.banco || '';
+            const tipo = trans.tipo || '';
+            return [tipo, date, amount, banco, desc].join('|');
+        }
+
+        function markTransactionImported(trans) {
+            const key = buildImportKey(trans);
+            if (!key) return;
+            importedKeySet.add(key);
+            saveImportedKeys();
+            trans.importKey = key;
+            trans.isImported = true;
+        }
+
+        function hasMatchingCustomImport(trans) {
+            const custom = (GestaoFinanceira.customItems && GestaoFinanceira.customItems[currentMonth] && GestaoFinanceira.customItems[currentMonth].despesas) || [];
+            const amount = Math.abs(parseFloat(trans.amount || 0));
+            const date = trans.date || '';
+            const name = normalizeText(trans.descricao || trans.memo || trans.name || '');
+            const banco = trans.banco || '';
+            return custom.some(item => {
+                const itemAmount = Math.abs(parseFloat(item.valor || 0));
+                if (Math.abs(itemAmount - amount) > 0.05) return false;
+                const itemDate = item.vencimento || '';
+                if (itemDate !== date) return false;
+                const itemName = normalizeText(item.nome || '');
+                if (itemName !== name) return false;
+                const itemBanco = item.empresa || '';
+                return itemBanco ? itemBanco === banco : true;
+            });
+        }
+
+        function hasMatchingPaidItem(trans) {
+            const items = Array.isArray(allItems) ? allItems : [];
+            const amount = Math.abs(parseFloat(trans.amount || 0));
+            const date = trans.date || '';
+            const name = normalizeText(trans.descricao || trans.memo || trans.name || '');
+            return items.some(item => {
+                const itemAmount = Math.abs(parseFloat(item.valor || 0));
+                if (Math.abs(itemAmount - amount) > 0.05) return false;
+                const itemDate = item.dataPagamento || item.vencimento || '';
+                if (itemDate !== date) return false;
+                if (item.status !== 'Pago' && item.status !== 'Feito') return false;
+                const itemName = normalizeText(item.nome || '');
+                return itemName === name;
+            });
+        }
+
+        function checkTransactionImported(trans) {
+            const key = buildImportKey(trans);
+            trans.importKey = key;
+            if (!importedKeySet.has(key)) {
+                trans.isImported = false;
+                return false;
+            }
+            const exists = hasMatchingCustomImport(trans) || hasMatchingPaidItem(trans);
+            if (!exists) {
+                importedKeySet.delete(key);
+                saveImportedKeys();
+                trans.isImported = false;
+                return false;
+            }
+            trans.isImported = true;
+            return true;
+        }
+
+        loadImportedKeys();
+
+        function loadImportHistory() {
+            if (importHistoryCache) return importHistoryCache;
+            try {
+                const saved = JSON.parse(localStorage.getItem(PAGAR_IMPORT_HISTORY_KEY) || '[]');
+                importHistoryCache = Array.isArray(saved) ? saved : [];
+            } catch (error) {
+                importHistoryCache = [];
+                localStorage.removeItem(PAGAR_IMPORT_HISTORY_KEY);
+            }
+            return importHistoryCache;
+        }
+
+        function resetImportHistoryCache() {
+            importHistoryCache = null;
+        }
+
+        function saveImportHistory(history) {
+            importHistoryCache = history;
+            localStorage.setItem(PAGAR_IMPORT_HISTORY_KEY, JSON.stringify(history));
+        }
+
+        function loadImportMeta() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(PAGAR_IMPORT_META_KEY) || '{}');
+                return saved && typeof saved === 'object' ? saved : {};
+            } catch (error) {
+                localStorage.removeItem(PAGAR_IMPORT_META_KEY);
+                return {};
+            }
+        }
+
+        function saveImportMeta(meta) {
+            localStorage.setItem(PAGAR_IMPORT_META_KEY, JSON.stringify(meta));
+        }
+
+        function setImportMetaForMonth(month, updates) {
+            const meta = loadImportMeta();
+            const current = meta[month] || {};
+            meta[month] = { ...current, ...updates };
+            saveImportMeta(meta);
+            return meta[month];
+        }
+
+        function getImportMetaForMonth(month) {
+            const meta = loadImportMeta();
+            return meta[month] || {};
+        }
+
+        function setImportMetaForMonthBank(month, bank, updates) {
+            const meta = loadImportMeta();
+            const current = meta[month] || {};
+            const banks = current.banks || {};
+            const bankKey = bank || 'asaas';
+            const bankCurrent = banks[bankKey] || {};
+            banks[bankKey] = { ...bankCurrent, ...updates };
+            meta[month] = { ...current, banks };
+            saveImportMeta(meta);
+            return banks[bankKey];
+        }
+
+        function guessBankFromItem(item) {
+            const explicitText = normalizeText(item?.importSource || item?.empresa || '');
+            if (explicitText.includes('conta simples') || explicitText.includes('conta-simples') || explicitText.includes('contasimples') || explicitText.includes('conta_simples') || explicitText.includes('cs bank')) {
+                return 'conta_simples';
+            }
+            if (explicitText.includes('asaas')) return 'asaas';
+            const grupo = normalizeText(item?.grupo || '');
+            if (grupo === 'taxas_conta_simples' || grupo === 'cartoes_conta_simples') {
+                return 'conta_simples';
+            }
+            const text = normalizeText([item?.nome, item?.tipo, item?.categoria].filter(Boolean).join(' '));
+            if (text.includes('conta simples') || text.includes('conta-simples') || text.includes('contasimples') || text.includes('conta_simples') || text.includes('cs bank')) {
+                return 'conta_simples';
+            }
+            if (text.includes('asaas')) return 'asaas';
+            return 'asaas';
+        }
+
+        function setMetaLatest(meta, month, bankKey, dateValue) {
+            if (!month || !bankKey || !dateValue) return;
+            const current = meta[month] || {};
+            const banks = current.banks || {};
+            const bankCurrent = banks[bankKey] || {};
+            const newMs = Date.parse(dateValue);
+            const existingMs = Date.parse(bankCurrent.lastImportAt || '');
+            if (!bankCurrent.lastImportAt || (!Number.isNaN(newMs) && (Number.isNaN(existingMs) || newMs > existingMs))) {
+                banks[bankKey] = { ...bankCurrent, lastImportAt: dateValue, lastReconcileAt: dateValue };
+                meta[month] = { ...current, banks };
+            }
+        }
+
+        function rebuildImportMetaFromSources() {
+            const meta = {};
+            const history = loadImportHistory();
+            history.forEach(run => {
+                const month = run.month;
+                const sources = Array.isArray(run.sources) && run.sources.length ? run.sources : ['asaas'];
+                sources.forEach(source => {
+                    const bankKey = normalizeBankKey(source);
+                    setMetaLatest(meta, month, bankKey, run.createdAt || '');
+                });
+            });
+            const custom = GestaoFinanceira.customItems || {};
+            Object.keys(custom).forEach(month => {
+                const items = [
+                    ...((custom[month]?.despesas) || []),
+                    ...((custom[month]?.receitas) || [])
+                ];
+                items.forEach(item => {
+                    const importedAt = item.importedAt || '';
+                    if (!importedAt) return;
+                    const bankKey = guessBankFromItem(item);
+                    setMetaLatest(meta, month, bankKey, importedAt);
+                });
+            });
+            saveImportMeta(meta);
+        }
+
+        function ensureImportMetaSynced() {
+            rebuildImportMetaFromSources();
+        }
+
+        function getLatestImportTimesForMonth(mes) {
+            const meta = getImportMetaForMonth(mes);
+            const banksMeta = meta.banks || {};
+            const result = {
+                asaas: {
+                    lastImportAt: banksMeta.asaas?.lastImportAt || '',
+                    lastReconcileAt: banksMeta.asaas?.lastReconcileAt || ''
+                },
+                conta_simples: {
+                    lastImportAt: banksMeta.conta_simples?.lastImportAt || '',
+                    lastReconcileAt: banksMeta.conta_simples?.lastReconcileAt || ''
+                }
             };
-            return labels[categoria] || categoria || 'Outros';
+            const updateLatest = (target, dateValue) => {
+                if (!dateValue) return;
+                const newMs = Date.parse(dateValue);
+                const currentMs = Date.parse(target.lastImportAt || '');
+                if (!target.lastImportAt || (!Number.isNaN(newMs) && (Number.isNaN(currentMs) || newMs > currentMs))) {
+                    target.lastImportAt = dateValue;
+                    target.lastReconcileAt = dateValue;
+                }
+            };
+            let genericLatest = '';
+            const updateGeneric = (dateValue) => {
+                if (!dateValue) return;
+                const newMs = Date.parse(dateValue);
+                const currentMs = Date.parse(genericLatest || '');
+                if (!genericLatest || (!Number.isNaN(newMs) && (Number.isNaN(currentMs) || newMs > currentMs))) {
+                    genericLatest = dateValue;
+                }
+            };
+            const history = loadImportHistory().filter(run => run.month === mes);
+            history.forEach(run => {
+                const sources = Array.isArray(run.sources) && run.sources.length ? run.sources : ['asaas'];
+                sources.forEach(source => {
+                    const bankKey = normalizeBankKey(source);
+                    if (result[bankKey]) {
+                        updateLatest(result[bankKey], run.createdAt || '');
+                    }
+                });
+                updateGeneric(run.createdAt || '');
+            });
+            const customMonth = GestaoFinanceira.customItems?.[mes] || { despesas: [], receitas: [] };
+            const items = [
+                ...(customMonth.despesas || []),
+                ...(customMonth.receitas || [])
+            ];
+            items.forEach(item => {
+                const importedAt = item.importedAt || '';
+                if (!importedAt) return;
+                const bankKey = guessBankFromItem(item);
+                if (result[bankKey]) {
+                    updateLatest(result[bankKey], importedAt);
+                }
+                updateGeneric(importedAt);
+            });
+            const statusData = GestaoFinanceira.statusData || {};
+            Object.keys(statusData).forEach(key => {
+                if (!key.startsWith(`${mes}_`)) return;
+                const updatedAt = statusData[key]?.updatedAt || '';
+                updateGeneric(updatedAt);
+            });
+            const hasAnyImport = history.length > 0 || items.some(item => item.importedAt) || Object.keys(statusData).some(key => key.startsWith(`${mes}_`));
+            if (hasAnyImport) {
+                if (!result.asaas.lastImportAt && genericLatest) {
+                    updateLatest(result.asaas, genericLatest);
+                }
+                if (!result.conta_simples.lastImportAt && genericLatest) {
+                    updateLatest(result.conta_simples, genericLatest);
+                }
+            }
+            return result;
+        }
+
+        function renderImportDiagnostics() {
+            const container = document.getElementById('diagnosticContent');
+            if (!container) return;
+            const months = ['2025-11', '2025-12', '2026-01'];
+            const history = loadImportHistory();
+            const custom = GestaoFinanceira.customItems || {};
+            const statusData = GestaoFinanceira.statusData || {};
+
+            const itemsByMonth = {};
+            months.forEach(mes => {
+                itemsByMonth[mes] = [
+                    ...((custom[mes]?.despesas) || []),
+                    ...((custom[mes]?.receitas) || [])
+                ];
+            });
+
+            const getSourcesForRun = (run) => {
+                if (!run) return [];
+                if (Array.isArray(run.sources) && run.sources.length) return run.sources;
+                const monthItems = itemsByMonth[run.month] || [];
+                const derived = monthItems
+                    .filter(item => item.importRunId && item.importRunId === run.id)
+                    .map(item => guessBankFromItem(item));
+                return Array.from(new Set(derived.filter(Boolean)));
+            };
+
+            const rows = months.map(mes => {
+                const latest = getLatestImportTimesForMonth(mes);
+                const runs = history.filter(run => run.month === mes);
+                const lastRun = runs.reduce((acc, run) => {
+                    const time = Date.parse(run.createdAt || '');
+                    if (!acc || (Number.isFinite(time) && time > acc.time)) {
+                        return { time, run };
+                    }
+                    return acc;
+                }, null);
+                const items = itemsByMonth[mes] || [];
+                const importedItems = items.filter(item => item.importedAt);
+                const asaasItems = importedItems.filter(item => guessBankFromItem(item) === 'asaas').length;
+                const contaItems = importedItems.filter(item => guessBankFromItem(item) === 'conta_simples').length;
+                const statusCount = Object.keys(statusData).filter(key => key.startsWith(`${mes}_`)).length;
+                const lastRunSources = getSourcesForRun(lastRun?.run);
+                return {
+                    mes,
+                    runs: runs.length,
+                    lastRunAt: lastRun?.run?.createdAt || '',
+                    lastRunSources: lastRunSources.length ? lastRunSources.join(', ') : '-',
+                    importedItems: importedItems.length,
+                    asaasItems,
+                    contaItems,
+                    statusCount,
+                    asaasLast: latest.asaas.lastImportAt || '',
+                    contaLast: latest.conta_simples.lastImportAt || ''
+                };
+            });
+
+            const tableRows = rows.map(row => `
+                <tr>
+                    <td>${row.mes}</td>
+                    <td>${row.runs}</td>
+                    <td>${formatDateTime(row.lastRunAt)}</td>
+                    <td>${row.lastRunSources}</td>
+                    <td>${row.importedItems}</td>
+                    <td>${row.asaasItems}</td>
+                    <td>${row.contaItems}</td>
+                    <td>${row.statusCount}</td>
+                    <td>${formatDateTime(row.asaasLast)}</td>
+                    <td>${formatDateTime(row.contaLast)}</td>
+                </tr>
+            `).join('');
+
+            const historyDetails = rows.map(row => {
+                const runs = history.filter(run => run.month === row.mes).slice(-5).reverse();
+                const list = runs.map(run => {
+                    const sources = getSourcesForRun(run);
+                    const created = formatDateTime(run.createdAt);
+                    const createdDespesas = run.createdDespesas?.length || 0;
+                    const matched = run.matchedDespesas?.length || 0;
+                    return `<span>${created} • ${sources.length ? sources.join(', ') : '-'} • criadas ${createdDespesas} • conciliadas ${matched}</span>`;
+                }).join('');
+                const fallback = runs.length ? '' : '<span>Nenhum run encontrado no histórico.</span>';
+                return `
+                    <div class="diagnostic-section">
+                        <div class="diagnostic-section-title">${row.mes}</div>
+                        <div class="diagnostic-list">${list || fallback}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <table class="diagnostic-table">
+                    <thead>
+                        <tr>
+                            <th>Mês</th>
+                            <th>Runs</th>
+                            <th>Último run</th>
+                            <th>Fontes</th>
+                            <th>Itens</th>
+                            <th>Asaas</th>
+                            <th>Conta</th>
+                            <th>Status</th>
+                            <th>Asaas último</th>
+                            <th>Conta último</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+                ${historyDetails}
+            `;
+        }
+
+        async function refreshImportDiagnostics() {
+            resetImportHistoryCache();
+            if (typeof GestaoFinanceira?.loadFromServer === 'function') {
+                await GestaoFinanceira.loadFromServer();
+            }
+            ensureImportMetaSynced();
+            renderImportDiagnostics();
+            showToast('Diagnóstico atualizado', 'success');
+        }
+
+        function openImportDiagnostics() {
+            openModal('diagnosticModal');
+            refreshImportDiagnostics();
+        }
+
+        function resetImportsForTargetMonths() {
+            const targetMonths = ['2025-11', '2025-12', '2026-01'];
+            if (!confirm('Isso vai remover lançamentos importados e limpar o histórico desses meses. Deseja continuar?')) {
+                return;
+            }
+
+            const custom = GestaoFinanceira.customItems || {};
+            const removedByMonth = {};
+            targetMonths.forEach(month => {
+                removedByMonth[month] = { despesas: new Set(), receitas: new Set() };
+                const monthData = custom[month];
+                if (!monthData) return;
+                const despesas = Array.isArray(monthData.despesas) ? monthData.despesas : [];
+                const receitas = Array.isArray(monthData.receitas) ? monthData.receitas : [];
+                const filteredDespesas = despesas.filter(item => {
+                    if (item?.importedAt || item?.importRunId) {
+                        if (item?.nome) removedByMonth[month].despesas.add(item.nome);
+                        return false;
+                    }
+                    return true;
+                });
+                const filteredReceitas = receitas.filter(item => {
+                    if (item?.importedAt || item?.importRunId) {
+                        if (item?.nome) removedByMonth[month].receitas.add(item.nome);
+                        return false;
+                    }
+                    return true;
+                });
+                custom[month] = { despesas: filteredDespesas, receitas: filteredReceitas };
+            });
+            GestaoFinanceira.customItems = custom;
+
+            const statusData = GestaoFinanceira.statusData || {};
+            targetMonths.forEach(month => {
+                const removed = removedByMonth[month];
+                if (!removed) return;
+                removed.despesas.forEach(nome => {
+                    const id = GestaoFinanceira.generateId(month, 'despesa', nome);
+                    delete statusData[id];
+                });
+                removed.receitas.forEach(nome => {
+                    const id = GestaoFinanceira.generateId(month, 'receita', nome);
+                    delete statusData[id];
+                });
+            });
+            GestaoFinanceira.statusData = statusData;
+
+            const history = loadImportHistory().filter(run => !targetMonths.includes(run.month));
+            saveImportHistory(history);
+            resetImportHistoryCache();
+
+            const meta = loadImportMeta();
+            targetMonths.forEach(month => {
+                delete meta[month];
+            });
+            saveImportMeta(meta);
+
+            importedKeySet = new Set();
+            saveImportedKeys();
+
+            if (typeof GestaoFinanceira.saveToStorage === 'function') {
+                GestaoFinanceira.saveToStorage();
+            }
+            ensureImportMetaSynced();
+            renderImportDiagnostics();
+            loadMonthData(currentMonth);
+            showToast('Importações dos meses resetadas.', 'success');
+        }
+
+        function clearBaseItemsForTargetMonths() {
+            const targetMonths = ['2025-11', '2025-12', '2026-01'];
+            if (!confirm('Isso vai ocultar os lançamentos base desses meses. Deseja continuar?')) {
+                return;
+            }
+
+            if (!GestaoFinanceira.deletedItems) {
+                GestaoFinanceira.deletedItems = {};
+            }
+            const statusData = GestaoFinanceira.statusData || {};
+
+            targetMonths.forEach(month => {
+                const base = dadosMensais?.[month]?.despesas?.categorias || {};
+                const nomes = new Set();
+                Object.values(base).forEach(categoria => {
+                    (categoria?.itens || []).forEach(item => {
+                        if (item?.nome) nomes.add(item.nome);
+                    });
+                });
+
+                const deleted = GestaoFinanceira.deletedItems[month] || { despesas: [], receitas: [] };
+                const merged = new Set(deleted.despesas || []);
+                nomes.forEach(nome => merged.add(nome));
+                GestaoFinanceira.deletedItems[month] = {
+                    despesas: Array.from(merged),
+                    receitas: deleted.receitas || []
+                };
+
+                nomes.forEach(nome => {
+                    const id = GestaoFinanceira.generateId(month, 'despesa', nome);
+                    delete statusData[id];
+                });
+            });
+
+            GestaoFinanceira.statusData = statusData;
+            if (typeof GestaoFinanceira.saveToStorage === 'function') {
+                GestaoFinanceira.saveToStorage();
+            }
+            loadMonthData(currentMonth);
+            renderImportDiagnostics();
+            showToast('Lançamentos base ocultados.', 'success');
+        }
+
+        function createImportRun() {
+            return {
+                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                month: currentMonth,
+                createdAt: new Date().toISOString(),
+                createdDespesas: [],
+                createdReceitas: [],
+                matchedDespesas: [],
+                sources: []
+            };
+        }
+
+        function getCustomItemsForMonth() {
+            const custom = (GestaoFinanceira.customItems && GestaoFinanceira.customItems[currentMonth]) || { despesas: [], receitas: [] };
+            return {
+                despesas: Array.isArray(custom.despesas) ? custom.despesas : [],
+                receitas: Array.isArray(custom.receitas) ? custom.receitas : []
+            };
+        }
+
+        function buildRecoveryRunFromMetadata() {
+            const { despesas, receitas } = getCustomItemsForMonth();
+            const items = [
+                ...despesas.map(item => ({ ...item, tipo: 'despesa' })),
+                ...receitas.map(item => ({ ...item, tipo: 'receita' }))
+            ];
+            const withRun = items.filter(item => item.importRunId && item.importedAt);
+            if (withRun.length === 0) return null;
+            const latest = withRun.reduce((acc, item) => {
+                const time = new Date(item.importedAt).getTime();
+                if (!acc || time > acc.time) {
+                    return { time, runId: item.importRunId };
+                }
+                return acc;
+            }, null);
+            if (!latest) return null;
+            const selected = withRun.filter(item => item.importRunId === latest.runId);
+            return { source: 'metadata', items: selected };
+        }
+
+        function buildRecoveryRunFromCreationWindow(minutes = 30) {
+            const { despesas, receitas } = getCustomItemsForMonth();
+            const items = [
+                ...despesas.map(item => ({ ...item, tipo: 'despesa' })),
+                ...receitas.map(item => ({ ...item, tipo: 'receita' }))
+            ];
+            const withCreated = items.filter(item => item.dataCriacao);
+            if (withCreated.length === 0) return null;
+            const latestTime = withCreated.reduce((acc, item) => {
+                const time = new Date(item.dataCriacao).getTime();
+                return Number.isFinite(time) && time > acc ? time : acc;
+            }, 0);
+            if (!latestTime) return null;
+            const cutoff = latestTime - minutes * 60 * 1000;
+            const selected = withCreated.filter(item => {
+                const time = new Date(item.dataCriacao).getTime();
+                return Number.isFinite(time) && time >= cutoff;
+            });
+            return selected.length ? { source: 'window', items: selected } : null;
+        }
+
+        function getPreviousDespesaStatus(nome) {
+            const savedStatus = GestaoFinanceira.getStatus(currentMonth, 'despesa', nome);
+            if (savedStatus) return savedStatus;
+            const existing = allItems.find(item => item.nome === nome);
+            if (existing) {
+                return {
+                    status: existing.status || 'A Pagar',
+                    dataPagamento: existing.dataPagamento || null
+                };
+            }
+            return null;
+        }
+
+        function restoreLastImports(count = 1) {
+            const history = loadImportHistory();
+            const targetRuns = [];
+
+            for (let i = history.length - 1; i >= 0 && targetRuns.length < count; i--) {
+                if (history[i].month === currentMonth) targetRuns.push(history[i]);
+            }
+
+            if (targetRuns.length === 0) {
+                const recoveryRun = buildRecoveryRunFromMetadata() || buildRecoveryRunFromCreationWindow();
+                if (!recoveryRun) {
+                    showToast('Nenhum import recente para restaurar neste mês.', 'info');
+                    return;
+                }
+                recoveryRun.items.forEach(item => {
+                    if (item.tipo === 'despesa') {
+                        GestaoFinanceira.deleteDespesa(currentMonth, item.nome, true);
+                    } else {
+                        GestaoFinanceira.deleteReceita(currentMonth, item.nome, true);
+                    }
+                });
+                if (typeof GestaoFinanceira.syncToServer === 'function') {
+                    GestaoFinanceira.syncToServer();
+                }
+                loadMonthData(currentMonth);
+                const message = recoveryRun.source === 'metadata'
+                    ? 'Restauração concluída com base no último import.'
+                    : 'Restauração parcial: removidos lançamentos criados recentemente.';
+                showToast(message, 'success');
+                return;
+            }
+
+            targetRuns.forEach(run => {
+                run.createdDespesas.forEach(item => {
+                    GestaoFinanceira.deleteDespesa(currentMonth, item.nome, true);
+                });
+                run.createdReceitas.forEach(item => {
+                    GestaoFinanceira.deleteReceita(currentMonth, item.nome, true);
+                });
+                run.matchedDespesas.forEach(item => {
+                    const previous = item.previousStatus || { status: 'A Pagar', dataPagamento: null };
+                    GestaoFinanceira.updateStatus(currentMonth, 'despesa', item.nome, previous.status, previous.dataPagamento || null);
+                });
+            });
+
+            const updatedHistory = history.filter(run => !targetRuns.includes(run));
+            saveImportHistory(updatedHistory);
+
+            if (typeof GestaoFinanceira.syncToServer === 'function') {
+                GestaoFinanceira.syncToServer();
+            }
+
+            loadMonthData(currentMonth);
+            showToast('Último import restaurado.', 'success');
+        }
+
+        function loadLearnedRules() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(LEARNED_RULES_KEY) || '[]');
+                learnedRules = Array.isArray(saved) ? saved : [];
+            } catch (error) {
+                learnedRules = [];
+                localStorage.removeItem(LEARNED_RULES_KEY);
+            }
+        }
+
+        function saveLearnedRules() {
+            localStorage.setItem(LEARNED_RULES_KEY, JSON.stringify(learnedRules));
+        }
+
+        function normalizeRulePattern(text) {
+            return normalizeText(text || '').trim();
+        }
+
+        function buildLearnedPatterns(text) {
+            const normalized = normalizeRulePattern(text);
+            if (!normalized) return [];
+            const patterns = new Set([normalized]);
+            const prefixes = [
+                'transacao via pix com qr code para',
+                'transacao via pix com chave para',
+                'transacao via pix para',
+                'transacao via pix',
+                'taxa do pix - fatura nr.',
+                'taxa do pix - fatura',
+                'taxa do pix',
+                'taxa para pix com chave',
+                'taxa para pix',
+                'taxa pix',
+                'cobranca recebida - fatura nr.',
+                'cobranca recebida - fatura',
+                'cobranca recebida'
+            ];
+            prefixes.forEach(prefix => {
+                if (normalized.startsWith(prefix)) {
+                    const rest = normalized.slice(prefix.length).trim();
+                    if (rest.length >= 3) {
+                        patterns.add(rest);
+                    }
+                }
+            });
+            const withoutNumbers = normalized.replace(/\b\d+\b/g, '').replace(/\s+/g, ' ').trim();
+            if (withoutNumbers.length >= 3) {
+                patterns.add(withoutNumbers);
+            }
+            return Array.from(patterns);
+        }
+
+        function upsertLearnedRule(pattern, data) {
+            if (!pattern || pattern.length < 3) return;
+            const idx = learnedRules.findIndex(rule => rule.pattern === pattern);
+            const entry = {
+                pattern,
+                categoria: data.categoria || 'outros',
+                grupo: data.grupo || '',
+                banco: data.banco || ''
+            };
+            if (idx >= 0) {
+                learnedRules[idx] = { ...learnedRules[idx], ...entry };
+            } else {
+                learnedRules.push(entry);
+            }
+            learnedRules.sort((a, b) => b.pattern.length - a.pattern.length);
+            saveLearnedRules();
+        }
+
+        function findLearnedRule(descricao) {
+            const normalized = normalizeRulePattern(descricao);
+            if (!normalized) return null;
+            return learnedRules.find(rule => normalized.includes(rule.pattern)) || null;
+        }
+
+        function learnFromTransaction(trans) {
+            const source = trans?.sourceDescricao || trans?.descricao || trans?.memo || trans?.name || '';
+            const patterns = buildLearnedPatterns(source);
+            if (!patterns.length) return;
+            patterns.forEach(pattern => {
+                upsertLearnedRule(pattern, {
+                    categoria: trans.categoria || 'outros',
+                    grupo: trans.grupo || '',
+                    banco: trans.banco || ''
+                });
+            });
+        }
+
+        function buildLearnedRulesFromHistory() {
+            if (!window.GestaoFinanceira || !GestaoFinanceira.customItems) return;
+            const months = Object.values(GestaoFinanceira.customItems);
+            months.forEach(month => {
+                (month?.despesas || []).forEach(item => {
+                    const pattern = normalizeRulePattern(item?.nome);
+                    if (!pattern) return;
+                    upsertLearnedRule(pattern, {
+                        categoria: item.categoria || 'outros',
+                        grupo: item.tipo || '',
+                        banco: item.empresa || ''
+                    });
+                });
+            });
+        }
+
+        loadLearnedRules();
+        buildLearnedRulesFromHistory();
+
+        function refreshCategorySelects() {
+            document.querySelectorAll('#reconciliationList .reconcile-item').forEach(row => {
+                const index = parseInt(row.dataset.index, 10);
+                const trans = importedTransactions[index];
+                const select = row.querySelector('.import-category');
+                if (!select || !trans) return;
+                const current = trans.tipo === 'receita' ? 'outros' : (trans.categoria || 'outros');
+                select.innerHTML = getCategoryOptionsHTML(current);
+                select.value = current;
+            });
+        }
+
+        function refreshGroupSelects() {
+            document.querySelectorAll('#reconciliationList .reconcile-item').forEach(row => {
+                const index = parseInt(row.dataset.index, 10);
+                const trans = importedTransactions[index];
+                const select = row.querySelector('.import-group');
+                if (!select || !trans) return;
+                const current = trans.tipo === 'receita' ? '' : (trans.grupo || '');
+                select.innerHTML = getGroupOptionsHTML(current);
+                select.value = current;
+                row.dataset.group = current;
+            });
+        }
+
+        function suggestCategory(descricao) {
+            const learned = findLearnedRule(descricao);
+            if (learned?.categoria) return learned.categoria;
+            const normalized = normalizeText(descricao);
+            for (const rule of categoriaRules) {
+                if (rule.keywords.some(keyword => normalized.includes(normalizeText(keyword)))) {
+                    return rule.categoria;
+                }
+            }
+            return 'outros';
+        }
+
+        function suggestGroup(descricao) {
+            const learned = findLearnedRule(descricao);
+            if (learned?.grupo) return learned.grupo;
+            const normalized = normalizeText(descricao);
+            for (const rule of grupoRules) {
+                if (rule.keywords.some(keyword => normalized.includes(normalizeText(keyword)))) {
+                    return rule.grupo;
+                }
+            }
+            return '';
+        }
+
+        function suggestBank(descricao) {
+            const learned = findLearnedRule(descricao);
+            if (learned?.banco) return learned.banco;
+            const normalized = normalizeText(descricao);
+            for (const rule of bancoRules) {
+                if (rule.keywords.some(keyword => normalized.includes(normalizeText(keyword)))) {
+                    return rule.banco;
+                }
+            }
+            return 'asaas';
+        }
+
+        function getGroupOptionsHTML(selected) {
+            const options = Object.entries(grupoLabels).map(([value, label]) => {
+                const isSelected = value === (selected ?? '') ? 'selected' : '';
+                return `<option value="${value}" ${isSelected}>${label}</option>`;
+            }).join('');
+            return options + `<option value="__custom__">Criar grupo...</option>`;
+        }
+
+        function getBankOptionsHTML(selected) {
+            return Object.entries(bancoLabels).map(([value, label]) => {
+                const isSelected = value === (selected || 'asaas') ? 'selected' : '';
+                return `<option value="${value}" ${isSelected}>${label}</option>`;
+            }).join('');
         }
 
         // Fechar modal com ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeKanbanPaymentModal();
+                closeCustomValueModal();
             }
         });
 
@@ -4860,18 +6957,113 @@
                 closeKanbanPaymentModal();
             }
         });
+        document.getElementById('customValueModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCustomValueModal();
+            }
+        });
         // ========================================
         // IMPORTAÇÃO DE EXTRATO BANCÁRIO
         // ========================================
         let importedTransactions = [];
+        let importedOfxRange = null;
+        let selectedGroupFilter = 'all';
+        let importBankHint = null;
+
+        function buildGroupSummary(transactions) {
+            const summary = {};
+            transactions.forEach(trans => {
+                const grupo = trans.grupo || '';
+                if (!summary[grupo]) {
+                    summary[grupo] = { grupo, count: 0, total: 0 };
+                }
+                summary[grupo].count += 1;
+                summary[grupo].total += Math.abs(trans.amount || 0);
+            });
+            return Object.values(summary).sort((a, b) => b.total - a.total);
+        }
+
+        function renderGroupSummary(transactions) {
+            const container = document.getElementById('groupSummary');
+            if (!container) return;
+
+            const totalCount = transactions.length;
+            const totalValue = transactions.reduce((sum, trans) => sum + Math.abs(trans.amount || 0), 0);
+            const summary = buildGroupSummary(transactions);
+            const groupsSet = new Set(summary.map(item => item.grupo));
+
+            if (selectedGroupFilter !== 'all' && !groupsSet.has(selectedGroupFilter)) {
+                selectedGroupFilter = 'all';
+            }
+
+            const cards = [
+                { grupo: 'all', label: 'Todos', count: totalCount, total: totalValue },
+                ...summary.map(item => ({
+                    grupo: item.grupo,
+                    label: grupoLabels[item.grupo ?? ''] || item.grupo || 'Sem grupo',
+                    count: item.count,
+                    total: item.total
+                }))
+            ];
+
+            container.innerHTML = cards.map(card => `
+                <div class="group-card ${selectedGroupFilter === card.grupo ? 'active' : ''}" data-group="${card.grupo}">
+                    <div class="group-card-title">${card.label}</div>
+                    <div class="group-card-value">${formatMoney(card.total)}</div>
+                    <div class="group-card-meta">
+                        <span>${card.count} itens</span>
+                        <span>${card.grupo === 'all' ? '100%' : Math.round((card.total / (totalValue || 1)) * 100)}%</span>
+                    </div>
+                </div>
+            `).join('');
+
+            container.onclick = (event) => {
+                const card = event.target.closest('.group-card');
+                if (!card) return;
+                selectedGroupFilter = card.dataset.group;
+                applyGroupFilter();
+                renderGroupSummary(transactions);
+            };
+        }
+
+        function applyGroupFilter() {
+            const rows = document.querySelectorAll('#reconciliationList .reconcile-item');
+            let visibleCount = 0;
+            rows.forEach(row => {
+                const grupo = row.dataset.group || '';
+                const show = selectedGroupFilter === 'all' || grupo === selectedGroupFilter;
+                row.style.display = show ? '' : 'none';
+                if (show) visibleCount += 1;
+            });
+
+            const info = document.getElementById('groupFilterInfo');
+            if (!info) return;
+            if (selectedGroupFilter === 'all') {
+                info.textContent = '';
+            } else {
+                const label = grupoLabels[selectedGroupFilter] || selectedGroupFilter;
+                info.textContent = `Filtro ativo: ${label} • ${visibleCount} itens`;
+            }
+        }
 
         function openImportModal() {
             document.getElementById('importModal').classList.add('show');
             document.getElementById('importStep1').style.display = 'block';
             document.getElementById('importStep2').style.display = 'none';
             document.getElementById('btnProcessImport').style.display = 'none';
+            document.getElementById('btnRestoreImport').style.display = 'none';
             document.getElementById('bankFile').value = '';
             importedTransactions = [];
+            importedOfxRange = null;
+            selectedGroupFilter = 'all';
+            const monthLabel = document.getElementById('importMonthLabel');
+            if (monthLabel) {
+                monthLabel.textContent = formatMonthLabel(currentMonth);
+            }
+            const rangeLabel = document.getElementById('importOfxRange');
+            if (rangeLabel) {
+                rangeLabel.textContent = '-';
+            }
         }
 
         function handleBankFile(input) {
@@ -4882,6 +7074,30 @@
             reader.onload = function(e) {
                 const content = e.target.result;
                 const ext = file.name.split('.').pop().toLowerCase();
+                importedOfxRange = null;
+                importBankHint = null;
+
+                const normalizedName = normalizeText(file.name);
+                const sample = content ? content.slice(0, 20000) : '';
+                const normalizedSample = normalizeText(sample);
+                const isContaSimples =
+                    normalizedName.includes('conta simples') ||
+                    normalizedName.includes('conta-simples') ||
+                    normalizedName.includes('conta_simples') ||
+                    normalizedName.includes('contasimples') ||
+                    normalizedName.includes('cs bank') ||
+                    normalizedName.includes('csbank') ||
+                    normalizedSample.includes('conta simples') ||
+                    normalizedSample.includes('conta-simples') ||
+                    normalizedSample.includes('conta_simples') ||
+                    normalizedSample.includes('contasimples') ||
+                    normalizedSample.includes('cs bank') ||
+                    normalizedSample.includes('csbank') ||
+                    /<org>.*conta\s*simples/i.test(sample) ||
+                    /<bankname>.*conta\s*simples/i.test(sample);
+                if (isContaSimples) {
+                    importBankHint = 'conta_simples';
+                }
 
                 if (ext === 'ofx') {
                     parseOFX(content);
@@ -4898,7 +7114,6 @@
         }
 
         function parseOFX(content) {
-            // Simple OFX Parser
             const transactions = [];
             const lines = content.split('\n');
             let currentTransaction = {};
@@ -4923,14 +7138,13 @@
                     if (line.includes('<NAME>')) currentTransaction.name = line.split('<NAME>')[1].split('<')[0];
                 }
             });
-            importedTransactions = transactions;
+            importedOfxRange = extractOfxRange(content);
+            normalizeImportedTransactions(transactions);
         }
 
         function parseCSV(content) {
-            // Simple CSV Parser (assumes Date, Description, Amount)
             const transactions = [];
             const lines = content.split('\n');
-            // Try to detect separator
             const separator = lines[0].includes(';') ? ';' : ',';
 
             lines.forEach((line, index) => {
@@ -4956,13 +7170,176 @@
                     }
                 }
             });
-            importedTransactions = transactions;
+            normalizeImportedTransactions(transactions);
+        }
+
+        function normalizeImportedTransactions(transactions) {
+            const baseTransactions = transactions.map(t => {
+                const amount = parseFloat(t.amount);
+                const isExpense = amount < 0;
+                const descricao = (t.memo || t.name || 'Lançamento importado').trim();
+                const categoria = isExpense ? suggestCategory(descricao) : 'outros';
+                const grupo = isExpense ? suggestGroup(descricao) : '';
+                const banco = importBankHint || (isExpense ? suggestBank(descricao) : 'asaas');
+                return {
+                    date: t.date,
+                    amount: amount,
+                    memo: t.memo,
+                    name: t.name,
+                    descricao: descricao,
+                    sourceDescricao: descricao,
+                    tipo: isExpense ? 'despesa' : 'receita',
+                    categoria: categoria,
+                    grupo: grupo,
+                    banco: banco,
+                    status: isExpense ? 'Pago' : 'Recebido',
+                    matchName: ''
+                };
+            });
+
+            const groupConfigs = [
+                {
+                    id: 'taxa_pix',
+                    label: 'Taxa Pix (Agrupado)',
+                    categoria: 'taxas_bancarias',
+                    grupo: 'taxa_pix',
+                    match: trans => trans.grupo === 'taxa_pix'
+                },
+                {
+                    id: 'taxa_boleto',
+                    label: 'Taxa Boleto (Agrupado)',
+                    categoria: 'taxas_bancarias',
+                    grupo: 'taxa_boleto',
+                    match: trans => trans.grupo === 'taxa_boleto'
+                },
+                {
+                    id: 'mensageria',
+                    label: 'Mensageria (Agrupado)',
+                    categoria: 'taxas_bancarias',
+                    grupo: 'mensageria_cobranca',
+                    match: trans => trans.grupo && trans.grupo.startsWith('mensageria_')
+                },
+                {
+                    id: 'combustivel_posto',
+                    label: 'Combustível/Posto (Agrupado)',
+                    categoria: 'operacionais',
+                    grupo: 'combustivel_posto',
+                    match: (trans, normalized) => trans.grupo === 'combustivel_posto' || ['estacionamento', 'parking', 'rek parking'].some(term => normalized.includes(term))
+                },
+                {
+                    id: 'freelancers',
+                    label: 'Freelancers (Agrupado)',
+                    categoria: 'operacionais',
+                    grupo: 'freelancers',
+                    match: (trans, normalized) => normalized.includes('emilly laurindo')
+                },
+                {
+                    id: 'alimentacao',
+                    label: 'Operacionais/Alimentação (Agrupado)',
+                    categoria: 'operacionais',
+                    grupo: 'alimentacao',
+                    match: (trans, normalized) => ['restaurante', 'mercado', 'lanchonete', 'padaria', 'confeitaria', 'hamburgueria', 'pizza', 'sorveteria', 'supermercado', 'cafe', 'café', 'almoço', 'jantar', 'delivery', 'ifood', 'food', 'one market'].some(term => normalized.includes(term))
+                },
+                {
+                    id: 'farmacia',
+                    label: 'Operacionais/Farmácia (Agrupado)',
+                    categoria: 'operacionais',
+                    grupo: 'farmacia',
+                    match: (trans, normalized) => ['farmacia', 'farmácia', 'droga', 'drogaria'].some(term => normalized.includes(term))
+                },
+                {
+                    id: 'mercado_juan',
+                    label: 'Operacionais/Mercado Juan (Agrupado)',
+                    categoria: 'operacionais',
+                    grupo: 'mercado_juan',
+                    match: (trans, normalized) => ['unibox', 'mercado juan', 'mercados'].some(term => normalized.includes(term))
+                },
+                {
+                    id: 'adiantamento_lucro_socios',
+                    label: 'Adiantamento Lucro Sócios (Agrupado)',
+                    categoria: 'pessoal',
+                    grupo: 'adiantamento_lucro_socios',
+                    match: (trans, normalized) => normalized.includes('juan minni') || normalized.includes('juan fernando mello minni')
+                },
+                
+            ];
+
+            const groupedMap = new Map();
+            const remaining = [];
+
+            baseTransactions.forEach(trans => {
+                if (trans.tipo !== 'despesa') return;
+                const normalized = normalizeText(trans.descricao || trans.memo || trans.name || '');
+                const config = groupConfigs.find(item => item.match(trans, normalized));
+                if (!config) {
+                    remaining.push(trans);
+                    return;
+                }
+                const key = [config.id, trans.banco || '', currentMonth].join('|');
+                if (!groupedMap.has(key)) {
+                    groupedMap.set(key, {
+                        date: trans.date,
+                        amount: 0,
+                        memo: trans.memo,
+                        name: trans.name,
+                        descricao: config.label,
+                        sourceDescricao: config.label,
+                        tipo: 'despesa',
+                        categoria: config.categoria,
+                        grupo: config.grupo,
+                        banco: trans.banco,
+                        status: 'Pago',
+                        matchName: ''
+                    });
+                }
+                const entry = groupedMap.get(key);
+                entry.amount += trans.amount;
+                if (trans.date && (!entry.date || trans.date > entry.date)) {
+                    entry.date = trans.date;
+                }
+            });
+
+            importedTransactions = [...remaining, ...Array.from(groupedMap.values())]
+                .filter(trans => trans.tipo === 'despesa')
+                .map(trans => {
+                    checkTransactionImported(trans);
+                    return trans;
+                });
+        }
+
+        function formatMonthLabel(mes) {
+            if (!mes) return '-';
+            const [ano, mesNum] = mes.split('-');
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const idx = parseInt(mesNum, 10) - 1;
+            if (idx < 0 || idx > 11) return mes;
+            return `${months[idx]}/${ano}`;
+        }
+
+        function parseOfxDate(dateStr) {
+            if (!dateStr) return null;
+            const clean = dateStr.trim();
+            const year = clean.substring(0, 4);
+            const month = clean.substring(4, 6);
+            const day = clean.substring(6, 8);
+            if (!year || !month || !day) return null;
+            return `${year}-${month}-${day}`;
+        }
+
+        function extractOfxRange(content) {
+            const startMatch = content.match(/<DTSTART>([^<\r\n]+)/i);
+            const endMatch = content.match(/<DTEND>([^<\r\n]+)/i);
+            const startDate = startMatch ? parseOfxDate(startMatch[1]) : null;
+            const endDate = endMatch ? parseOfxDate(endMatch[1]) : null;
+            if (!startDate && !endDate) return null;
+            return { start: startDate, end: endDate };
         }
 
         function showReconciliation() {
             document.getElementById('importStep1').style.display = 'none';
             document.getElementById('importStep2').style.display = 'block';
             document.getElementById('btnProcessImport').style.display = 'block';
+            document.getElementById('btnRestoreImport').style.display = 'block';
 
             const list = document.getElementById('reconciliationList');
             list.innerHTML = '';
@@ -4970,57 +7347,376 @@
             let foundCount = 0;
             let newCount = 0;
 
-            importedTransactions.forEach((trans, index) => {
-                // Try to match with existing
-                const match = allItems.find(item => 
-                    Math.abs(item.valor - Math.abs(trans.amount)) < 0.05 &&
-                    (item.vencimento === trans.date || !item.vencimento)
-                );
+            const orderedTransactions = importedTransactions
+                .map((trans, index) => ({ trans, index }))
+                .sort((a, b) => {
+                    if (a.trans.isImported === b.trans.isImported) return 0;
+                    return a.trans.isImported ? 1 : -1;
+                });
+
+            orderedTransactions.forEach(({ trans, index }) => {
+                const match = trans.tipo === 'despesa'
+                    ? allItems.find(item =>
+                        Math.abs(item.valor - Math.abs(trans.amount)) < 0.05 &&
+                        (item.vencimento === trans.date || !item.vencimento)
+                    )
+                    : null;
+
+                trans.matchName = match ? match.nome : '';
 
                 const div = document.createElement('div');
-                div.className = 'reconcile-item';
+                div.className = `reconcile-item ${trans.matchName ? 'matched' : 'unmatched'}`;
+                div.dataset.index = index;
+                div.dataset.group = trans.grupo || '';
                 div.innerHTML = `
-                    <div><strong>${trans.date}</strong><br>${trans.memo || trans.name}</div>
-                    <div style="color: ${trans.amount < 0 ? 'red' : 'green'}">${formatMoney(Math.abs(trans.amount))}</div>
-                    <div>
-                        ${match ? `<span class="date-badge date-badge-pago">Encontrado: ${match.nome}</span>` : '<span class="date-badge date-badge-empty">Novo</span>'}
+                    <div class="bank-transaction">
+                        <div class="bank-desc">${trans.descricao}</div>
+                        <div class="bank-date">${trans.date || '-'}</div>
                     </div>
-                    <input type="checkbox" checked data-index="${index}" data-match="${match ? match.nome : ''}">
+                    <div class="bank-amount" style="color: ${trans.amount < 0 ? 'red' : 'green'}">${formatMoney(Math.abs(trans.amount))}</div>
+                    <div class="import-fields">
+                        <input type="text" class="form-input import-desc" value="${trans.descricao}">
+                        <div class="import-selects">
+                            <select class="form-select import-type">
+                                <option value="despesa" ${trans.tipo === 'despesa' ? 'selected' : ''}>Despesa</option>
+                                <option value="receita" ${trans.tipo === 'receita' ? 'selected' : ''}>Receita</option>
+                            </select>
+                            <select class="form-select import-category">
+                                ${getCategoryOptionsHTML(trans.categoria)}
+                            </select>
+                            <select class="form-select import-group">
+                                ${getGroupOptionsHTML(trans.grupo)}
+                            </select>
+                            <select class="form-select import-bank">
+                                ${getBankOptionsHTML(trans.banco)}
+                            </select>
+                            <select class="form-select import-status">
+                                ${getStatusOptionsHTML(trans.tipo, trans.status)}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="import-actions">
+                        <span class="date-badge ${trans.matchName ? 'date-badge-pago' : 'date-badge-empty'} import-match">${trans.matchName ? `Encontrado: ${trans.matchName}` : trans.tipo === 'receita' ? 'Receita' : 'Novo'}</span>
+                        <span class="date-badge date-badge-imported import-imported" style="display: ${trans.isImported ? 'inline-block' : 'none'}">Já importado</span>
+                        <button class="btn btn-secondary import-action-btn import-now-btn" data-index="${index}" ${trans.isImported ? 'disabled' : ''}>${trans.isImported ? 'Importado' : 'Importar agora'}</button>
+                        <label class="import-check">
+                            <input type="checkbox" class="import-checkbox" checked data-index="${index}" data-match="${trans.matchName}">
+                            Importar
+                        </label>
+                    </div>
                 `;
                 list.appendChild(div);
+                updateRowControls(div, trans);
 
-                if (match) foundCount++; else newCount++;
+                if (trans.matchName) foundCount++; else newCount++;
             });
+
+            list.oninput = (event) => {
+                const row = event.target.closest('.reconcile-item');
+                if (!row) return;
+                const index = parseInt(row.dataset.index, 10);
+                const trans = importedTransactions[index];
+                if (event.target.classList.contains('import-desc')) {
+                    trans.descricao = event.target.value.trim();
+                    if (!trans.grupo) {
+                        const sugerido = suggestGroup(trans.descricao);
+                        if (sugerido) {
+                            trans.grupo = sugerido;
+                            const groupSelect = row.querySelector('.import-group');
+                            if (groupSelect) groupSelect.value = sugerido;
+                            row.dataset.group = sugerido;
+                            renderGroupSummary(importedTransactions);
+                            applyGroupFilter();
+                        }
+                    }
+                }
+            };
+
+            list.onchange = (event) => {
+                const row = event.target.closest('.reconcile-item');
+                if (!row) return;
+                const index = parseInt(row.dataset.index, 10);
+                const trans = importedTransactions[index];
+
+                if (event.target.classList.contains('import-type')) {
+                    trans.tipo = event.target.value;
+                    if (trans.tipo === 'despesa' && !['Pago', 'A Pagar'].includes(trans.status)) {
+                        trans.status = 'Pago';
+                    }
+                    if (trans.tipo === 'receita' && !['Recebido', 'A Receber'].includes(trans.status)) {
+                        trans.status = 'Recebido';
+                    }
+                    updateRowControls(row, trans);
+                }
+
+                if (event.target.classList.contains('import-category')) {
+                    if (event.target.value === '__custom__') {
+                        const previous = trans.categoria || 'outros';
+                        openCustomValueModal({
+                            title: 'Nova categoria',
+                            label: 'Nome da categoria',
+                            placeholder: 'Ex: Viagens',
+                            onConfirm: (label) => {
+                                const id = addCustomCategory(label);
+                                if (id) {
+                                    trans.categoria = id;
+                                    refreshCategorySelects();
+                                    event.target.value = trans.categoria;
+                                } else {
+                                    trans.categoria = previous;
+                                    event.target.value = previous;
+                                }
+                            },
+                            onCancel: () => {
+                                event.target.value = previous;
+                            }
+                        });
+                    } else {
+                        trans.categoria = event.target.value;
+                    }
+                }
+
+                if (event.target.classList.contains('import-group')) {
+                    if (event.target.value === '__custom__') {
+                        const previous = trans.grupo || '';
+                        openCustomValueModal({
+                            title: 'Novo grupo',
+                            label: 'Nome do grupo',
+                            placeholder: 'Ex: Taxas Asaas',
+                            onConfirm: (label) => {
+                                const id = addCustomGroup(label);
+                                if (id) {
+                                    trans.grupo = id;
+                                    refreshGroupSelects();
+                                    event.target.value = trans.grupo;
+                                    row.dataset.group = trans.grupo || '';
+                                    renderGroupSummary(importedTransactions);
+                                    applyGroupFilter();
+                                } else {
+                                    trans.grupo = previous;
+                                    event.target.value = previous;
+                                }
+                            },
+                            onCancel: () => {
+                                event.target.value = previous;
+                            }
+                        });
+                    } else {
+                        trans.grupo = event.target.value;
+                        row.dataset.group = trans.grupo || '';
+                        renderGroupSummary(importedTransactions);
+                        applyGroupFilter();
+                    }
+                }
+
+                if (event.target.classList.contains('import-bank')) {
+                    trans.banco = event.target.value;
+                }
+
+                if (event.target.classList.contains('import-status')) {
+                    trans.status = event.target.value;
+                }
+            };
+
+            list.onclick = (event) => {
+                const button = event.target.closest('.import-now-btn');
+                if (!button) return;
+                const index = parseInt(button.dataset.index, 10);
+                processSingleImport(index);
+            };
 
             document.getElementById('foundCount').textContent = `${foundCount} Encontrados`;
             document.getElementById('newCount').textContent = `${newCount} Novos`;
+            const monthLabel = document.getElementById('importMonthLabel');
+            if (monthLabel) {
+                monthLabel.textContent = formatMonthLabel(currentMonth);
+            }
+            const rangeLabel = document.getElementById('importOfxRange');
+            if (rangeLabel) {
+                if (importedOfxRange) {
+                    const start = importedOfxRange.start ? formatDate(importedOfxRange.start) : '-';
+                    const end = importedOfxRange.end ? formatDate(importedOfxRange.end) : '-';
+                    rangeLabel.textContent = `${start} a ${end}`;
+                } else {
+                    rangeLabel.textContent = '-';
+                }
+            }
+            renderGroupSummary(importedTransactions);
+            applyGroupFilter();
+        }
+
+        function updateRowControls(row, trans) {
+            const categorySelect = row.querySelector('.import-category');
+            const groupSelect = row.querySelector('.import-group');
+            const statusSelect = row.querySelector('.import-status');
+            const matchBadge = row.querySelector('.import-match');
+            const checkbox = row.querySelector('.import-checkbox');
+            const importedBadge = row.querySelector('.import-imported');
+            const importNowButton = row.querySelector('.import-now-btn');
+
+            statusSelect.innerHTML = getStatusOptionsHTML(trans.tipo, trans.status);
+
+            if (trans.tipo === 'receita') {
+                categorySelect.disabled = true;
+                categorySelect.value = 'outros';
+                if (groupSelect) {
+                    groupSelect.disabled = true;
+                    groupSelect.value = '';
+                }
+                row.classList.remove('matched');
+                row.classList.add('unmatched');
+                matchBadge.className = 'date-badge date-badge-empty import-match';
+                matchBadge.textContent = 'Receita';
+                checkbox.dataset.match = '';
+            } else {
+                categorySelect.disabled = false;
+                if (groupSelect) {
+                    groupSelect.disabled = false;
+                }
+                if (trans.matchName) {
+                    row.classList.add('matched');
+                    row.classList.remove('unmatched');
+                    matchBadge.className = 'date-badge date-badge-pago import-match';
+                    matchBadge.textContent = `Encontrado: ${trans.matchName}`;
+                    checkbox.dataset.match = trans.matchName;
+                } else {
+                    row.classList.remove('matched');
+                    row.classList.add('unmatched');
+                    matchBadge.className = 'date-badge date-badge-empty import-match';
+                    matchBadge.textContent = 'Novo';
+                    checkbox.dataset.match = '';
+                }
+            }
+            if (trans.isImported) {
+                if (importedBadge) importedBadge.style.display = 'inline-block';
+                checkbox.checked = false;
+                checkbox.disabled = true;
+                if (importNowButton) {
+                    importNowButton.disabled = true;
+                    importNowButton.textContent = 'Importado';
+                }
+            } else {
+                if (importedBadge) importedBadge.style.display = 'none';
+                checkbox.disabled = false;
+                if (importNowButton) {
+                    importNowButton.disabled = false;
+                    importNowButton.textContent = 'Importar agora';
+                }
+            }
+        }
+
+        function applyImportForTransaction(trans, matchName, importRun) {
+            const importRunId = importRun?.id || '';
+            const importedAt = importRun?.createdAt || new Date().toISOString();
+            const importSource = trans.banco || 'extrato';
+            const bankKey = normalizeBankKey(trans.banco || importSource);
+            if (importRun && bankKey) {
+                if (!Array.isArray(importRun.sources)) importRun.sources = [];
+                if (!importRun.sources.includes(bankKey)) {
+                    importRun.sources.push(bankKey);
+                }
+            }
+            if (trans.tipo === 'despesa') {
+                if (matchName) {
+                    if (importRun) {
+                        importRun.matchedDespesas.push({
+                            nome: matchName,
+                            previousStatus: getPreviousDespesaStatus(matchName)
+                        });
+                    }
+                    GestaoFinanceira.updateStatus(currentMonth, 'despesa', matchName, trans.status, trans.status === 'Pago' ? trans.date : null);
+                } else {
+                    const despesa = GestaoFinanceira.addDespesa(currentMonth, {
+                        nome: trans.descricao || 'Despesa Importada',
+                        valor: Math.abs(trans.amount),
+                        categoria: trans.categoria || 'outros',
+                        tipo: trans.grupo || '',
+                        empresa: trans.banco || 'asaas',
+                        vencimento: trans.date,
+                        status: trans.status,
+                        dataPagamento: trans.status === 'Pago' ? trans.date : null,
+                        importRunId,
+                        importedAt,
+                        importSource
+                    });
+                    if (importRun) {
+                        importRun.createdDespesas.push({ nome: despesa.nome });
+                    }
+                }
+            } else {
+                const receita = GestaoFinanceira.addReceita(currentMonth, {
+                    nome: trans.descricao || 'Receita Importada',
+                    valor: Math.abs(trans.amount),
+                    status: trans.status,
+                    origem: 'OFX',
+                    empresa: 'Asaas',
+                    importRunId,
+                    importedAt,
+                    importSource
+                });
+                GestaoFinanceira.updateStatus(currentMonth, 'receita', receita.nome, trans.status, trans.status === 'Recebido' ? trans.date : null);
+                if (importRun) {
+                    importRun.createdReceitas.push({ nome: receita.nome });
+                }
+            }
+            learnFromTransaction(trans);
+            markTransactionImported(trans);
+        }
+
+        function processSingleImport(index) {
+            const trans = importedTransactions[index];
+            if (!trans) return;
+            if (trans.isImported) {
+                showToast('Este lançamento já foi importado.', 'info');
+                return;
+            }
+            const importRun = createImportRun();
+            applyImportForTransaction(trans, trans.matchName || '', importRun);
+            if (importRun.createdDespesas.length || importRun.createdReceitas.length || importRun.matchedDespesas.length) {
+                const history = loadImportHistory();
+                history.push(importRun);
+                saveImportHistory(history);
+                const sources = Array.isArray(importRun.sources) && importRun.sources.length ? importRun.sources : ['asaas'];
+                sources.forEach(source => {
+                    setImportMetaForMonthBank(currentMonth, source, {
+                        lastImportAt: importRun.createdAt,
+                        lastReconcileAt: importRun.createdAt
+                    });
+                });
+            }
+            const row = document.querySelector(`#reconciliationList .reconcile-item[data-index="${index}"]`);
+            if (row) updateRowControls(row, trans);
+            showToast('Lançamento importado.', 'success');
+            loadMonthData(currentMonth);
         }
 
         function processReconciliation() {
             const checkboxes = document.querySelectorAll('#reconciliationList input:checked');
             let processed = 0;
+            const importRun = createImportRun();
 
             checkboxes.forEach(cb => {
                 const index = cb.dataset.index;
                 const trans = importedTransactions[index];
                 const matchName = cb.dataset.match;
 
-                if (matchName) {
-                    // Update existing
-                    GestaoFinanceira.updateStatus(currentMonth, 'despesa', matchName, 'Pago', trans.date);
-                } else {
-                    // Create new
-                    GestaoFinanceira.addDespesa(currentMonth, {
-                        nome: trans.memo || trans.name || 'Despesa Importada',
-                        valor: Math.abs(trans.amount),
-                        categoria: 'outros',
-                        vencimento: trans.date,
-                        status: 'Pago',
-                        dataPagamento: trans.date
-                    });
-                }
+                if (trans.isImported) return;
+                applyImportForTransaction(trans, matchName || '', importRun);
                 processed++;
             });
+
+            if (importRun.createdDespesas.length || importRun.createdReceitas.length || importRun.matchedDespesas.length) {
+                const history = loadImportHistory();
+                history.push(importRun);
+                saveImportHistory(history);
+                const sources = Array.isArray(importRun.sources) && importRun.sources.length ? importRun.sources : ['asaas'];
+                sources.forEach(source => {
+                    setImportMetaForMonthBank(currentMonth, source, {
+                        lastImportAt: importRun.createdAt,
+                        lastReconcileAt: importRun.createdAt
+                    });
+                });
+            }
 
             closeModal('importModal');
             showToast(`${processed} transações processadas!`, 'success');
@@ -5122,7 +7818,7 @@
 
                 <div class="kanban-form-group">
                     <label for="kanbanPaymentDate">Data do Pagamento</label>
-                    <input type="date" id="kanbanPaymentDate">
+                    <input type="text" id="kanbanPaymentDate" class="js-date-input" placeholder="dd/mm/aaaa">
                 </div>
 
                 <div class="kanban-form-group">
@@ -5174,5 +7870,25 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('sidebarToggle');
+            if (!toggleButton) return;
+
+            const applySidebarState = (collapsed) => {
+                document.body.classList.toggle('sidebar-collapsed', collapsed);
+                toggleButton.textContent = collapsed ? '⟩' : '⟨';
+            };
+
+            const saved = localStorage.getItem('starken_sidebar_collapsed') === 'true';
+            applySidebarState(saved);
+
+            toggleButton.addEventListener('click', () => {
+                const next = !document.body.classList.contains('sidebar-collapsed');
+                applySidebarState(next);
+                localStorage.setItem('starken_sidebar_collapsed', String(next));
+            });
+        });
+    </script>
 </body>
 </html>

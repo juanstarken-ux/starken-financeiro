@@ -12,7 +12,9 @@ const GestaoFinanceira = {
     EDITED_ITEMS_KEY: 'starken_financeiro_edited_items',
 
     // URL da API Vercel/Netlify (Produção)
-    API_URL: 'https://starkentecnologia-performance.netlify.app/.netlify/functions/sync-data',
+    API_URL: (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+        ? '/api/sync-data'
+        : 'https://starkentecnologia-performance.netlify.app/.netlify/functions/sync-data',
 
     // URL do backend Railway (produção)
     RAILWAY_API_URL: 'https://starken-financeiro-production.up.railway.app',
@@ -25,6 +27,15 @@ const GestaoFinanceira = {
     // Polling interval (30 segundos)
     pollingInterval: null,
     POLLING_TIME: 30000, // 30s
+
+    isLocalhost() {
+        return typeof window !== 'undefined'
+            && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    },
+
+    isRailwayEnabled() {
+        return !this.isLocalhost() && !!this.RAILWAY_API_URL;
+    },
 
     // Inicializar sistema
     init() {
@@ -92,6 +103,18 @@ const GestaoFinanceira = {
         if (serverData.editedItems && Object.keys(serverData.editedItems).length > 0) {
             this.editedItems = { ...serverData.editedItems, ...this.editedItems };
         }
+        if (this.customItems && Object.keys(this.customItems).length > 0) {
+            Object.keys(this.customItems).forEach(mes => {
+                const deleted = this.deletedItems[mes] || { despesas: [], receitas: [] };
+                const despesasDeleted = new Set(deleted.despesas || []);
+                const receitasDeleted = new Set(deleted.receitas || []);
+                const atual = this.customItems[mes] || { despesas: [], receitas: [] };
+                this.customItems[mes] = {
+                    despesas: (atual.despesas || []).filter(item => !despesasDeleted.has(item.nome)),
+                    receitas: (atual.receitas || []).filter(item => !receitasDeleted.has(item.nome))
+                };
+            });
+        }
 
         // Salvar no localStorage
         this.saveToStorage();
@@ -100,7 +123,7 @@ const GestaoFinanceira = {
 
     // Sincronizar com servidor
     async syncToServer() {
-        if (!this.syncEnabled || this.syncInProgress) return;
+        if (!this.syncEnabled || this.syncInProgress || this.isLocalhost()) return;
 
         this.syncInProgress = true;
         try {
@@ -127,7 +150,7 @@ const GestaoFinanceira = {
 
     // Salvar status no servidor
     async saveStatusToServer(mes, tipo, itemNome, status, dataPagamento) {
-        if (!this.syncEnabled) return;
+        if (!this.syncEnabled || this.isLocalhost()) return;
 
         try {
             await fetch(this.API_URL + '/status', {
@@ -198,13 +221,16 @@ const GestaoFinanceira = {
             status: despesa.status || 'A Pagar',
             tipo: despesa.tipo || '',
             funcao: despesa.funcao || '',
+            empresa: despesa.empresa || '',
             vencimento: despesa.vencimento || '',
             dataCriacao: new Date().toISOString(),
             isCustom: true,
-            // Campos para pagamento parcial
             origemParcial: despesa.origemParcial || null,  // Nome da despesa mãe
             valorOriginal: despesa.valorOriginal || null,   // Valor original antes do parcial
-            observacao: despesa.observacao || ''            // Observações adicionais
+            observacao: despesa.observacao || '',
+            importRunId: despesa.importRunId || '',
+            importedAt: despesa.importedAt || '',
+            importSource: despesa.importSource || ''
         };
 
         if (!this.customItems[mes]) {
@@ -289,18 +315,30 @@ const GestaoFinanceira = {
         console.log('deleteDespesa chamado:', { mes, nome, isCustom });
 
         let deleted = false;
+        const smartDeletedNames = [];
 
         // 1. Tentar remover de customItems primeiro
         if (this.customItems[mes] && this.customItems[mes].despesas) {
             const antes = this.customItems[mes].despesas.length;
             this.customItems[mes].despesas = this.customItems[mes].despesas.filter(d => {
                 const match = d.nome === nome || d.nome.trim() === nome.trim();
-                if (match) console.log('Removendo de customItems:', d.nome);
+                if (match) {
+                    console.log('Removendo de customItems:', d.nome);
+                    if (d.importSource === 'royalties-alpha-smart') {
+                        smartDeletedNames.push(d.nome);
+                    }
+                }
                 return !match;
             });
             if (this.customItems[mes].despesas.length < antes) {
                 deleted = true;
                 console.log('Item removido de customItems');
+                if (!this.deletedItems[mes]) {
+                    this.deletedItems[mes] = { despesas: [], receitas: [] };
+                }
+                if (!this.deletedItems[mes].despesas.includes(nome)) {
+                    this.deletedItems[mes].despesas.push(nome);
+                }
             }
         }
 
@@ -333,6 +371,17 @@ const GestaoFinanceira = {
                 this.deletedItems[mes].despesas.push(nome);
                 console.log('Item marcado como deletado:', nome);
             }
+        }
+
+        if (smartDeletedNames.length > 0) {
+            if (!this.deletedItems[mes]) {
+                this.deletedItems[mes] = { despesas: [], receitas: [] };
+            }
+            smartDeletedNames.forEach(itemNome => {
+                if (!this.deletedItems[mes].despesas.includes(itemNome)) {
+                    this.deletedItems[mes].despesas.push(itemNome);
+                }
+            });
         }
 
         this.saveToStorage();
@@ -383,8 +432,15 @@ const GestaoFinanceira = {
             empresa: receita.empresa || 'Starken',
             status: receita.status || 'A Receber',
             origem: receita.origem || '',
+            origemParcial: receita.origemParcial || null,
+            valorOriginal: receita.valorOriginal || null,
+            observacao: receita.observacao || '',
+            dataVencimento: receita.dataVencimento || '',
             dataCriacao: new Date().toISOString(),
-            isCustom: true
+            isCustom: true,
+            importRunId: receita.importRunId || '',
+            importedAt: receita.importedAt || '',
+            importSource: receita.importSource || ''
         };
 
         if (!this.customItems[mes]) {
@@ -464,17 +520,15 @@ const GestaoFinanceira = {
 
     // Excluir receita
     deleteReceita(mes, nome, isCustom = false) {
-        if (isCustom) {
-            if (this.customItems[mes] && this.customItems[mes].receitas) {
-                this.customItems[mes].receitas = this.customItems[mes].receitas.filter(r => r.nome !== nome);
-            }
-        } else {
-            if (!this.deletedItems[mes]) {
-                this.deletedItems[mes] = { despesas: [], receitas: [] };
-            }
-            if (!this.deletedItems[mes].receitas.includes(nome)) {
-                this.deletedItems[mes].receitas.push(nome);
-            }
+        if (this.customItems[mes] && this.customItems[mes].receitas) {
+            const antes = this.customItems[mes].receitas.length;
+            this.customItems[mes].receitas = this.customItems[mes].receitas.filter(r => r.nome !== nome);
+        }
+        if (!this.deletedItems[mes]) {
+            this.deletedItems[mes] = { despesas: [], receitas: [] };
+        }
+        if (!this.deletedItems[mes].receitas.includes(nome)) {
+            this.deletedItems[mes].receitas.push(nome);
         }
 
         this.saveToStorage();
@@ -581,6 +635,9 @@ const GestaoFinanceira = {
             // Adicionar itens customizados
             if (this.customItems[mes] && this.customItems[mes].receitas) {
                 this.customItems[mes].receitas.forEach(receita => {
+                    if (this.isDeleted(mes, 'receita', receita.nome)) {
+                        return;
+                    }
                     const savedStatus = this.getStatus(mes, 'receita', receita.nome);
                     if (savedStatus) {
                         receita.status = savedStatus.status;
@@ -652,6 +709,9 @@ const GestaoFinanceira = {
             // Adicionar itens customizados
             if (this.customItems[mes] && this.customItems[mes].despesas) {
                 this.customItems[mes].despesas.forEach(despesa => {
+                    if (this.isDeleted(mes, 'despesa', despesa.nome)) {
+                        return;
+                    }
                     const savedStatus = this.getStatus(mes, 'despesa', despesa.nome);
                     if (savedStatus) {
                         despesa.status = savedStatus.status;
@@ -862,6 +922,9 @@ const GestaoFinanceira = {
 
     // Sincronizar dados de um mês específico com o servidor
     async syncMesWithServer(mes) {
+        if (!this.isRailwayEnabled()) {
+            return false;
+        }
         if (this.syncInProgress) {
             console.log('⏳ Sincronização já em andamento...');
             return;
@@ -906,25 +969,34 @@ const GestaoFinanceira = {
     mergeRailwayData(mes, serverData) {
         // Aplicar customItems
         if (serverData.customItems) {
-            this.customItems[mes] = {
-                despesas: serverData.customItems.despesas || [],
-                receitas: serverData.customItems.receitas || []
+            const local = this.customItems[mes] || { despesas: [], receitas: [] };
+            const server = serverData.customItems || {};
+            const merged = {
+                despesas: [...(server.despesas || []), ...(local.despesas || [])],
+                receitas: [...(server.receitas || []), ...(local.receitas || [])]
             };
+            merged.despesas = Array.from(new Map(merged.despesas.map(d => [d.nome, d])).values());
+            merged.receitas = Array.from(new Map(merged.receitas.map(r => [r.nome, r])).values());
+            this.customItems[mes] = merged;
         }
 
         // Aplicar deletedItems
         if (serverData.deletedItems) {
+            const localDeleted = this.deletedItems[mes] || { despesas: [], receitas: [] };
+            const serverDeleted = serverData.deletedItems || {};
             this.deletedItems[mes] = {
-                despesas: serverData.deletedItems.despesas || [],
-                receitas: serverData.deletedItems.receitas || []
+                despesas: Array.from(new Set([...(serverDeleted.despesas || []), ...(localDeleted.despesas || [])])),
+                receitas: Array.from(new Set([...(serverDeleted.receitas || []), ...(localDeleted.receitas || [])]))
             };
         }
 
         // Aplicar editedItems
         if (serverData.editedItems) {
+            const localEdited = this.editedItems[mes] || { despesas: {}, receitas: {} };
+            const serverEdited = serverData.editedItems || {};
             this.editedItems[mes] = {
-                despesas: serverData.editedItems.despesas || {},
-                receitas: serverData.editedItems.receitas || {}
+                despesas: { ...(serverEdited.despesas || {}), ...(localEdited.despesas || {}) },
+                receitas: { ...(serverEdited.receitas || {}), ...(localEdited.receitas || {}) }
             };
         }
 
@@ -932,10 +1004,23 @@ const GestaoFinanceira = {
         if (serverData.statusData) {
             Object.assign(this.statusData, serverData.statusData);
         }
+
+        const deleted = this.deletedItems[mes] || { despesas: [], receitas: [] };
+        const despesasDeleted = new Set(deleted.despesas || []);
+        const receitasDeleted = new Set(deleted.receitas || []);
+        if (this.customItems[mes]) {
+            this.customItems[mes] = {
+                despesas: (this.customItems[mes].despesas || []).filter(item => !despesasDeleted.has(item.nome)),
+                receitas: (this.customItems[mes].receitas || []).filter(item => !receitasDeleted.has(item.nome))
+            };
+        }
     },
 
     // Enviar mudança local para o servidor
     async pushToServer(tipo, acao, dados) {
+        if (!this.isRailwayEnabled()) {
+            return false;
+        }
         try {
             let endpoint, method, body;
 
@@ -1002,6 +1087,9 @@ const GestaoFinanceira = {
 
     // Iniciar polling automático
     startPolling(mes) {
+        if (!this.isRailwayEnabled()) {
+            return;
+        }
         if (this.pollingInterval) {
             this.stopPolling();
         }

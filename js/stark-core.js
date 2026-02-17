@@ -74,6 +74,11 @@ class StarkCore {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   }
 
+  isLocalhost() {
+    if (typeof window === 'undefined') return false;
+    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  }
+
   // ============================================
   // SINCRONIZAÇÃO COM BACKEND
   // ============================================
@@ -84,6 +89,9 @@ class StarkCore {
     this.dados.carregando = true;
 
     try {
+      if (this.isLocalhost()) {
+        return { success: false, offline: true };
+      }
       // Vercel Serverless Function
       const response = await fetch('/api/sync-data', {
         method: 'POST',
@@ -178,6 +186,9 @@ class StarkCore {
 
   async executarAcao(acao, dados) {
     try {
+      if (this.isLocalhost()) {
+        return { success: false, offline: true };
+      }
       // Vercel Serverless Function
       const response = await fetch('/api/sync-data', {
         method: 'POST',

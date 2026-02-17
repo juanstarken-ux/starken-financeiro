@@ -220,6 +220,7 @@
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             z-index: 100;
+            transition: transform 0.2s ease;
         }
 
         .sidebar-header {
@@ -309,7 +310,30 @@
             flex: 1;
             margin-left: 260px;
             padding: 30px;
+            transition: margin-left 0.2s ease;
         }
+        .sidebar-toggle {
+            position: fixed;
+            top: 90px;
+            left: 260px;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .sidebar-collapsed .sidebar { transform: translateX(-100%); }
+        .sidebar-collapsed .main-content { margin-left: 0; }
+        .sidebar-collapsed .sidebar-toggle { left: 18px; transform: none; }
 
         /* Page Header */
         .page-header {
@@ -784,6 +808,7 @@
 
     <!-- Dashboard Container -->
     <div class="dashboard-container" id="dashboardContainer">
+        <button class="sidebar-toggle" id="sidebarToggle" type="button">⟨</button>
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -1856,6 +1881,26 @@
                 if (arrow) arrow.style.transform = 'rotate(90deg)';
             }
         }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('sidebarToggle');
+            if (!toggleButton) return;
+
+            const applySidebarState = (collapsed) => {
+                document.body.classList.toggle('sidebar-collapsed', collapsed);
+                toggleButton.textContent = collapsed ? '⟩' : '⟨';
+            };
+
+            const saved = localStorage.getItem('starken_sidebar_collapsed') === 'true';
+            applySidebarState(saved);
+
+            toggleButton.addEventListener('click', () => {
+                const next = !document.body.classList.contains('sidebar-collapsed');
+                applySidebarState(next);
+                localStorage.setItem('starken_sidebar_collapsed', String(next));
+            });
+        });
     </script>
 </body>
 </html>

@@ -68,6 +68,7 @@
             height: 100vh;
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
         }
 
         .sidebar-header {
@@ -136,6 +137,40 @@
             flex: 1;
             margin-left: 260px;
             padding: 30px;
+            transition: margin-left 0.2s ease;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 90px;
+            left: 260px;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .sidebar-collapsed .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-collapsed .main-content {
+            margin-left: 0;
+        }
+
+        .sidebar-collapsed .sidebar-toggle {
+            left: 18px;
+            transform: none;
         }
 
         .page-header {
@@ -293,6 +328,120 @@
 
         .kpi-change.negative {
             color: var(--danger);
+        }
+
+        .operations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .operation-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f7fafc 100%);
+            border: 1px solid #e5ebf0;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 10px 24px rgba(15,23,42,0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .operation-card.starken {
+            border-top: 3px solid #1f6e43;
+        }
+
+        .operation-card.alpha {
+            border-top: 3px solid #9a6b00;
+            background: linear-gradient(145deg, #fffaf0 0%, #fff6db 100%);
+        }
+
+        .operation-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .operation-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .operation-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .operation-badge.starken {
+            background: #e5f5ec;
+            color: #1f6e43;
+        }
+
+        .operation-badge.alpha {
+            background: #fff1c2;
+            color: #9a6b00;
+        }
+
+        .operation-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .operation-metric {
+            background: #ffffff;
+            border: 1px solid #eef2f6;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .operation-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            background: #f8fafc;
+            border: 1px dashed #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .operation-footer-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        @media (max-width: 900px) {
+            .operation-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .operation-footer {
+                flex-direction: column;
+            }
         }
 
         /* Charts Section */
@@ -1220,6 +1369,25 @@
             border-color: #d97706 !important;
         }
 
+        .renovado-card {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #22c55e !important;
+            position: relative;
+        }
+
+        .renovado-card::before {
+            content: '✅ RENOVADO';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #16a34a;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
         /* Card de Projeção (futuro/não faturado) */
         .projecao-card {
             background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
@@ -1292,6 +1460,7 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <button class="sidebar-toggle" id="sidebarToggle" type="button">⟨</button>
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -1374,7 +1543,6 @@
                             <!-- Opções serão geradas dinamicamente -->
                         </select>
                     </div>
-
                     <div id="user-info">
                         <!-- Informações do usuário serão inseridas aqui pelo JavaScript -->
                     </div>
@@ -1400,6 +1568,11 @@
                             <div class="kpi-value" id="kpi-total-clientes">0</div>
                             <div class="kpi-change" id="kpi-total-clientes-breakdown">0 Starken + 0 Alpha</div>
                         </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><div class="kpi-title">Receita por Cliente</div><div class="kpi-icon bg-success">🎯</div></div>
+                            <div class="kpi-value" id="kpi-total-ticket">R$ 0</div>
+                            <div class="kpi-change">Ticket médio do mês</div>
+                        </div>
                         <!-- Despesas Total -->
                         <div class="kpi-card">
                             <div class="kpi-header"><div class="kpi-title">Despesas Totais</div><div class="kpi-icon bg-warning">💸</div></div>
@@ -1415,56 +1588,76 @@
                     </div>
                 </div>
 
-                <!-- STARKEN Section -->
-                <div class="kpi-section starken">
-                    <h3 class="kpi-section-title">🚀 Starken (Operação)</h3>
-                    <div class="kpi-grid">
-                         <!-- MRR Starken -->
-                        <div class="kpi-card">
-                            <div class="kpi-header"><div class="kpi-title">Receita Starken</div><div class="kpi-icon bg-success">💰</div></div>
-                            <div class="kpi-value" id="kpi-starken-mrr">R$ 0</div>
+                <div class="kpi-section">
+                    <h3 class="kpi-section-title">🔗 Operações Interligadas</h3>
+                    <div class="operations-grid">
+                        <div class="operation-card starken">
+                            <div class="operation-header">
+                                <div class="operation-title">Starken (Matriz)</div>
+                                <div class="operation-badge starken">Operação</div>
+                            </div>
+                            <div class="operation-metrics">
+                                <div class="operation-metric">
+                                    <div class="metric-label">Receita</div>
+                                    <div class="metric-value" id="kpi-starken-mrr">R$ 0</div>
+                                </div>
+                                <div class="operation-metric">
+                                    <div class="metric-label">Clientes</div>
+                                    <div class="metric-value" id="kpi-starken-clientes">0</div>
+                                </div>
+                                <div class="operation-metric">
+                                    <div class="metric-label">Despesas Operacionais</div>
+                                    <div class="metric-value" id="kpi-starken-despesas">R$ 0</div>
+                                </div>
+                                <div class="operation-metric">
+                                    <div class="metric-label">Resultado</div>
+                                    <div class="metric-value" id="kpi-starken-resultado">R$ 0</div>
+                                </div>
+                            </div>
+                            <div class="operation-footer">
+                                <div class="operation-footer-item">
+                                    <div class="metric-label">Participação</div>
+                                    <div class="metric-value" id="kpi-starken-participacao">0%</div>
+                                </div>
+                                <div class="operation-footer-item">
+                                    <div class="metric-label">Margem</div>
+                                    <div class="metric-value" id="kpi-starken-margem">0%</div>
+                                </div>
+                            </div>
                         </div>
-                         <!-- Clientes Starken -->
-                        <div class="kpi-card">
-                            <div class="kpi-header"><div class="kpi-title">Clientes Ativos</div><div class="kpi-icon bg-primary">👥</div></div>
-                            <div class="kpi-value" id="kpi-starken-clientes">0</div>
-                        </div>
-                         <!-- Despesas Starken -->
-                        <div class="kpi-card">
-                            <div class="kpi-header"><div class="kpi-title">Despesas Operacionais</div><div class="kpi-icon bg-warning">💸</div></div>
-                            <div class="kpi-value" id="kpi-starken-despesas">R$ 0</div>
-                        </div>
-                         <!-- Resultado Starken -->
-                        <div class="kpi-card">
-                            <div class="kpi-header"><div class="kpi-title">Resultado Starken</div><div class="kpi-icon bg-success">📊</div></div>
-                            <div class="kpi-value" id="kpi-starken-resultado">R$ 0</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ALPHA Section -->
-                <div class="kpi-section alpha">
-                    <h3 class="kpi-section-title">⭐ Alpha (Projeto)</h3>
-                    <div class="kpi-grid">
-                         <!-- MRR Alpha -->
-                        <div class="kpi-card">
-                            <div class="kpi-header"><div class="kpi-title">Receita Alpha</div><div class="kpi-icon bg-success">💰</div></div>
-                            <div class="kpi-value" id="kpi-alpha-mrr">R$ 0</div>
-                        </div>
-                         <!-- Clientes Alpha -->
-                        <div class="kpi-card">
-                            <div class="kpi-header"><div class="kpi-title">Clientes Ativos</div><div class="kpi-icon bg-primary">👥</div></div>
-                            <div class="kpi-value" id="kpi-alpha-clientes">0</div>
-                        </div>
-                         <!-- Royalties/Despesas Alpha -->
-                        <div class="kpi-card">
-                            <div class="kpi-header"><div class="kpi-title">Royalties & Taxas</div><div class="kpi-icon bg-warning">💸</div></div>
-                            <div class="kpi-value" id="kpi-alpha-despesas">R$ 0</div>
-                        </div>
-                         <!-- Resultado Alpha -->
-                        <div class="kpi-card">
-                            <div class="kpi-header"><div class="kpi-title">Resultado Alpha</div><div class="kpi-icon bg-success">📊</div></div>
-                            <div class="kpi-value" id="kpi-alpha-resultado">R$ 0</div>
+                        <div class="operation-card alpha">
+                            <div class="operation-header">
+                                <div class="operation-title">Alpha (Projeto)</div>
+                                <div class="operation-badge alpha">Projeto</div>
+                            </div>
+                            <div class="operation-metrics">
+                                <div class="operation-metric">
+                                    <div class="metric-label">Receita</div>
+                                    <div class="metric-value" id="kpi-alpha-mrr">R$ 0</div>
+                                </div>
+                                <div class="operation-metric">
+                                    <div class="metric-label">Clientes</div>
+                                    <div class="metric-value" id="kpi-alpha-clientes">0</div>
+                                </div>
+                                <div class="operation-metric">
+                                    <div class="metric-label">Royalties & Taxas</div>
+                                    <div class="metric-value" id="kpi-alpha-despesas">R$ 0</div>
+                                </div>
+                                <div class="operation-metric">
+                                    <div class="metric-label">Resultado</div>
+                                    <div class="metric-value" id="kpi-alpha-resultado">R$ 0</div>
+                                </div>
+                            </div>
+                            <div class="operation-footer">
+                                <div class="operation-footer-item">
+                                    <div class="metric-label">Participação</div>
+                                    <div class="metric-value" id="kpi-alpha-participacao">0%</div>
+                                </div>
+                                <div class="operation-footer-item">
+                                    <div class="metric-label">Margem</div>
+                                    <div class="metric-value" id="kpi-alpha-margem">0%</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1545,6 +1738,24 @@
                             onmouseout="this.style.background='#0ea5e9'"
                         >
                             🔄 Sincronizar agora
+                        </button>
+                        <button
+                            onclick="syncClientsHistorico17h()"
+                            id="btnHistorico17h"
+                            style="padding: 12px 20px; background: #f59e0b; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s ease;"
+                            onmouseover="this.style.background='#d97706'"
+                            onmouseout="this.style.background='#f59e0b'"
+                        >
+                            🕔 Histórico 17h
+                        </button>
+                        <button
+                            onclick="salvarHistoricoAtual()"
+                            id="btnSalvarHistorico"
+                            style="padding: 12px 20px; background: #22c55e; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s ease;"
+                            onmouseover="this.style.background='#16a34a'"
+                            onmouseout="this.style.background='#22c55e'"
+                        >
+                            💾 Salvar histórico
                         </button>
                         <button
                             onclick="togglePainelMeses()"
@@ -1935,8 +2146,8 @@
         const mesInicial = getMesDisponivel(mesRealAtual);
 
         const DashboardState = {
-            mesAtual: mesInicial, // Mês atual baseado na data real
-            mesReal: mesRealAtual, // Data real do sistema
+            mesAtual: mesInicial,
+            mesReal: mesRealAtual,
             charts: {
                 mrr: null,
                 despesas: null
@@ -2577,6 +2788,13 @@
             };
         }
 
+        function getMrrTotalOverride(mesChave) {
+            const overrides = {
+                '2026-01': 33080
+            };
+            return overrides[mesChave] ?? null;
+        }
+
         // Gerenciador de KPIs - Atualizado para Tempo Real e Multi-Operação
         const KPIManager = {
             init: function() {
@@ -2681,6 +2899,12 @@
                 const starkenResultado = starkenRevenue - despesasOperacionaisStarken;
                 const alphaResultado = alphaRevenue - alphaRoyalties;
                 const totalResultado = totalRevenue - totalDespesas;
+                const totalClientes = totalStarkenAtivos + totalAlphaAtivos;
+                const ticketMedio = totalClientes > 0 ? totalRevenue / totalClientes : 0;
+                const starkenParticipacao = totalRevenue > 0 ? (starkenRevenue / totalRevenue) * 100 : 0;
+                const alphaParticipacao = totalRevenue > 0 ? (alphaRevenue / totalRevenue) * 100 : 0;
+                const starkenMargem = starkenRevenue > 0 ? (starkenResultado / starkenRevenue) * 100 : 0;
+                const alphaMargem = alphaRevenue > 0 ? (alphaResultado / alphaRevenue) * 100 : 0;
 
                 // 5. Atualizar DOM com formatação
                 const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
@@ -2703,15 +2927,24 @@
 
                 // Total
                 updateText('kpi-total-mrr', fmt(totalRevenue));
-                updateText('kpi-total-clientes', totalStarkenAtivos + totalAlphaAtivos);
+                updateText('kpi-total-clientes', totalClientes);
                 if (document.getElementById('kpi-total-clientes-breakdown')) {
                     document.getElementById('kpi-total-clientes-breakdown').textContent = `${totalStarkenAtivos} Starken + ${totalAlphaAtivos} Alpha`;
                 }
+                if (document.getElementById('kpi-total-mrr-change')) {
+                    document.getElementById('kpi-total-mrr-change').textContent = `Starken ${starkenParticipacao.toFixed(1)}% • Alpha ${alphaParticipacao.toFixed(1)}%`;
+                }
+                updateText('kpi-total-ticket', fmt(ticketMedio));
                 updateText('kpi-total-despesas', fmt(totalDespesas));
                 updateText('kpi-total-resultado', fmt(totalResultado));
                 
                 const margem = totalRevenue > 0 ? ((totalResultado / totalRevenue) * 100).toFixed(1) : 0;
                 updateText('kpi-total-margem', `${margem}% de margem`);
+
+                updateText('kpi-starken-participacao', `${starkenParticipacao.toFixed(1)}%`);
+                updateText('kpi-alpha-participacao', `${alphaParticipacao.toFixed(1)}%`);
+                updateText('kpi-starken-margem', `${starkenMargem.toFixed(1)}%`);
+                updateText('kpi-alpha-margem', `${alphaMargem.toFixed(1)}%`);
                 
                 console.log('KPIs Realtime Atualizados:', { starkenRevenue, alphaRevenue, totalRevenue });
             }
@@ -2724,11 +2957,12 @@
 
                 // Sempre mostrar evolução completa: Out -> Nov -> Dez -> Jan
                 const labels = ['Outubro', 'Novembro', 'Dezembro', 'Janeiro/26'];
+                const janeiroOverride = getMrrTotalOverride('2026-01');
                 const values = [
                     dadosMensais['2025-10'] ? dadosMensais['2025-10'].receitas.total : 46365,
                     dadosMensais['2025-11'] ? dadosMensais['2025-11'].receitas.total : 34768,
                     dadosMensais['2025-12'] ? dadosMensais['2025-12'].receitas.total : 29530,
-                    dadosMensais['2026-01'] ? dadosMensais['2026-01'].receitas.total : 32536
+                    janeiroOverride !== null ? janeiroOverride : (dadosMensais['2026-01'] ? dadosMensais['2026-01'].receitas.total : 32536)
                 ];
 
                 DashboardState.charts.mrr.data.labels = labels;
@@ -3002,10 +3236,18 @@
                         };
                     });
 
-                const totalMRR = clientes.reduce((sum, c) => sum + (c.mrr || 0), 0);
-                const valorBrutoTotal = clientes.reduce((sum, c) => sum + (c.valorBruto || 0), 0);
-                const valorLiquidoTotal = clientes.reduce((sum, c) => sum + (c.valorLiquido || 0), 0);
-                const projecaoMRRAnual = totalMRR * 12;
+                let totalMRR = clientes.reduce((sum, c) => sum + (c.mrr || 0), 0);
+                let valorBrutoTotal = clientes.reduce((sum, c) => sum + (c.valorBruto || 0), 0);
+                let valorLiquidoTotal = clientes.reduce((sum, c) => sum + (c.valorLiquido || 0), 0);
+                let projecaoMRRAnual = totalMRR * 12;
+                const overrideMRR = getMrrTotalOverride(mesChave);
+                if (overrideMRR !== null) {
+                    const delta = overrideMRR - totalMRR;
+                    totalMRR = overrideMRR;
+                    valorBrutoTotal += delta;
+                    valorLiquidoTotal += delta;
+                    projecaoMRRAnual = totalMRR * 12;
+                }
 
                 return {
                     clientes,
@@ -3135,6 +3377,7 @@
                         return false;
                     })
                     .map(c => {
+                        const naoRepassarRoyalties = c.naoRepassarRoyalties || false;
                         // 🎯 Verificar se há ajuste mensal para este mês (APENAS MRR)
                         const ajusteMensal = c.tipoValor === 'mrr' && c.ajustesMensais && c.ajustesMensais[mesChave];
 
@@ -3158,7 +3401,7 @@
                             } else if (ajusteMensal) {
                                 // Se tem ajuste mensal, recalcular o líquido
                                 valorLiquido = valorBruto;
-                                if (c.empresa === 'alpha') {
+                                if (c.empresa === 'alpha' && !naoRepassarRoyalties) {
                                     valorLiquido = valorBruto * 0.85; // - 15% royalty
                                 }
                                 if (c.taxaJuros > 0) {
@@ -3167,7 +3410,7 @@
                             } else {
                                 // Recalcular líquido mesmo sem ajuste para garantir consistência
                                 valorLiquido = valorBruto;
-                                if (c.empresa === 'alpha') {
+                                if (c.empresa === 'alpha' && !naoRepassarRoyalties) {
                                     valorLiquido = valorBruto * 0.85;
                                 }
                                 if (c.taxaJuros > 0) {
@@ -3201,11 +3444,11 @@
                                     valorTCVLiquido = c.valorLiquidoManual;
                                 } else if (c.origem === 'repasse-matriz' && c.empresa === 'alpha') {
                                     // REPASSE MATRIZ: 50% do bruto
-                                    valorTCVLiquido = valorBruto * 0.50;
+                                    valorTCVLiquido = valorBruto * (naoRepassarRoyalties ? 0.65 : 0.50);
                                 } else {
                                     // OUTROS CASOS: Aplicar royalty + taxa
                                     valorTCVLiquido = valorBruto;
-                                    if (c.empresa === 'alpha') {
+                                    if (c.empresa === 'alpha' && !naoRepassarRoyalties) {
                                         valorTCVLiquido = valorBruto * 0.85; // - 15% royalty
                                     }
                                     if (c.taxaJuros > 0) {
@@ -3247,8 +3490,17 @@
                 // Valor Bruto Total: MRR Bruto + TCV Bruto
                 const valorBrutoTotal = totalMRRBruto + totalTCVBruto;
 
-                // 👑 Royalties Alpha: 15% sobre valor bruto
-                const royaltiesAlpha = valorBrutoTotal * 0.15;
+                // 👑 Royalties Alpha: 15% sobre valor bruto (exceto quando não repassa)
+                let royaltiesAlpha = 0;
+                const todosClientes = getManualClients();
+                clientes.forEach(c => {
+                    const clienteCompleto = todosClientes.find(cli => cli.nome === c.nome && cli.empresa === 'alpha');
+                    if (!clienteCompleto || clienteCompleto.naoRepassarRoyalties) {
+                        return;
+                    }
+                    const valorBase = c.tipoValor === 'mrr' ? c.mrrBruto : c.tcv;
+                    royaltiesAlpha += valorBase * 0.15;
+                });
 
                 // 💳 Calcular Taxas de Cartão com base nos clientes
                 let taxasCartaoTotal = 0;
@@ -3801,9 +4053,7 @@
 
             console.log('🔄 Iniciando migração de cards para localStorage...');
 
-            // Definir todos os cards estáticos
             const staticCards = [
-                // STARKEN (16 cards)
                 { nome: 'Bengers - App Festival', categoria: 'Dev App Web (Dez-Fev) → MRR Abr+', valor: 10000, empresa: 'starken', mesInicio: '2025-12', tipoValor: 'mrr' },
                 { nome: 'The Garrison', categoria: 'Gestão de Tráfego', valor: 1500, empresa: 'starken', mesInicio: '2026-01', tipoValor: 'mrr' },
                 { nome: 'Mortadella Blumenau', categoria: 'Gastronomia', valor: 2000, empresa: 'starken', mesInicio: '2025-10', tipoValor: 'mrr' },
@@ -3820,8 +4070,6 @@
                 { nome: 'Divino Tempero', categoria: 'Restaurante', valor: 1000, empresa: 'starken', mesInicio: '2025-10', tipoValor: 'mrr' },
                 { nome: 'Dommus Smart Home', categoria: 'Automação Residencial', valor: 297, empresa: 'starken', mesInicio: '2025-10', tipoValor: 'mrr' },
                 { nome: 'Arena Gourmet', categoria: 'Gastronomia', valor: 1000, empresa: 'starken', mesInicio: '2026-01', tipoValor: 'mrr' },
-
-                // ALPHA (19 cards)
                 { nome: 'Oca Restaurante', categoria: 'Outbound - Restaurante', valor: 2000, empresa: 'alpha', mesInicio: '2025-10', tipoValor: 'mrr' },
                 { nome: 'Madrugão Lanches', categoria: 'Outbound - Lanchonete', valor: 2000, empresa: 'alpha', mesInicio: '2025-10', tipoValor: 'mrr' },
                 { nome: 'Fratellis Pizzaria', categoria: 'Outbound - Pizzaria', valor: 2500, empresa: 'alpha', mesInicio: '2025-10', tipoValor: 'mrr' },
@@ -3908,11 +4156,28 @@
             }
         }
 
+        function shouldSyncClients() {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (sessionStorage.getItem('starken_clients_snapshot_at')) {
+                return false;
+            }
+            if (!isLocal) return true;
+            return localStorage.getItem('starken_enable_clients_sync') === 'true';
+        }
+
         let clientsSyncInProgress = false;
 
-        async function syncClientsWithServer(forcePush = false) {
+        async function syncClientsWithServer(forcePush = false, options = {}) {
             if (clientsSyncInProgress) {
                 return { action: 'busy' };
+            }
+            if (!shouldSyncClients() && !forcePush) {
+                return { action: 'disabled' };
+            }
+            const skipSyncOnce = sessionStorage.getItem('starken_skip_clients_sync_once') === 'true';
+            if (skipSyncOnce) {
+                sessionStorage.removeItem('starken_skip_clients_sync_once');
+                return { action: 'skipped' };
             }
             clientsSyncInProgress = true;
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -3921,10 +4186,12 @@
                 : (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
                     ? GestaoFinanceira.RAILWAY_API_URL
                     : 'https://starken-financeiro-production.up.railway.app';
+            const atParam = options.at ? `?at=${encodeURIComponent(options.at)}` : '';
+            const forcePull = options.forcePull === true;
             try {
                 let serverPayload = null;
                 try {
-                    const response = await fetch(`${apiBase}/api/clientes`);
+                    const response = await fetch(`${apiBase}/api/clientes${atParam}`);
                     if (response.ok) {
                         const result = await response.json();
                         if (result && result.success) {
@@ -3945,7 +4212,9 @@
                 let shouldPull = false;
                 let shouldPush = false;
 
-                if (forcePush) {
+                if (forcePull) {
+                    shouldPull = true;
+                } else if (forcePush) {
                     shouldPush = true;
                 } else if (serverUpdatedAt && (!localUpdatedAt || serverUpdatedAt > localUpdatedAt)) {
                     shouldPull = true;
@@ -4007,11 +4276,110 @@
                 btn.style.opacity = '0.7';
                 btn.style.cursor = 'not-allowed';
             }
+            sessionStorage.removeItem('starken_clients_snapshot_at');
+            const historicoBtn = document.getElementById('btnHistorico17h');
+            if (historicoBtn) {
+                historicoBtn.textContent = '🕔 Histórico 17h';
+            }
             await syncClientsWithServer(true);
             await syncClientsWithServer();
             await syncClientsWithServer();
+            renderManualClients();
+            updateClientCounters();
+            KPIManager.atualizar(DashboardState.mesAtual);
+            addDeleteButtonsToAllCards();
+            addEditClickToCards();
             if (btn) {
                 btn.textContent = originalText || '🔄 Sincronizar agora';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            }
+        }
+
+        async function syncClientsHistorico17h() {
+            const historicoBtn = document.getElementById('btnHistorico17h');
+            if (sessionStorage.getItem('starken_clients_snapshot_at')) {
+                sessionStorage.removeItem('starken_clients_snapshot_at');
+                if (historicoBtn) {
+                    historicoBtn.textContent = '🕔 Histórico 17h';
+                }
+                await syncClientsNow();
+                return;
+            }
+            const agora = new Date();
+            const historico = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 17, 0, 0, 0);
+            const historicoIso = historico.toISOString();
+            if (historicoBtn) {
+                historicoBtn.textContent = '🟡 Histórico ativo';
+            }
+            sessionStorage.setItem('starken_clients_snapshot_at', historicoIso);
+            await syncClientsWithServer(false, { at: historicoIso, forcePull: true });
+            renderManualClients();
+            updateClientCounters();
+            KPIManager.atualizar(DashboardState.mesAtual);
+            addDeleteButtonsToAllCards();
+            addEditClickToCards();
+        }
+
+        async function salvarHistoricoAtual() {
+            const btn = document.getElementById('btnSalvarHistorico');
+            const originalText = btn ? btn.textContent : null;
+            if (btn) {
+                btn.textContent = '💾 Salvando...';
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'not-allowed';
+            }
+            const payload = {
+                statusData: localStorage.getItem('starken_financeiro_status') || '{}',
+                customItems: localStorage.getItem('starken_financeiro_custom_items') || '{}',
+                deletedItems: localStorage.getItem('starken_financeiro_deleted_items') || '{}',
+                editedItems: localStorage.getItem('starken_financeiro_edited_items') || '{}',
+                clients: getManualClients(),
+                deletedClients: getDeletedCards(),
+                updatedAt: new Date().toISOString()
+            };
+            try {
+                const response = await fetch('/api/historico', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error('Falha ao salvar histórico no servidor');
+                }
+            } catch (error) {
+                if (window.starkRealTime) {
+                    window.starkRealTime.toast('Erro ao salvar histórico no servidor.', {
+                        tipo: 'error',
+                        titulo: 'Histórico',
+                        icone: '⚠️',
+                        duracao: 4000
+                    });
+                }
+            }
+            try {
+                const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `backup-starken-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            } catch (error) {}
+            if (window.starkRealTime) {
+                window.starkRealTime.toast('Histórico salvo e backup gerado.', {
+                    tipo: 'success',
+                    titulo: 'Histórico',
+                    icone: '✅',
+                    duracao: 3000
+                });
+            }
+            if (btn) {
+                btn.textContent = originalText || '💾 Salvar histórico';
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.style.cursor = 'pointer';
@@ -4041,6 +4409,9 @@
             toggleTCVFields();
             updateOrigemOptions();
             atualizarPreviewContrato();
+            atualizarParcelamentoMRR();
+            initializeAjustesMensaisCadastro();
+            setAjustesMensaisDraft(null);
 
             console.log('✅ Modal aberto');
         }
@@ -4053,6 +4424,9 @@
 
             document.getElementById('clientForm').removeAttribute('data-editing-id');
             document.getElementById('clientForm').reset();
+            const camposParcelasMRR = document.getElementById('camposDatasParcelasMRR');
+            if (camposParcelasMRR) camposParcelasMRR.innerHTML = '';
+            setAjustesMensaisDraft(null);
 
             console.log('✅ Modal fechado');
         }
@@ -4066,6 +4440,7 @@
             const campoDataVencimentoMRR = document.getElementById('campoDataVencimentoMRR');
             const valorInput = document.getElementById('clientValor');
             const tcvTipoVisibilidade = document.getElementById('tcvTipoVisibilidade');
+            const groupParcelamentoMRR = document.getElementById('groupParcelamentoMRR');
 
             if (tipo === 'tcv') {
                 camposMRR.style.display = 'none';
@@ -4073,6 +4448,9 @@
                 campoDataPagamentoTCV.style.display = 'block';
                 campoDataVencimentoMRR.style.display = 'none';
                 valorInput.removeAttribute('required');
+                if (groupParcelamentoMRR) groupParcelamentoMRR.style.display = 'none';
+                const ajustesSection = document.getElementById('ajustesMensaisSection');
+                if (ajustesSection) ajustesSection.style.display = 'none';
 
                 // Mostrar opção TCV se personalização estiver ativa
                 const mesesPersonalizados = document.getElementById('mesesPersonalizados');
@@ -4086,7 +4464,52 @@
                 campoDataVencimentoMRR.style.display = 'block';
                 valorInput.setAttribute('required', 'required');
                 tcvTipoVisibilidade.style.display = 'none';
+                if (groupParcelamentoMRR) groupParcelamentoMRR.style.display = 'block';
+                const ajustesSection = document.getElementById('ajustesMensaisSection');
+                if (ajustesSection) ajustesSection.style.display = tipo === 'mrr' ? 'block' : 'none';
+                atualizarParcelamentoMRR();
             }
+        }
+
+        function atualizarParcelamentoMRR() {
+            const parcelasSelect = document.getElementById('clientParcelasMRR');
+            const container = document.getElementById('camposDatasParcelasMRR');
+            if (!parcelasSelect || !container) return;
+
+            const parcelas = parseInt(parcelasSelect.value) || 1;
+            if (parcelas <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">';
+            for (let i = 0; i < parcelas; i += 1) {
+                const index = i + 1;
+                html += `
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="clientDataParcelaMRR_${index}">📆 Parcela ${index}</label>
+                        <input type="text" id="clientDataParcelaMRR_${index}" class="mrr-parcela-date" placeholder="dd/mm/aaaa">
+                    </div>
+                `;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+
+            document.querySelectorAll('.mrr-parcela-date').forEach((input, idx) => {
+                flatpickr(input, {
+                    locale: "pt",
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "d/m/Y",
+                    allowInput: true
+                });
+                if (idx === 0) {
+                    const dataBase = document.getElementById('clientDataPagamentoMRR')?.value || '';
+                    if (dataBase) {
+                        input._flatpickr.setDate(dataBase, true);
+                    }
+                }
+            });
         }
 
         // Toggle personalização de meses
@@ -4225,6 +4648,7 @@
             const empresa = document.getElementById('clientEmpresa').value;
             const origem = document.getElementById('clientOrigem')?.value || 'outros';
             const royaltyRow = document.getElementById('previewRoyaltyRow');
+            const naoRepassarRoyalties = document.getElementById('clientNaoRepassarRoyalties')?.checked || false;
 
             let valorBruto = 0;
             let tcvTotal = 0;
@@ -4247,7 +4671,7 @@
             // REPASSE MATRIZ: Cálculo especial (50% do valor)
             if (tipo === 'tcv' && origem === 'repasse-matriz' && empresa === 'alpha') {
                 // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% total
-                royalty = valorBruto * 0.15;
+                royalty = naoRepassarRoyalties ? 0 : valorBruto * 0.15;
                 custoComercial = valorBruto * 0.35;
                 
                 // Líquido é 50% do bruto, mas a taxa incide sobre esse líquido
@@ -4258,18 +4682,26 @@
                 // Valor Bruto - (Royalty + Custo) = Valor Base
                 // Valor Base - Taxa = Líquido
                 
-                const valorBase = valorBruto * 0.50; // 50% restante
+                const valorBase = valorBruto * (naoRepassarRoyalties ? 0.65 : 0.50);
                 liquido = valorBase; // A taxa será descontada deste valor
                 
                 royaltyRow.style.display = 'block';
-                document.getElementById('previewRoyalty').innerHTML = `<span style="color: #ef4444;">- ${formatarMoeda(royalty)} (royalty)</span> <br> <span style="color: #ef4444;">- ${formatarMoeda(custoComercial)} (custo comercial)</span>`;
+                if (naoRepassarRoyalties) {
+                    document.getElementById('previewRoyalty').innerHTML = `<span style="color: #ef4444;">- ${formatarMoeda(custoComercial)} (custo comercial)</span>`;
+                } else {
+                    document.getElementById('previewRoyalty').innerHTML = `<span style="color: #ef4444;">- ${formatarMoeda(royalty)} (royalty)</span> <br> <span style="color: #ef4444;">- ${formatarMoeda(custoComercial)} (custo comercial)</span>`;
+                }
             }
             // Royalty 15% para Alpha (outros casos)
             else if (empresa === 'alpha') {
-                royalty = valorBruto * 0.15;
+                royalty = naoRepassarRoyalties ? 0 : valorBruto * 0.15;
                 liquido = valorBruto - royalty;
-                royaltyRow.style.display = 'block';
-                document.getElementById('previewRoyalty').textContent = '- ' + formatarMoeda(royalty) + ' (royalty)';
+                if (naoRepassarRoyalties) {
+                    royaltyRow.style.display = 'none';
+                } else {
+                    royaltyRow.style.display = 'block';
+                    document.getElementById('previewRoyalty').textContent = '- ' + formatarMoeda(royalty) + ' (royalty)';
+                }
             } else {
                 royaltyRow.style.display = 'none';
             }
@@ -4350,7 +4782,7 @@
                 taxaCartao: `${taxaJurosPercentual}% = R$ ${taxaCartao.toFixed(2)}`,
                 liquidoFinal,
                 mesesTrabalho,
-                formula: origem === 'repasse-matriz' ? 'Valor × 50% (integral)' : 'Valor - Royalty - Taxa'
+                formula: origem === 'repasse-matriz' ? (naoRepassarRoyalties ? 'Valor × 65% (integral)' : 'Valor × 50% (integral)') : (naoRepassarRoyalties ? 'Valor - Taxa' : 'Valor - Royalty - Taxa')
             });
         }
 
@@ -4363,6 +4795,8 @@
             const empresa = document.getElementById('clientEmpresa').value;
             const origemSelect = document.getElementById('clientOrigem');
             const valorAtual = origemSelect.value;
+            const groupNaoRepassarRoyalties = document.getElementById('groupNaoRepassarRoyalties');
+            const checkboxNaoRepassarRoyalties = document.getElementById('clientNaoRepassarRoyalties');
             
             // Controle de visibilidade do campo "Meses de Trabalho"
             const groupMesesTrabalho = document.getElementById('groupMesesTrabalho');
@@ -4372,6 +4806,12 @@
                 } else {
                     groupMesesTrabalho.style.display = 'block';
                 }
+            }
+            if (groupNaoRepassarRoyalties) {
+                groupNaoRepassarRoyalties.style.display = empresa === 'alpha' ? 'block' : 'none';
+            }
+            if (checkboxNaoRepassarRoyalties && empresa !== 'alpha') {
+                checkboxNaoRepassarRoyalties.checked = false;
             }
 
             // Limpar opções
@@ -4444,6 +4884,7 @@
             const origem = document.getElementById('clientOrigem')?.value || 'outros';
             const mesesTrabalho = parseInt(document.getElementById('clientMesesTrabalho')?.value) || 3;
             const isProjecao = document.getElementById('clientIsProjecao')?.checked || false;
+            const naoRepassarRoyalties = document.getElementById('clientNaoRepassarRoyalties')?.checked || false;
 
             let valor = 0;
             let mesInicio = '';
@@ -4482,7 +4923,18 @@
             // Novos campos adicionados
             const dataFechamento = document.getElementById('clientDataFechamento')?.value || null;
             const dataPagamentoTCV = document.getElementById('clientDataPagamentoTCV')?.value || null;
-            const dataPagamentoMRR = document.getElementById('clientDataPagamentoMRR')?.value || null;
+            const getFlatpickrValue = (input) => {
+                if (!input) return null;
+                const instance = input._flatpickr;
+                if (instance && instance.selectedDates && instance.selectedDates.length > 0) {
+                    return instance.formatDate(instance.selectedDates[0], 'Y-m-d');
+                }
+                if (input.value) {
+                    return input.value;
+                }
+                return null;
+            };
+            let dataPagamentoMRR = getFlatpickrValue(document.getElementById('clientDataPagamentoMRR'));
             const formaPagamento = document.getElementById('clientFormaPagamento')?.value || null;
             const gateway = document.getElementById('clientGateway')?.value || null;
             const parcelasCartao = document.getElementById('clientParcelasCartao')?.value || null;
@@ -4495,7 +4947,7 @@
             });
 
             // Calcular líquido (15% royalty para Alpha - taxa de juros do cartão/boleto)
-            valorLiquido = empresa === 'alpha' ? valor * 0.85 : valor;
+            valorLiquido = empresa === 'alpha' && !naoRepassarRoyalties ? valor * 0.85 : valor;
             if (taxaJuros > 0) {
                 valorLiquido = valorLiquido * (1 - taxaJuros / 100);
             }
@@ -4535,11 +4987,26 @@
             // Capturar duração do contrato (campo específico para TCV)
             const duracao = tipoValor === 'tcv' ? (parseInt(document.getElementById('clientDuracao')?.value) || 3) : null;
 
+            const parcelasMRR = tipoValor === 'mrr' ? (parseInt(document.getElementById('clientParcelasMRR')?.value) || 1) : null;
+            let datasParcelasMRR = null;
+            if (tipoValor === 'mrr' && parcelasMRR > 1) {
+                datasParcelasMRR = [];
+                document.querySelectorAll('input.mrr-parcela-date[id]').forEach(input => {
+                    const dataParcela = getFlatpickrValue(input);
+                    if (dataParcela) datasParcelasMRR.push(dataParcela);
+                });
+                if (datasParcelasMRR.length > 0 && !dataPagamentoMRR) {
+                    dataPagamentoMRR = datasParcelasMRR[0];
+                }
+            }
+
             // Ajuste para Bônus: valor mensal pode ser 0
             if (tipoValor === 'bonus' && isNaN(valor)) {
                 valor = 0;
                 valorLiquido = 0;
             }
+
+            const ajustesMensais = tipoValor === 'mrr' ? getAjustesMensaisDraft() : null;
 
             let clienteData = {
                 nome,
@@ -4564,7 +5031,10 @@
                 valorLiquidoManual: valorLiquidoManual,
                 gateway: gateway,
                 parcelasCartao: parcelasCartao,
+                parcelasMRR: parcelasMRR,
+                datasParcelasMRR: datasParcelasMRR,
                 isContratoFechado: isContratoFechado,
+                naoRepassarRoyalties: naoRepassarRoyalties,
                 // Closers responsáveis
                 closers: closers,
                 // Meses personalizados
@@ -4577,7 +5047,8 @@
                 projecaoInicio: document.getElementById('clientProjecaoInicio')?.value || null,
                 projecaoDiaVencimento: parseInt(document.getElementById('clientProjecaoDiaVencimento')?.value) || null,
                 // Status de Renovação TCV
-                statusRenovacaoTCV: document.getElementById('clientStatusRenovacaoTCV')?.value || null
+                statusRenovacaoTCV: document.getElementById('clientStatusRenovacaoTCV')?.value || null,
+                ajustesMensais: ajustesMensais
             };
 
             if (isEditing) {
@@ -4612,12 +5083,9 @@
             }
 
             try {
-                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const apiBase = isLocal
-                    ? ''
-                    : (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
-                        ? GestaoFinanceira.RAILWAY_API_URL
-                        : 'https://starken-financeiro-production.up.railway.app';
+                const apiBase = (window.GestaoFinanceira && GestaoFinanceira.RAILWAY_API_URL)
+                    ? GestaoFinanceira.RAILWAY_API_URL
+                    : 'https://starken-financeiro-production.up.railway.app';
                 if (tipoValor === 'mrr' || tipoValor === 'bonus') {
                     await fetch(`${apiBase}/api/acao`, {
                         method: 'POST',
@@ -4804,6 +5272,86 @@
             return meses;
         }
 
+        let ajustesMensaisDraft = {};
+
+        function initializeAjustesMensaisCadastro() {
+            const select = document.getElementById('ajusteMesCadastro');
+            if (!select) return;
+            const baseMes = DashboardState.mesAtual || new Date().toISOString().slice(0, 7);
+            const meses = gerarMesesConsecutivos(baseMes, 24);
+            select.innerHTML = meses.map(mes => `<option value="${mes}">${formatMesLabel(mes)}</option>`).join('');
+        }
+
+        function formatMesLabel(mes) {
+            const [ano, mesNum] = mes.split('-').map(Number);
+            const nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            return `${nomes[mesNum - 1]}/${ano}`;
+        }
+
+        function setAjustesMensaisDraft(ajustes) {
+            ajustesMensaisDraft = {};
+            if (ajustes) {
+                Object.entries(ajustes).forEach(([mes, item]) => {
+                    const valor = parseFloat(item?.valor ?? 0);
+                    ajustesMensaisDraft[mes] = {
+                        valor: isNaN(valor) ? 0 : valor,
+                        motivo: item?.motivo || '',
+                        dataAjuste: item?.dataAjuste || new Date().toISOString()
+                    };
+                });
+            }
+            renderAjustesMensaisCadastro();
+        }
+
+        function getAjustesMensaisDraft() {
+            const chaves = Object.keys(ajustesMensaisDraft || {});
+            return chaves.length ? ajustesMensaisDraft : null;
+        }
+
+        function renderAjustesMensaisCadastro() {
+            const container = document.getElementById('ajusteMensalLista');
+            if (!container) return;
+            const entradas = Object.entries(ajustesMensaisDraft || {});
+            if (entradas.length === 0) {
+                container.innerHTML = '<span style="color:#6b7280;font-size:12px;">Nenhum ajuste cadastrado</span>';
+                return;
+            }
+            const ordenado = entradas.sort(([a], [b]) => a.localeCompare(b));
+            container.innerHTML = ordenado.map(([mes, item]) => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;margin-bottom:6px;">
+                    <div style="font-size:13px;color:#111827;"><strong>${formatMesLabel(mes)}</strong> • R$ ${Number(item.valor || 0).toFixed(2)}</div>
+                    <button type="button" onclick="removeAjusteMensalCadastro('${mes}')" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;">Remover</button>
+                </div>
+            `).join('');
+        }
+
+        function addAjusteMensalCadastro() {
+            const mes = document.getElementById('ajusteMesCadastro')?.value;
+            const valorStr = document.getElementById('ajusteValorCadastro')?.value;
+            const valor = parseFloat(String(valorStr).replace(',', '.'));
+            if (!mes) {
+                alert('Selecione o mês do ajuste.');
+                return;
+            }
+            if (isNaN(valor) || valor < 0) {
+                alert('Informe um valor válido.');
+                return;
+            }
+            const existente = ajustesMensaisDraft[mes] || {};
+            ajustesMensaisDraft[mes] = {
+                valor: valor,
+                motivo: existente.motivo || '',
+                dataAjuste: new Date().toISOString()
+            };
+            renderAjustesMensaisCadastro();
+        }
+
+        function removeAjusteMensalCadastro(mes) {
+            if (!ajustesMensaisDraft || !ajustesMensaisDraft[mes]) return;
+            delete ajustesMensaisDraft[mes];
+            renderAjustesMensaisCadastro();
+        }
+
         // Excluir cliente manual
         function deleteManualClient(id) {
             if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
@@ -4840,6 +5388,10 @@
 
         // Ajustar valor mensal de um cliente MRR
         function ajustarValorMensal(clienteId, mes) {
+            openAjusteValorModal(clienteId, mes);
+        }
+
+        function openAjusteValorModal(clienteId, mes) {
             const clientes = getManualClients();
             const cliente = clientes.find(c => c.id === clienteId);
 
@@ -4850,82 +5402,105 @@
 
             const valorAtual = cliente.valor || 0;
             const ajusteExistente = cliente.ajustesMensais && cliente.ajustesMensais[mes];
-
-            // Formatar mês para exibição
             const [ano, mesNum] = mes.split('-');
             const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-            const mesFormatado = `${meses[parseInt(mesNum)-1]}/${ano}`;
+            const mesFormatado = `${meses[parseInt(mesNum) - 1]}/${ano}`;
 
-            let mensagem = `📊 Ajustar valor de ${cliente.nome} em ${mesFormatado}\n\n`;
-            mensagem += `Valor padrão: R$ ${valorAtual.toFixed(2)}\n`;
+            document.getElementById('ajusteClienteId').value = clienteId;
+            document.getElementById('ajusteMes').value = mes;
+            document.getElementById('ajusteClienteNome').textContent = cliente.nome;
+            document.getElementById('ajusteMesLabel').textContent = mesFormatado;
+            document.getElementById('ajusteValorPadrao').textContent = `R$ ${valorAtual.toFixed(2)}`;
+            document.getElementById('ajusteValorInput').value = ajusteExistente ? ajusteExistente.valor : valorAtual;
+            document.getElementById('ajusteMotivoInput').value = ajusteExistente ? ajusteExistente.motivo : '';
 
-            if (ajusteExistente) {
-                mensagem += `Valor atual ajustado: R$ ${ajusteExistente.valor.toFixed(2)}\n`;
-                mensagem += `Motivo: ${ajusteExistente.motivo}\n\n`;
-                mensagem += `Digite o novo valor (ou deixe vazio para remover o ajuste):`;
-            } else {
-                mensagem += `\nDigite o novo valor para este mês:`;
-            }
+            const removeBtn = document.getElementById('ajusteRemoveBtn');
+            removeBtn.style.display = ajusteExistente ? 'inline-flex' : 'none';
 
-            const novoValorStr = prompt(mensagem, ajusteExistente ? ajusteExistente.valor : valorAtual);
+            const modal = document.getElementById('ajusteValorModal');
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+        }
 
-            // Cancelou ou deixou vazio para remover ajuste
-            if (novoValorStr === null) return;
+        function closeAjusteValorModal() {
+            const modal = document.getElementById('ajusteValorModal');
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+            modal.querySelectorAll('input:not([type="hidden"])').forEach(input => input.value = '');
+        }
 
-            // Remover ajuste se deixou vazio
-            if (novoValorStr.trim() === '') {
-                if (confirm('Deseja remover o ajuste e voltar ao valor padrão?')) {
-                    if (!cliente.ajustesMensais) cliente.ajustesMensais = {};
-                    delete cliente.ajustesMensais[mes];
+        function saveAjusteValorMensal() {
+            const clienteId = parseInt(document.getElementById('ajusteClienteId').value, 10);
+            const mes = document.getElementById('ajusteMes').value;
+            const valorStr = document.getElementById('ajusteValorInput').value;
+            const motivo = document.getElementById('ajusteMotivoInput').value;
 
-                    // Salvar
-                    const index = clientes.findIndex(c => c.id === clienteId);
-                    clientes[index] = cliente;
-                    saveManualClients(clientes);
+            const clientes = getManualClients();
+            const cliente = clientes.find(c => c.id === clienteId);
 
-                    renderManualClients();
-                    alert(`✅ Ajuste removido! Voltou ao valor padrão: R$ ${valorAtual.toFixed(2)}`);
-                }
+            if (!cliente) {
+                alert('Cliente não encontrado.');
                 return;
             }
 
-            const novoValor = parseFloat(novoValorStr.replace(',', '.'));
+            const valorAtual = cliente.valor || 0;
+            const novoValor = parseFloat(String(valorStr).replace(',', '.'));
 
             if (isNaN(novoValor) || novoValor < 0) {
                 alert('❌ Valor inválido! Digite um número válido.');
                 return;
             }
 
-            // Pedir motivo
-            const motivo = prompt('📝 Motivo do ajuste:\n\n(Ex: Desconto 50% - fim de ano sem tráfego pago)', ajusteExistente ? ajusteExistente.motivo : '');
-
-            if (!motivo || motivo.trim() === '') {
-                alert('❌ Você precisa informar o motivo do ajuste.');
-                return;
-            }
-
-            // Salvar ajuste
             if (!cliente.ajustesMensais) {
                 cliente.ajustesMensais = {};
             }
 
             cliente.ajustesMensais[mes] = {
                 valor: novoValor,
-                motivo: motivo.trim(),
+                motivo: motivo ? motivo.trim() : '',
                 dataAjuste: new Date().toISOString()
             };
 
-            // Atualizar cliente no array
             const index = clientes.findIndex(c => c.id === clienteId);
             clientes[index] = cliente;
             saveManualClients(clientes);
-
             renderManualClients();
 
             const diferenca = novoValor - valorAtual;
             const diferencaTexto = diferenca >= 0 ? `+R$ ${diferenca.toFixed(2)}` : `-R$ ${Math.abs(diferenca).toFixed(2)}`;
+            const motivoTexto = motivo && motivo.trim() ? `\n\nMotivo: ${motivo.trim()}` : '';
+            alert(`✅ Valor ajustado com sucesso!\n\nValor padrão: R$ ${valorAtual.toFixed(2)}\nNovo valor (${document.getElementById('ajusteMesLabel').textContent}): R$ ${novoValor.toFixed(2)}\nDiferença: ${diferencaTexto}${motivoTexto}`);
+            closeAjusteValorModal();
+        }
 
-            alert(`✅ Valor ajustado com sucesso!\n\nValor padrão: R$ ${valorAtual.toFixed(2)}\nNovo valor (${mesFormatado}): R$ ${novoValor.toFixed(2)}\nDiferença: ${diferencaTexto}\n\nMotivo: ${motivo}`);
+        function removeAjusteValorMensal() {
+            const clienteId = parseInt(document.getElementById('ajusteClienteId').value, 10);
+            const mes = document.getElementById('ajusteMes').value;
+
+            const clientes = getManualClients();
+            const cliente = clientes.find(c => c.id === clienteId);
+
+            if (!cliente) {
+                alert('Cliente não encontrado.');
+                return;
+            }
+
+            if (!cliente.ajustesMensais || !cliente.ajustesMensais[mes]) {
+                closeAjusteValorModal();
+                return;
+            }
+
+            if (!confirm('Deseja remover o ajuste e voltar ao valor padrão?')) {
+                return;
+            }
+
+            delete cliente.ajustesMensais[mes];
+            const index = clientes.findIndex(c => c.id === clienteId);
+            clientes[index] = cliente;
+            saveManualClients(clientes);
+            renderManualClients();
+            alert(`✅ Ajuste removido! Voltou ao valor padrão: R$ ${(cliente.valor || 0).toFixed(2)}`);
+            closeAjusteValorModal();
         }
 
         // Função genérica para excluir qualquer card de cliente
@@ -5100,6 +5675,10 @@
             if (cliente.tipoValor === 'tcv' && cliente.valorLiquidoManual) {
                 document.getElementById('clientValorLiquidoManual').value = cliente.valorLiquidoManual;
             }
+            const checkboxNaoRepassarRoyalties = document.getElementById('clientNaoRepassarRoyalties');
+            if (checkboxNaoRepassarRoyalties) {
+                checkboxNaoRepassarRoyalties.checked = cliente.naoRepassarRoyalties || false;
+            }
 
             // Preencher checkbox de projeção se existir
             const checkboxProjecao = document.getElementById('clientIsProjecao');
@@ -5226,6 +5805,18 @@
             toggleTCVFields();
             updateOrigemOptions();
             atualizarPreviewContrato();
+            initializeAjustesMensaisCadastro();
+            setAjustesMensaisDraft(cliente.ajustesMensais || null);
+            const parcelasMRRSelect = document.getElementById('clientParcelasMRR');
+            if (parcelasMRRSelect) {
+                parcelasMRRSelect.value = cliente.parcelasMRR || 1;
+            }
+            atualizarParcelamentoMRR();
+            if (cliente.datasParcelasMRR && cliente.datasParcelasMRR.length > 0) {
+                cliente.datasParcelasMRR.forEach((data, index) => {
+                    setFlatpickrDate(`clientDataParcelaMRR_${index + 1}`, data);
+                });
+            }
 
             // Abre o modal
             document.getElementById('clientModal').style.display = 'flex';
@@ -5277,6 +5868,10 @@
             // Preencher valor líquido manual se existir (TCV)
             if (cliente.tipoValor === 'tcv' && cliente.valorLiquidoManual) {
                 document.getElementById('clientValorLiquidoManual').value = cliente.valorLiquidoManual;
+            }
+            const checkboxNaoRepassarRoyalties = document.getElementById('clientNaoRepassarRoyalties');
+            if (checkboxNaoRepassarRoyalties) {
+                checkboxNaoRepassarRoyalties.checked = cliente.naoRepassarRoyalties || false;
             }
 
             // Preencher checkbox de projeção se existir
@@ -5371,6 +5966,8 @@
             toggleTCVFields();
             updateOrigemOptions();
             atualizarPreviewContrato();
+            initializeAjustesMensaisCadastro();
+            setAjustesMensaisDraft(null);
 
             // Abre o modal
             document.getElementById('clientModal').style.display = 'flex';
@@ -5436,19 +6033,31 @@
                     console.log('✅ Aba restaurada:', abaGuardada);
                 }
 
-                syncClientsWithServer();
+                if (shouldSyncClients()) {
+                    syncClientsWithServer();
+                }
 
                 if (forcePushParam) {
                     localStorage.setItem('starken_force_clients_push', 'true');
                 }
 
+                const historicoAt = sessionStorage.getItem('starken_clients_snapshot_at');
+                const historicoBtn = document.getElementById('btnHistorico17h');
+                if (historicoAt && historicoBtn) {
+                    historicoBtn.textContent = '🟡 Histórico ativo';
+                }
+
                 setInterval(() => {
-                    syncClientsWithServer();
+                    if (shouldSyncClients()) {
+                        syncClientsWithServer();
+                    }
                 }, 10000);
 
                 document.addEventListener('visibilitychange', () => {
                     if (!document.hidden) {
-                        syncClientsWithServer();
+                        if (shouldSyncClients()) {
+                            syncClientsWithServer();
+                        }
                     }
                 });
             })();
@@ -5685,6 +6294,8 @@
 
             // Verificar se é card de renovação (não conta na receita)
             const isRenovacao = cliente.statusRenovacao && cliente.mesRenovacao === DashboardState.mesAtual;
+            const isRenovacaoEfetuada = cliente.statusRenovacaoTCV === 'renovado' || /\(RENOVADO\)/i.test(cliente.nome);
+            const displayName = cliente.nome.replace(/\s*\(RENOVADO\)\s*/gi, ' ').replace(/\s+/g, ' ').trim();
 
             // 🎯 Verificar se há ajuste mensal para este mês (APENAS MRR)
             const mesAtual = DashboardState.mesAtual;
@@ -5893,6 +6504,7 @@
             }
 
             // Calcular valor bruto e líquido
+            const naoRepassarRoyalties = cliente.naoRepassarRoyalties || false;
             let valorBruto = ajusteMensal ? ajusteMensal.valor : cliente.valor;
             let valorLiquido = cliente.valorLiquido || cliente.valor;
 
@@ -5903,7 +6515,7 @@
             } else if (ajusteMensal) {
                 // Se tem ajuste mensal, recalcular o líquido com base no valor ajustado
                 valorLiquido = valorBruto;
-                if (cliente.empresa === 'alpha') {
+                if (cliente.empresa === 'alpha' && !naoRepassarRoyalties) {
                     valorLiquido = valorBruto * 0.85; // - 15% royalty
                 }
                 if (cliente.taxaJuros > 0) {
@@ -5933,7 +6545,7 @@
                         if (cliente.origem === 'repasse-matriz' && cliente.empresa === 'alpha') {
                             // Para Repasse Matriz: 15% royalty + 35% custo comercial = 50% líquido
                             // Valor recebido integralmente no mês
-                            valorLiquido = valorBruto * 0.50; // Base de 50%
+                            valorLiquido = valorBruto * (naoRepassarRoyalties ? 0.65 : 0.50); // Base de 50%
 
                             // Aplicar taxa de juros se houver (sobre o líquido da Alpha)
                             if (cliente.taxaJuros > 0) {
@@ -5942,7 +6554,7 @@
                         } else {
                             // OUTROS CASOS: Aplicar royalty e taxa normalmente
                             valorLiquido = valorBruto;
-                            if (cliente.empresa === 'alpha') {
+                            if (cliente.empresa === 'alpha' && !naoRepassarRoyalties) {
                                 valorLiquido = valorBruto * 0.85; // - 15% royalty
                             }
                             if (cliente.taxaJuros > 0) {
@@ -6094,6 +6706,8 @@
             let cardClass = 'client-card';
             if (isRenovacao) {
                 cardClass = 'client-card renovacao-card';
+            } else if (isRenovacaoEfetuada) {
+                cardClass = 'client-card renovado-card';
             } else if (cliente.isProjecao) {
                 cardClass = 'client-card projecao-card';
             }
@@ -6242,7 +6856,7 @@
                     <div style="padding:20px 16px 12px 16px;text-align:center;border-bottom:1px solid #f3f4f6;">
                         <div style="font-size:36px;margin-bottom:10px;">${emoji}</div>
                         <h3 style="margin:0;font-size:16px;font-weight:600;color:#111827;display:flex;align-items:center;justify-content:center;gap:6px;">
-                            ${cliente.nome}
+                            ${displayName}
                             ${contratoFechadoBadge}
                         </h3>
                         <p style="margin:6px 0 0 0;font-size:11px;color:#9ca3af;font-weight:500;">${cliente.categoria}</p>
@@ -6343,6 +6957,16 @@
                         </div>
                     </div>
 
+                    <div class="form-group" id="groupNaoRepassarRoyalties" style="margin-top: 8px; padding: 10px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; display: none;">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="clientNaoRepassarRoyalties" style="width: auto; margin: 0;" onchange="atualizarPreviewContrato()">
+                            <span style="font-size: 13px; font-weight: 600; color: #111827;">Não repassar comissão de royalties</span>
+                        </label>
+                        <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 6px;">
+                            Desativa o desconto de 15% aplicado à Alpha.
+                        </small>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="clientTipoValor">Tipo de Contrato</label>
@@ -6380,6 +7004,38 @@
                                     <option value="2026-06">Junho 2026</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="form-row" id="groupParcelamentoMRR">
+                            <div class="form-group">
+                                <label for="clientParcelasMRR">💳 Parcelas do MRR</label>
+                                <select id="clientParcelasMRR" onchange="atualizarParcelamentoMRR(); atualizarPreviewContrato()">
+                                    <option value="1">1x (À vista)</option>
+                                    <option value="2">2x</option>
+                                    <option value="3">3x</option>
+                                    <option value="4">4x</option>
+                                    <option value="6">6x</option>
+                                    <option value="12">12x</option>
+                                </select>
+                                <small style="color: #6b7280; font-size: 11px;">Número de parcelas no mês</small>
+                                <div id="camposDatasParcelasMRR" style="margin-top: 12px;"></div>
+                            </div>
+                        </div>
+                        <div id="ajustesMensaisSection" style="margin-top: 16px; padding: 12px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px;">
+                            <label style="font-size: 13px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                                🔧 Ajuste manual por mês
+                            </label>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ajusteMesCadastro">Mês</label>
+                                    <select id="ajusteMesCadastro"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ajusteValorCadastro">Valor (R$)</label>
+                                    <input type="number" id="ajusteValorCadastro" min="0" step="any" placeholder="0,00">
+                                </div>
+                            </div>
+                            <button type="button" onclick="addAjusteMensalCadastro()" style="margin-top: 6px; background: #2563eb; color: white; border: none; border-radius: 6px; padding: 8px 12px; font-weight: 600; cursor: pointer;">Adicionar/Atualizar</button>
+                            <div id="ajusteMensalLista" style="margin-top: 10px;"></div>
                         </div>
                     </div>
 
@@ -6823,6 +7479,48 @@
         </div>
     </div>
 
+    <div id="ajusteValorModal" class="client-modal-overlay">
+        <div class="client-modal">
+            <div class="modal-header">
+                <h3>📝 Ajustar Valor do Mês</h3>
+                <button class="modal-close" onclick="closeAjusteValorModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="ajusteClienteId">
+                <input type="hidden" id="ajusteMes">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <input type="text" id="ajusteClienteNome" disabled>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mês</label>
+                        <input type="text" id="ajusteMesLabel" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor padrão</label>
+                        <input type="text" id="ajusteValorPadrao" disabled>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Novo valor (R$)</label>
+                        <input type="number" id="ajusteValorInput" min="0" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo do ajuste</label>
+                        <input type="text" id="ajusteMotivoInput" placeholder="Ex: Desconto 50% - fim de ano">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeAjusteValorModal()">Cancelar</button>
+                <button type="button" id="ajusteRemoveBtn" onclick="removeAjusteValorMensal()" style="display:none;background:#ef4444;color:white;border:none;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer;">Remover ajuste</button>
+                <button type="button" class="btn-save" onclick="saveAjusteValorMensal()">💾 Salvar Ajuste</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Sistema de Notificações - DESABILITADO -->
     <!-- <script src="notifications.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -6833,9 +7531,14 @@
             try {
                 const key = 'starken_financeiro_custom_items';
                 const data = localStorage.getItem(key);
+                const statusKey = 'starken_financeiro_status';
+                const deletedKey = 'starken_financeiro_deleted_items';
+                const editedKey = 'starken_financeiro_edited_items';
+                const mesesLimpar = ['2025-11', '2025-12', '2026-01'];
+                let alterado = false;
+
                 if (data) {
                     const customItems = JSON.parse(data);
-                    let alterado = false;
 
                     // Percorrer meses
                     Object.keys(customItems).forEach(mes => {
@@ -6856,19 +7559,70 @@
                         });
                     });
 
+                    mesesLimpar.forEach(mes => {
+                        if (customItems[mes] && Array.isArray(customItems[mes].despesas) && customItems[mes].despesas.length > 0) {
+                            customItems[mes].despesas = [];
+                            alterado = true;
+                        }
+                        if (customItems[mes] && Array.isArray(customItems[mes].receitas) && customItems[mes].receitas.length === 0 && customItems[mes].despesas && customItems[mes].despesas.length === 0) {
+                            delete customItems[mes];
+                            alterado = true;
+                        }
+                    });
+
                     if (alterado) {
                         localStorage.setItem(key, JSON.stringify(customItems));
-                        console.log('✅ Cache de datas limpo com sucesso!');
+                        console.log('✅ Cache de custom items limpo com sucesso!');
                         
                         // Forçar limpeza dos inputs também
                         const inputs = document.querySelectorAll('input.flatpickr-input');
                         inputs.forEach(input => input.value = '');
                         
                         // Recarregar para aplicar mudanças
+                        sessionStorage.setItem('starken_skip_clients_sync_once', 'true');
                         setTimeout(() => window.location.reload(), 500);
                     } else {
                         console.log('Nenhuma data 22/12/2025 encontrada para limpar.');
                     }
+                }
+
+                try {
+                    const statusData = JSON.parse(localStorage.getItem(statusKey) || '{}');
+                    mesesLimpar.forEach(mes => {
+                        if (statusData[mes]) {
+                            delete statusData[mes];
+                            alterado = true;
+                        }
+                    });
+                    localStorage.setItem(statusKey, JSON.stringify(statusData));
+                } catch (e) {
+                    console.error('Erro ao limpar status:', e);
+                }
+
+                try {
+                    const deletedItems = JSON.parse(localStorage.getItem(deletedKey) || '{}');
+                    mesesLimpar.forEach(mes => {
+                        if (deletedItems[mes]) {
+                            delete deletedItems[mes];
+                            alterado = true;
+                        }
+                    });
+                    localStorage.setItem(deletedKey, JSON.stringify(deletedItems));
+                } catch (e) {
+                    console.error('Erro ao limpar deletados:', e);
+                }
+
+                try {
+                    const editedItems = JSON.parse(localStorage.getItem(editedKey) || '{}');
+                    mesesLimpar.forEach(mes => {
+                        if (editedItems[mes]) {
+                            delete editedItems[mes];
+                            alterado = true;
+                        }
+                    });
+                    localStorage.setItem(editedKey, JSON.stringify(editedItems));
+                } catch (e) {
+                    console.error('Erro ao limpar edits:', e);
                 }
             } catch (e) {
                 console.error('Erro ao limpar cache:', e);
@@ -6900,6 +7654,26 @@
                 altInput: true,
                 altFormat: "d/m/Y",
                 allowInput: true
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('sidebarToggle');
+            if (!toggleButton) return;
+
+            const applySidebarState = (collapsed) => {
+                document.body.classList.toggle('sidebar-collapsed', collapsed);
+                toggleButton.textContent = collapsed ? '⟩' : '⟨';
+            };
+
+            const saved = localStorage.getItem('starken_sidebar_collapsed') === 'true';
+            applySidebarState(saved);
+
+            toggleButton.addEventListener('click', () => {
+                const next = !document.body.classList.contains('sidebar-collapsed');
+                applySidebarState(next);
+                localStorage.setItem('starken_sidebar_collapsed', String(next));
             });
         });
     </script>

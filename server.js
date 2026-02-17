@@ -27,6 +27,11 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
 
+    if (req.url.startsWith('/api/sync-data')) {
+        proxyApiRequest(req, res);
+        return;
+    }
+
     if (req.url.startsWith('/api/')) {
         proxyApiRequest(req, res);
         return;
@@ -157,9 +162,34 @@ function proxyApiRequest(req, res) {
         proxyRes.pipe(res);
     });
 
-    proxyReq.on('error', (error) => {
-        res.writeHead(502, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: 'Proxy error' }));
+    const failWithFallback = () => {
+        if (res.headersSent) return;
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            success: true,
+            offline: true,
+            data: {
+                statusData: {},
+                customItems: {},
+                deletedItems: {},
+                editedItems: {}
+            }
+        }));
+    };
+
+    proxyReq.setTimeout(10000, () => {
+        proxyReq.destroy(new Error('Proxy timeout'));
+        failWithFallback();
+    });
+
+    proxyReq.on('error', () => {
+        failWithFallback();
+    });
+
+    proxyReq.on('close', () => {
+        if (!res.writableEnded && !res.headersSent) {
+            failWithFallback();
+        }
     });
 
     req.pipe(proxyReq);

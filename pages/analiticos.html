@@ -39,6 +39,7 @@
             height: 100vh;
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
         }
         .sidebar-header { padding: 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .logo-image { width: 140px; height: auto; display: block; margin: 0 auto 15px; }
@@ -57,7 +58,29 @@
         .nav-item:hover { background-color: rgba(255,255,255,0.1); color: var(--white); border-left-color: var(--light-green); }
         .nav-item.active { background-color: rgba(255,255,255,0.15); color: var(--white); border-left-color: var(--white); font-weight: 600; }
         .nav-icon { margin-right: 12px; font-size: 18px; }
-        .main-content { flex: 1; margin-left: 260px; padding: 30px; }
+        .main-content { flex: 1; margin-left: 260px; padding: 30px; transition: margin-left 0.2s ease; }
+        .sidebar-toggle {
+            position: fixed;
+            top: 90px;
+            left: 260px;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .sidebar-collapsed .sidebar { transform: translateX(-100%); }
+        .sidebar-collapsed .main-content { margin-left: 0; }
+        .sidebar-collapsed .sidebar-toggle { left: 18px; transform: none; }
         .page-header { margin-bottom: 30px; }
         .page-title { font-size: 28px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
         .page-subtitle { color: var(--text-light); font-size: 14px; }
@@ -148,6 +171,7 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <button class="sidebar-toggle" id="sidebarToggle" type="button">⟨</button>
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -547,6 +571,26 @@
         }
 
         window.addEventListener('DOMContentLoaded', loadAnalytics);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('sidebarToggle');
+            if (!toggleButton) return;
+
+            const applySidebarState = (collapsed) => {
+                document.body.classList.toggle('sidebar-collapsed', collapsed);
+                toggleButton.textContent = collapsed ? '⟩' : '⟨';
+            };
+
+            const saved = localStorage.getItem('starken_sidebar_collapsed') === 'true';
+            applySidebarState(saved);
+
+            toggleButton.addEventListener('click', () => {
+                const next = !document.body.classList.contains('sidebar-collapsed');
+                applySidebarState(next);
+                localStorage.setItem('starken_sidebar_collapsed', String(next));
+            });
+        });
     </script>
 </body>
 </html>

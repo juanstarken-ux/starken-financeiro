@@ -55,7 +55,8 @@ async function restoreData() {
                                 vencimento: item.vencimento || null,
                                 dataPagamento: item.dataPagamento || null,
                                 funcao: item.funcao || null,
-                                tipoDetalhe: item.tipo || null
+                                tipoDetalhe: item.tipo || null,
+                                empresa: item.empresa || null
                             }
                         });
                         stats.customItems++;
@@ -253,8 +254,20 @@ app.get('/api/dados/:mes', async (req, res) => {
 
 app.get('/api/clientes', async (req, res) => {
   try {
+    const { at } = req.query;
+    let filtroData = undefined;
+    if (at) {
+      const parsed = new Date(at);
+      if (!Number.isNaN(parsed.getTime())) {
+        filtroData = parsed;
+      }
+    }
     const registro = await prisma.starkMemory.findFirst({
-      where: { tipo: 'clientes_manual', mes: 'global' },
+      where: {
+        tipo: 'clientes_manual',
+        mes: 'global',
+        ...(filtroData ? { updatedAt: { lte: filtroData } } : {})
+      },
       orderBy: { updatedAt: 'desc' }
     });
 
@@ -290,26 +303,172 @@ app.post('/api/clientes', async (req, res) => {
     };
     const conteudo = JSON.stringify(payload);
 
-    const registro = await prisma.starkMemory.findFirst({
-      where: { tipo: 'clientes_manual', mes: 'global' },
-      orderBy: { updatedAt: 'desc' }
+    const saved = await prisma.starkMemory.create({
+      data: { conteudo, relevancia: 10, mes: 'global', tipo: 'clientes_manual' }
     });
-
-    let saved = null;
-    if (registro) {
-      saved = await prisma.starkMemory.update({
-        where: { id: registro.id },
-        data: { conteudo, relevancia: 10, mes: 'global', tipo: 'clientes_manual' }
-      });
-    } else {
-      saved = await prisma.starkMemory.create({
-        data: { conteudo, relevancia: 10, mes: 'global', tipo: 'clientes_manual' }
-      });
-    }
 
     res.json({ success: true, data: { id: saved.id, updatedAt: saved.updatedAt } });
   } catch (error) {
     console.error('Erro ao salvar clientes:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/historico', async (req, res) => {
+  try {
+    const payload = req.body || {};
+    const parseMaybeJson = (value, fallback) => {
+      if (!value) return fallback;
+      if (typeof value === 'string') {
+        try {
+          return JSON.parse(value);
+        } catch (e) {
+          return fallback;
+        }
+      }
+      return value;
+    };
+    const customItems = parseMaybeJson(payload.customItems, {});
+    const statusData = parseMaybeJson(payload.statusData, {});
+    const deletedItems = parseMaybeJson(payload.deletedItems, {});
+    const editedItems = parseMaybeJson(payload.editedItems, {});
+    const clients = Array.isArray(payload.clients) ? payload.clients : [];
+    const deletedClients = Array.isArray(payload.deletedClients) ? payload.deletedClients : [];
+    const updatedAt = payload.updatedAt || new Date().toISOString();
+
+    const mesesCustom = Object.keys(customItems || {});
+    const mesesDeleted = Object.keys(deletedItems || {});
+    const mesesEdited = Object.keys(editedItems || {});
+    const mesesStatus = Object.keys(statusData || {}).map(key => key.split('_')[0]).filter(Boolean);
+    const mesesStatusUnicos = Array.from(new Set(mesesStatus));
+
+    await prisma.$transaction(async (tx) => {
+      if (mesesCustom.length > 0) {
+        await tx.customItem.deleteMany({ where: { mes: { in: mesesCustom } } });
+        for (const [mes, dados] of Object.entries(customItems)) {
+          if (dados.despesas && Array.isArray(dados.despesas)) {
+            for (const item of dados.despesas) {
+              await tx.customItem.create({
+                data: {
+                  mes,
+                  tipo: 'despesa',
+                  nome: item.nome,
+                  valor: parseFloat(item.valor),
+                  categoria: item.categoria || 'Outros',
+                  status: item.status || 'A Pagar',
+                  vencimento: item.vencimento || null,
+                  dataPagamento: item.dataPagamento || null,
+                  funcao: item.funcao || null,
+                  tipoDetalhe: item.tipo || null,
+                  empresa: item.empresa || null
+                }
+              });
+            }
+          }
+          if (dados.receitas && Array.isArray(dados.receitas)) {
+            for (const item of dados.receitas) {
+              await tx.customItem.create({
+                data: {
+                  mes,
+                  tipo: 'receita',
+                  nome: item.nome,
+                  valor: parseFloat(item.valor),
+                  categoria: item.categoria || item.empresa || 'Outros',
+                  status: item.status || 'A Receber',
+                  vencimento: item.vencimento || null,
+                  dataPagamento: item.dataPagamento || null,
+                  empresa: item.empresa || null,
+                  funcao: item.funcao || null,
+                  tipoDetalhe: item.tipo || null
+                }
+              });
+            }
+          }
+        }
+      }
+
+      if (mesesStatusUnicos.length > 0) {
+        await tx.paymentStatus.deleteMany({ where: { mes: { in: mesesStatusUnicos } } });
+        for (const [id, dados] of Object.entries(statusData || {})) {
+          const parts = id.split('_');
+          if (parts.length >= 3) {
+            const mes = parts[0];
+            const tipo = parts[1];
+            const itemNome = parts.slice(2).join('_').replace(/_/g, ' ');
+            await tx.paymentStatus.create({
+              data: {
+                mes,
+                tipo,
+                itemNome,
+                status: dados.status,
+                dataPagamento: dados.dataPagamento
+              }
+            });
+          }
+        }
+      }
+
+      if (mesesDeleted.length > 0) {
+        await tx.deletedItem.deleteMany({ where: { mes: { in: mesesDeleted } } });
+        for (const [mes, dados] of Object.entries(deletedItems || {})) {
+          if (dados.despesas) {
+            for (const nome of dados.despesas) {
+              await tx.deletedItem.create({ data: { mes, tipo: 'despesa', itemNome: nome } });
+            }
+          }
+          if (dados.receitas) {
+            for (const nome of dados.receitas) {
+              await tx.deletedItem.create({ data: { mes, tipo: 'receita', itemNome: nome } });
+            }
+          }
+        }
+      }
+
+      if (mesesEdited.length > 0) {
+        await tx.editedItem.deleteMany({ where: { mes: { in: mesesEdited } } });
+        for (const [mes, dados] of Object.entries(editedItems || {})) {
+          if (dados.despesas) {
+            for (const [nomeOriginal, edit] of Object.entries(dados.despesas)) {
+              await tx.editedItem.create({
+                data: {
+                  mes,
+                  tipo: 'despesa',
+                  itemNome: nomeOriginal,
+                  novoNome: edit.nome,
+                  novoValor: parseFloat(edit.valor),
+                  novaCategoria: edit.categoria
+                }
+              });
+            }
+          }
+          if (dados.receitas) {
+            for (const [nomeOriginal, edit] of Object.entries(dados.receitas)) {
+              await tx.editedItem.create({
+                data: {
+                  mes,
+                  tipo: 'receita',
+                  itemNome: nomeOriginal,
+                  novoNome: edit.nome,
+                  novoValor: parseFloat(edit.valor),
+                  novaCategoria: edit.categoria || edit.empresa
+                }
+              });
+            }
+          }
+        }
+      }
+
+      if (clients.length > 0 || deletedClients.length > 0) {
+        const conteudo = JSON.stringify({ clients, deleted: deletedClients, updatedAt });
+        await tx.starkMemory.create({
+          data: { conteudo, relevancia: 10, mes: 'global', tipo: 'clientes_manual' }
+        });
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Erro ao salvar histórico:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

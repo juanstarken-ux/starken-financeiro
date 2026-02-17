@@ -40,6 +40,7 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            transition: transform 0.2s ease;
         }
         .sidebar-header {
             padding: 30px 20px;
@@ -80,7 +81,30 @@
             flex: 1;
             margin-left: 260px;
             padding: 30px;
+            transition: margin-left 0.2s ease;
         }
+        .sidebar-toggle {
+            position: fixed;
+            top: 90px;
+            left: 260px;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .sidebar-collapsed .sidebar { transform: translateX(-100%); }
+        .sidebar-collapsed .main-content { margin-left: 0; }
+        .sidebar-collapsed .sidebar-toggle { left: 18px; transform: none; }
         .page-header {
             background: white;
             padding: 25px 30px;
@@ -151,6 +175,7 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <button class="sidebar-toggle" id="sidebarToggle" type="button">⟨</button>
         <aside class="sidebar">
             <div class="sidebar-header">
                 <img src="../logo-starken.png" alt="STARK Intelligence" class="logo-image">
@@ -247,5 +272,25 @@
 
     <script src="../dados-mensais.js"></script>
     <script src="../gestao-financeira.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('sidebarToggle');
+            if (!toggleButton) return;
+
+            const applySidebarState = (collapsed) => {
+                document.body.classList.toggle('sidebar-collapsed', collapsed);
+                toggleButton.textContent = collapsed ? '⟩' : '⟨';
+            };
+
+            const saved = localStorage.getItem('starken_sidebar_collapsed') === 'true';
+            applySidebarState(saved);
+
+            toggleButton.addEventListener('click', () => {
+                const next = !document.body.classList.contains('sidebar-collapsed');
+                applySidebarState(next);
+                localStorage.setItem('starken_sidebar_collapsed', String(next));
+            });
+        });
+    </script>
 </body>
 </html>
