@@ -2996,6 +2996,7 @@
                 <button class="btn btn-secondary" onclick="refreshImportDiagnostics()">Atualizar</button>
                 <button class="btn btn-warning" onclick="clearBaseItemsForTargetMonths()">Limpar base Nov-Dez-Jan</button>
                 <button class="btn btn-danger" onclick="resetImportsForTargetMonths()">Resetar Nov-Dez-Jan</button>
+                <button class="btn btn-danger" onclick="resetAllPayablesPermanently()">Limpeza geral total</button>
                 <button class="btn btn-primary" onclick="closeModal('diagnosticModal')">Fechar</button>
             </div>
         </div>
@@ -6784,6 +6785,84 @@
             renderImportDiagnostics();
             loadMonthData(currentMonth);
             showToast(`Dados de ${label} excluídos.`, 'success');
+        }
+
+        async function resetAllPayablesPermanently() {
+            if (!confirm('Isso vai apagar TODOS os lançamentos e histórico de contas a pagar em todos os meses, localmente e no servidor, e ocultar a base de despesas. Deseja continuar?')) {
+                return;
+            }
+
+            const customItems = GestaoFinanceira.customItems || {};
+            const deletedItems = GestaoFinanceira.deletedItems || {};
+            const editedItems = GestaoFinanceira.editedItems || {};
+            const statusData = GestaoFinanceira.statusData || {};
+
+            if (GestaoFinanceira.API_URL) {
+                try {
+                    await fetch(GestaoFinanceira.API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ acao: 'limpar-despesas', dados: {} })
+                    });
+                } catch (error) {
+                    console.error('Erro ao limpar no servidor:', error);
+                }
+            }
+
+            localStorage.setItem('starken_disable_base_despesas', '1');
+
+            const nextCustom = {};
+            Object.entries(customItems).forEach(([month, dados]) => {
+                const receitas = (dados?.receitas || []).slice();
+                if (receitas.length > 0) {
+                    nextCustom[month] = { despesas: [], receitas };
+                }
+            });
+            GestaoFinanceira.customItems = nextCustom;
+
+            const nextDeleted = {};
+            Object.entries(deletedItems).forEach(([month, dados]) => {
+                const receitas = (dados?.receitas || []).slice();
+                if (receitas.length > 0) {
+                    nextDeleted[month] = { despesas: [], receitas };
+                }
+            });
+            GestaoFinanceira.deletedItems = nextDeleted;
+
+            const nextEdited = {};
+            Object.entries(editedItems).forEach(([month, dados]) => {
+                const receitas = { ...(dados?.receitas || {}) };
+                if (Object.keys(receitas).length > 0) {
+                    nextEdited[month] = { despesas: {}, receitas };
+                }
+            });
+            GestaoFinanceira.editedItems = nextEdited;
+
+            Object.keys(statusData).forEach(key => {
+                const [, tipo] = key.split('_');
+                if (tipo === 'despesa') {
+                    delete statusData[key];
+                }
+            });
+            GestaoFinanceira.statusData = statusData;
+
+            saveImportHistory([]);
+            resetImportHistoryCache();
+
+            saveImportMeta({});
+            importedKeySet = new Set();
+            saveImportedKeys();
+
+            if (typeof GestaoFinanceira?.saveToStorage === 'function') {
+                GestaoFinanceira.saveToStorage();
+            }
+            if (typeof GestaoFinanceira?.syncToServer === 'function') {
+                GestaoFinanceira.syncToServer();
+            }
+            ensureImportMetaSynced();
+            renderImportDiagnostics();
+            loadMonthData(currentMonth);
+            showToast('Limpeza geral de contas a pagar concluída.', 'success');
         }
 
         function clearBaseItemsForTargetMonths() {

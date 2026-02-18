@@ -583,6 +583,33 @@ async function executarAcaoSync(acao, dados) {
       }
       return { success: true, mensagem: `${nome} removido` };
     }
+    case 'limpar-despesas': {
+      const meses = Array.isArray(dados.meses) ? dados.meses.filter(Boolean) : [];
+      const filtroMes = meses.length > 0 ? { mes: { in: meses } } : {};
+
+      const deletedCustom = await prisma.customItem.deleteMany({
+        where: { tipo: 'despesa', ...filtroMes }
+      });
+      const deletedDeleted = await prisma.deletedItem.deleteMany({
+        where: { tipo: 'despesa', ...filtroMes }
+      });
+      const deletedEdited = await prisma.editedItem.deleteMany({
+        where: { tipo: 'despesa', ...filtroMes }
+      });
+      const deletedStatus = await prisma.paymentStatus.deleteMany({
+        where: { tipo: 'despesa', ...filtroMes }
+      });
+
+      return {
+        success: true,
+        removidos: {
+          customItems: deletedCustom.count || 0,
+          deletedItems: deletedDeleted.count || 0,
+          editedItems: deletedEdited.count || 0,
+          statusData: deletedStatus.count || 0
+        }
+      };
+    }
     default:
       throw new Error(`Ação desconhecida: ${acao}`);
   }

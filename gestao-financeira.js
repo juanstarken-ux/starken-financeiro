@@ -632,6 +632,10 @@ const GestaoFinanceira = {
         if (!dadosMensais || !dadosMensais[mes]) return null;
 
         const dados = JSON.parse(JSON.stringify(dadosMensais[mes])); // Deep clone
+        const disableBaseDespesas = typeof localStorage !== 'undefined' && localStorage.getItem('starken_disable_base_despesas') === '1';
+        if (disableBaseDespesas && dados.despesas) {
+            dados.despesas = { total: 0, pago: 0, pendente: 0, categorias: {} };
+        }
 
         // ========== PROCESSAR RECEITAS ==========
         if (dados.receitas && dados.receitas.clientes) {
