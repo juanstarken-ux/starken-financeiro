@@ -14,10 +14,10 @@ const GestaoFinanceira = {
     // URL da API Vercel/Netlify (Produção)
     API_URL: (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
         ? '/api/sync-data'
-        : 'https://starken-financeiro-production.up.railway.app/api/sync-data',
+        : 'https://starken-financeiro-production-0684.up.railway.app/api/sync-data',
 
     // URL do backend Railway (produção)
-    RAILWAY_API_URL: 'https://starken-financeiro-production.up.railway.app',
+    RAILWAY_API_URL: 'https://starken-financeiro-production-0684.up.railway.app',
     // Para desenvolvimento local, use: 'http://localhost:3000'
 
     // Flag para controlar sincronização
