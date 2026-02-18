@@ -5685,11 +5685,7 @@
 
             await GestaoFinanceira.loadFromServer();
             if (currentMonth === '2026-02') {
-                const cleanupKey = `starken_clear_paid_${currentMonth}`;
-                if (!localStorage.getItem(cleanupKey)) {
-                    clearLocalPaidForMonth(currentMonth);
-                    localStorage.setItem(cleanupKey, new Date().toISOString());
-                }
+                clearLocalPaidForMonth(currentMonth);
             }
             console.log('📅 Carregando Contas a Pagar para o mês:', currentMonth);
             loadMonthData(currentMonth);
