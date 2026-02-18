@@ -3612,6 +3612,36 @@
             }
         }
 
+        function clearLocalPaidForMonth(mes) {
+            let removedStatus = 0;
+            let removedCustom = 0;
+            const statusData = GestaoFinanceira.statusData || {};
+            Object.keys(statusData).forEach(id => {
+                if (!id.startsWith(`${mes}_despesa_`)) return;
+                const status = statusData[id]?.status;
+                if (status === 'Pago' || status === 'Feito') {
+                    delete statusData[id];
+                    removedStatus += 1;
+                }
+            });
+            GestaoFinanceira.statusData = statusData;
+
+            const customItems = GestaoFinanceira.customItems || {};
+            if (customItems[mes]?.despesas) {
+                const before = customItems[mes].despesas.length;
+                customItems[mes].despesas = customItems[mes].despesas.filter(item => {
+                    const status = item?.status;
+                    return status !== 'Pago' && status !== 'Feito';
+                });
+                removedCustom = before - customItems[mes].despesas.length;
+            }
+            GestaoFinanceira.customItems = customItems;
+            if (typeof GestaoFinanceira.saveToStorage === 'function') {
+                GestaoFinanceira.saveToStorage();
+            }
+            return { removedStatus, removedCustom };
+        }
+
         function updateImportInfo(mes) {
             const importAsaasEl = document.getElementById('lastImportAsaas');
             const reconcileAsaasEl = document.getElementById('lastReconcileAsaas');
@@ -5654,6 +5684,13 @@
             }
 
             await GestaoFinanceira.loadFromServer();
+            if (currentMonth === '2026-02') {
+                const cleanupKey = `starken_clear_paid_${currentMonth}`;
+                if (!localStorage.getItem(cleanupKey)) {
+                    clearLocalPaidForMonth(currentMonth);
+                    localStorage.setItem(cleanupKey, new Date().toISOString());
+                }
+            }
             console.log('📅 Carregando Contas a Pagar para o mês:', currentMonth);
             loadMonthData(currentMonth);
 
