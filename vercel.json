@@ -12,8 +12,8 @@
   ],
   "routes": [
     {
-      "src": "/api/sync-data",
-      "dest": "/netlify/functions/sync-data.js"
+      "src": "/api/(.*)",
+      "dest": "https://starken-financeiro-production-0684.up.railway.app/api/$1"
     },
     {
       "src": "/contas-pagar",
