@@ -254,7 +254,8 @@ app.get('/api/sync-data', async (req, res) => {
       organizedEdited[item.mes][tipo][item.itemNome] = {
         nome: item.novoNome || item.itemNome,
         valor: item.novoValor,
-        categoria: item.novaCategoria
+        categoria: item.novaCategoria,
+        vencimento: item.novoVencimento
       };
     });
 
@@ -399,7 +400,8 @@ app.post('/api/sync-data/sync', async (req, res) => {
               update: {
                 novoNome: values.nome,
                 novoValor: values.valor,
-                novaCategoria: values.categoria
+                novaCategoria: values.categoria,
+                novoVencimento: values.vencimento
               },
               create: {
                 mes,
@@ -407,7 +409,8 @@ app.post('/api/sync-data/sync', async (req, res) => {
                 itemNome,
                 novoNome: values.nome,
                 novoValor: values.valor,
-                novaCategoria: values.categoria
+                novaCategoria: values.categoria,
+                novoVencimento: values.vencimento
               }
             });
           }
@@ -418,7 +421,8 @@ app.post('/api/sync-data/sync', async (req, res) => {
               update: {
                 novoNome: values.nome,
                 novoValor: values.valor,
-                novaCategoria: values.categoria
+                novaCategoria: values.categoria,
+                novoVencimento: values.vencimento
               },
               create: {
                 mes,
@@ -426,7 +430,8 @@ app.post('/api/sync-data/sync', async (req, res) => {
                 itemNome,
                 novoNome: values.nome,
                 novoValor: values.valor,
-                novaCategoria: values.categoria
+                novaCategoria: values.categoria,
+                novoVencimento: values.vencimento
               }
             });
           }
@@ -535,7 +540,7 @@ async function executarAcaoSync(acao, dados) {
       return { success: true, mensagem: `${nome} marcado como RECEBIDO` };
     }
     case 'editar-item': {
-      const { tipo, nomeAtual, novoNome, novoValor, novaCategoria } = dados;
+      const { tipo, nomeAtual, novoNome, novoValor, novaCategoria, novoVencimento } = dados;
       if (!tipo || !nomeAtual) {
         throw new Error('Dados inválidos');
       }
@@ -544,7 +549,8 @@ async function executarAcaoSync(acao, dados) {
         update: {
           novoNome: novoNome,
           novoValor: novoValor,
-          novaCategoria: novaCategoria
+          novaCategoria: novaCategoria,
+          novoVencimento: novoVencimento
         },
         create: {
           mes,
@@ -552,7 +558,8 @@ async function executarAcaoSync(acao, dados) {
           itemNome: nomeAtual,
           novoNome: novoNome,
           novoValor: novoValor,
-          novaCategoria: novaCategoria
+          novaCategoria: novaCategoria,
+          novoVencimento: novoVencimento
         }
       });
       return { success: true, mensagem: 'Item editado com sucesso' };
@@ -628,7 +635,8 @@ app.get('/api/dados/:mes', async (req, res) => {
             acc[i.itemNome] = {
               nome: i.novoNome || i.itemNome,
               valor: i.novoValor,
-              categoria: i.novaCategoria
+              categoria: i.novaCategoria,
+              vencimento: i.novoVencimento
             };
             return acc;
           }, {}),
@@ -636,7 +644,8 @@ app.get('/api/dados/:mes', async (req, res) => {
             acc[i.itemNome] = {
               nome: i.novoNome || i.itemNome,
               valor: i.novoValor,
-              categoria: i.novaCategoria
+              categoria: i.novaCategoria,
+              vencimento: i.novoVencimento
             };
             return acc;
           }, {})

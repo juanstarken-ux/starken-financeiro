@@ -300,7 +300,8 @@ const GestaoFinanceira = {
                         nomeAtual: nomeOriginal,
                         novoNome: novosDados.nome,
                         novoValor: parseFloat(novosDados.valor),
-                        novaCategoria: novosDados.categoria
+                        novaCategoria: novosDados.categoria,
+                        novoVencimento: novosDados.vencimento || ''
                     }
                 })
             });
@@ -483,7 +484,8 @@ const GestaoFinanceira = {
         this.editedItems[mes].receitas[nomeOriginal] = {
             ...novosDados,
             valor: parseFloat(novosDados.valor),
-            dataEdicao: new Date().toISOString()
+            dataEdicao: new Date().toISOString(),
+            novoVencimento: novosDados.vencimento || ''
         };
 
         this.saveToStorage();
@@ -509,7 +511,8 @@ const GestaoFinanceira = {
                         nomeAtual: nomeOriginal,
                         novoNome: novosDados.nome,
                         novoValor: parseFloat(novosDados.valor),
-                        novaCategoria: novosDados.empresa
+                        novaCategoria: novosDados.empresa,
+                        novoVencimento: novosDados.vencimento || ''
                     }
                 })
             });

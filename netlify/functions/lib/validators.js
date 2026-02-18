@@ -111,9 +111,11 @@ const editarItemSchema = z.object({
     .finite()
     .optional(),
   nova_categoria: z.string().optional(),
+  novo_vencimento: dataSchema.optional(),
+  novoVencimento: dataSchema.optional(),
   mes: mesSchema.optional()
-}).refine(data => data.novo_nome || data.novo_valor, {
-  message: 'Deve fornecer novo_nome ou novo_valor'
+}).refine(data => data.novo_nome || data.novo_valor || data.novo_vencimento || data.novoVencimento, {
+  message: 'Deve fornecer novo_nome, novo_valor ou novo_vencimento'
 });
 
 // Schema para remover item

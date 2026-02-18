@@ -73,6 +73,7 @@ model EditedItem {
   novoNome     String?
   novoValor    Float?
   novaCategoria String?
+  novoVencimento String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

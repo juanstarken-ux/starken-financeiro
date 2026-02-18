@@ -117,11 +117,12 @@ exports.handler = async (event, context) => {
         }
         const tipo = item.tipo === 'despesa' ? 'despesas' : 'receitas';
         // Formato compatível com o frontend
-        organizedEdited[item.mes][tipo][item.itemNome] = {
-          nome: item.novoNome || item.itemNome,
-          valor: item.novoValor,
-          categoria: item.novaCategoria
-        };
+      organizedEdited[item.mes][tipo][item.itemNome] = {
+        nome: item.novoNome || item.itemNome,
+        valor: item.novoValor,
+        categoria: item.novaCategoria,
+        vencimento: item.novoVencimento
+      };
       });
 
       return {
@@ -372,6 +373,7 @@ async function buscarTudo(mes) {
         if (edit.novoNome) r.nome = edit.novoNome;
         if (edit.novoValor) r.valor = edit.novoValor;
         if (edit.novaCategoria) r.categoria = edit.novaCategoria;
+        if (edit.novoVencimento) r.vencimento = edit.novoVencimento;
       }
       return r;
     });
@@ -413,6 +415,7 @@ async function buscarTudo(mes) {
         if (edit.novoNome) d.nome = edit.novoNome;
         if (edit.novoValor) d.valor = edit.novoValor;
         if (edit.novaCategoria) d.categoria = edit.novaCategoria;
+        if (edit.novoVencimento) d.vencimento = edit.novoVencimento;
       }
       return d;
     });
@@ -708,7 +711,8 @@ async function editarItem(dados) {
       data: {
         nome: dados.novoNome || dados.novo_nome || customItem.nome,
         valor: dados.novoValor || dados.novo_valor || customItem.valor,
-        categoria: dados.novaCategoria || customItem.categoria
+        categoria: dados.novaCategoria || customItem.categoria,
+        vencimento: dados.novoVencimento || dados.novo_vencimento || customItem.vencimento
       }
     });
   } else {
@@ -719,7 +723,8 @@ async function editarItem(dados) {
       update: {
         novoNome: dados.novoNome || dados.novo_nome,
         novoValor: dados.novoValor || dados.novo_valor,
-        novaCategoria: dados.novaCategoria
+        novaCategoria: dados.novaCategoria,
+        novoVencimento: dados.novoVencimento || dados.novo_vencimento
       },
       create: {
         mes,
@@ -727,7 +732,8 @@ async function editarItem(dados) {
         itemNome: dados.nomeAtual || dados.nome_atual,
         novoNome: dados.novoNome || dados.novo_nome,
         novoValor: dados.novoValor || dados.novo_valor,
-        novaCategoria: dados.novaCategoria
+        novaCategoria: dados.novaCategoria,
+        novoVencimento: dados.novoVencimento || dados.novo_vencimento
       }
     });
   }
