@@ -3307,10 +3307,10 @@
 
         function getClientesContratoAtivos(mesChave) {
             const todosClientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
-            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]');
+            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]').map(id => String(id));
 
             return todosClientes.filter(c => {
-                if (deletedIds.includes(c.id)) return false;
+                if (deletedIds.includes(String(c.id))) return false;
 
                 if (c.isProjecao && !c.mesInicio) {
                     return false;

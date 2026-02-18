@@ -3428,13 +3428,13 @@
 
         function gerarLancamentosRoyaltiesAlpha(mesChave) {
             const todosClientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
-            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]');
+            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]').map(id => String(id));
             const deletedDespesas = new Set(GestaoFinanceira.getDeletedItems(mesChave).despesas || []);
             const royaltiesDeleted = new Set(loadRoyaltiesDeleted());
             const nomesExistentes = getExistingDespesaNames(mesChave);
 
             const clientesAtivos = todosClientes.filter(c => {
-                if (deletedIds.includes(c.id)) return false;
+                if (deletedIds.includes(String(c.id))) return false;
                 if (c.isProjecao && !c.mesInicio) return false;
                 if (c.mesesPersonalizados && c.mesesPersonalizados.length > 0) {
                     return c.mesesPersonalizados.includes(mesChave);

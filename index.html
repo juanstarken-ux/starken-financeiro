@@ -2472,7 +2472,7 @@
 
             // Filtrar apenas clientes ativos (não deletados, não projeção)
             const clientesAtivos = clientes.filter(c => {
-                return !deletedIds.includes(c.id) && !c.isProjecao;
+                return !deletedIds.includes(String(c.id)) && !c.isProjecao;
             });
 
             // Separar por empresa
@@ -2739,7 +2739,7 @@
             let totalAlphaAtivos = 0;
 
             clientes.forEach(c => {
-                if (deletedIds.includes(c.id)) return;
+                if (deletedIds.includes(String(c.id))) return;
 
                 let isActive = false;
 
@@ -2816,7 +2816,7 @@
 
                 clientes.forEach(c => {
                     // Ignorar deletados e projeções
-                    if (deletedIds.includes(c.id)) return;
+                    if (deletedIds.includes(String(c.id))) return;
                     if (c.isProjecao) return;
 
                     // Verificar se está ativo no mês
@@ -3197,7 +3197,7 @@
                 const clientes = todosClientes
                     .filter(c => c.empresa === 'starken')
                     .filter(c => c.mesInicio <= mesChave)
-                    .filter(c => !deletedIds.includes(c.id))
+                    .filter(c => !deletedIds.includes(String(c.id)))
                     .filter(c => !c.statusRenovacao) // NÃO contar renovações
                     .filter(c => !c.isProjecao) // NÃO contar projeções
                     .filter(c => {
@@ -3333,7 +3333,7 @@
                 console.log('   Nomes:', todosAlpha.map(c => c.nome));
 
                 // LOG: Clientes deletados
-                const alphaDeletados = todosAlpha.filter(c => deletedIds.includes(c.id));
+                const alphaDeletados = todosAlpha.filter(c => deletedIds.includes(String(c.id)));
                 console.log('🗑️ Clientes Alpha DELETADOS:', alphaDeletados.length, alphaDeletados.map(c => c.nome));
 
                 // LOG: Renovações e Projeções
@@ -3346,7 +3346,7 @@
                 // MUDANÇA: Agora INCLUI renovações e projeções na tabela (para mostrar todos os 23 clientes)
                 const clientes = todosClientes
                     .filter(c => c.empresa === 'alpha')
-                    .filter(c => !deletedIds.includes(c.id))
+                    .filter(c => !deletedIds.includes(String(c.id)))
                     // Removido filtro de renovações e projeções - todos aparecem agora!
                     .filter(c => {
                         // 🎯 PRIORIDADE: Se tem MESES PERSONALIZADOS, usar eles!
@@ -4138,7 +4138,7 @@
         // Gerenciar cards deletados (para persistir exclusões)
         function getDeletedCards() {
             const stored = localStorage.getItem('starken_deleted_cards');
-            return stored ? JSON.parse(stored) : [];
+            return stored ? JSON.parse(stored).map(id => String(id)) : [];
         }
 
         function saveDeletedCards(ids, options = {}) {
@@ -4150,8 +4150,9 @@
 
         function markCardAsDeleted(clientId) {
             const deleted = getDeletedCards();
-            if (!deleted.includes(clientId)) {
-                deleted.push(clientId);
+            const normalizedId = String(clientId);
+            if (!deleted.includes(normalizedId)) {
+                deleted.push(normalizedId);
                 saveDeletedCards(deleted);
             }
         }
@@ -5229,7 +5230,7 @@
                 
                 if (projecaoIndex !== -1) {
                     const projId = clientesAtualizados[projecaoIndex].id;
-                    if (deletedIds.includes(projId)) {
+                    if (deletedIds.includes(String(projId))) {
                         const newDeletedIds = deletedIds.filter(id => id != projId);
                         saveDeletedCards(newDeletedIds);
                         wasDeleted = true;
@@ -6083,7 +6084,7 @@
 
             // Filtrar clientes que já começaram no mês atual E que não foram deletados
             const clientesAtivos = clientes.filter(c => {
-                const isDeleted = deletedIds.includes(c.id);
+                const isDeleted = deletedIds.includes(String(c.id));
 
                 // NÃO mostrar cards de projeção SE não tiver data de início definida (antigos)
                 // Se tiver data de início (novo modelo), deve passar pela lógica de MRR

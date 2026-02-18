@@ -548,11 +548,11 @@
 
             // 1. Buscar clientes do localStorage (mesma lógica do Contas a Receber)
             const todosClientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
-            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]');
+            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]').map(id => String(id));
             const deletedReceitas = GestaoFinanceira.getDeletedItems(mes).receitas || [];
 
             const clientesAtivos = todosClientes.filter(c => {
-                if (deletedIds.includes(c.id)) return false;
+                if (deletedIds.includes(String(c.id))) return false;
                 if (c.isProjecao) return false;
                 if (c.statusRenovacao) return false;
                 if (deletedReceitas.includes(c.nome)) return false;
