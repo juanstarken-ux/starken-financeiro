@@ -123,19 +123,6 @@ const GestaoFinanceira = {
         if (serverData.editedItems && Object.keys(serverData.editedItems).length > 0) {
             this.editedItems = { ...serverData.editedItems, ...this.editedItems };
         }
-        if (this.customItems && Object.keys(this.customItems).length > 0) {
-            Object.keys(this.customItems).forEach(mes => {
-                const deleted = this.deletedItems[mes] || { despesas: [], receitas: [] };
-                const despesasDeleted = new Set(deleted.despesas || []);
-                const receitasDeleted = new Set(deleted.receitas || []);
-                const atual = this.customItems[mes] || { despesas: [], receitas: [] };
-                const isImported = (item) => item?.importedAt || item?.importRunId || item?.importSource;
-                this.customItems[mes] = {
-                    despesas: (atual.despesas || []).filter(item => isImported(item) || !despesasDeleted.has(item.nome)),
-                    receitas: (atual.receitas || []).filter(item => isImported(item) || !receitasDeleted.has(item.nome))
-                };
-            });
-        }
 
         // Salvar no localStorage
         this.saveToStorage();
@@ -355,11 +342,16 @@ const GestaoFinanceira = {
             if (this.customItems[mes].despesas.length < antes) {
                 deleted = true;
                 console.log('Item removido de customItems');
-                if (!this.deletedItems[mes]) {
-                    this.deletedItems[mes] = { despesas: [], receitas: [] };
+                if (isCustom && this.deletedItems[mes]?.despesas) {
+                    this.deletedItems[mes].despesas = this.deletedItems[mes].despesas.filter(n => n !== nome);
                 }
-                if (!this.deletedItems[mes].despesas.includes(nome)) {
-                    this.deletedItems[mes].despesas.push(nome);
+                if (!isCustom) {
+                    if (!this.deletedItems[mes]) {
+                        this.deletedItems[mes] = { despesas: [], receitas: [] };
+                    }
+                    if (!this.deletedItems[mes].despesas.includes(nome)) {
+                        this.deletedItems[mes].despesas.push(nome);
+                    }
                 }
             }
         }
@@ -545,15 +537,24 @@ const GestaoFinanceira = {
 
     // Excluir receita
     deleteReceita(mes, nome, isCustom = false) {
+        let deleted = false;
         if (this.customItems[mes] && this.customItems[mes].receitas) {
             const antes = this.customItems[mes].receitas.length;
             this.customItems[mes].receitas = this.customItems[mes].receitas.filter(r => r.nome !== nome);
+            if (this.customItems[mes].receitas.length < antes) {
+                deleted = true;
+            }
         }
-        if (!this.deletedItems[mes]) {
-            this.deletedItems[mes] = { despesas: [], receitas: [] };
+        if (isCustom && this.deletedItems[mes]?.receitas) {
+            this.deletedItems[mes].receitas = this.deletedItems[mes].receitas.filter(n => n !== nome);
         }
-        if (!this.deletedItems[mes].receitas.includes(nome)) {
-            this.deletedItems[mes].receitas.push(nome);
+        if (!deleted && !isCustom) {
+            if (!this.deletedItems[mes]) {
+                this.deletedItems[mes] = { despesas: [], receitas: [] };
+            }
+            if (!this.deletedItems[mes].receitas.includes(nome)) {
+                this.deletedItems[mes].receitas.push(nome);
+            }
         }
 
         this.saveToStorage();
@@ -1083,16 +1084,6 @@ const GestaoFinanceira = {
             Object.assign(this.statusData, serverData.statusData);
         }
 
-        const deleted = this.deletedItems[mes] || { despesas: [], receitas: [] };
-        const despesasDeleted = new Set(deleted.despesas || []);
-        const receitasDeleted = new Set(deleted.receitas || []);
-        if (this.customItems[mes]) {
-            const isImported = (item) => item?.importedAt || item?.importRunId || item?.importSource;
-            this.customItems[mes] = {
-                despesas: (this.customItems[mes].despesas || []).filter(item => isImported(item) || !despesasDeleted.has(item.nome)),
-                receitas: (this.customItems[mes].receitas || []).filter(item => isImported(item) || !receitasDeleted.has(item.nome))
-            };
-        }
     },
 
     // Enviar mudança local para o servidor

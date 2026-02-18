@@ -6138,18 +6138,8 @@
             if (!receitasCustom.length || !deletedReceitas.length) {
                 return receitasCustom;
             }
-            const filtradas = receitasCustom.filter(r => !deletedReceitas.includes(r.nome));
-            if (filtradas.length !== receitasCustom.length) {
-                if (!GestaoFinanceira.customItems[mes]) {
-                    GestaoFinanceira.customItems[mes] = { despesas: [], receitas: [] };
-                }
-                GestaoFinanceira.customItems[mes].receitas = filtradas;
-                GestaoFinanceira.saveToStorage();
-                if (GestaoFinanceira.syncToServer) {
-                    GestaoFinanceira.syncToServer();
-                }
-            }
-            return filtradas;
+            const isImported = (item) => item?.importedAt || item?.importRunId || item?.importSource;
+            return receitasCustom.filter(r => isImported(r) ? !deletedReceitas.includes(r.nome) : true);
         }
 
         function getNomeBaseParcela(nome) {
@@ -7176,6 +7166,7 @@
             const categoria = document.getElementById('receitaCategoria').value.trim();
             const isNovo = document.getElementById('receitaNovo').checked;
             const isRenovacao = document.getElementById('receitaRenovacao').checked;
+            const dataVencimento = document.getElementById('receitaDataVencimento').value;
 
             let valor = 0;
             let contratoInfo = null;
@@ -7241,6 +7232,7 @@
                 renovacao: isRenovacao,
                 status: 'A Receber',
                 isCustom: true,
+                dataVencimento: dataVencimento || '',
                 contratoInfo: contratoInfo // Guardar info do contrato se for Alpha
             };
 
@@ -7508,6 +7500,11 @@
                             <input type="checkbox" id="receitaRenovacao">
                             <span>🔄 Renovação</span>
                         </label>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label class="form-label">Data de Vencimento</label>
+                        <input type="date" class="form-input" id="receitaDataVencimento" placeholder="dd/mm/aaaa">
                     </div>
 
                     <div class="form-group" style="margin-top: 15px;">
