@@ -3612,7 +3612,21 @@
             }
         }
 
+        function hasImportForMonth(mes) {
+            const history = loadImportHistory().filter(run => run.month === mes);
+            if (history.length) return true;
+            const monthData = GestaoFinanceira.customItems?.[mes] || { despesas: [], receitas: [] };
+            const items = [
+                ...(monthData.despesas || []),
+                ...(monthData.receitas || [])
+            ];
+            return items.some(item => item?.importedAt || item?.importRunId || item?.importSource);
+        }
+
         function clearLocalPaidForMonth(mes) {
+            if (hasImportForMonth(mes)) {
+                return { removedStatus: 0, removedCustom: 0, skipped: true };
+            }
             let removedStatus = 0;
             let removedCustom = 0;
             const statusData = GestaoFinanceira.statusData || {};
@@ -3631,7 +3645,8 @@
                 const before = customItems[mes].despesas.length;
                 customItems[mes].despesas = customItems[mes].despesas.filter(item => {
                     const status = item?.status;
-                    return status !== 'Pago' && status !== 'Feito';
+                    if (status !== 'Pago' && status !== 'Feito') return true;
+                    return !!(item?.importedAt || item?.importRunId || item?.importSource);
                 });
                 removedCustom = before - customItems[mes].despesas.length;
             }
@@ -3639,7 +3654,7 @@
             if (typeof GestaoFinanceira.saveToStorage === 'function') {
                 GestaoFinanceira.saveToStorage();
             }
-            return { removedStatus, removedCustom };
+            return { removedStatus, removedCustom, skipped: false };
         }
 
         function updateImportInfo(mes) {
