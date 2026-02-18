@@ -4010,7 +4010,15 @@
                 // Adicionar event listeners (evita problemas com caracteres especiais)
                 const toggleBtn = tr.querySelector('.js-toggle-status');
                 toggleBtn.addEventListener('click', () => {
-                    toggleStatus(item.nome, item.isCustom || false, item.valor, item.categoria, item.tipo || '', item.vencimento || '');
+                    toggleStatus(
+                        item.nome,
+                        item.isCustom || false,
+                        item.valor,
+                        item.categoria,
+                        item.tipo || '',
+                        item.vencimento || '',
+                        item.importSource || ''
+                    );
                 });
 
                 const editBtn = tr.querySelector('.js-edit-btn');
@@ -4645,7 +4653,7 @@
         }
 
         // Toggle status
-        function toggleStatus(nome, isCustom, valor, categoria, tipo, vencimento) {
+        function toggleStatus(nome, isCustom, valor, categoria, tipo, vencimento, importSource = '') {
             const currentStatus = GestaoFinanceira.getStatus(currentMonth, 'despesa', nome);
             const isPago = currentStatus && (currentStatus.status === 'Pago' || currentStatus.status === 'Feito');
 
@@ -4654,7 +4662,7 @@
                 showToast('Despesa marcada como pendente', 'warning');
                 loadMonthData(currentMonth);
             } else {
-                pendingPayment = { nome, isCustom, valor, categoria, tipo, vencimento };
+                pendingPayment = { nome, isCustom, valor, categoria, tipo, vencimento, importSource };
                 document.getElementById('paymentDate').value = formatDateInput(new Date().toISOString().split('T')[0]);
                 document.getElementById('paymentModalTitle').textContent = `Confirmar Pagamento - ${nome}`;
                 document.getElementById('paymentTotalValue').textContent = formatMoney(valor);
@@ -4730,6 +4738,7 @@
                 const valorOriginalTotal = pendingPayment.valorOriginal || totalValor;
 
                 // 1. Deletar o item original
+                markRoyaltiesDeleted(pendingPayment.nome, pendingPayment.importSource || '');
                 GestaoFinanceira.deleteDespesa(currentMonth, pendingPayment.nome, pendingPayment.isCustom);
 
                 // 2. Criar item PAGO com o valor parcial
@@ -4945,11 +4954,7 @@
             if (pendingDelete) {
                 try {
                     console.log('Deletando:', pendingDelete);
-                    if (isRoyaltiesName(pendingDelete.nome) || pendingDelete.importSource === 'royalties-alpha-smart') {
-                        const royaltiesDeleted = new Set(loadRoyaltiesDeleted());
-                        royaltiesDeleted.add(pendingDelete.nome);
-                        saveRoyaltiesDeleted(Array.from(royaltiesDeleted));
-                    }
+                    markRoyaltiesDeleted(pendingDelete.nome, pendingDelete.importSource);
                     GestaoFinanceira.deleteDespesa(currentMonth, pendingDelete.nome, pendingDelete.isCustom);
                     closeModal('deleteModal');
                     showToast('Despesa excluída com sucesso!', 'success');
@@ -5619,7 +5624,9 @@
             }
 
             for (const nome of selectedItems) {
-                GestaoFinanceira.deleteDespesa(currentMonth, nome);
+                const item = allItems.find(existing => existing.nome === nome);
+                markRoyaltiesDeleted(nome, item?.importSource || '');
+                GestaoFinanceira.deleteDespesa(currentMonth, nome, item?.isCustom || false);
             }
 
             // Sincronizar com servidor
@@ -5848,6 +5855,7 @@
                 const valorOriginalTotal = kanbanSelectedItem.valorOriginal || totalValor;
 
                 // 1. Deletar item original
+                markRoyaltiesDeleted(kanbanSelectedItem.nome, kanbanSelectedItem.importSource || '');
                 GestaoFinanceira.deleteDespesa(currentMonth, kanbanSelectedItem.nome, kanbanSelectedItem.isCustom);
 
                 // 2. Criar item PAGO com valor parcial
@@ -6046,6 +6054,13 @@
 
         function isAlphaFeeName(nome) {
             return String(nome || '').startsWith('Taxa de Franquia Alpha');
+        }
+
+        function markRoyaltiesDeleted(nome, importSource) {
+            if (!isRoyaltiesName(nome) && importSource !== 'royalties-alpha-smart') return;
+            const royaltiesDeleted = new Set(loadRoyaltiesDeleted());
+            royaltiesDeleted.add(nome);
+            saveRoyaltiesDeleted(Array.from(royaltiesDeleted));
         }
 
         function loadRoyaltiesDeleted() {

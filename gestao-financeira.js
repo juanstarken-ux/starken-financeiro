@@ -81,6 +81,15 @@ const GestaoFinanceira = {
         if (serverData.customItems && Object.keys(serverData.customItems).length > 0) {
             // Mesclar por mês para preservar dados locais
             const merged = { ...serverData.customItems };
+            const buildItemKey = (item) => {
+                const nome = item?.nome || '';
+                const valor = Number(item?.valor ?? item?.valorOriginal ?? 0);
+                const vencimento = item?.vencimento || item?.dataVencimento || '';
+                const empresa = item?.empresa || '';
+                const tipo = item?.tipo || '';
+                return `${nome}|${valor}|${vencimento}|${empresa}|${tipo}`;
+            };
+            const dedupeItems = (items) => Array.from(new Map(items.map(i => [buildItemKey(i), i])).values());
             Object.keys(this.customItems).forEach(mes => {
                 if (!merged[mes]) {
                     merged[mes] = this.customItems[mes];
@@ -90,9 +99,8 @@ const GestaoFinanceira = {
                         despesas: [...(merged[mes].despesas || []), ...(this.customItems[mes].despesas || [])],
                         receitas: [...(merged[mes].receitas || []), ...(this.customItems[mes].receitas || [])]
                     };
-                    // Remover duplicatas por nome
-                    merged[mes].despesas = Array.from(new Map(merged[mes].despesas.map(d => [d.nome, d])).values());
-                    merged[mes].receitas = Array.from(new Map(merged[mes].receitas.map(r => [r.nome, r])).values());
+                    merged[mes].despesas = dedupeItems(merged[mes].despesas);
+                    merged[mes].receitas = dedupeItems(merged[mes].receitas);
                 }
             });
             this.customItems = merged;
@@ -1003,8 +1011,17 @@ const GestaoFinanceira = {
                 despesas: [...(server.despesas || []), ...(local.despesas || [])],
                 receitas: [...(server.receitas || []), ...(local.receitas || [])]
             };
-            merged.despesas = Array.from(new Map(merged.despesas.map(d => [d.nome, d])).values());
-            merged.receitas = Array.from(new Map(merged.receitas.map(r => [r.nome, r])).values());
+            const buildItemKey = (item) => {
+                const nome = item?.nome || '';
+                const valor = Number(item?.valor ?? item?.valorOriginal ?? 0);
+                const vencimento = item?.vencimento || item?.dataVencimento || '';
+                const empresa = item?.empresa || '';
+                const tipo = item?.tipo || '';
+                return `${nome}|${valor}|${vencimento}|${empresa}|${tipo}`;
+            };
+            const dedupeItems = (items) => Array.from(new Map(items.map(i => [buildItemKey(i), i])).values());
+            merged.despesas = dedupeItems(merged.despesas);
+            merged.receitas = dedupeItems(merged.receitas);
             this.customItems[mes] = merged;
         }
 
