@@ -2650,6 +2650,10 @@
                         <option value="2025-12">Dezembro 2025</option>
                         <option value="2026-01">Janeiro 2026</option>
                         <option value="2026-02">Fevereiro 2026</option>
+                        <option value="2026-03">Março 2026</option>
+                        <option value="2026-04">Abril 2026</option>
+                        <option value="2026-05">Maio 2026</option>
+                        <option value="2026-06">Junho 2026</option>
                     </select>
                 </div>
                 <div class="action-buttons">
@@ -6870,6 +6874,127 @@
         // ==========================================
 
         let contratoClientesMap = new Map();
+        let clientesBaseByName = new Map();
+        let clientesReceitasMesByName = new Map();
+
+        function normalizeClienteNome(nome) {
+            return (nome || '')
+                .toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function buildClientesBaseIndex() {
+            const datalist = document.getElementById('receitaNomeDatalist');
+            if (!datalist) return;
+
+            const todosClientes = JSON.parse(localStorage.getItem('starken_manual_clients') || '[]');
+            const deletedIds = JSON.parse(localStorage.getItem('starken_deleted_cards') || '[]').map(id => String(id));
+            const clientesValidos = todosClientes.filter(c => !deletedIds.includes(String(c.id)));
+            const nomesUnicos = new Map();
+            clientesBaseByName = new Map();
+
+            clientesValidos.forEach(cliente => {
+                const nome = (cliente.nome || '').trim();
+                if (!nome) return;
+                const key = normalizeClienteNome(nome);
+                if (!key) return;
+                const list = clientesBaseByName.get(key) || [];
+                list.push(cliente);
+                clientesBaseByName.set(key, list);
+                if (!nomesUnicos.has(key)) {
+                    nomesUnicos.set(key, nome);
+                }
+            });
+
+            const nomesOrdenados = Array.from(nomesUnicos.values()).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+            datalist.innerHTML = nomesOrdenados.map(nome => `<option value="${escapeAttr(nome)}"></option>`).join('');
+
+            const mes = currentMonth || new Date().toISOString().slice(0, 7);
+            const receitasMes = gerarContasReceberDosClientes(mes);
+            clientesReceitasMesByName = new Map();
+            receitasMes.forEach(receita => {
+                const key = normalizeClienteNome(receita.nome || '');
+                if (key) {
+                    clientesReceitasMesByName.set(key, receita);
+                }
+            });
+        }
+
+        function getClienteBaseMatch(nome, empresaPreferida) {
+            const key = normalizeClienteNome(nome);
+            if (!key) return null;
+            const lista = clientesBaseByName.get(key);
+            if (!lista || lista.length === 0) return null;
+            if (!empresaPreferida) return lista[0];
+            const match = lista.find(c => (c.empresa === 'alpha' ? 'Alpha' : 'Starken') === empresaPreferida);
+            return match || lista[0];
+        }
+
+        function handleReceitaNomeInput() {
+            const nomeInput = document.getElementById('receitaNome');
+            if (!nomeInput) return;
+            const nome = nomeInput.value.trim();
+            if (!nome) return;
+
+            const empresaSelect = document.getElementById('receitaEmpresa');
+            const empresaPreferida = empresaSelect ? empresaSelect.value : '';
+            const cliente = getClienteBaseMatch(nome, empresaPreferida);
+            const receitaMes = clientesReceitasMesByName.get(normalizeClienteNome(nome));
+            if (!cliente && !receitaMes) return;
+
+            if (cliente && empresaSelect) {
+                const empresaValue = cliente.empresa === 'alpha' ? 'Alpha' : 'Starken';
+                empresaSelect.value = empresaValue;
+            }
+
+            const categoriaInput = document.getElementById('receitaCategoria');
+            if (cliente && categoriaInput && !categoriaInput.value) {
+                categoriaInput.value = cliente.categoria || '';
+            }
+
+            const origemSelect = document.getElementById('receitaOrigem');
+            if (cliente && origemSelect && cliente.origem && origemSelect.value === 'Prospecção') {
+                if (Array.from(origemSelect.options).some(opt => opt.value === cliente.origem)) {
+                    origemSelect.value = cliente.origem;
+                }
+            }
+
+            toggleAlphaFields();
+
+            const empresaAtual = empresaSelect ? empresaSelect.value : 'Starken';
+            const valorMes = receitaMes?.valorBruto ?? receitaMes?.valor ?? null;
+
+            if (empresaAtual === 'Alpha') {
+                const tipoValor = (cliente?.tipoValor || '').toLowerCase();
+                if (tipoValor === 'mrr') {
+                    setTipoContrato('mrr');
+                    const mrrInput = document.getElementById('receitaMRR');
+                    if (mrrInput && (!mrrInput.value || Number(mrrInput.value) === 0)) {
+                        mrrInput.value = valorMes ?? cliente?.valor ?? 0;
+                    }
+                } else if (tipoValor === 'tcv' || cliente) {
+                    setTipoContrato('tcv');
+                    const tcvInput = document.getElementById('receitaTCV');
+                    if (tcvInput && (!tcvInput.value || Number(tcvInput.value) === 0)) {
+                        tcvInput.value = valorMes ?? cliente?.tcvTotal ?? cliente?.valor ?? 0;
+                    }
+                    const parcelasSelect = document.getElementById('receitaParcelas');
+                    if (cliente?.parcelas && parcelasSelect && !parcelasSelect.value) {
+                        parcelasSelect.value = String(cliente.parcelas);
+                    }
+                }
+                calcularRepasseAlpha();
+            } else {
+                const valorInput = document.getElementById('receitaValorSimples');
+                if (valorInput && (!valorInput.value || Number(valorInput.value) === 0)) {
+                    valorInput.value = valorMes ?? cliente?.valor ?? 0;
+                }
+            }
+        }
 
         function populateContratoClientesSelect() {
             const select = document.getElementById('receitaContratoSelect');
@@ -6942,6 +7067,7 @@
             document.getElementById('novaReceitaModal').classList.add('active');
             document.getElementById('receitaForm').reset();
             populateContratoClientesSelect();
+            buildClientesBaseIndex();
             const contratoSelect = document.getElementById('receitaContratoSelect');
             if (contratoSelect) {
                 contratoSelect.value = '';
@@ -7229,7 +7355,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nome do Cliente *</label>
-                        <input type="text" class="form-input" id="receitaNome" placeholder="Ex: Restaurante Exemplo" required>
+                        <input type="text" class="form-input" id="receitaNome" placeholder="Ex: Restaurante Exemplo" required list="receitaNomeDatalist" oninput="handleReceitaNomeInput()">
+                        <datalist id="receitaNomeDatalist"></datalist>
                     </div>
 
                     <div class="form-row">

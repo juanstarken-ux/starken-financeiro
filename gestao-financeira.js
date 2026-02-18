@@ -86,8 +86,10 @@ const GestaoFinanceira = {
                 const valor = Number(item?.valor ?? item?.valorOriginal ?? 0);
                 const vencimento = item?.vencimento || item?.dataVencimento || '';
                 const empresa = item?.empresa || '';
+                const tipoDetalhe = item?.tipoDetalhe || '';
                 const tipo = item?.tipo || '';
-                return `${nome}|${valor}|${vencimento}|${empresa}|${tipo}`;
+                const grupo = tipoDetalhe || (tipo === 'despesa' || tipo === 'receita' ? '' : tipo);
+                return `${nome}|${valor}|${vencimento}|${empresa}|${grupo}`;
             };
             const dedupeItems = (items) => Array.from(new Map(items.map(i => [buildItemKey(i), i])).values());
             Object.keys(this.customItems).forEach(mes => {
@@ -1016,8 +1018,10 @@ const GestaoFinanceira = {
                 const valor = Number(item?.valor ?? item?.valorOriginal ?? 0);
                 const vencimento = item?.vencimento || item?.dataVencimento || '';
                 const empresa = item?.empresa || '';
+                const tipoDetalhe = item?.tipoDetalhe || '';
                 const tipo = item?.tipo || '';
-                return `${nome}|${valor}|${vencimento}|${empresa}|${tipo}`;
+                const grupo = tipoDetalhe || (tipo === 'despesa' || tipo === 'receita' ? '' : tipo);
+                return `${nome}|${valor}|${vencimento}|${empresa}|${grupo}`;
             };
             const dedupeItems = (items) => Array.from(new Map(items.map(i => [buildItemKey(i), i])).values());
             merged.despesas = dedupeItems(merged.despesas);
