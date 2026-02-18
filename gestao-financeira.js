@@ -23,6 +23,8 @@ const GestaoFinanceira = {
     // Flag para controlar sincronização
     syncEnabled: true,
     syncInProgress: false,
+    railwayAvailable: true,
+    railwayRetryTimer: null,
 
     // Polling interval (30 segundos)
     pollingInterval: null,
@@ -34,7 +36,7 @@ const GestaoFinanceira = {
     },
 
     isRailwayEnabled() {
-        return !this.isLocalhost() && !!this.RAILWAY_API_URL;
+        return !this.isLocalhost() && !!this.RAILWAY_API_URL && this.railwayAvailable;
     },
 
     // Inicializar sistema
@@ -127,9 +129,10 @@ const GestaoFinanceira = {
                 const despesasDeleted = new Set(deleted.despesas || []);
                 const receitasDeleted = new Set(deleted.receitas || []);
                 const atual = this.customItems[mes] || { despesas: [], receitas: [] };
+                const isImported = (item) => item?.importedAt || item?.importRunId || item?.importSource;
                 this.customItems[mes] = {
-                    despesas: (atual.despesas || []).filter(item => !despesasDeleted.has(item.nome)),
-                    receitas: (atual.receitas || []).filter(item => !receitasDeleted.has(item.nome))
+                    despesas: (atual.despesas || []).filter(item => isImported(item) || !despesasDeleted.has(item.nome)),
+                    receitas: (atual.receitas || []).filter(item => isImported(item) || !receitasDeleted.has(item.nome))
                 };
             });
         }
@@ -1001,10 +1004,20 @@ const GestaoFinanceira = {
                 }));
 
                 console.log(`✅ Dados de ${mes} sincronizados com o servidor`);
+                this.railwayAvailable = true;
                 return true;
             }
         } catch (error) {
             console.warn('⚠️ Erro na sincronização:', error.message);
+            this.railwayAvailable = false;
+            this.stopPolling();
+            if (this.railwayRetryTimer) {
+                clearTimeout(this.railwayRetryTimer);
+            }
+            this.railwayRetryTimer = setTimeout(() => {
+                this.railwayAvailable = true;
+                this.startPolling(mes);
+            }, 60000);
             return false;
         } finally {
             this.syncInProgress = false;
@@ -1074,9 +1087,10 @@ const GestaoFinanceira = {
         const despesasDeleted = new Set(deleted.despesas || []);
         const receitasDeleted = new Set(deleted.receitas || []);
         if (this.customItems[mes]) {
+            const isImported = (item) => item?.importedAt || item?.importRunId || item?.importSource;
             this.customItems[mes] = {
-                despesas: (this.customItems[mes].despesas || []).filter(item => !despesasDeleted.has(item.nome)),
-                receitas: (this.customItems[mes].receitas || []).filter(item => !receitasDeleted.has(item.nome))
+                despesas: (this.customItems[mes].despesas || []).filter(item => isImported(item) || !despesasDeleted.has(item.nome)),
+                receitas: (this.customItems[mes].receitas || []).filter(item => isImported(item) || !receitasDeleted.has(item.nome))
             };
         }
     },
