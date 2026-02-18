@@ -82,12 +82,20 @@ const GestaoFinanceira = {
             // Mesclar por mês para preservar dados locais
             const merged = { ...serverData.customItems };
             const buildItemKey = (item) => {
-                const nome = item?.nome || '';
+                const nome = String(item?.nome || '').trim().toLowerCase();
                 const valor = Number(item?.valor ?? item?.valorOriginal ?? 0);
-                const vencimento = item?.vencimento || item?.dataVencimento || '';
-                const empresa = item?.empresa || '';
-                const tipoDetalhe = item?.tipoDetalhe || '';
-                const tipo = item?.tipo || '';
+                const rawVencimento = item?.vencimento || item?.dataVencimento || '';
+                let vencimento = String(rawVencimento || '').trim();
+                if (vencimento.includes('T')) vencimento = vencimento.split('T')[0];
+                if (vencimento.includes('/')) {
+                    const [d, m, y] = vencimento.split('/');
+                    if (d && m && y) {
+                        vencimento = `${y.padStart(4, '0')}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+                    }
+                }
+                const empresa = String(item?.empresa || '').trim().toLowerCase();
+                const tipoDetalhe = String(item?.tipoDetalhe || '').trim().toLowerCase();
+                const tipo = String(item?.tipo || '').trim().toLowerCase();
                 const grupo = tipoDetalhe || (tipo === 'despesa' || tipo === 'receita' ? '' : tipo);
                 return `${nome}|${valor}|${vencimento}|${empresa}|${grupo}`;
             };
@@ -1014,12 +1022,20 @@ const GestaoFinanceira = {
                 receitas: [...(server.receitas || []), ...(local.receitas || [])]
             };
             const buildItemKey = (item) => {
-                const nome = item?.nome || '';
+                const nome = String(item?.nome || '').trim().toLowerCase();
                 const valor = Number(item?.valor ?? item?.valorOriginal ?? 0);
-                const vencimento = item?.vencimento || item?.dataVencimento || '';
-                const empresa = item?.empresa || '';
-                const tipoDetalhe = item?.tipoDetalhe || '';
-                const tipo = item?.tipo || '';
+                const rawVencimento = item?.vencimento || item?.dataVencimento || '';
+                let vencimento = String(rawVencimento || '').trim();
+                if (vencimento.includes('T')) vencimento = vencimento.split('T')[0];
+                if (vencimento.includes('/')) {
+                    const [d, m, y] = vencimento.split('/');
+                    if (d && m && y) {
+                        vencimento = `${y.padStart(4, '0')}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+                    }
+                }
+                const empresa = String(item?.empresa || '').trim().toLowerCase();
+                const tipoDetalhe = String(item?.tipoDetalhe || '').trim().toLowerCase();
+                const tipo = String(item?.tipo || '').trim().toLowerCase();
                 const grupo = tipoDetalhe || (tipo === 'despesa' || tipo === 'receita' ? '' : tipo);
                 return `${nome}|${valor}|${vencimento}|${empresa}|${grupo}`;
             };
