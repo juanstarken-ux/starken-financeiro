@@ -3337,7 +3337,9 @@
             `;
 
             datePickerEl.querySelectorAll('.date-picker-nav').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
                     const dir = parseInt(btn.dataset.dir, 10);
                     const next = new Date(datePickerState.year, datePickerState.month + dir, 1);
                     datePickerState.year = next.getFullYear();
